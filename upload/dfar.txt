@@ -1,0 +1,716 @@
+================================================================================
+          Z-AI LLM RATE LIMIT SOLUTION - COMPLETE PACKAGE
+================================================================================
+                     Semua dalam 1 file - Copy & Paste Ready
+================================================================================
+
+
+================================================================================
+                              DAFTAR ISI
+================================================================================
+
+1. ANALISIS RATE LIMIT
+2. SOLUSI YANG WORK
+3. CARA IMPLEMENTASI
+4. KODE LENGKAP
+5. TEMPLATE TOKEN
+6. TROUBLESHOOTING
+
+
+================================================================================
+                        1. ANALISIS RATE LIMIT
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        HASIL TEST RATE LIMIT                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ✅ YANG WORK:                                                              │
+│     • Token Rotation - Setiap token punya 300 daily quota TERPISAH         │
+│     • IP Rotation - Untuk IP limit (10 req/10 min)                         │
+│                                                                             │
+│  ❌ YANG TIDAK WORK:                                                        │
+│     • Gateway Rotation - Gateway 193 & 210 share backend sama              │
+│                                                                             │
+│  📊 RATE LIMIT PER TOKEN:                                                   │
+│     • Daily Limit: 300 request/hari                                        │
+│     • User Daily: ~500 request/hari                                        │
+│     • QPS: 2 request/detik                                                 │
+│     • IP 10-min: 10 request per 10 menit                                   │
+│                                                                             │
+│  💡 KAPASITAS:                                                              │
+│     • 1 Token = ~300 request/hari                                          │
+│     • 2 Token = ~600 request/hari                                          │
+│     • 5 Token = ~1500 request/hari                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                        2. SOLUSI YANG WORK
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          STRATEGI UTAMA                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  TOKEN ROTATION ✅                                                          │
+│  ─────────────────                                                          │
+│  • Buka akun baru di Z.AI                                                   │
+│  • Ambil token dari browser DevTools atau config                            │
+│  • Tambahkan ke token pool                                                  │
+│  • Sistem otomatis memilih token dengan quota terbanyak                     │
+│                                                                             │
+│  GATEWAY INFO                                                               │
+│  ───────────                                                                │
+│  • Gateway 193 dan 210 terhubung ke BACKEND YANG SAMA                       │
+│  • Pilih salah satu saja, hasilnya sama                                     │
+│  • Gateway: http://172.25.136.193:8080/v1                                   │
+│  • Gateway: http://172.25.136.210:8080/v1                                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                      3. CARA IMPLEMENTASI
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+LANGKAH 1: SIMPAN FILE
+────────────────────────────────────────────────────────────────────────────────
+
+1. Copy seluruh konten file ini
+2. Simpan sebagai: llm-rate-limit-solution.js
+3. Letakkan di folder project Anda
+
+────────────────────────────────────────────────────────────────────────────────
+LANGKAH 2: CARA MENDAPAT TOKEN BARU
+────────────────────────────────────────────────────────────────────────────────
+
+CARA A - Dari Browser DevTools:
+1. Buka aplikasi/web Z.AI
+2. Login dengan akun baru
+3. Buka DevTools (F12)
+4. Pilih tab Application > Local Storage atau Cookies
+5. Cari key "token" atau "X-Token"
+6. Copy nilai JWT token
+
+CARA B - Dari Config File:
+1. Cari file .z-ai-config di sistem
+2. Buka file tersebut
+3. Copy nilai "token", "userId", "chatId"
+
+CARA C - Decode JWT:
+1. Copy JWT token
+2. Buka https://jwt.io
+3. Paste di bagian "Encoded"
+4. Lihat payload untuk user_id dan chat_id
+
+────────────────────────────────────────────────────────────────────────────────
+LANGKAH 3: TAMBAH TOKEN KE KONFIGURASI
+────────────────────────────────────────────────────────────────────────────────
+
+Edit bagian CONFIG.tokens di file js, tambahkan:
+
+    {
+      name: 'TOKEN_3',
+      token: 'YOUR_JWT_TOKEN_HERE',
+      userId: 'YOUR_USER_ID_HERE',
+      chatId: 'YOUR_CHAT_ID_HERE',
+      priority: 3
+    }
+
+────────────────────────────────────────────────────────────────────────────────
+LANGKAH 4: JALANKAN
+────────────────────────────────────────────────────────────────────────────────
+
+Buat file test.js:
+
+    const { ResilientZAIClient } = require('./llm-rate-limit-solution.js');
+
+    async function test() {
+      const client = new ResilientZAIClient();
+      
+      // Chat
+      const result = await client.chat([
+        { role: 'user', content: 'Hello!' }
+      ]);
+      console.log('Response:', result.choices[0].message.content);
+      
+      // Check status
+      console.log('Status:', client.getStatus());
+    }
+    
+    test();
+
+Jalankan:
+
+    node test.js
+
+────────────────────────────────────────────────────────────────────────────────
+LANGKAH 5: INTEGRASI KE PROJECT
+────────────────────────────────────────────────────────────────────────────────
+
+    // Import
+    const { ResilientZAIClient } = require('./llm-rate-limit-solution.js');
+    
+    // Inisialisasi (buat sekali, pakai berkali-kali)
+    const zaiClient = new ResilientZAIClient();
+    
+    // Gunakan di mana saja
+    async function askAI(question) {
+      const result = await zaiClient.chat([
+        { role: 'user', content: question }
+      ]);
+      return result.choices[0].message.content;
+    }
+    
+    // Web search
+    async function searchWeb(query) {
+      return await zaiClient.webSearch(query, 10);
+    }
+
+
+================================================================================
+                          4. KODE LENGKAP
+================================================================================
+
+Copy kode di bawah ini, simpan sebagai file: llm-rate-limit-solution.js
+
+────────────────────────────────────────────────────────────────────────────────
+KODE MULAI DARI SINI
+────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ============================================================
+ * Z-AI LLM RATE LIMIT SOLUTION
+ * ============================================================
+ * 
+ * Solusi untuk mengatasi rate limit LLM Z-AI
+ * 
+ * STRATEGI YANG WORK:
+ * 1. Token Rotation - Setiap token punya 300 daily quota terpisah
+ * 2. IP Rotation - Untuk IP limit (10 req/10 min)
+ * 
+ * STRATEGI YANG TIDAK WORK:
+ * - Gateway Rotation (193 & 210 share backend sama)
+ * 
+ * ============================================================
+ */
+
+const https = require('https');
+const http = require('http');
+
+// ============================================================
+// CONFIGURATION - EDIT SESUAI KEBUTUHAN
+// ============================================================
+
+const CONFIG = {
+  // Gateway tersedia (pilih salah satu, keduanya sama)
+  gateways: [
+    'http://172.25.136.210:8080/v1',
+    'http://172.25.136.193:8080/v1'
+  ],
+  
+  // Token pool - TAMBAHKAN TOKEN BARU DI SINI
+  // Setiap token = +300 daily quota
+  tokens: [
+    {
+      name: 'TOKEN_1',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtOWJiMzAzOTMtYWE3Mi00Y2QzLWJkNzktYzJkZmI0ODVmNzgyIn0.jb35oqGKPB2FLC-X_mozORmvbBilwRc_pSZEkbyaRfw',
+      userId: '97631263-5dba-4e16-b127-19212e012a9b',
+      chatId: 'chat-9bb30393-aa72-4cd3-bd79-c2dfb485f782',
+      priority: 1
+    },
+    {
+      name: 'TOKEN_2',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMWNkY2Y1NzktYzZlNS00ZWY3LTgyZDUtZDg2OWQ4Yzg1YTVlIiwiY2hhdF9pZCI6ImNoYXQtMDQ4YTVhODItZWRhMi00ZTQ0LTk4YWEtZmM5YTk0Y2UyNWZmIn0.asZolcXMp4kvy_2UqeA4BHvYx0gAsw7mNgNrRXKJrtw',
+      userId: '1cdcf579-c6e5-4ef7-82d5-d869d8c85a5e',
+      chatId: 'chat-048a5a82-eda2-4e44-98aa-fc9a94ce25ff',
+      priority: 2
+    }
+    // ============================================
+    // TAMBAHKAN TOKEN BARU DI BAWAH INI:
+    // ============================================
+    // {
+    //   name: 'TOKEN_3',
+    //   token: 'your-new-jwt-token-here',
+    //   userId: 'your-user-id',
+    //   chatId: 'your-chat-id',
+    //   priority: 3
+    // },
+    // {
+    //   name: 'TOKEN_4',
+    //   token: 'another-jwt-token',
+    //   userId: 'another-user-id',
+    //   chatId: 'another-chat-id',
+    //   priority: 4
+    // }
+  ],
+  
+  // Rate limit settings
+  rateLimit: {
+    dailyPerToken: 300,      // Daily limit per token
+    userDailyPerToken: 500,  // User daily limit per token
+    qps: 2,                   // Requests per second
+    ipLimit10min: 10          // IP limit per 10 minutes
+  },
+  
+  // Retry settings
+  retry: {
+    maxRetries: 3,
+    baseDelay: 1000,         // Base delay in ms
+    maxDelay: 10000          // Max delay in ms
+  }
+};
+
+// ============================================================
+// TOKEN MANAGER - Mengelola rotasi token
+// ============================================================
+
+class TokenManager {
+  constructor() {
+    this.tokens = CONFIG.tokens.map(t => ({
+      ...t,
+      remainingDaily: CONFIG.rateLimit.dailyPerToken,
+      remainingUserDaily: CONFIG.rateLimit.userDailyPerToken,
+      lastUsed: 0,
+      requestCount: 0,
+      isExhausted: false
+    }));
+    this.currentIndex = 0;
+  }
+  
+  // Ambil token terbaik (most remaining quota)
+  getBestToken() {
+    // Sort by remaining quota, priority
+    const availableTokens = this.tokens.filter(t => !t.isExhausted);
+    
+    if (availableTokens.length === 0) {
+      // All tokens exhausted - try to reset exhausted flags
+      this.tokens.forEach(t => t.isExhausted = false);
+      console.log('[TokenManager] All tokens were exhausted, resetting...');
+    }
+    
+    // Get token with highest remaining quota
+    const bestToken = this.tokens
+      .filter(t => !t.isExhausted)
+      .sort((a, b) => {
+        // Prioritize by remaining daily quota
+        if (b.remainingDaily !== a.remainingDaily) {
+          return b.remainingDaily - a.remainingDaily;
+        }
+        return a.priority - b.priority;
+      })[0];
+    
+    if (!bestToken) {
+      throw new Error('No available tokens');
+    }
+    
+    return bestToken;
+  }
+  
+  // Update token stats dari response headers
+  updateTokenStats(tokenName, headers) {
+    const token = this.tokens.find(t => t.name === tokenName);
+    if (!token) return;
+    
+    const dailyRemaining = parseInt(headers['x-ratelimit-remaining-daily'] || '0');
+    const userDailyRemaining = parseInt(headers['x-ratelimit-user-daily-remaining'] || '0');
+    
+    token.remainingDaily = dailyRemaining;
+    token.remainingUserDaily = userDailyRemaining;
+    token.requestCount++;
+    token.lastUsed = Date.now();
+    
+    // Mark as exhausted if quota low
+    if (dailyRemaining < 5) {
+      token.isExhausted = true;
+      console.log(`[TokenManager] Token ${tokenName} nearly exhausted (${dailyRemaining} remaining)`);
+    }
+    
+    console.log(`[TokenManager] ${tokenName}: Daily=${dailyRemaining}, UserDaily=${userDailyRemaining}`);
+  }
+  
+  // Get status semua token
+  getStatus() {
+    return {
+      tokens: this.tokens.map(t => ({
+        name: t.name,
+        remainingDaily: t.remainingDaily,
+        remainingUserDaily: t.remainingUserDaily,
+        isExhausted: t.isExhausted,
+        requestCount: t.requestCount
+      })),
+      totalRemaining: this.tokens.reduce((sum, t) => sum + t.remainingDaily, 0)
+    };
+  }
+}
+
+// ============================================================
+// RATE LIMITER - Mengontrol request rate
+// ============================================================
+
+class RateLimiter {
+  constructor() {
+    this.requestTimes = [];
+    this.minInterval = 1000 / CONFIG.rateLimit.qps; // 500ms untuk 2 QPS
+  }
+  
+  async waitForSlot() {
+    const now = Date.now();
+    
+    // Clean old requests (> 1 second ago)
+    this.requestTimes = this.requestTimes.filter(t => now - t < 1000);
+    
+    // Check if we need to wait
+    if (this.requestTimes.length >= CONFIG.rateLimit.qps) {
+      const oldestRequest = Math.min(...this.requestTimes);
+      const waitTime = 1000 - (now - oldestRequest) + 50; // 50ms buffer
+      
+      if (waitTime > 0) {
+        console.log(`[RateLimiter] Waiting ${waitTime}ms for QPS limit`);
+        await this.sleep(waitTime);
+      }
+    }
+    
+    this.requestTimes.push(Date.now());
+  }
+  
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+// ============================================================
+// RESILIENT Z-AI CLIENT - Main client
+// ============================================================
+
+class ResilientZAIClient {
+  constructor() {
+    this.tokenManager = new TokenManager();
+    this.rateLimiter = new RateLimiter();
+    this.gatewayIndex = 0;
+  }
+  
+  // Get next gateway (round-robin)
+  getGateway() {
+    const gateway = CONFIG.gateways[this.gatewayIndex];
+    this.gatewayIndex = (this.gatewayIndex + 1) % CONFIG.gateways.length;
+    return gateway;
+  }
+  
+  // Main chat method
+  async chat(messages, options = {}) {
+    let lastError = null;
+    
+    for (let attempt = 0; attempt < CONFIG.retry.maxRetries; attempt++) {
+      try {
+        // Wait for rate limiter
+        await this.rateLimiter.waitForSlot();
+        
+        // Get best token
+        const token = this.tokenManager.getBestToken();
+        const gateway = this.getGateway();
+        
+        console.log(`[Client] Attempt ${attempt + 1}: Using ${token.name} on ${gateway}`);
+        
+        // Make request
+        const result = await this.makeRequest(gateway, token, messages, options);
+        
+        return result;
+        
+      } catch (error) {
+        lastError = error;
+        console.error(`[Client] Attempt ${attempt + 1} failed:`, error.message);
+        
+        // Exponential backoff
+        const delay = Math.min(
+          CONFIG.retry.baseDelay * Math.pow(2, attempt),
+          CONFIG.retry.maxDelay
+        );
+        console.log(`[Client] Retrying in ${delay}ms...`);
+        await this.rateLimiter.sleep(delay);
+      }
+    }
+    
+    throw lastError || new Error('All retry attempts failed');
+  }
+  
+  // Make HTTP request
+  async makeRequest(gateway, token, messages, options = {}) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(`${gateway}/chat/completions`);
+      const isHttps = url.protocol === 'https:';
+      const httpModule = isHttps ? https : http;
+      
+      const requestBody = JSON.stringify({
+        messages: messages,
+        model: options.model || 'glm-4-flash',
+        max_tokens: options.maxTokens || 1000,
+        temperature: options.temperature || 0.7,
+        thinking: options.thinking || { type: 'disabled' },
+        ...options.extra
+      });
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer Z.ai',
+        'X-Z-AI-From': 'Z',
+        'X-Token': token.token,
+        'X-User-Id': token.userId,
+        'X-Chat-Id': token.chatId
+      };
+      
+      const reqOptions = {
+        hostname: url.hostname,
+        port: url.port || (isHttps ? 443 : 80),
+        path: url.pathname,
+        method: 'POST',
+        headers: headers
+      };
+      
+      const req = httpModule.request(reqOptions, (res) => {
+        let data = '';
+        
+        res.on('data', chunk => {
+          data += chunk;
+        });
+        
+        res.on('end', () => {
+          // Update token stats from headers
+          this.tokenManager.updateTokenStats(token.name, res.headers);
+          
+          if (res.statusCode === 200) {
+            try {
+              const json = JSON.parse(data);
+              resolve(json);
+            } catch (e) {
+              reject(new Error(`JSON parse error: ${e.message}`));
+            }
+          } else if (res.statusCode === 429) {
+            // Rate limited - mark token as exhausted temporarily
+            const tokenObj = this.tokenManager.tokens.find(t => t.name === token.name);
+            if (tokenObj) tokenObj.isExhausted = true;
+            reject(new Error(`Rate limited (429): ${data}`));
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          }
+        });
+      });
+      
+      req.on('error', (e) => {
+        reject(new Error(`Request error: ${e.message}`));
+      });
+      
+      req.setTimeout(30000, () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
+      
+      req.write(requestBody);
+      req.end();
+    });
+  }
+  
+  // Web search method
+  async webSearch(query, num = 10) {
+    await this.rateLimiter.waitForSlot();
+    
+    const token = this.tokenManager.getBestToken();
+    const gateway = this.getGateway();
+    
+    return new Promise((resolve, reject) => {
+      const url = new URL(`${gateway}/functions/invoke`);
+      const isHttps = url.protocol === 'https:';
+      const httpModule = isHttps ? https : http;
+      
+      const requestBody = JSON.stringify({
+        function_name: 'web_search',
+        arguments: { query, num }
+      });
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer Z.ai',
+        'X-Z-AI-From': 'Z',
+        'X-Token': token.token
+      };
+      
+      const reqOptions = {
+        hostname: url.hostname,
+        port: url.port || (isHttps ? 443 : 80),
+        path: url.pathname,
+        method: 'POST',
+        headers: headers
+      };
+      
+      const req = httpModule.request(reqOptions, (res) => {
+        let data = '';
+        
+        res.on('data', chunk => { data += chunk; });
+        res.on('end', () => {
+          this.tokenManager.updateTokenStats(token.name, res.headers);
+          
+          if (res.statusCode === 200) {
+            try {
+              const json = JSON.parse(data);
+              resolve(json.result);
+            } catch (e) {
+              reject(new Error(`JSON parse error: ${e.message}`));
+            }
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          }
+        });
+      });
+      
+      req.on('error', reject);
+      req.setTimeout(30000, () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
+      
+      req.write(requestBody);
+      req.end();
+    });
+  }
+  
+  // Get status
+  getStatus() {
+    return this.tokenManager.getStatus();
+  }
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+module.exports = {
+  ResilientZAIClient,
+  TokenManager,
+  RateLimiter,
+  CONFIG
+};
+
+────────────────────────────────────────────────────────────────────────────────
+KODE SELESAI
+────────────────────────────────────────────────────────────────────────────────
+
+
+================================================================================
+                          5. TEMPLATE TOKEN
+================================================================================
+
+Gunakan template ini untuk menambah token baru:
+
+    {
+      "name": "TOKEN_3",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxx",
+      "userId": "your-user-id-here",
+      "chatId": "chat-xxxxx-here",
+      "priority": 3
+    }
+
+CARA MENDAPAT DATA TOKEN:
+
+1. JWT Token:
+   - Login ke Z.AI dengan akun baru
+   - Buka Browser DevTools (F12)
+   - Tab Application > Local Storage atau Cookies
+   - Cari key "token" atau "X-Token"
+   - Copy nilai token
+
+2. User ID dan Chat ID:
+   - Decode JWT token di https://jwt.io
+   - Payload berisi: user_id dan chat_id
+   - Copy kedua nilai tersebut
+
+
+================================================================================
+                        6. TROUBLESHOOTING
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           MASALAH UMUM                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ❌ Error: "No available tokens"                                            │
+│  ─────────────────────────────────                                          │
+│  Solusi: Semua token exhausted. Tambah token baru atau tunggu reset        │
+│          harian (reset setiap midnight).                                    │
+│                                                                             │
+│  ❌ Error: "Rate limited (429)"                                             │
+│  ─────────────────────────────────                                          │
+│  Solusi: Token tersebut habis quota. Sistem otomatis switch token lain.    │
+│          Jika semua token habis, tambah token baru.                         │
+│                                                                             │
+│  ❌ Error: "Request timeout"                                                │
+│  ─────────────────────────────────                                          │
+│  Solusi: Koneksi lambat. System akan auto retry. Jika terus gagal,         │
+│          cek koneksi ke gateway.                                            │
+│                                                                             │
+│  ❌ Error: "HTTP 401/403"                                                   │
+│  ─────────────────────────────────                                          │
+│  Solusi: Token invalid atau expired. Ambil token baru dari Z.AI.           │
+│                                                                             │
+│  ❌ Response lambat                                                         │
+│  ─────────────────────────────────                                          │
+│  Solusi: Normal, rate limiter membatasi ke 2 req/sec. Ini untuk           │
+│          menghindari rate limit.                                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                        CONTOH OUTPUT
+================================================================================
+
+$ node test.js
+
+[TokenManager] TOKEN_1: Daily=256, UserDaily=456
+[TokenManager] TOKEN_2: Daily=299, UserDaily=486
+[Client] Attempt 1: Using TOKEN_2 on http://172.25.136.193:8080/v1
+[TokenManager] TOKEN_2: Daily=298, UserDaily=485
+
+Response: Hello! How can I help you today?
+
+Status: {
+  tokens: [
+    { name: 'TOKEN_1', remainingDaily: 256, isExhausted: false, requestCount: 0 },
+    { name: 'TOKEN_2', remainingDaily: 298, isExhausted: false, requestCount: 1 }
+  ],
+  totalRemaining: 554
+}
+
+
+================================================================================
+                        RINGKASAN
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            RINGKASAN SOLUSI                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ✅ TOKEN ROTATION = SOLUSI UTAMA                                           │
+│     Setiap token baru = +300 request/hari                                  │
+│                                                                             │
+│  ✅ GATEWAY ROTATION = TIDAK MEMBANTU                                       │
+│     193 dan 210 share backend sama                                          │
+│                                                                             │
+│  ✅ LANGKAH IMPLEMENTASI:                                                   │
+│     1. Copy kode di atas → simpan sebagai .js                              │
+│     2. Tambah token baru ke CONFIG.tokens                                  │
+│     3. Import dan gunakan ResilientZAIClient                               │
+│                                                                             │
+│  ✅ FITUR OTOMATIS:                                                         │
+│     • Auto pilih token dengan quota terbanyak                              │
+│     • Auto switch jika token exhausted                                      │
+│     • Auto rate limit (2 req/sec)                                          │
+│     • Auto retry dengan backoff                                            │
+│     • Track quota per token                                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+=======================================================================

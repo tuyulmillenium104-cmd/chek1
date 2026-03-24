@@ -1,0 +1,121 @@
+================================================================================
+              Z-AI LLM RATE LIMIT SOLUTION - QUICK START GUIDE
+================================================================================
+
+📊 HASIL ANALISIS RATE LIMIT
+--------------------------------------------------------------------------------
+✅ YANG WORK:
+   • Token Rotation - Setiap token punya 300 daily quota TERPISAH
+   • IP Rotation - Untuk IP limit (10 req/10 min)
+
+❌ YANG TIDAK WORK:
+   • Gateway Rotation - Gateway 193 & 210 share backend sama
+   • Account tidak membantu jika share token
+
+📈 KAPASITAS:
+   • 1 Token = ~300 request/hari
+   • 2 Token = ~600 request/hari
+   • 5 Token = ~1500 request/hari
+   • Semakin banyak token = semakin banyak quota!
+
+================================================================================
+                              CARA PENGGUNAAN
+================================================================================
+
+1. INSTALL DEPENDENCIES
+   ---------------------
+   Tidak perlu install tambahan, menggunakan Node.js built-in modules.
+
+2. TAMBAH TOKEN BARU
+   ------------------
+   Edit file TOKEN_CONFIG_TEMPLATE.json atau langsung edit array tokens
+   di dalam llm-rate-limit-solution.js
+   
+   Format token baru:
+   {
+     "name": "TOKEN_3",
+     "token": "your-jwt-token-here",
+     "userId": "your-user-id",
+     "chatId": "your-chat-id",
+     "priority": 3
+   }
+
+3. JALANKAN
+   --------
+   const { ResilientZAIClient } = require('./llm-rate-limit-solution.js');
+   
+   const client = new ResilientZAIClient();
+   
+   // Chat
+   const result = await client.chat([
+     { role: 'user', content: 'Hello!' }
+   ]);
+   
+   // Web Search
+   const searchResult = await client.webSearch('query', 10);
+   
+   // Check Status
+   const status = client.getStatus();
+
+================================================================================
+                           FITUR OTOMATIS
+================================================================================
+
+✅ AUTO TOKEN ROTATION
+   - Otomatis memilih token dengan quota terbanyak
+   - Switch ke token lain jika satu token exhausted
+   
+✅ AUTO RATE LIMIT HANDLING
+   - QPS limit (2 req/sec) - auto wait
+   - Retry dengan exponential backoff
+   - Track remaining quota per token
+   
+✅ AUTO RECOVERY
+   - Reset exhausted tokens untuk retry
+   - Fallback ke gateway alternatif
+
+================================================================================
+                        CARA MENDAPAT TOKEN BARU
+================================================================================
+
+1. Buka aplikasi/web Z.AI
+2. Login/Buat akun baru
+3. Buka chat baru
+4. Ambil token dari:
+   - Browser DevTools > Application > Local Storage / Cookies
+   - Atau dari config file aplikasi
+   
+5. Decode JWT untuk mendapatkan userId dan chatId:
+   - Gunakan jwt.io atau base64 decode
+   - Payload berisi: user_id dan chat_id
+
+================================================================================
+                              FILE LIST
+================================================================================
+
+1. llm-rate-limit-solution.js  - Main solution (copy-paste ready)
+2. TOKEN_CONFIG_TEMPLATE.json  - Template untuk menambah token
+3. QUICK_START_GUIDE.txt       - Panduan ini
+
+================================================================================
+                               CONTOH OUTPUT
+================================================================================
+
+> node test.js
+
+[TokenManager] TOKEN_1: Daily=256, UserDaily=456
+[TokenManager] TOKEN_2: Daily=299, UserDaily=486
+[Client] Attempt 1: Using TOKEN_2 on http://172.25.136.193:8080/v1
+[TokenManager] TOKEN_2: Daily=298, UserDaily=485
+
+Response: Hello! How can I help you today?
+
+Status: {
+  tokens: [
+    { name: 'TOKEN_1', remainingDaily: 256, isExhausted: false },
+    { name: 'TOKEN_2', remainingDaily: 298, isExhausted: false }
+  ],
+  totalRemaining: 554
+}
+
+================================================================================

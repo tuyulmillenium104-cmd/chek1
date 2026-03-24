@@ -1,0 +1,1383 @@
+# ═══════════════════════════════════════════════════════════════
+# SOLUSI LENGKAP RATE LIMIT 429 - Z-AI SDK
+# ═══════════════════════════════════════════════════════════════
+
+## 📊 Masalah
+
+```
+HTTP 429 - Rate Limited
+- Web Search: Rate limited
+- LLM Chat: Rate limited  
+- Vision: Rate limited
+- Semua API calls terkena limit global dari server
+```
+
+---
+
+## 📁 File 1: resilient-zai-client.js
+
+**Client utama dengan semua fitur anti-rate-limit**
+
+```javascript
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * RESILIENT Z-AI CLIENT - Solusi Komprehensif Rate Limit 429
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Fitur:
+ * 1. Automatic Retry dengan Exponential Backoff
+ * 2. Request Queue dengan Prioritas
+ * 3. Multi-Account Rotation
+ * 4. Response Caching
+ * 5. Circuit Breaker Pattern
+ * 6. Graceful Degradation
+ * 7. Rate Limit Tracking
+ */
+
+import { execSync } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
+
+const CONFIG = {
+  baseUrl: 'http://172.25.136.210:8080/v1',
+  apiKey: 'Z.ai',
+  
+  // Retry settings
+  maxRetries: 5,
+  baseDelay: 1000,        // 1 detik
+  maxDelay: 60000,        // 1 menit maksimal wait
+  retryMultiplier: 2,     // Exponential backoff
+  
+  // Queue settings
+  maxConcurrent: 1,       // 1 request pada satu waktu
+  requestDelay: 600,      // Delay antar request (ms)
+  
+  // Cache settings
+  cacheEnabled: true,
+  cacheTTL: 3600000,      // 1 jam
+  
+  // Circuit breaker
+  circuitBreakerThreshold: 5,   // 5 failure = open circuit
+  circuitBreakerResetTime: 300000,  // 5 menit
+};
+
+// Multi-account pool - tambahkan semua akun yang tersedia
+const ACCOUNT_POOL = [
+  {
+    token: 'YOUR_TOKEN_1',
+    userId: 'YOUR_USER_ID_1',
+    chatId: 'YOUR_CHAT_ID_1',
+    name: 'Account-1',
+    priority: 1,
+    disabled: false,
+    failureCount: 0
+  },
+  // Tambahkan lebih banyak akun:
+  // {
+  //   token: 'YOUR_TOKEN_2',
+  //   userId: 'YOUR_USER_ID_2',
+  //   chatId: 'YOUR_CHAT_ID_2',
+  //   name: 'Account-2',
+  //   priority: 2,
+  //   disabled: false,
+  //   failureCount: 0
+  // }
+];
+
+// ═══════════════════════════════════════════════════════════════
+// CACHE MANAGER
+// ═══════════════════════════════════════════════════════════════
+
+class CacheManager {
+  constructor(cacheDir = '/tmp/zai-cache') {
+    this.cacheDir = cacheDir;
+    this.memoryCache = new Map();
+  }
+
+  async init() {
+    try {
+      await fs.mkdir(this.cacheDir, { recursive: true });
+    } catch {}
+  }
+
+  _hashKey(key) {
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      const char = key.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  async get(key) {
+    const hash = this._hashKey(JSON.stringify(key));
+    
+    // Check memory cache first
+    const memCached = this.memoryCache.get(hash);
+    if (memCached && Date.now() < memCached.expiry) {
+      return { ...memCached.data, _cached: 'memory' };
+    }
+
+    // Check file cache
+    try {
+      const filePath = path.join(this.cacheDir, `${hash}.json`);
+      const data = await fs.readFile(filePath, 'utf-8');
+      const cached = JSON.parse(data);
+      
+      if (Date.now() < cached.expiry) {
+        this.memoryCache.set(hash, cached);
+        return { ...cached.data, _cached: 'file' };
+      }
+      
+      // Expired, remove
+      await fs.unlink(filePath).catch(() => {});
+    } catch {}
+
+    return null;
+  }
+
+  async set(key, data, ttl = CONFIG.cacheTTL) {
+    const hash = this._hashKey(JSON.stringify(key));
+    const cached = {
+      data,
+      expiry: Date.now() + ttl,
+      created: new Date().toISOString()
+    };
+
+    // Save to memory
+    this.memoryCache.set(hash, cached);
+
+    // Save to file
+    try {
+      const filePath = path.join(this.cacheDir, `${hash}.json`);
+      await fs.writeFile(filePath, JSON.stringify(cached));
+    } catch {}
+  }
+
+  async clear() {
+    this.memoryCache.clear();
+    try {
+      const files = await fs.readdir(this.cacheDir);
+      for (const file of files) {
+        await fs.unlink(path.join(this.cacheDir, file));
+      }
+    } catch {}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CIRCUIT BREAKER
+// ═══════════════════════════════════════════════════════════════
+
+class CircuitBreaker {
+  constructor() {
+    this.failures = new Map();  // account -> failure count
+    this.openedAt = new Map();  // account -> timestamp
+  }
+
+  recordFailure(accountName) {
+    const count = (this.failures.get(accountName) || 0) + 1;
+    this.failures.set(accountName, count);
+    
+    if (count >= CONFIG.circuitBreakerThreshold) {
+      this.openedAt.set(accountName, Date.now());
+      console.log(`🔴 Circuit OPEN for ${accountName} (${count} failures)`);
+    }
+    
+    return count;
+  }
+
+  recordSuccess(accountName) {
+    this.failures.set(accountName, 0);
+    this.openedAt.delete(accountName);
+  }
+
+  isAvailable(accountName) {
+    const openedAt = this.openedAt.get(accountName);
+    if (!openedAt) return true;
+    
+    // Check if reset time passed
+    if (Date.now() - openedAt > CONFIG.circuitBreakerResetTime) {
+      this.failures.set(accountName, 0);
+      this.openedAt.delete(accountName);
+      console.log(`🟢 Circuit RESET for ${accountName}`);
+      return true;
+    }
+    
+    return false;
+  }
+
+  getAvailableAccounts() {
+    return ACCOUNT_POOL.filter(acc => 
+      !acc.disabled && this.isAvailable(acc.name)
+    ).sort((a, b) => {
+      // Sort by priority, then by failure count
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return (this.failures.get(a.name) || 0) - (this.failures.get(b.name) || 0);
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REQUEST QUEUE
+// ═══════════════════════════════════════════════════════════════
+
+class RequestQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+    this.lastRequestTime = 0;
+    this.requestCount = 0;
+  }
+
+  async enqueue(requestFn, priority = 0) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ requestFn, resolve, reject, priority, addedAt: Date.now() });
+      this.queue.sort((a, b) => b.priority - a.priority);
+      this.process();
+    });
+  }
+
+  async process() {
+    if (this.processing || this.queue.length === 0) return;
+    this.processing = true;
+
+    while (this.queue.length > 0) {
+      const item = this.queue.shift();
+      
+      // Enforce minimum delay between requests
+      const elapsed = Date.now() - this.lastRequestTime;
+      if (elapsed < CONFIG.requestDelay) {
+        await this.sleep(CONFIG.requestDelay - elapsed);
+      }
+
+      try {
+        this.lastRequestTime = Date.now();
+        const result = await item.requestFn();
+        item.resolve(result);
+        this.requestCount++;
+      } catch (error) {
+        item.reject(error);
+      }
+    }
+
+    this.processing = false;
+  }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  getStats() {
+    return {
+      queueLength: this.queue.length,
+      processing: this.processing,
+      totalProcessed: this.requestCount
+    };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESILIENT Z-AI CLIENT (MAIN CLASS)
+// ═══════════════════════════════════════════════════════════════
+
+class ResilientZAIClient {
+  constructor(config = {}) {
+    this.config = { ...CONFIG, ...config };
+    this.accounts = [...ACCOUNT_POOL];
+    this.currentAccountIndex = 0;
+    this.cache = new CacheManager();
+    this.circuitBreaker = new CircuitBreaker();
+    this.queue = new RequestQueue();
+    this.stats = {
+      totalRequests: 0,
+      successfulRequests: 0,
+      failedRequests: 0,
+      cachedResponses: 0,
+      retries: 0
+    };
+  }
+
+  async init() {
+    await this.cache.init();
+    console.log('✅ Resilient Z-AI Client initialized');
+    console.log(`   Accounts: ${this.accounts.length}`);
+    console.log(`   Cache: ${this.config.cacheEnabled ? 'Enabled' : 'Disabled'}`);
+    return this;
+  }
+
+  // Add account dynamically
+  addAccount(token, userId, chatId, name, priority = 99) {
+    this.accounts.push({
+      token, userId, chatId,
+      name: name || `Account-${this.accounts.length + 1}`,
+      priority,
+      disabled: false,
+      failureCount: 0
+    });
+    console.log(`✅ Added account: ${name}`);
+  }
+
+  // Get next available account
+  getNextAccount() {
+    const available = this.circuitBreaker.getAvailableAccounts();
+    if (available.length === 0) {
+      // All accounts are rate limited, wait and retry
+      console.log('⚠️ All accounts rate limited, waiting...');
+      return null;
+    }
+    
+    // Round robin with priority
+    const account = available[this.currentAccountIndex % available.length];
+    this.currentAccountIndex++;
+    return account;
+  }
+
+  // Calculate backoff delay
+  getBackoffDelay(attempt) {
+    const delay = Math.min(
+      this.config.baseDelay * Math.pow(this.config.retryMultiplier, attempt),
+      this.config.maxDelay
+    );
+    // Add jitter (±25%)
+    const jitter = delay * 0.25 * (Math.random() * 2 - 1);
+    return Math.floor(delay + jitter);
+  }
+
+  // Check if error is rate limit
+  isRateLimitError(error) {
+    const msg = error.message || '';
+    return msg.includes('429') || 
+           msg.includes('rate') || 
+           msg.includes('limit') ||
+           msg.includes('too many');
+  }
+
+  // Make request with full resilience
+  async request(endpoint, body, options = {}) {
+    const cacheKey = { endpoint, body };
+    
+    // Check cache first
+    if (this.config.cacheEnabled && options.cache !== false) {
+      const cached = await this.cache.get(cacheKey);
+      if (cached) {
+        this.stats.cachedResponses++;
+        console.log(`📦 Cache HIT for ${endpoint}`);
+        return cached;
+      }
+    }
+
+    return this.queue.enqueue(async () => {
+      let lastError;
+      
+      for (let attempt = 0; attempt < this.config.maxRetries; attempt++) {
+        const account = this.getNextAccount();
+        
+        if (!account) {
+          // All accounts rate limited, wait for circuit breaker reset
+          const waitTime = this.config.circuitBreakerResetTime;
+          console.log(`🔴 All accounts rate limited. Waiting ${waitTime/1000}s...`);
+          await this.sleep(waitTime);
+          continue;
+        }
+
+        try {
+          const result = await this._makeRequest(endpoint, body, account, options);
+          
+          // Success - reset failure count
+          this.circuitBreaker.recordSuccess(account.name);
+          this.stats.successfulRequests++;
+          
+          // Cache the result
+          if (this.config.cacheEnabled && options.cache !== false) {
+            await this.cache.set(cacheKey, result);
+          }
+          
+          return result;
+          
+        } catch (error) {
+          lastError = error;
+          this.stats.retries++;
+          
+          if (this.isRateLimitError(error)) {
+            // Rate limit - record failure and try next account
+            const failures = this.circuitBreaker.recordFailure(account.name);
+            console.log(`⚠️ Rate limited on ${account.name} (attempt ${attempt + 1}, failures: ${failures})`);
+            
+            if (attempt < this.config.maxRetries - 1) {
+              const delay = this.getBackoffDelay(attempt);
+              console.log(`   Retrying in ${delay}ms...`);
+              await this.sleep(delay);
+            }
+          } else {
+            // Other error - might not be rate limit
+            console.log(`❌ Error: ${error.message}`);
+            throw error;
+          }
+        }
+      }
+      
+      this.stats.failedRequests++;
+      throw lastError || new Error('Max retries exceeded');
+    }, options.priority);
+  }
+
+  // Internal request method
+  async _makeRequest(endpoint, body, account, options) {
+    const url = `${this.config.baseUrl}${endpoint}`;
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.config.apiKey}`,
+      'X-Z-AI-From': 'Z',
+      'X-Token': account.token,
+      'X-User-Id': account.userId
+    };
+
+    if (account.chatId) {
+      headers['X-Chat-Id'] = account.chatId;
+    }
+
+    const bodyStr = JSON.stringify(body);
+    const timeout = options.timeout || 60;
+
+    // Build curl command
+    let curlCmd = `curl -s -w "\\n%{http_code}" --max-time ${timeout} -X POST`;
+    for (const [key, value] of Object.entries(headers)) {
+      curlCmd += ` -H "${key}: ${value}"`;
+    }
+    curlCmd += ` -d '${bodyStr.replace(/'/g, "'\\''")}' "${url}"`;
+
+    const response = execSync(curlCmd, {
+      encoding: 'utf-8',
+      timeout: timeout * 1000 + 10000
+    });
+
+    // Parse response
+    const lines = response.trim().split('\n');
+    const httpCode = parseInt(lines[lines.length - 1]);
+    const responseBody = lines.slice(0, -1).join('\n');
+
+    if (httpCode === 429) {
+      throw new Error('429 Rate Limited');
+    }
+
+    if (httpCode >= 400) {
+      throw new Error(`HTTP ${httpCode}: ${responseBody.substring(0, 200)}`);
+    }
+
+    return JSON.parse(responseBody);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // API METHODS
+  // ═══════════════════════════════════════════════════════════
+
+  async chat(messages, options = {}) {
+    this.stats.totalRequests++;
+    
+    const body = {
+      messages,
+      model: options.model || 'glm-4-flash',
+      thinking: { type: 'disabled' },
+      ...options
+    };
+
+    console.log(`💬 Chat request: ${messages[messages.length - 1]?.content?.substring(0, 50)}...`);
+    
+    return this.request('/chat/completions', body, options);
+  }
+
+  async vision(imageUrl, prompt, options = {}) {
+    this.stats.totalRequests++;
+    
+    const body = {
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: imageUrl } }
+        ]
+      }],
+      model: options.model || 'glm-4.6v',
+      thinking: { type: 'disabled' }
+    };
+
+    console.log(`👁️ Vision request: ${prompt.substring(0, 50)}...`);
+    
+    return this.request('/chat/completions/vision', body, options);
+  }
+
+  async webSearch(query, options = {}) {
+    this.stats.totalRequests++;
+    
+    // Web search via function invoke
+    const body = {
+      function_name: 'web_search',
+      arguments: {
+        query: query,
+        num: options.num || 10
+      }
+    };
+
+    console.log(`🔍 Web search: ${query}`);
+    
+    return this.request('/functions/invoke', body, options);
+  }
+
+  async generateImage(prompt, options = {}) {
+    this.stats.totalRequests++;
+    
+    const body = {
+      prompt,
+      size: options.size || '1024x1024',
+      ...options
+    };
+
+    console.log(`🖼️ Image generation: ${prompt.substring(0, 50)}...`);
+    
+    return this.request('/images/generations', body, options);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // UTILITY METHODS
+  // ═══════════════════════════════════════════════════════════
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  getStats() {
+    return {
+      ...this.stats,
+      queue: this.queue.getStats(),
+      accounts: this.accounts.map(a => ({
+        name: a.name,
+        disabled: a.disabled,
+        failures: this.circuitBreaker.failures.get(a.name) || 0,
+        circuitOpen: !this.circuitBreaker.isAvailable(a.name)
+      }))
+    };
+  }
+
+  resetCircuits() {
+    this.circuitBreaker.failures.clear();
+    this.circuitBreaker.openedAt.clear();
+    console.log('✅ All circuit breakers reset');
+  }
+
+  async clearCache() {
+    await this.cache.clear();
+    console.log('✅ Cache cleared');
+  }
+
+  // Demo
+  async demo() {
+    console.log('╔═══════════════════════════════════════════════════════════╗');
+    console.log('║        RESILIENT Z-AI CLIENT DEMO                         ║');
+    console.log('╚═══════════════════════════════════════════════════════════╝\n');
+
+    // Test chat
+    console.log('--- Test 1: Chat ---');
+    try {
+      const chat = await this.chat([
+        { role: 'user', content: 'Say hello in 3 languages' }
+      ]);
+      console.log('Response:', chat.choices?.[0]?.message?.content?.substring(0, 100));
+    } catch (e) {
+      console.log('Error:', e.message);
+    }
+
+    console.log('\n--- Test 2: Web Search ---');
+    try {
+      const search = await this.webSearch('latest AI news', { num: 3 });
+      console.log('Results:', Array.isArray(search) ? search.length : 'error');
+    } catch (e) {
+      console.log('Error:', e.message);
+    }
+
+    console.log('\n📊 Stats:');
+    console.log(JSON.stringify(this.getStats(), null, 2));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CLI
+// ═══════════════════════════════════════════════════════════════
+
+async function main() {
+  const args = process.argv.slice(2);
+  const command = args[0] || 'help';
+
+  const client = new ResilientZAIClient();
+  await client.init();
+
+  switch (command) {
+    case 'demo':
+      await client.demo();
+      break;
+
+    case 'chat':
+      const msg = args[1] || 'Hello';
+      const result = await client.chat([{ role: 'user', content: msg }]);
+      console.log(result.choices?.[0]?.message?.content || result);
+      break;
+
+    case 'search':
+      const query = args[1] || 'AI news';
+      const search = await client.webSearch(query);
+      console.log(JSON.stringify(search, null, 2));
+      break;
+
+    case 'stats':
+      console.log(JSON.stringify(client.getStats(), null, 2));
+      break;
+
+    case 'reset':
+      client.resetCircuits();
+      break;
+
+    default:
+      console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║        RESILIENT Z-AI CLIENT - CLI                        ║
+╚═══════════════════════════════════════════════════════════╝
+
+Commands:
+  demo          Run demo
+  chat <msg>    Send chat message
+  search <q>    Web search
+  stats         Show statistics
+  reset         Reset all circuit breakers
+
+Features:
+  ✅ Automatic Retry (exponential backoff)
+  ✅ Multi-Account Rotation
+  ✅ Circuit Breaker Pattern
+  ✅ Response Caching
+  ✅ Request Queue
+
+Usage:
+  bun resilient-zai-client.js demo
+  bun resilient-zai-client.js chat "Hello world"
+      `);
+  }
+}
+
+export { ResilientZAIClient, CacheManager, CircuitBreaker, RequestQueue, CONFIG };
+
+if (import.meta.main) {
+  main().catch(console.error);
+}
+```
+
+---
+
+## 📁 File 2: zai-sdk-wrapper.js
+
+**Wrapper untuk Z-AI SDK asli dengan resilience**
+
+```javascript
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * Z-AI SDK WRAPPER - Dengan Built-in Rate Limit Handling
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Drop-in replacement untuk Z-AI SDK dengan:
+ * - Automatic retry on 429
+ * - Multi-account support
+ * - Caching
+ * - Circuit breaker
+ */
+
+import ZAI from 'z-ai-web-dev-sdk';
+
+// Configuration
+const RESILIENT_CONFIG = {
+  maxRetries: 5,
+  baseDelay: 1000,
+  maxDelay: 60000,
+  cacheEnabled: true,
+  cacheTTL: 3600000,
+};
+
+// Account pool
+const ACCOUNTS = [
+  {
+    token: 'YOUR_TOKEN_HERE',
+    userId: 'YOUR_USER_ID_HERE',
+    chatId: 'YOUR_CHAT_ID_HERE',
+    name: 'Account-1'
+  }
+];
+
+// Simple cache
+const cache = new Map();
+
+// Circuit breaker state
+const circuitBreaker = {
+  failures: new Map(),
+  openedAt: new Map(),
+  threshold: 5,
+  resetTime: 300000
+};
+
+class ResilientZAI {
+  constructor(config = {}) {
+    this.config = { ...RESILIENT_CONFIG, ...config };
+    this.accounts = [...ACCOUNTS];
+    this.currentAccount = 0;
+    this.zaiInstances = new Map();
+  }
+
+  async _getZAI(account) {
+    if (!this.zaiInstances.has(account.name)) {
+      // Create new instance dengan account credentials
+      const originalConfig = {
+        baseUrl: 'http://172.25.136.210:8080/v1',
+        apiKey: 'Z.ai',
+        token: account.token,
+        userId: account.userId,
+        chatId: account.chatId
+      };
+      
+      // Store for header injection
+      this.zaiInstances.set(account.name, { 
+        instance: null, 
+        config: originalConfig 
+      });
+    }
+    return this.zaiInstances.get(account.name);
+  }
+
+  _isRateLimited(accountName) {
+    const openedAt = circuitBreaker.openedAt.get(accountName);
+    if (!openedAt) return false;
+    
+    if (Date.now() - openedAt > circuitBreaker.resetTime) {
+      circuitBreaker.failures.set(accountName, 0);
+      circuitBreaker.openedAt.delete(accountName);
+      return false;
+    }
+    return true;
+  }
+
+  _recordFailure(accountName) {
+    const count = (circuitBreaker.failures.get(accountName) || 0) + 1;
+    circuitBreaker.failures.set(accountName, count);
+    
+    if (count >= circuitBreaker.threshold) {
+      circuitBreaker.openedAt.set(accountName, Date.now());
+      console.log(`🔴 Circuit OPEN for ${accountName}`);
+    }
+  }
+
+  _recordSuccess(accountName) {
+    circuitBreaker.failures.set(accountName, 0);
+    circuitBreaker.openedAt.delete(accountName);
+  }
+
+  _getAvailableAccount() {
+    for (const acc of this.accounts) {
+      if (!this._isRateLimited(acc.name)) {
+        return acc;
+      }
+    }
+    return null;
+  }
+
+  _getBackoffDelay(attempt) {
+    const delay = Math.min(
+      this.config.baseDelay * Math.pow(2, attempt),
+      this.config.maxDelay
+    );
+    return delay + Math.random() * 1000; // Add jitter
+  }
+
+  _cacheKey(type, ...args) {
+    return `${type}:${JSON.stringify(args)}`;
+  }
+
+  async _withRetry(fn, type, ...args) {
+    // Check cache
+    if (this.config.cacheEnabled) {
+      const key = this._cacheKey(type, ...args);
+      const cached = cache.get(key);
+      if (cached && Date.now() < cached.expiry) {
+        console.log(`📦 Cache hit: ${type}`);
+        return cached.data;
+      }
+    }
+
+    let lastError;
+    
+    for (let attempt = 0; attempt < this.config.maxRetries; attempt++) {
+      const account = this._getAvailableAccount();
+      
+      if (!account) {
+        console.log('⚠️ All accounts rate limited, waiting...');
+        await this._sleep(circuitBreaker.resetTime);
+        continue;
+      }
+
+      try {
+        const result = await fn(account);
+        this._recordSuccess(account.name);
+        
+        // Cache result
+        if (this.config.cacheEnabled) {
+          const key = this._cacheKey(type, ...args);
+          cache.set(key, {
+            data: result,
+            expiry: Date.now() + this.config.cacheTTL
+          });
+        }
+        
+        return result;
+        
+      } catch (error) {
+        lastError = error;
+        const msg = error.message || '';
+        
+        if (msg.includes('429') || msg.includes('rate') || msg.includes('limit')) {
+          this._recordFailure(account.name);
+          console.log(`⚠️ Rate limited on ${account.name} (attempt ${attempt + 1})`);
+          
+          if (attempt < this.config.maxRetries - 1) {
+            const delay = this._getBackoffDelay(attempt);
+            console.log(`   Retrying in ${Math.round(delay/1000)}s...`);
+            await this._sleep(delay);
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
+    
+    throw lastError;
+  }
+
+  _sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // API METHODS
+  // ═══════════════════════════════════════════════════════════
+
+  async chat(messages, options = {}) {
+    return this._withRetry(async (account) => {
+      const zai = await ZAI.create();
+      
+      // Make request dengan curl untuk kontrol penuh
+      const { execSync } = await import('child_process');
+      
+      const body = {
+        messages,
+        model: options.model || 'glm-4-flash',
+        thinking: { type: 'disabled' }
+      };
+      
+      const cmd = `curl -s -w "\\n%{http_code}" --max-time 60 -X POST ` +
+        `"http://172.25.136.210:8080/v1/chat/completions" ` +
+        `-H "Content-Type: application/json" ` +
+        `-H "Authorization: Bearer Z.ai" ` +
+        `-H "X-Z-AI-From: Z" ` +
+        `-H "X-Token: ${account.token}" ` +
+        `-H "X-User-Id: ${account.userId}" ` +
+        `-d '${JSON.stringify(body).replace(/'/g, "'\\''")}'`;
+      
+      const response = execSync(cmd, { encoding: 'utf-8', timeout: 70000 });
+      const lines = response.trim().split('\n');
+      const httpCode = parseInt(lines[lines.length - 1]);
+      const body_ = lines.slice(0, -1).join('\n');
+      
+      if (httpCode === 429) throw new Error('429 Rate Limited');
+      if (httpCode >= 400) throw new Error(`HTTP ${httpCode}`);
+      
+      return JSON.parse(body_);
+    }, 'chat', messages, options);
+  }
+
+  async webSearch(query, num = 10) {
+    return this._withRetry(async (account) => {
+      const { execSync } = await import('child_process');
+      
+      const body = {
+        function_name: 'web_search',
+        arguments: { query, num }
+      };
+      
+      const cmd = `curl -s -w "\\n%{http_code}" --max-time 60 -X POST ` +
+        `"http://172.25.136.210:8080/v1/functions/invoke" ` +
+        `-H "Content-Type: application/json" ` +
+        `-H "Authorization: Bearer Z.ai" ` +
+        `-H "X-Z-AI-From: Z" ` +
+        `-H "X-Token: ${account.token}" ` +
+        `-H "X-User-Id: ${account.userId}" ` +
+        `-d '${JSON.stringify(body).replace(/'/g, "'\\''")}'`;
+      
+      const response = execSync(cmd, { encoding: 'utf-8', timeout: 70000 });
+      const lines = response.trim().split('\n');
+      const httpCode = parseInt(lines[lines.length - 1]);
+      const body_ = lines.slice(0, -1).join('\n');
+      
+      if (httpCode === 429) throw new Error('429 Rate Limited');
+      if (httpCode >= 400) throw new Error(`HTTP ${httpCode}`);
+      
+      return JSON.parse(body_);
+    }, 'webSearch', query, num);
+  }
+
+  async vision(imageUrl, prompt, options = {}) {
+    return this._withRetry(async (account) => {
+      const { execSync } = await import('child_process');
+      
+      const body = {
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: imageUrl } }
+          ]
+        }],
+        model: options.model || 'glm-4.6v',
+        thinking: { type: 'disabled' }
+      };
+      
+      const cmd = `curl -s -w "\\n%{http_code}" --max-time 120 -X POST ` +
+        `"http://172.25.136.210:8080/v1/chat/completions/vision" ` +
+        `-H "Content-Type: application/json" ` +
+        `-H "Authorization: Bearer Z.ai" ` +
+        `-H "X-Z-AI-From: Z" ` +
+        `-H "X-Token: ${account.token}" ` +
+        `-H "X-User-Id: ${account.userId}" ` +
+        `-d '${JSON.stringify(body).replace(/'/g, "'\\''")}'`;
+      
+      const response = execSync(cmd, { encoding: 'utf-8', timeout: 130000 });
+      const lines = response.trim().split('\n');
+      const httpCode = parseInt(lines[lines.length - 1]);
+      const body_ = lines.slice(0, -1).join('\n');
+      
+      if (httpCode === 429) throw new Error('429 Rate Limited');
+      if (httpCode >= 400) throw new Error(`HTTP ${httpCode}`);
+      
+      return JSON.parse(body_);
+    }, 'vision', imageUrl, prompt, options);
+  }
+
+  // Stats
+  getStats() {
+    return {
+      accounts: this.accounts.map(a => ({
+        name: a.name,
+        failures: circuitBreaker.failures.get(a.name) || 0,
+        circuitOpen: this._isRateLimited(a.name)
+      })),
+      cacheSize: cache.size
+    };
+  }
+}
+
+// Factory function
+async function createResilientZAI(config = {}) {
+  const zai = new ResilientZAI(config);
+  return zai;
+}
+
+// CLI
+async function main() {
+  const args = process.argv.slice(2);
+  
+  const zai = await createResilientZAI();
+  
+  if (args[0] === 'chat') {
+    const msg = args[1] || 'Hello';
+    console.log(`Sending: ${msg}`);
+    const result = await zai.chat([{ role: 'user', content: msg }]);
+    console.log('Response:', result.choices?.[0]?.message?.content);
+  } else if (args[0] === 'search') {
+    const q = args[1] || 'AI news';
+    console.log(`Searching: ${q}`);
+    const result = await zai.webSearch(q, 5);
+    console.log('Results:', result);
+  } else {
+    console.log(`
+Usage:
+  bun zai-sdk-wrapper.js chat "Hello"
+  bun zai-sdk-wrapper.js search "AI news"
+    `);
+  }
+}
+
+export { ResilientZAI, createResilientZAI };
+
+if (import.meta.main) {
+  main().catch(console.error);
+}
+```
+
+---
+
+## 📁 File 3: workflow-orchestrator.js
+
+**Orchestrator untuk workflow dengan web search opsional**
+
+```javascript
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * WORKFLOW ORCHESTRATOR - Web Search Opsional
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Memastikan workflow tetap berjalan meski web search rate limited
+ */
+
+import { ResilientZAIClient } from './resilient-zai-client.js';
+
+class WorkflowOrchestrator {
+  constructor(config = {}) {
+    this.zai = new ResilientZAIClient(config);
+    this.webSearchEnabled = true;
+    this.webSearchFallback = 'knowledge'; // 'knowledge' | 'skip' | 'cache'
+  }
+
+  async init() {
+    await this.zai.init();
+    return this;
+  }
+
+  // Web search dengan graceful degradation
+  async webSearch(query, options = {}) {
+    if (!this.webSearchEnabled) {
+      console.log('⏭️ Web search disabled, using fallback');
+      return this._searchFallback(query);
+    }
+
+    try {
+      const result = await this.zai.webSearch(query, options);
+      return { success: true, data: result, source: 'web' };
+    } catch (error) {
+      console.log(`⚠️ Web search failed: ${error.message}`);
+      
+      if (error.message.includes('429') || error.message.includes('rate')) {
+        // Disable web search temporarily
+        this.webSearchEnabled = false;
+        console.log('🔴 Web search temporarily disabled');
+        
+        // Re-enable after 5 minutes
+        setTimeout(() => {
+          this.webSearchEnabled = true;
+          console.log('🟢 Web search re-enabled');
+        }, 300000);
+      }
+      
+      return this._searchFallback(query);
+    }
+  }
+
+  async _searchFallback(query) {
+    switch (this.webSearchFallback) {
+      case 'knowledge':
+        // Use LLM knowledge instead
+        console.log('📚 Using LLM knowledge as fallback');
+        const result = await this.zai.chat([
+          {
+            role: 'system',
+            content: 'You are a helpful assistant. Provide information based on your knowledge. If you are uncertain, say so.'
+          },
+          {
+            role: 'user',
+            content: `Please provide information about: ${query}`
+          }
+        ]);
+        return {
+          success: true,
+          data: { answer: result.choices?.[0]?.message?.content },
+          source: 'llm_knowledge'
+        };
+        
+      case 'skip':
+        return { success: false, data: null, source: 'skipped' };
+        
+      case 'cache':
+        // Try to get from cache only
+        return { success: false, data: null, source: 'cache_miss' };
+        
+      default:
+        return { success: false, data: null, source: 'unknown' };
+    }
+  }
+
+  // Chat dengan retry otomatis
+  async chat(messages, options = {}) {
+    try {
+      return await this.zai.chat(messages, options);
+    } catch (error) {
+      console.log(`❌ Chat failed: ${error.message}`);
+      throw error;
+    }
+  }
+
+  // Research workflow dengan web search opsional
+  async research(topic, options = {}) {
+    console.log(`\n🔬 Research: ${topic}`);
+    console.log('='.repeat(50));
+
+    const results = {
+      topic,
+      webSearch: null,
+      analysis: null,
+      summary: null
+    };
+
+    // Step 1: Try web search (optional)
+    console.log('\n📍 Step 1: Web Search...');
+    results.webSearch = await this.webSearch(topic, { num: options.searchResults || 5 });
+    
+    // Step 2: Analyze results
+    console.log('\n📍 Step 2: Analysis...');
+    let context = '';
+    
+    if (results.webSearch.success && results.webSearch.source === 'web') {
+      const searchData = results.webSearch.data;
+      if (Array.isArray(searchData)) {
+        context = searchData.slice(0, 3).map((r, i) => 
+          `${i + 1}. ${r.name}\n${r.snippet}`
+        ).join('\n\n');
+      }
+    } else {
+      context = `Web search unavailable (${results.webSearch.source}). Using LLM knowledge.`;
+    }
+
+    const analysisPrompt = `Analyze the following topic: "${topic}"
+
+${context ? `Context from search:\n${context}` : 'No external context available. Use your knowledge.'}
+
+Provide a comprehensive analysis.`;
+
+    try {
+      const analysisResult = await this.chat([
+        { role: 'user', content: analysisPrompt }
+      ]);
+      results.analysis = analysisResult.choices?.[0]?.message?.content;
+    } catch (error) {
+      results.analysis = `Analysis failed: ${error.message}`;
+    }
+
+    // Step 3: Summary
+    console.log('\n📍 Step 3: Summary...');
+    try {
+      const summaryResult = await this.chat([
+        {
+          role: 'user',
+          content: `Summarize in 3 bullet points:\n\n${results.analysis}`
+        }
+      ]);
+      results.summary = summaryResult.choices?.[0]?.message?.content;
+    } catch (error) {
+      results.summary = 'Summary generation failed';
+    }
+
+    console.log('\n✅ Research complete');
+    return results;
+  }
+
+  // Q&A workflow
+  async askQuestion(question, useWebSearch = true) {
+    console.log(`\n❓ Question: ${question}`);
+    
+    let context = '';
+    let sources = [];
+
+    // Try web search if enabled
+    if (useWebSearch) {
+      const searchResult = await this.webSearch(question, { num: 3 });
+      
+      if (searchResult.success && searchResult.source === 'web') {
+        context = searchResult.data.map(r => r.snippet).join('\n');
+        sources = searchResult.data.map(r => ({ title: r.name, url: r.url }));
+      }
+    }
+
+    // Build prompt
+    const prompt = context
+      ? `Based on the following context, answer the question.
+
+Context:
+${context}
+
+Question: ${question}
+
+Provide a comprehensive answer.`
+      : question;
+
+    // Get answer
+    const answer = await this.chat([{ role: 'user', content: prompt }]);
+    
+    return {
+      question,
+      answer: answer.choices?.[0]?.message?.content,
+      sources,
+      usedWebSearch: useWebSearch && sources.length > 0
+    };
+  }
+
+  // Batch processing dengan queue
+  async batch(tasks, options = {}) {
+    console.log(`\n📦 Processing ${tasks.length} tasks...`);
+    const results = [];
+
+    for (let i = 0; i < tasks.length; i++) {
+      console.log(`\n[${i + 1}/${tasks.length}] Processing...`);
+      
+      try {
+        const result = await this.chat([
+          { role: 'user', content: tasks[i] }
+        ]);
+        results.push({ success: true, response: result.choices?.[0]?.message?.content });
+      } catch (error) {
+        results.push({ success: false, error: error.message });
+      }
+
+      // Delay between tasks
+      if (i < tasks.length - 1) {
+        await new Promise(r => setTimeout(r, options.delay || 1000));
+      }
+    }
+
+    console.log(`\n✅ Batch complete: ${results.filter(r => r.success).length}/${tasks.length} successful`);
+    return results;
+  }
+
+  getStats() {
+    return {
+      zai: this.zai.getStats(),
+      webSearchEnabled: this.webSearchEnabled
+    };
+  }
+}
+
+// CLI
+async function main() {
+  const args = process.argv.slice(2);
+  
+  const orchestrator = new WorkflowOrchestrator();
+  await orchestrator.init();
+
+  if (args[0] === 'research') {
+    const topic = args[1] || 'artificial intelligence';
+    const result = await orchestrator.research(topic);
+    console.log('\n📄 Result:');
+    console.log(JSON.stringify(result, null, 2));
+  } else if (args[0] === 'ask') {
+    const question = args[1] || 'What is machine learning?';
+    const result = await orchestrator.askQuestion(question);
+    console.log('\n📄 Answer:');
+    console.log(result.answer);
+    if (result.sources.length > 0) {
+      console.log('\n📚 Sources:');
+      result.sources.forEach(s => console.log(`- ${s.title}`));
+    }
+  } else {
+    console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║        WORKFLOW ORCHESTRATOR - CLI                        ║
+╚═══════════════════════════════════════════════════════════╝
+
+Commands:
+  research <topic>    Do research on topic
+  ask <question>      Ask a question
+
+Features:
+  ✅ Web search dengan fallback ke LLM knowledge
+  ✅ Automatic retry dan rate limit handling
+  ✅ Graceful degradation
+  ✅ Workflow tetap berjalan meski rate limited
+
+Examples:
+  bun workflow-orchestrator.js research "quantum computing"
+  bun workflow-orchestrator.js ask "What is blockchain?"
+    `);
+  }
+}
+
+export { WorkflowOrchestrator };
+
+if (import.meta.main) {
+  main().catch(console.error);
+}
+```
+
+---
+
+## 📋 Ringkasan Solusi
+
+| Komponen | Fungsi |
+|----------|--------|
+| **ResilientZAIClient** | Client utama dengan semua fitur resilience |
+| **ZAI SDK Wrapper** | Drop-in replacement untuk SDK asli |
+| **WorkflowOrchestrator** | Workflow dengan web search opsional |
+| **CacheManager** | Response caching untuk mengurangi API calls |
+| **CircuitBreaker** | Mencegah request ke account yang rate limited |
+| **RequestQueue** | Queue dengan delay untuk mengontrol request rate |
+
+## 🎯 Strategi Anti-Rate-Limit
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   REQUEST FLOW                              │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+                   ┌─────────────────┐
+                   │  Check Cache    │─── HIT ───► Return Cached
+                   └─────────────────┘
+                            │ MISS
+                            ▼
+                   ┌─────────────────┐
+                   │ Check Circuit   │─── OPEN ──► Try Next Account
+                   │   Breaker       │
+                   └─────────────────┘
+                            │ CLOSED
+                            ▼
+                   ┌─────────────────┐
+                   │  Make Request   │
+                   └─────────────────┘
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+              ▼                           ▼
+        ┌───────────┐              ┌───────────┐
+        │  SUCCESS  │              │    429    │
+        └───────────┘              └───────────┘
+              │                           │
+              ▼                           ▼
+     Record Success              Record Failure
+     Cache Result                Open Circuit
+     Return Result               Retry with Backoff
+```
+
+## 🚀 Cara Penggunaan
+
+```bash
+# Test client
+bun resilient-zai-client.js demo
+
+# Research dengan web search opsional
+bun workflow-orchestrator.js research "AI trends"
+
+# Tanya jawab
+bun workflow-orchestrator.js ask "What is machine learning?"
+```
+
+## ⚠️ Catatan Penting
+
+1. **Isi ACCOUNT_POOL** dengan semua token yang tersedia
+2. **Caching** mengurangi API calls signifikan
+3. **Circuit breaker** mencegah request ke account yang sedang rate limited
+4. **Web search fallback** ke LLM knowledge jika rate limited
+5. **Workflow tetap berjalan** meski ada rate limit
