@@ -781,11 +781,6 @@ async function analyzeCompetitors(leaderboard) {
 // ============================================================================
 
 async function generateContent(campaignData, angle, emotion, structure, index) {
-  console.log(`\n📝 Generating Content ${index + 1}/${CONFIG.contentsPerCycle}...`);
-  console.log(`   🎭 Angle: ${angle}`);
-  console.log(`   💫 Emotions: ${emotion[0]} → ${emotion[1]}`);
-  console.log(`   📖 Structure: ${structure}`);
-  
   const angles = ['personal_story', 'data_driven', 'contrarian', 'insider_perspective', 'case_study'];
   const emotions = [
     ['curiosity', 'surprise'],
@@ -799,6 +794,11 @@ async function generateContent(campaignData, angle, emotion, structure, index) {
   const selectedAngle = angle || angles[index % angles.length];
   const selectedEmotion = emotion || emotions[index % emotions.length];
   const selectedStructure = structure || structures[index % structures.length];
+  
+  console.log(`\n📝 Generating Content ${index + 1}/${CONFIG.contentsPerCycle}...`);
+  console.log(`   🎭 Angle: ${selectedAngle}`);
+  console.log(`   💫 Emotions: ${selectedEmotion[0]} → ${selectedEmotion[1]}`);
+  console.log(`   📖 Structure: ${selectedStructure}`);
   
   const systemPrompt = `You are an expert content creator for Rally.fun campaigns. Create viral, engaging Twitter/X content.
 
@@ -868,16 +868,16 @@ async function runJudge1(content, campaignData) {
   let score = 0;
   const details = {};
   
-  // URL Present check
+  // URL Present check (2 points)
   const urlPattern = /https?:\/\/[^\s]+/g;
   const hasURL = urlPattern.test(content);
-  details.urlPresent = hasURL ? CONFIG.thresholds.gate1.programmatic.urlPresent : 0;
+  details.urlPresent = hasURL ? 2 : 0;
   score += details.urlPresent;
   
-  // Banned words check (simplified)
+  // Banned words check (2 points)
   const bannedWords = ['amazing', 'incredible', 'revolutionary', 'game-changing', 'groundbreaking'];
   const hasBanned = bannedWords.some(word => content.toLowerCase().includes(word));
-  details.bannedWords = !hasBanned ? CONFIG.thresholds.gate1.programmatic.bannedWords : 0;
+  details.bannedWords = !hasBanned ? 2 : 0;
   score += details.bannedWords;
   
   // AI-based checks
