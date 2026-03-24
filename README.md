@@ -1,10 +1,10 @@
-# Rally Workflow v9.8.3 - Master Edition
+# Rally Workflow v9.8.3 - Complete Edition
 
-> **Optimized 3 AI Judges Architecture with Fail Fast Mechanism**
+> **v9.8.2 ALL Features + NEW 3 AI Judges Architecture with Fail Fast Mechanism**
 
 ## 🎯 What's New in v9.8.3
 
-### Major Architecture Change
+### Architecture Changes
 
 | Feature | v9.8.2 (Old) | v9.8.3 (New) |
 |---------|--------------|--------------|
@@ -14,10 +14,57 @@
 | Source Tags | ❌ None | **✅ [SRC: url]** |
 | Stage-by-Stage | ❌ None | **✅ Yes** |
 | Max Regenerate | Unlimited | **5 cycles** |
+| Quality Threshold | Not specific | **70/80 (87.5%)** |
 
 ---
 
-## 🏛️ 3 AI Judges Architecture
+## ✅ ALL Features from v9.8.2 (PRESERVED)
+
+### G4 Originality Detection
+- Casual Hook Opening Detection
+- Parenthetical Aside Detection
+- Contractions Count (need 3+)
+- Personal Angle Detection
+- Conversational Ending Detection
+
+### Forbidden Punctuation Check
+- Em Dash Detection (—)
+- Smart Quote Detection (""")
+- Automatic Sanitization
+
+### X-Factor Differentiators
+- Specific Numbers Detection
+- Time Specificity Detection
+- Embarrassing Honesty Detection
+- Unexpected Angle Detection
+
+### Mindset Framework
+- Target: Beat Top 10
+- Effort: Maximize what you control
+- Accept: Whatever result comes
+- Learn: From every outcome
+
+### Control Matrix
+- What you CAN control (G1-G4, EP, TQ)
+- What you CANNOT control (Retweets, Likes, etc.)
+
+### Gate Multiplier Formula
+```
+M_gate = 1 + 0.5 × (g_star - 1)
+```
+
+### Other v9.8.2 Features
+- Pre-Submission Validation Checklist
+- Claim Verification Template
+- Python NLP Integration (VADER, TextBlob, spaCy)
+- Multi-Content Generator (5 contents)
+- Campaign Search by Name
+- Multi-Token Rate Limit Handler (11 tokens)
+- GLM-5 with Think + WebSearch
+
+---
+
+## 🆕 NEW IN v9.8.3
 
 ```
 ┌─────────────────────────────────────────────┐
