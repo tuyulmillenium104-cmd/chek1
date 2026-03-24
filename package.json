@@ -1,0 +1,28 @@
+{
+  "name": "rally-workflow-v9.8.3",
+  "version": "9.8.3",
+  "description": "Rally.fun Content Generator with 3 AI Judges Architecture",
+  "main": "src/rally-workflow-v9.8.3.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/rally-workflow-v9.8.3.js",
+    "list": "node src/rally-workflow-v9.8.3.js list",
+    "test": "node src/rally-workflow-v9.8.3.js list"
+  },
+  "keywords": [
+    "rally",
+    "rally-fun",
+    "content-generator",
+    "ai",
+    "web3",
+    "crypto"
+  ],
+  "author": "Rally Workflow Team",
+  "license": "MIT",
+  "dependencies": {
+    "z-ai-web-dev-sdk": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
