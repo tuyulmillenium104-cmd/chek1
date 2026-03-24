@@ -1,0 +1,207 @@
+{
+  "campaign": "Code Runs, Disputes Don't. Enter Internet Court",
+  "campaignData": {
+    "title": "Code Runs, Disputes Don't. Enter Internet Court",
+    "description": "Create a post explaining what Internet Court is and why decentralized dispute resolution is becoming essential in the digital and onchain era.\n\nBreak down the problem of online enforcement, smart contract disputes, and cross-border digital conflicts, and explain how Internet Court proposes a new framework for resolving them.",
+    "style": "Analytical and forward-looking.\n\nParticipants should explain the structural problem Internet Court addresses rather than simply describing it. The best posts will connect decentralized dispute resolution to broader shifts in governance, smart contracts, DAOs, and digital coordination.",
+    "rules": "*Check Mission Rules*",
+    "url": "https://app.rally.fun/campaign/0xAF5a5B459F4371c1781E3B8456214CDD063EeBA7"
+  },
+  "success": false,
+  "finalContent": null,
+  "finalJudgingResult": null,
+  "totalGenerateAttempts": 5,
+  "quickJudgeResults": [
+    {
+      "index": 1,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 5,
+      "passed": false,
+      "failedChecks": [
+        "urlPresent"
+      ]
+    },
+    {
+      "index": 1,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 5,
+      "passed": false,
+      "failedChecks": [
+        "urlPresent"
+      ]
+    },
+    {
+      "index": 1,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 5,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 1,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 5,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 1,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "index": 5,
+      "passed": true,
+      "failedChecks": []
+    }
+  ],
+  "fullJudgeResults": [
+    {
+      "index": 1,
+      "totalScore": 109,
+      "passed": false
+    },
+    {
+      "index": 1,
+      "totalScore": 110,
+      "passed": false
+    },
+    {
+      "index": 1,
+      "totalScore": 116,
+      "passed": false
+    },
+    {
+      "index": 1,
+      "totalScore": 104,
+      "passed": false
+    },
+    {
+      "index": 1,
+      "totalScore": 117,
+      "passed": false
+    }
+  ],
+  "competitorAnalysis": {
+    "anglesUsed": [],
+    "saturatedElements": []
+  },
+  "researchData": {
+    "keyFacts": [
+      "The Supreme Court of the Philippines has approved a framework for human-centered augmented intelligence in court operations.",
+      "As of March 9, 2026, video conference hearings hold the same legal effect as in-court hearings.",
+      "Courts are now mandated to ensure videoconferencing access for the digitally disadvantaged and those in remote geographic locations.",
+      "By 2026, Gartner predicts 70% of new enterprise applications will be built using low-code or no-code technologies."
+    ],
+    "uniqueAngles": [
+      {
+        "angle": "The 'Low-Code' Liability Trap",
+        "evidence": "Gartner predicts 70% of new apps will be low-code/no-code by 2026, while data privacy mass claims are surging globally.",
+        "uniqueness": "Connects the democratization of coding (low-code) directly to the impending wave of legal liability, rather than just focusing on professional developers."
+      },
+      {
+        "angle": "Digital Disadvantage as a Legal Defense",
+        "evidence": "Courts are directed to ensure access for the digitally disadvantaged, and virtual hearings now have full legal effect.",
+        "uniqueness": "Flips the narrative of 'convenience' to 'necessity,' arguing that inability to access digital courts is becoming a violation of rights."
+      },
+      {
+        "angle": "The 'Code vs. Court' Arbitrage",
+        "evidence": "Supreme Court rules pre-existing disputes irrelevant if debt/default is proven in code/records, while AI scandals replace lawyer scandals.",
+        "uniqueness": "Suggests a shift where code (automated debt proof) is bypassing traditional human narratives (pre-existing disputes) in court."
+      }
+    ]
+  },
+  "metadata": {
+    "version": "9.8.1-sdk-only",
+    "model": "glm-5",
+    "timestamp": "2026-03-22T19:30:47.870Z",
+    "duration": "900.1s"
+  }
+}

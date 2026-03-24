@@ -1,0 +1,18 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\"># Rally.fun Hybrid NLP Service v9.8.0-ENHANCED\n\n**Full AI-Powered NLP Service for Content Quality Analysis**\n\n## Features\n\n### Core Features (v9.8.0)\n| # | Feature | Library | Type |\n|---|---------|---------|------|\n| 1 | Sentiment Analysis | VADER + TextBlob | AI |\n| 2 | Readability Metrics | textstat | Algorithm |\n| 3 | Named Entity Recognition | spaCy | AI (Deep Learning) |\n| 4 | Semantic Similarity | sentence-transformers | AI (BERT) |\n| 5 | Emotion Detection | Custom + Rare Combos | AI |\n| 6 | Content Depth Analysis | Custom | Algorithm |\n| 7 | Anti-Template Detection | Custom | Algorithm |\n\n### Enhanced Features (v9.8.1+)\n| # | Feature | Library | Type |\n|---|---------|---------|------|\n| 8 | Grammar Checking | **HappyTransformer T5** | **AI (Neural)** |\n| 9 | Perplexity & Burstiness | Custom | Algorithm |\n| 10 | Coherence Analysis | Custom | Algorithm |\n| 11 | Engagement Prediction | Custom | Algorithm |\n| 12 | Persuasion Analysis | Custom | Algorithm |\n| 13 | Topic Relevance | sentence-transformers | AI (BERT) |\n| 14 | Tone Consistency | Custom | Algorithm |\n| 15 | Overall Quality Score | Combined | All above |\n\n## Installation\n\n```bash\n# Create virtual environment\npython3 -m venv venv\nsource venv/bin/activate\n\n# Install dependencies\npip install -r requirements.txt\n\n# Download spaCy model\npython -m spacy download en_core_web_sm\n```\n\n## Usage\n\n```bash\n# Start the service\npython nlp_service.py\n\n# Or with environment variable to skip LanguageTool\nSKIP_GRAMMAR_TOOL=1 python nlp_service.py\n```\n\n## API Endpoints\n\n### GET /health\nHealth check with library status\n\n### POST /api/content/analyze\nFull content analysis with all 15 features\n\n```json\n{\n  \"content\": \"Your text here\",\n  \"competitor_contents\": [\"competitor 1\", \"competitor 2\"],\n  \"topic\": \"optional topic for relevance\"\n}\n```\n\n### POST /api/grammar/check\nAI-powered grammar check with T5\n\n```json\n{\n  \"content\": \"Your text here\"\n}\n```\n\n### POST /api/compare\nCompare two texts for similarity\n\n```json\n{\n  \"text1\": \"First text\",\n  \"text2\": \"Second text\"\n}\n```\n\n### POST /api/uniqueness/analyze\nCombined uniqueness analysis\n\n## AI Grammar Correction\n\nUses **HappyTransformer T5** model (`vennify/t5-base-grammar-correction`) for:\n- Full sentence correction\n- Word choice improvements\n- Punctuation fixes\n- Grammar corrections\n\nExample:\n```json\nInput:  \"Code Runs, Disputes Dont. Enter Internet Court.\"\nOutput: \"Code runs, Disputes don't. Enter Internet Court.\"\n```\n\n## Version History\n\n| Version | Changes |\n|---------|---------|\n| 9.8.0 | Initial hybrid JS+Python release |\n| 9.8.0-enhanced | Added HappyTransformer T5 AI Grammar + 8 new features |\n\n## Requirements\n\n- Python 3.9+\n- 4GB RAM minimum (8GB recommended for T5 model)\n- Internet connection (first run downloads models)\n</pre></body></html>",
+    "title": "",
+    "url": "https://raw.githubusercontent.com/tuyulmillenium104-cmd/penilaian2/main/docs/hybrid-nlp-v9.8.0/README.md",
+    "usage": {
+      "tokens": 784
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 784
+    }
+  },
+  "status": 20000
+}

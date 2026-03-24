@@ -1,0 +1,36 @@
+# Rally.fun NLP Service Requirements
+# Version: 9.8.0-enhanced
+
+# Core Web Framework
+fastapi>=0.100.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+
+# Sentiment Analysis
+textblob>=0.17.0
+vaderSentiment>=3.3.2
+
+# Readability
+textstat>=0.7.3
+
+# Named Entity Recognition
+spacy>=3.5.0
+
+# Semantic Similarity (AI-powered)
+sentence-transformers>=2.2.0
+torch>=2.0.0
+
+# AI Grammar Checking (T5 Neural Network)
+happytransformer>=2.4.0
+
+# Grammar Checking (Rule-based supplement)
+language-tool-python>=2.7.0
+
+# AI Detection
+transformers>=4.30.0
+
+# Machine Learning
+scikit-learn>=1.2.0
+
+# Spacy language model (run separately: python -m spacy download en_core_web_sm)
+# en_core_web_sm

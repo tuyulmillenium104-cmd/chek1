@@ -1,0 +1,18 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\"># Rally.fun NLP Service Requirements\n# Version: 9.8.0-enhanced\n\n# Core Web Framework\nfastapi>=0.100.0\nuvicorn>=0.22.0\npydantic>=2.0.0\n\n# Sentiment Analysis\ntextblob>=0.17.0\nvaderSentiment>=3.3.2\n\n# Readability\ntextstat>=0.7.3\n\n# Named Entity Recognition\nspacy>=3.5.0\n\n# Semantic Similarity (AI-powered)\nsentence-transformers>=2.2.0\ntorch>=2.0.0\n\n# AI Grammar Checking (T5 Neural Network)\nhappytransformer>=2.4.0\n\n# Grammar Checking (Rule-based supplement)\nlanguage-tool-python>=2.7.0\n\n# AI Detection\ntransformers>=4.30.0\n\n# Machine Learning\nscikit-learn>=1.2.0\n\n# Spacy language model (run separately: python -m spacy download en_core_web_sm)\n# en_core_web_sm\n</pre></body></html>",
+    "title": "",
+    "url": "https://raw.githubusercontent.com/tuyulmillenium104-cmd/penilaian2/main/docs/hybrid-nlp-v9.8.0/requirements.txt",
+    "usage": {
+      "tokens": 265
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 265
+    }
+  },
+  "status": 20000
+}
