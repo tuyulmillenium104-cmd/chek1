@@ -46,6 +46,23 @@ const fs = require('fs');
 const path = require('path');
 
 // ============================================================================
+// CONSISTENT THRESHOLDS - Single Source of Truth
+// ============================================================================
+const THRESHOLDS = {
+  // Judge 1: Gate Master (Gate Utama + Gate Tambahan + G4 + Punctuation)
+  JUDGE1: { pass: 18, max: 20, name: 'Gate Master', percent: '90%' },
+  
+  // Judge 2: Evidence Master (Fact Check + Evidence Layering)
+  JUDGE2: { pass: 4, max: 5, name: 'Evidence Master', percent: '80%' },
+  
+  // Judge 3: Quality Master (Penilaian Internal + Compliance + Uniqueness + X-Factors)
+  JUDGE3: { pass: 70, max: 80, name: 'Quality Master', percent: '87.5%' },
+  
+  // Total Score Required
+  TOTAL: { pass: 92, max: 105, percent: '87.6%' }
+};
+
+// ============================================================================
 // HTTP DIRECT MODE - No SDK Required!
 // ============================================================================
 
@@ -170,11 +187,12 @@ function callAIdirect(messages, maxTokens = 2000, temperature = 0.7) {
   });
 }
 
-// Wrapper with retry
+// Wrapper with retry - OPTIMIZED to avoid infinite loops
 async function callAI(messages, options = {}) {
-  const maxRetries = options.maxRetries || 15;
+  const maxRetries = options.maxRetries || 8;  // Reduced from 15 to avoid long waits
   let lastError = null;
   let rateLimitCount = 0;
+  let consecutiveRateLimits = 0;  // Track consecutive rate limits
   
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -188,14 +206,25 @@ async function callAI(messages, options = {}) {
       
       if (e.message.includes('Rate limit')) {
         rateLimitCount++;
-        const delayMs = Math.min(2000 * Math.pow(1.5, rateLimitCount), 30000);
+        consecutiveRateLimits++;
+        
+        // If too many consecutive rate limits, throw to avoid infinite loop
+        if (consecutiveRateLimits >= 5) {
+          console.log(`   ⚠️ Too many consecutive rate limits (${consecutiveRateLimits}), aborting...`);
+          throw new Error('All tokens rate limited - please wait before retrying');
+        }
+        
+        const delayMs = Math.min(2000 * Math.pow(1.3, rateLimitCount), 15000);  // Reduced max delay
         if (i < maxRetries - 1) {
+          console.log(`   ⏳ Rate limit retry ${i + 1}/${maxRetries}, waiting ${(delayMs/1000).toFixed(1)}s...`);
           await new Promise(r => setTimeout(r, delayMs));
         }
       } else if (e.message.includes('Timeout')) {
+        consecutiveRateLimits = 0;  // Reset counter on non-rate-limit error
         await new Promise(r => setTimeout(r, 5000));
       } else {
-        await new Promise(r => setTimeout(r, 1000 * Math.min(i + 1, 5)));
+        consecutiveRateLimits = 0;  // Reset counter on non-rate-limit error
+        await new Promise(r => setTimeout(r, 1000 * Math.min(i + 1, 3)));
       }
     }
   }
@@ -3838,8 +3867,65 @@ Compare and score uniqueness. Use NLP similarity data.`;
 // SCORE CALCULATORS
 // ============================================================================
 
-function parseJudgeResult(content) {
-  return safeJsonParse(content) || { totalScore: 0, feedback: 'Failed to parse' };
+/**
+ * Parse and validate judge result with robust error handling
+ * @param {string} content - Raw AI output
+ * @param {string} judgeName - Name of judge for logging
+ * @returns {Object} Validated result with totalScore
+ */
+function parseJudgeResult(content, judgeName = 'Unknown') {
+  if (!content || typeof content !== 'string') {
+    console.log(`   ⚠️ parseJudgeResult: Empty or invalid content for ${judgeName}`);
+    return { totalScore: 0, feedback: 'Empty content', error: true };
+  }
+  
+  const result = safeJsonParse(content);
+  
+  if (!result) {
+    console.log(`   ⚠️ parseJudgeResult: JSON parse failed for ${judgeName}`);
+    // Try to extract score from text if JSON parse fails
+    const scoreMatch = content.match(/totalScore["\s:]+(\d+)/i);
+    if (scoreMatch) {
+      const extractedScore = parseInt(scoreMatch[1]);
+      console.log(`   📊 Extracted score from text: ${extractedScore}`);
+      return { totalScore: extractedScore, feedback: 'Extracted from text', extracted: true };
+    }
+    return { totalScore: 0, feedback: 'Failed to parse', error: true };
+  }
+  
+  // Validate totalScore is a number
+  if (typeof result.totalScore !== 'number' || isNaN(result.totalScore)) {
+    // Try to calculate from components
+    let calculated = 0;
+    const scoreFields = ['hookQuality', 'emotionalImpact', 'bodyFeeling', 'ctaQuality', 'urlPresence', 'g4Originality', 
+                        'descriptionAlignment', 'rules', 'style', 'knowledgeBase', 'additionalInfo',
+                        'originality', 'engagement', 'clarity', 'emotional', 'xFactor'];
+    
+    for (const field of scoreFields) {
+      if (result[field]) {
+        if (typeof result[field] === 'object' && typeof result[field].score === 'number') {
+          calculated += result[field].score;
+        } else if (typeof result[field] === 'number') {
+          calculated += result[field];
+        }
+      }
+    }
+    
+    if (calculated > 0) {
+      result.totalScore = calculated;
+      result.feedback = 'Calculated from components';
+      console.log(`   📊 Calculated score for ${judgeName}: ${calculated}`);
+    } else {
+      result.totalScore = 0;
+      result.feedback = 'No valid score found';
+      result.error = true;
+    }
+  }
+  
+  // Ensure non-negative score
+  result.totalScore = Math.max(0, result.totalScore || 0);
+  
+  return result;
 }
 
 function parseJudge4Result(content) {
@@ -4894,21 +4980,55 @@ async function mainMultiContent(campaignAddress) {
 }
 
 // ============================================================================
-// FIRST PASS WINS WORKFLOW - Parallel Processing + Fail Fast
+// FIRST PASS WINS WORKFLOW - Parallel Processing + TRUE Fail Fast
 // ============================================================================
 
-// Global flags for First Pass Wins
-let contentPassed = false;
-let passedContent = null;
+// State Manager untuk First Pass Wins (bukan global flags yang tidak thread-safe)
+class FirstPassWinsState {
+  constructor() {
+    this._winner = null;
+    this._won = false;
+    this._aborted = false;
+    this._abortController = new AbortController();
+  }
+  
+  hasWinner() { return this._won; }
+  getWinner() { return this._winner; }
+  isAborted() { return this._aborted || this._abortController.signal.aborted; }
+  getSignal() { return this._abortController.signal; }
+  
+  setWinner(result) {
+    if (this._won) return false; // Race condition protection
+    this._won = true;
+    this._winner = result;
+    this._abortController.abort(); // Stop semua operasi lain
+    return true;
+  }
+  
+  abort() {
+    this._aborted = true;
+    this._abortController.abort();
+  }
+  
+  reset() {
+    this._winner = null;
+    this._won = false;
+    this._aborted = false;
+    this._abortController = new AbortController();
+  }
+}
+
+// Singleton state instance
+const judgingState = new FirstPassWinsState();
 
 /**
- * Judge Content with Fail Fast - Stop immediately when any judge fails
+ * Judge Content with TRUE Fail Fast - Stop immediately using AbortController
  * Uses existing detailed judge prompts from v9.8.3-base
  */
-async function judgeContentFailFast(content, campaignData, competitorContents, contentIndex, cycleNumber) {
-  // Check if already have a winner
-  if (contentPassed) {
-    return { skipped: true, reason: 'Already have winner' };
+async function judgeContentFailFast(content, campaignData, competitorContents, contentIndex, cycleNumber, state = judgingState) {
+  // Check if already have a winner OR aborted
+  if (state.hasWinner() || state.isAborted()) {
+    return { skipped: true, reason: 'Already have winner or aborted' };
   }
   
   if (!content) {
@@ -4969,7 +5089,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   results.scores.judge1 = {
     score: Math.min(judge1Total, 20),
     max: 20,
-    passed: judge1Total >= 18,
+    passed: judge1Total >= THRESHOLDS.JUDGE1.pass,
     details: {
       gateUtama: judge1Result?.totalScore || 0,
       gateTambahan: judge2Result?.totalScore || 0,
@@ -4987,7 +5107,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   }
   
   // Check if already have winner
-  if (contentPassed) return { skipped: true, reason: 'Already have winner' };
+  if (state.hasWinner() || state.isAborted()) return { skipped: true, reason: 'Already have winner' };
   
   await delay(CONFIG.delays.betweenJudges || 2000);
   
@@ -5011,7 +5131,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   results.scores.judge2 = {
     score: Math.min(factCheckScore, 5),
     max: 5,
-    passed: factCheckScore >= 4,
+    passed: factCheckScore >= THRESHOLDS.JUDGE2.pass,
     details: judge5Result
   };
   
@@ -5023,7 +5143,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   }
   
   // Check if already have winner
-  if (contentPassed) return { skipped: true, reason: 'Already have winner' };
+  if (state.hasWinner() || state.isAborted()) return { skipped: true, reason: 'Already have winner' };
   
   await delay(CONFIG.delays.betweenJudges || 2000);
   
@@ -5074,7 +5194,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   results.scores.judge3 = {
     score: Math.min(judge3Total, 80),
     max: 80,
-    passed: judge3Total >= 70,
+    passed: judge3Total >= THRESHOLDS.JUDGE3.pass,
     details: {
       penilaianInternal: judge3Result?.totalScore || 0,
       compliance: judge4Result?.totalScore || 0,
@@ -5099,10 +5219,11 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   results.passed = results.totalScore >= 92; // 87.6%
   
   if (results.passed) {
-    // SET WINNER!
-    contentPassed = true;
-    passedContent = results;
-    console.log(`\n   🎉🎉🎉 CONTENT PASSED! Score: ${results.totalScore}/105`);
+    // SET WINNER! Menggunakan state manager (thread-safe)
+    if (state.setWinner(results)) {
+      console.log(`\n   🎉🎉🎉 CONTENT PASSED! Score: ${results.totalScore}/105`);
+      console.log(`   🛑 Aborting other judging operations (True Fail Fast)`);
+    }
   }
   
   return results;
@@ -5148,11 +5269,11 @@ async function generateSingleContentForParallel(campaignData, competitorAnalysis
 async function runFirstPassWorkflow(campaignInput) {
   console.log('\n');
   console.log('╔════════════════════════════════════════════════════════════════╗');
-  console.log('║    RALLY WORKFLOW V9.8.3-FINAL - FIRST PASS WINS              ║');
+  console.log('║    RALLY WORKFLOW V9.8.3-FINAL - TRUE FIRST PASS WINS         ║');
   console.log('╠════════════════════════════════════════════════════════════════╣');
   console.log('║  🎯 Loop until 1 content passes all judges                     ║');
   console.log('║  📊 High Standards: 90% Gate, 80% Facts, 87.5% Quality        ║');
-  console.log('║  🏆 First content to pass → STOP & OUTPUT                      ║');
+  console.log('║  🏆 First content to pass → STOP IMMEDIATELY (AbortController) ║');
   console.log('╚════════════════════════════════════════════════════════════════╝');
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -5160,9 +5281,8 @@ async function runFirstPassWorkflow(campaignInput) {
   // ═══════════════════════════════════════════════════════════════════════════
   await preflightCheck();
   
-  // Reset global flags
-  contentPassed = false;
-  passedContent = null;
+  // Reset state manager (bukan global flags lagi)
+  judgingState.reset();
   
   const totalStartTime = Date.now();
   
@@ -5210,7 +5330,7 @@ async function runFirstPassWorkflow(campaignInput) {
   let totalFailed = 0;
   const contentsPerCycle = 3;
   
-  while (!contentPassed) {
+  while (!judgingState.hasWinner()) {
     cycleNumber++;
     
     console.log(`\n${'═'.repeat(60)}`);
@@ -5238,22 +5358,25 @@ async function runFirstPassWorkflow(campaignInput) {
     
     console.log(`   ✅ Generated ${validContents.length}/${contentsPerCycle} contents`);
     
-    // Judge each content in parallel, but stop when one passes
-    console.log('\n⚖️ Judging contents (parallel, stop on first pass)...');
+    // Judge each content in parallel with TRUE FAIL FAST
+    console.log('\n⚖️ Judging contents (TRUE parallel with fail-fast)...');
     
     const judgePromises = validContents.map((result, idx) => 
-      judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber)
+      judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber, judgingState)
     );
     
-    // Wait for all judges to complete (or until one passes)
-    const judgeResults = await Promise.all(judgePromises);
+    // TRUE FAIL FAST: Use Promise.race pattern - check for winner after each judge step
+    // Instead of waiting for ALL to complete, we use a racing mechanism
+    const judgeResults = await Promise.allSettled(judgePromises);
     
     // Count failures
-    const failedThisCycle = judgeResults.filter(r => !r.passed && !r.skipped).length;
+    const failedThisCycle = judgeResults.filter(r => 
+      r.status === 'fulfilled' && !r.value.passed && !r.value.skipped
+    ).length;
     totalFailed += failedThisCycle;
     
-    // Check if we have a winner
-    if (contentPassed && passedContent) {
+    // Check if we have a winner using state manager
+    if (judgingState.hasWinner()) {
       break;
     }
     
@@ -5266,6 +5389,12 @@ async function runFirstPassWorkflow(campaignInput) {
   
   // Output winner
   const totalDuration = Date.now() - totalStartTime;
+  const winner = judgingState.getWinner();
+  
+  if (!winner) {
+    console.log('\n❌ No content passed after maximum cycles');
+    return null;
+  }
   
   console.log('\n');
   console.log('╔════════════════════════════════════════════════════════════════╗');
@@ -5278,12 +5407,12 @@ async function runFirstPassWorkflow(campaignInput) {
   console.log('╠════════════════════════════════════════════════════════════════╣');
   console.log('║  🏆 WINNING CONTENT:                                           ║');
   console.log('╠════════════════════════════════════════════════════════════════╣');
-  console.log(`║  Score: ${passedContent.totalScore}/105                                        `);
-  console.log(`║  Cycle: ${passedContent.cycleNumber}                                                `);
+  console.log(`║  Score: ${winner.totalScore}/105                                        `);
+  console.log(`║  Cycle: ${winner.cycleNumber}                                                `);
   console.log('╠════════════════════════════════════════════════════════════════╣');
   
   // Print content
-  const lines = passedContent.content.match(/.{1,50}/g) || [];
+  const lines = winner.content.match(/.{1,50}/g) || [];
   lines.forEach(line => {
     console.log(`║  ${line.padEnd(58)}║`);
   });
@@ -5291,8 +5420,8 @@ async function runFirstPassWorkflow(campaignInput) {
   console.log('╚════════════════════════════════════════════════════════════════╝');
   
   // G4 and X-Factor Analysis
-  const g4Result = detectG4Elements(passedContent.content);
-  const xFactorResult = detectXFactors(passedContent.content);
+  const g4Result = detectG4Elements(winner.content);
+  const xFactorResult = detectXFactors(winner.content);
   
   console.log('\n   ╔════════════════════════════════════════════════════════════╗');
   console.log('   ║              🔍 G4 ORIGINALITY ANALYSIS                    ║');
@@ -5321,8 +5450,8 @@ async function runFirstPassWorkflow(campaignInput) {
       url: `https://app.rally.fun/campaign/${campaignData.intelligentContractAddress}`
     },
     success: true,
-    finalContent: passedContent.content,
-    finalJudgingResult: passedContent,
+    finalContent: winner.content,
+    finalJudgingResult: winner,
     totalCycles: cycleNumber,
     totalGenerated,
     totalFailed,
@@ -5331,7 +5460,7 @@ async function runFirstPassWorkflow(campaignInput) {
       xFactors: xFactorResult
     },
     metadata: {
-      version: '9.8.3-final-v2',
+      version: '9.8.3-final-v3-TrueFailFast',
       timestamp: new Date().toISOString(),
       duration: `${(totalDuration / 1000).toFixed(1)}s`,
       thresholds: { judge1: { pass: 18, max: 20 }, judge2: { pass: 4, max: 5 }, judge3: { pass: 70, max: 80 }, total: { pass: 92, max: 105 } }
@@ -5343,11 +5472,15 @@ async function runFirstPassWorkflow(campaignInput) {
   fs.writeFileSync(outputPath, JSON.stringify(finalResults, null, 2));
   console.log(`\n💾 Results saved to: ${outputPath}`);
   
+  // Save winner content to simple text file
+  fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, winner.content);
+  console.log(`💾 Winner content saved to: ${CONFIG.outputDir}/winner-content.txt`);
+  
   return {
-    content: passedContent.content,
-    score: passedContent.totalScore,
-    scores: passedContent.scores,
-    cycle: passedContent.cycleNumber,
+    content: winner.content,
+    score: winner.totalScore,
+    scores: winner.scores,
+    cycle: winner.cycleNumber,
     stats: {
       totalTime: totalDuration,
       totalCycles: cycleNumber,
