@@ -1,9 +1,16 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * RALLY WORKFLOW V9.8.4 - ENHANCED CONTENT QUALITY
+ * RALLY WORKFLOW V9.8.3-FINAL - DIVERSITY & LEARNING FIXED
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * 🆕 NEW IN V9.8.4:
+ * 🆕 FIXED IN V9.8.3-FINAL:
+ * ✅ SESSION STATE TRACKING - Diversity across contents in same cycle
+ * ✅ CYCLE LEARNING - Adapt strategies based on failure reasons
+ * ✅ CONTEXT-AWARE AUDIENCE - Relevant to campaign, not random
+ * ✅ CONTENT PREVIEW - Show generated content for debugging
+ * ✅ IMPROVED JSON PARSING - Better error handling
+ * 
+ * 🆕 FEATURES:
  * ✅ PLATFORM AWARENESS - Content optimized for X (Twitter) style
  * ✅ DIVERSIFIED HOOK OPENING - Not just ngl/tbh (6 different hook types)
  * ✅ COMPETITOR-AWARE HOOK SELECTION - Avoid saturated hook patterns
@@ -1308,24 +1315,136 @@ const CONFIG = {
 };
 
 // ============================================================================
-// HELPER: COMPETITOR-AWARE HOOK SELECTION (NEW v9.8.4)
+// SESSION STATE - Track diversity across contents and cycles (NEW v9.8.3)
+// ============================================================================
+const SESSION_STATE = {
+  currentCycle: 0,
+  contentIndex: 0,
+  
+  // Track what's been used in CURRENT cycle
+  usedInCycle: {
+    hooks: [],
+    personas: [],
+    narratives: [],
+    audiences: [],
+    emotions: []
+  },
+  
+  // Track what FAILED in previous cycles (for learning)
+  failedConfigurations: [],
+  
+  // Track failure reasons for learning
+  failureReasons: {
+    lowQuality: 0,
+    factCheckFail: 0,
+    complianceFail: 0,
+    originalityFail: 0
+  },
+  
+  // Cycle-level adaptations
+  adaptations: {
+    increaseEmotionIntensity: false,
+    useMoreSpecificData: false,
+    avoidGenericClaims: false,
+    increaseVulnerability: false
+  },
+  
+  // Reset for new cycle
+  resetCycle() {
+    this.usedInCycle = {
+      hooks: [],
+      personas: [],
+      narratives: [],
+      audiences: [],
+      emotions: []
+    };
+  },
+  
+  // Mark something as used
+  markUsed(type, id) {
+    if (this.usedInCycle[type]) {
+      this.usedInCycle[type].push(id);
+    }
+  },
+  
+  // Check if something was used
+  wasUsed(type, id) {
+    return this.usedInCycle[type]?.includes(id) || false;
+  },
+  
+  // Record failure for learning
+  recordFailure(config, reason) {
+    this.failedConfigurations.push({ ...config, reason, cycle: this.currentCycle });
+    if (this.failureReasons[reason] !== undefined) {
+      this.failureReasons[reason]++;
+    }
+    
+    // Trigger adaptations based on patterns
+    this.updateAdaptations();
+  },
+  
+  // Update adaptations based on failure patterns
+  updateAdaptations() {
+    const reasons = this.failureReasons;
+    
+    // If quality keeps failing, increase emotion intensity
+    if (reasons.lowQuality >= 2) {
+      this.adaptations.increaseEmotionIntensity = true;
+    }
+    
+    // If fact-check keeps failing, use more specific data
+    if (reasons.factCheckFail >= 2) {
+      this.adaptations.useMoreSpecificData = true;
+    }
+    
+    // If originality fails, avoid generic claims
+    if (reasons.originalityFail >= 2) {
+      this.adaptations.avoidGenericClaims = true;
+      this.adaptations.increaseVulnerability = true;
+    }
+  }
+};
+
+// ============================================================================
+// HELPER: COMPETITOR-AWARE HOOK SELECTION WITH DIVERSITY (v9.8.3)
 // ============================================================================
 
 /**
- * Select hook type based on competitor analysis
+ * Select hook type with DIVERSITY - different hooks for different contents
  * Uses PRINCIPLES not templates - avoids saturated patterns
  */
-function selectHookType(competitorAnalysis) {
+function selectHookType(competitorAnalysis, contentIndex = 0) {
   const hookTypes = CONFIG.hookVariations.types;
   const saturatedPatterns = CONFIG.hookVariations.saturatedPatterns;
   const selectionStrategy = CONFIG.hookVariations.selectionStrategy;
   
-  // If no competitor analysis, use specific_moment as default (highest weight)
+  // DIVERSITY: Get hooks not yet used in this cycle
+  const availableHooks = hookTypes.filter(h => !SESSION_STATE.wasUsed('hooks', h.id));
+  
+  // If no competitor analysis, use DIVERSITY instead of default
   if (!competitorAnalysis || !competitorAnalysis.competitorContent || competitorAnalysis.competitorContent.length === 0) {
-    const defaultHook = hookTypes.find(h => h.id === 'specific_moment');
-    console.log('   🎣 No competitor data - using default: Specific Moment Hook');
-    console.log(`   📋 Principle: ${defaultHook.principle}`);
-    return defaultHook;
+    // Use different hook for each content - ROTATE through types
+    const orderedHooks = [
+      hookTypes.find(h => h.id === 'specific_moment'),
+      hookTypes.find(h => h.id === 'shocking_claim'),
+      hookTypes.find(h => h.id === 'relatable_struggle'),
+      hookTypes.find(h => h.id === 'contrarian_insight'),
+      hookTypes.find(h => h.id === 'provocative_question'),
+      hookTypes.find(h => h.id === 'casual_conversational')
+    ].filter(Boolean);
+    
+    // Select based on content index (with diversity check)
+    let selectedHook = orderedHooks[contentIndex % orderedHooks.length];
+    
+    // If already used, find next available
+    if (SESSION_STATE.wasUsed('hooks', selectedHook.id)) {
+      selectedHook = availableHooks[0] || orderedHooks[(contentIndex + 1) % orderedHooks.length];
+    }
+    
+    SESSION_STATE.markUsed('hooks', selectedHook.id);
+    console.log(`   🎣 No competitor data - using DIVERSE hook #${contentIndex + 1}: ${selectedHook.name}`);
+    console.log(`   📋 Principle: ${selectedHook.principle}`);
+    return selectedHook;
   }
   
   const competitorContent = competitorAnalysis.competitorContent || [];
@@ -1974,15 +2093,50 @@ ${webSearchResults.length > 0
 // UTILITY FUNCTIONS
 // ============================================================================
 
+// v9.8.3: Enhanced JSON parsing with multiple fallback strategies
 function safeJsonParse(str) {
-  try {
-    const jsonMatch = str.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    return JSON.parse(str);
-  } catch (e) {
+  if (!str || typeof str !== 'string') {
     return null;
+  }
+  
+  try {
+    // Strategy 1: Direct parse
+    return JSON.parse(str);
+  } catch (e1) {
+    try {
+      // Strategy 2: Extract JSON object from text
+      const jsonMatch = str.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      
+      // Strategy 3: Extract JSON array from text
+      const arrayMatch = str.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        return JSON.parse(arrayMatch[0]);
+      }
+      
+      // Strategy 4: Fix common JSON issues
+      let fixed = str
+        .replace(/,\s*}/g, '}')           // Remove trailing commas in objects
+        .replace(/,\s*]/g, ']')           // Remove trailing commas in arrays
+        .replace(/'/g, '"')               // Replace single quotes
+        .replace(/(\w+):/g, '"$1":')      // Quote unquoted keys
+        .replace(/\n/g, '\\n');           // Escape newlines in strings
+      
+      return JSON.parse(fixed);
+    } catch (e2) {
+      // Strategy 5: Try to find JSON in code blocks
+      const codeBlockMatch = str.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (codeBlockMatch) {
+        try {
+          return JSON.parse(codeBlockMatch[1].trim());
+        } catch (e3) {
+          return null;
+        }
+      }
+      return null;
+    }
   }
 }
 
@@ -2015,74 +2169,133 @@ function displayJudgeThinking(judgeNum, thinking) {
 }
 
 // ============================================================================
-// SELECTION FUNCTIONS
+// SELECTION FUNCTIONS - With SESSION_STATE Diversity (v9.8.3)
 // ============================================================================
 
-function selectUnusedPersona(competitorAnalysis) {
+function selectUnusedPersona(competitorAnalysis, contentIndex = 0) {
   const usedPersonas = competitorAnalysis?.personasUsed || [];
+  
+  // DIVERSITY: Also filter out personas used in current session
   const availablePersonas = CONFIG.personas.filter(p => 
     !usedPersonas.some(used => 
       used.toLowerCase().includes(p.id.toLowerCase()) ||
       used.toLowerCase().includes(p.name.toLowerCase())
-    )
+    ) && !SESSION_STATE.wasUsed('personas', p.id)
   );
   
+  // If all used, reset and use diversity based on index
   if (availablePersonas.length === 0) {
-    return CONFIG.personas[Math.floor(Math.random() * CONFIG.personas.length)];
+    const orderedPersonas = ['contrarian', 'skeptic', 'insider', 'researcher', 'storyteller', 'victim_to_hero', 'newbie'];
+    const personaId = orderedPersonas[contentIndex % orderedPersonas.length];
+    const persona = CONFIG.personas.find(p => p.id === personaId) || CONFIG.personas[0];
+    SESSION_STATE.markUsed('personas', persona.id);
+    return persona;
   }
   
+  // Use diversity order - rotate based on index
   const preferredOrder = ['contrarian', 'skeptic', 'insider', 'researcher', 'storyteller', 'victim_to_hero', 'newbie'];
-  for (const pref of preferredOrder) {
+  const startIndex = contentIndex % preferredOrder.length;
+  
+  for (let i = 0; i < preferredOrder.length; i++) {
+    const pref = preferredOrder[(startIndex + i) % preferredOrder.length];
     const found = availablePersonas.find(p => p.id === pref);
-    if (found) return found;
+    if (found) {
+      SESSION_STATE.markUsed('personas', found.id);
+      return found;
+    }
   }
   
-  return availablePersonas[0];
+  const selected = availablePersonas[0];
+  SESSION_STATE.markUsed('personas', selected.id);
+  return selected;
 }
 
-function selectUnusedNarrativeStructure(competitorAnalysis) {
+function selectUnusedNarrativeStructure(competitorAnalysis, contentIndex = 0) {
   const usedStructures = competitorAnalysis?.structuresUsed || [];
+  
+  // DIVERSITY: Also filter out structures used in current session
   const availableStructures = CONFIG.narrativeStructures.filter(s => 
     !usedStructures.some(used => 
       used.toLowerCase().includes(s.id.toLowerCase()) ||
       used.toLowerCase().includes(s.name.toLowerCase())
-    )
+    ) && !SESSION_STATE.wasUsed('narratives', s.id)
   );
   
+  // If all used, use diversity based on index
   if (availableStructures.length === 0) {
-    return CONFIG.narrativeStructures[Math.floor(Math.random() * CONFIG.narrativeStructures.length)];
+    const orderedStructures = ['mystery', 'contrast', 'case_study', 'qa', 'hero_journey', 'pas', 'bab'];
+    const structId = orderedStructures[contentIndex % orderedStructures.length];
+    const structure = CONFIG.narrativeStructures.find(s => s.id === structId) || CONFIG.narrativeStructures[0];
+    SESSION_STATE.markUsed('narratives', structure.id);
+    return structure;
   }
   
+  // Use diversity order - rotate based on index
   const preferredOrder = ['mystery', 'contrast', 'case_study', 'qa', 'hero_journey', 'pas', 'bab'];
-  for (const pref of preferredOrder) {
+  const startIndex = contentIndex % preferredOrder.length;
+  
+  for (let i = 0; i < preferredOrder.length; i++) {
+    const pref = preferredOrder[(startIndex + i) % preferredOrder.length];
     const found = availableStructures.find(s => s.id === pref);
-    if (found) return found;
+    if (found) {
+      SESSION_STATE.markUsed('narratives', found.id);
+      return found;
+    }
   }
   
-  return availableStructures[0];
+  const selected = availableStructures[0];
+  SESSION_STATE.markUsed('narratives', selected.id);
+  return selected;
 }
 
-function selectUnaddressedAudience(competitorAnalysis, campaignTopic) {
+// CONTEXT-AWARE Audience Selection (v9.8.3)
+function selectUnaddressedAudience(competitorAnalysis, campaignTopic, contentIndex = 0) {
   const topicLower = (campaignTopic || '').toLowerCase();
+  
+  // CONTEXT-AWARE: Detect campaign type and select appropriate audience
   let category = 'internet_court';
   
+  // Detect relevant category based on campaign topic
+  if (topicLower.includes('refer') || topicLower.includes('earn') || topicLower.includes('share')) {
+    category = 'opportunity_seekers';  // Custom handling for referral programs
+  } else if (topicLower.includes('court') || topicLower.includes('scam') || topicLower.includes('fraud')) {
+    category = 'internet_court';
+  } else if (topicLower.includes('trade') || topicLower.includes('crypto') || topicLower.includes('token')) {
+    category = 'crypto_traders';
+  }
+  
+  // Get audience segments
+  let segments = CONFIG.audienceSegments[category] || CONFIG.audienceSegments['internet_court'] || [];
+  
+  // DIVERSITY: Filter out audiences used in current session
   const addressedAudiences = competitorAnalysis?.audienceAddressed || [];
-  const segments = CONFIG.audienceSegments[category] || [];
   const availableSegments = segments.filter(s => 
     !addressedAudiences.some(addr => 
       addr.toLowerCase().includes(s.id.toLowerCase()) ||
       addr.toLowerCase().includes(s.name.toLowerCase())
-    )
+    ) && !SESSION_STATE.wasUsed('audiences', s.id)
   );
   
-  if (availableSegments.length === 0) {
-    return segments[0] || { id: 'general', name: 'General Audience', pain: 'General interest' };
+  // Select based on content index for diversity
+  if (availableSegments.length > 0) {
+    const selected = availableSegments[contentIndex % availableSegments.length];
+    SESSION_STATE.markUsed('audiences', selected.id);
+    return selected;
   }
   
-  return availableSegments[0];
+  // Fallback with context-aware default
+  const fallbackOptions = {
+    'opportunity_seekers': { id: 'side_hustlers', name: 'Passive Income Seekers', pain: 'Want effortless earnings' },
+    'internet_court': { id: 'scam_victims', name: 'Scam Victims', pain: 'Seeking justice and recovery' },
+    'crypto_traders': { id: 'retail_traders', name: 'Retail Traders', pain: 'Missing early opportunities' }
+  };
+  
+  const fallback = fallbackOptions[category] || { id: 'general', name: 'General Audience', pain: 'General interest' };
+  return fallback;
 }
 
-function selectRareEmotionCombo(competitorAnalysis) {
+// DIVERSE Emotion Selection (v9.8.3)
+function selectRareEmotionCombo(competitorAnalysis, contentIndex = 0) {
   const usedEmotions = (competitorAnalysis?.emotionsUsed || []).map(e => 
     typeof e === 'object' ? e.emotion?.toLowerCase() : e.toLowerCase()
   );
@@ -2090,27 +2303,39 @@ function selectRareEmotionCombo(competitorAnalysis) {
   const rareCombos = CONFIG.emotionCombos.rare;
   const commonCombos = CONFIG.emotionCombos.common;
   
+  // DIVERSITY: Filter out emotions used in current session
   const availableRare = rareCombos.filter(combo => 
-    !combo.emotions.some(em => usedEmotions.includes(em.toLowerCase()))
+    !combo.emotions.some(em => usedEmotions.includes(em.toLowerCase())) &&
+    !SESSION_STATE.wasUsed('emotions', combo.emotions.join('+'))
   );
   
+  // Select based on content index for diversity
   if (availableRare.length > 0) {
-    return { ...availableRare[0], rarityLevel: 'very rare' };
+    const selected = availableRare[contentIndex % availableRare.length];
+    SESSION_STATE.markUsed('emotions', selected.emotions.join('+'));
+    return { ...selected, rarityLevel: 'very rare' };
   }
   
   const availableCommon = commonCombos.filter(combo =>
-    !combo.emotions.every(em => usedEmotions.includes(em.toLowerCase()))
+    !combo.emotions.every(em => usedEmotions.includes(em.toLowerCase())) &&
+    !SESSION_STATE.wasUsed('emotions', combo.emotions.join('+'))
   );
   
   if (availableCommon.length > 0) {
-    return { ...availableCommon[0], rarityLevel: 'common' };
+    const selected = availableCommon[contentIndex % availableCommon.length];
+    SESSION_STATE.markUsed('emotions', selected.emotions.join('+'));
+    return { ...selected, rarityLevel: 'common' };
   }
   
-  return {
-    emotions: ['curiosity', 'surprise', 'hope'],
-    hook: 'Discovery-driven engagement',
-    rarityLevel: 'common'
-  };
+  // Fallback with variety
+  const fallbackEmotions = [
+    { emotions: ['curiosity', 'surprise', 'hope'], hook: 'Discovery-driven engagement' },
+    { emotions: ['frustration', 'validation', 'hope'], hook: 'Problem-solution arc' },
+    { emotions: ['skepticism', 'surprise', 'trust'], hook: 'Skeptic to believer journey' }
+  ];
+  
+  const fallback = fallbackEmotions[contentIndex % fallbackEmotions.length];
+  return { ...fallback, rarityLevel: 'common' };
 }
 
 function extractKeywords(title) {
@@ -3031,18 +3256,27 @@ Extract in JSON format:
 // CONTENT GENERATION
 // ============================================================================
 
-async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1) {
+async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1, contentIndex = 0) {
   console.log('\n' + '─'.repeat(60));
-  console.log('✨ GENERATING UNIQUE CONTENT (v9.8.4 Enhanced)');
+  console.log(`✨ GENERATING UNIQUE CONTENT #${contentIndex + 1} (v9.8.3 Diverse)`);
   console.log('─'.repeat(60));
   
-  const persona = selectUnusedPersona(competitorAnalysis);
-  const narrativeStructure = selectUnusedNarrativeStructure(competitorAnalysis);
-  const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title);
-  const emotionCombo = selectRareEmotionCombo(competitorAnalysis);
+  // v9.8.3: All selection functions now use contentIndex for diversity
+  const persona = selectUnusedPersona(competitorAnalysis, contentIndex);
+  const narrativeStructure = selectUnusedNarrativeStructure(competitorAnalysis, contentIndex);
+  const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title, contentIndex);
+  const emotionCombo = selectRareEmotionCombo(competitorAnalysis, contentIndex);
   
-  // NEW v9.8.4: Competitor-Aware Hook Selection
-  const selectedHookType = selectHookType(competitorAnalysis);
+  // v9.8.3: Hook selection with diversity
+  const selectedHookType = selectHookType(competitorAnalysis, contentIndex);
+  
+  // Get current cycle adaptations
+  const adaptations = SESSION_STATE.adaptations;
+  const adaptationNotes = [];
+  if (adaptations.increaseEmotionIntensity) adaptationNotes.push('📈 Intensified emotions');
+  if (adaptations.useMoreSpecificData) adaptationNotes.push('📊 More specific data');
+  if (adaptations.avoidGenericClaims) adaptationNotes.push('🚫 Avoiding generic claims');
+  if (adaptations.increaseVulnerability) adaptationNotes.push('💔 Increased vulnerability');
   
   console.log(`   🎭 Selected Persona: ${persona.name}`);
   console.log(`   📖 Narrative Structure: ${narrativeStructure.name}`);
@@ -5652,27 +5886,44 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
 
 /**
  * Generate single content for parallel processing
+ * v9.8.3: Passes contentIndex for diversity
  */
 async function generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, index) {
   const variations = CONFIG.multiContent?.variations || {};
   const angles = variations.angles || ['personal_story', 'data_driven', 'contrarian', 'insider_perspective', 'case_study'];
-  const emotions = variations.emotions || [['curiosity', 'surprise']];
-  const structures = variations.structures || ['hero_journey', 'problem_solution', 'before_after', 'mystery_reveal', 'case_study'];
   
   const selectedAngle = angles[index % angles.length];
-  const selectedEmotion = emotions[index % emotions.length];
-  const selectedStructure = structures[index % structures.length];
   
   console.log(`   📝 [${timestamp()}] Generating Content ${index + 1} (${selectedAngle})...`);
+  
+  // Set session content index for tracking
+  SESSION_STATE.contentIndex = index;
   
   const llm = new MultiProviderLLM(CONFIG);
   
   try {
-    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1);
+    // v9.8.3: Pass contentIndex for diversity
+    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1, index);
     
     if (result && result.tweets && result.tweets[0]) {
+      const content = result.tweets[0].content;
+      
+      // v9.8.3: CONTENT PREVIEW - Show generated content for debugging
+      console.log(`\n   📄 CONTENT ${index + 1} PREVIEW:`);
+      console.log('   ' + '─'.repeat(50));
+      const previewLines = content.split('\n').slice(0, 8);
+      previewLines.forEach(line => {
+        const trimmed = line.substring(0, 70);
+        console.log(`   ${trimmed}${line.length > 70 ? '...' : ''}`);
+      });
+      if (content.split('\n').length > 8) {
+        console.log(`   ... (${content.split('\n').length - 8} more lines)`);
+      }
+      console.log(`   📏 Length: ${content.length} chars`);
+      console.log('   ' + '─'.repeat(50) + '\n');
+      
       console.log(`   ✅ [${timestamp()}] Content ${index + 1} generated`);
-      return { index, content: result.tweets[0].content, success: true };
+      return { index, content, success: true, config: { angle: selectedAngle } };
     }
     
     console.log(`   ❌ [${timestamp()}] Content ${index + 1} failed: Could not parse`);
@@ -5754,9 +6005,21 @@ async function runFirstPassWorkflow(campaignInput) {
   while (!judgingState.hasWinner()) {
     cycleNumber++;
     
+    // v9.8.3: SESSION STATE - Reset for new cycle and track cycle number
+    SESSION_STATE.currentCycle = cycleNumber;
+    SESSION_STATE.resetCycle();
+    
     console.log(`\n${'═'.repeat(60)}`);
     console.log(`🔄 CYCLE ${cycleNumber}`);
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
+    
+    // v9.8.3: Show current adaptations if any
+    const adaptations = SESSION_STATE.adaptations;
+    const activeAdaptations = Object.entries(adaptations).filter(([k, v]) => v).map(([k]) => k);
+    if (activeAdaptations.length > 0) {
+      console.log(`   🧠 Active adaptations: ${activeAdaptations.join(', ')}`);
+    }
+    
     console.log(`${'═'.repeat(60)}`);
     
     // Generate 3 contents in parallel
@@ -5789,6 +6052,19 @@ async function runFirstPassWorkflow(campaignInput) {
     // TRUE FAIL FAST: Use Promise.race pattern - check for winner after each judge step
     // Instead of waiting for ALL to complete, we use a racing mechanism
     const judgeResults = await Promise.allSettled(judgePromises);
+    
+    // v9.8.3: Record failures for learning
+    judgeResults.forEach((r, idx) => {
+      if (r.status === 'fulfilled' && !r.value.passed && !r.value.skipped) {
+        const result = r.value;
+        let reason = 'lowQuality';
+        if (result.judgeScores) {
+          if (result.judgeScores.judge2 < 4) reason = 'factCheckFail';
+          if (result.judgeScores.judge3 < 70) reason = 'lowQuality';
+        }
+        SESSION_STATE.recordFailure(validContents[idx]?.config || {}, reason);
+      }
+    });
     
     // Count failures
     const failedThisCycle = judgeResults.filter(r => 
