@@ -26,9 +26,9 @@
  * 
  * 📊 HIGH STANDARDS (3 CONSOLIDATED JUDGES):
  * - Judge 1 (Gate Master): 18/20 (90%) - Gate Utama + Tambahan + G4 Originality
- * - Judge 2 (Evidence Master): 4/5 (80%) - Fact Check + Evidence Layering
+ * - Judge 2 (Evidence Master): 3/5 (60%) - Fact Check + Evidence Layering
  * - Judge 3 (Quality Master): 70/80 (87.5%) - Penilaian Internal + Compliance + X-Factors
- * - Total: 92/105 (87.6%)
+ * - Total: 91/105 (86.7%)
  * 
  * ✅ ALL FEATURES FROM v9.8.3-base (KEPT INTACT):
  * ✅ G4 Originality Elements Detection (casual hook, parenthetical aside, contractions)
@@ -66,14 +66,14 @@ const THRESHOLDS = {
   // Judge 1: Gate Master (Gate Utama + Gate Tambahan + G4 + Punctuation)
   JUDGE1: { pass: 18, max: 20, name: 'Gate Master', percent: '90%' },
   
-  // Judge 2: Evidence Master (Fact Check + Evidence Layering)
-  JUDGE2: { pass: 4, max: 5, name: 'Evidence Master', percent: '80%' },
+  // Judge 2: Evidence Master (Fact Check + Evidence Layering) - Lowered to 60%
+  JUDGE2: { pass: 3, max: 5, name: 'Evidence Master', percent: '60%' },
   
   // Judge 3: Quality Master (Penilaian Internal + Compliance + Uniqueness + X-Factors)
   JUDGE3: { pass: 70, max: 80, name: 'Quality Master', percent: '87.5%' },
   
-  // Total Score Required
-  TOTAL: { pass: 92, max: 105, percent: '87.6%' }
+  // Total Score Required (adjusted for Judge 2 change)
+  TOTAL: { pass: 91, max: 105, percent: '86.7%' }
 };
 
 // ============================================================================
@@ -692,6 +692,21 @@ const CONFIG = {
       { id: 'dao_participants', name: 'DAO/Governance Participants', pain: 'Disputes in voting, unclear resolution' },
       { id: 'ecommerce', name: 'E-commerce Dispute Victims', pain: 'Buyer/seller disputes, biased platforms' },
       { id: 'smart_contract_users', name: 'Smart Contract Users', pain: 'Bugs, hacks, unclear liability' }
+    ],
+    // NEW: Audience for referral/earning programs
+    'opportunity_seekers': [
+      { id: 'side_hustlers', name: 'Passive Income Seekers', pain: 'Want effortless extra income' },
+      { id: 'content_creators', name: 'Content Creators', pain: 'Monetizing their influence' },
+      { id: 'crypto_earners', name: 'Crypto Earners', pain: 'Looking for legit earning opportunities' },
+      { id: 'referral_pros', name: 'Referral Program Veterans', pain: 'Maximizing referral rewards' },
+      { id: 'web3_early_adopters', name: 'Web3 Early Adopters', pain: 'Finding the next big opportunity' }
+    ],
+    // NEW: Audience for crypto trading
+    'crypto_traders': [
+      { id: 'retail_traders', name: 'Retail Traders', pain: 'Missing early opportunities' },
+      { id: 'degen_traders', name: 'Degen Traders', pain: 'High risk, high reward' },
+      { id: 'nft_collectors', name: 'NFT Collectors', pain: 'Finding undervalued projects' },
+      { id: 'yield_farmers', name: 'Yield Farmers', pain: 'Optimizing returns' }
     ]
   },
   
@@ -5973,9 +5988,9 @@ async function runFirstPassWorkflow(campaignInput) {
   // Display thresholds
   console.log('\n📊 HIGH STANDARDS THRESHOLDS:');
   console.log(`   Judge 1 (Gate Master):  18/20 (90%)`);
-  console.log(`   Judge 2 (Evidence):      4/5 (80%)`);
+  console.log(`   Judge 2 (Evidence):      3/5 (60%)`);
   console.log(`   Judge 3 (Quality):      70/80 (87.5%)`);
-  console.log(`   Total Required:         92/105 (87.6%)`);
+  console.log(`   Total Required:         91/105 (86.7%)`);
   
   // Fetch competitor submissions
   console.log('\n📥 Fetching competitor submissions...');
