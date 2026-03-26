@@ -73,7 +73,21 @@ const THRESHOLDS = {
   JUDGE3: { pass: 70, max: 80, name: 'Quality Master', percent: '87.5%' },
   
   // Total Score Required (adjusted for Judge 2 change)
-  TOTAL: { pass: 91, max: 105, percent: '86.7%' }
+  TOTAL: { pass: 91, max: 105, percent: '86.7%' },
+  
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // MANDATORY VALIDATIONS (Binary - Fail = Disqualified)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  MANDATORY: {
+    // G4 Originality: Wajib 4 dari 5 elements
+    G4_ELEMENTS: { required: 4, max: 5, name: 'G4 Originality Elements' },
+    
+    // X-Factor: Wajib 3 dari 5 factors  
+    X_FACTORS: { required: 3, max: 5, name: 'X-Factor Differentiators' },
+    
+    // Compliance: All checks must pass (binary)
+    COMPLIANCE: { required: 'all', name: 'Compliance Checks', binary: true }
+  }
 };
 
 // ============================================================================
@@ -2532,7 +2546,207 @@ function detectG4Elements(content) {
   // Determine if G4 = 2.0 is achievable
   result.canAchieveMaxScore = result.totalPenalty === 0 && result.totalBonus >= 0.8;
   
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // NEW v9.8.4: MANDATORY G4 ELEMENTS CHECK (Wajib 4 dari 5)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  result.mandatoryElements = {
+    casualHookOpening: result.bonuses.casualHookOpening || false,
+    parentheticalAside: result.bonuses.parentheticalAside || false,
+    contractions: result.bonuses.contractions?.passed || false,
+    personalAngle: result.bonuses.personalAngle || false,
+    conversationalEnding: result.bonuses.conversationalEnding || false
+  };
+  
+  // Count mandatory elements (4 of 5 required)
+  const mandatoryCount = Object.values(result.mandatoryElements).filter(v => v === true).length;
+  result.mandatoryElementsCount = mandatoryCount;
+  result.mandatoryElementsPassed = mandatoryCount >= 4;
+  
+  if (!result.mandatoryElementsPassed) {
+    result.issues.push(`G4 MANDATORY FAIL: Only ${mandatoryCount}/5 elements (need 4+)`);
+  }
+  
   return result;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * VALIDATE G4 MANDATORY - Check if content has required 4 of 5 G4 elements
+ * ═══════════════════════════════════════════════════════════════════════════════
+ */
+function validateG4Mandatory(content) {
+  const g4Result = detectG4Elements(content);
+  
+  return {
+    passed: g4Result.mandatoryElementsPassed,
+    count: g4Result.mandatoryElementsCount,
+    required: 4,
+    elements: g4Result.mandatoryElements,
+    issues: g4Result.mandatoryElementsPassed ? [] : [`Need 4+ G4 elements, got ${g4Result.mandatoryElementsCount}`],
+    g4Result
+  };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * VALIDATE X-FACTOR MANDATORY - Check if content has required 3 of 5 X-Factors
+ * ═══════════════════════════════════════════════════════════════════════════════
+ */
+function validateXFactorMandatory(content) {
+  const xFactorResult = detectXFactors(content);
+  
+  const xFactorCount = xFactorResult.detected.length;
+  const passed = xFactorCount >= 3;
+  
+  // Create element status for each X-Factor
+  const elements = {
+    specificNumbers: false,
+    timeSpecificity: false,
+    embarrassingHonesty: false,
+    insiderDetail: false,
+    unexpectedAngle: false
+  };
+  
+  // Mark which elements are detected
+  xFactorResult.detected.forEach(factor => {
+    const type = factor.type;
+    if (type === 'specificNumbers') elements.specificNumbers = true;
+    if (type === 'timeSpecificity') elements.timeSpecificity = true;
+    if (type === 'embarrassingHonesty') elements.embarrassingHonesty = true;
+    if (type === 'insiderDetail') elements.insiderDetail = true;
+    if (type === 'unexpectedAngle') elements.unexpectedAngle = true;
+  });
+  
+  return {
+    passed,
+    count: xFactorCount,
+    required: 3,
+    elements,
+    detected: xFactorResult.detected,
+    missing: xFactorResult.missing,
+    issues: passed ? [] : [`Need 3+ X-Factors, got ${xFactorCount}`]
+  };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * VALIDATE COMPLIANCE BINARY - All compliance checks must pass (binary)
+ * ═══════════════════════════════════════════════════════════════════════════════
+ */
+function validateComplianceBinary(content, campaignData) {
+  const result = {
+    passed: true,
+    checks: {},
+    failedChecks: [],
+    totalChecks: 0,
+    passedChecks: 0
+  };
+  
+  if (!content || !campaignData) {
+    result.passed = false;
+    result.failedChecks.push('Missing content or campaign data');
+    return result;
+  }
+  
+  const requiredUrl = campaignData.campaignUrl || campaignData.url || '';
+  const contentLower = content.toLowerCase();
+  
+  // Check 1: Required URL present
+  result.checks.urlPresent = {
+    required: requiredUrl,
+    found: requiredUrl ? content.includes(requiredUrl) : true,
+    passed: requiredUrl ? content.includes(requiredUrl) : true
+  };
+  
+  // Check 2: Required mentions (extract from campaign)
+  const mentions = extractMentions(campaignData);
+  result.checks.mentionsPresent = {
+    required: mentions,
+    found: mentions.every(m => contentLower.includes(m.toLowerCase())),
+    passed: mentions.every(m => contentLower.includes(m.toLowerCase())) || mentions.length === 0
+  };
+  
+  // Check 3: Required hashtags (extract from campaign)
+  const hashtags = extractHashtags(campaignData);
+  result.checks.hashtagsPresent = {
+    required: hashtags,
+    found: hashtags.every(h => contentLower.includes(h.toLowerCase())),
+    passed: hashtags.every(h => contentLower.includes(h.toLowerCase())) || hashtags.length === 0
+  };
+  
+  // Check 4: No banned words
+  const bannedWords = CONFIG.hardRequirements.bannedWords.concat(CONFIG.hardRequirements.rallyBannedPhrases);
+  const foundBanned = bannedWords.filter(w => contentLower.includes(w.toLowerCase()));
+  result.checks.noBannedWords = {
+    found: foundBanned,
+    passed: foundBanned.length === 0
+  };
+  
+  // Check 5: No forbidden punctuation (em dashes, smart quotes)
+  const punctuationResult = detectForbiddenPunctuation(content);
+  result.checks.noForbiddenPunctuation = {
+    issues: punctuationResult.totalIssues,
+    passed: punctuationResult.totalIssues === 0
+  };
+  
+  // Check 6: No AI phrases
+  const aiPhrases = CONFIG.hardRequirements.aiPhrases.words.concat(CONFIG.hardRequirements.aiPhrases.phrases);
+  const foundAiPhrases = aiPhrases.filter(p => contentLower.includes(p.toLowerCase()));
+  result.checks.noAiPhrases = {
+    found: foundAiPhrases,
+    passed: foundAiPhrases.length === 0
+  };
+  
+  // Check 7: No template openings
+  const templateOpenings = CONFIG.hardRequirements.templatePhrases;
+  const first50Words = contentLower.split(/\s+/).slice(0, 50).join(' ');
+  const foundTemplates = templateOpenings.filter(t => first50Words.includes(t.toLowerCase()));
+  result.checks.noTemplateOpenings = {
+    found: foundTemplates,
+    passed: foundTemplates.length === 0
+  };
+  
+  // Calculate results
+  result.totalChecks = Object.keys(result.checks).length;
+  result.passedChecks = Object.values(result.checks).filter(c => c.passed).length;
+  
+  // BINARY: If ANY check fails, overall result is FAIL
+  Object.entries(result.checks).forEach(([name, check]) => {
+    if (!check.passed) {
+      result.failedChecks.push(name);
+      result.passed = false;
+    }
+  });
+  
+  return result;
+}
+
+/**
+ * Extract mentions from campaign data
+ */
+function extractMentions(campaignData) {
+  const mentions = [];
+  if (!campaignData) return mentions;
+  
+  // Check rules and description for @mentions
+  const text = `${campaignData.rules || ''} ${campaignData.description || ''} ${campaignData.style || ''}`;
+  const mentionMatches = text.match(/@[\w]+/g) || [];
+  
+  return [...new Set(mentionMatches.map(m => m.replace('@', '')))];
+}
+
+/**
+ * Extract hashtags from campaign data
+ */
+function extractHashtags(campaignData) {
+  const hashtags = [];
+  if (!campaignData) return hashtags;
+  
+  // Check rules and description for #hashtags
+  const text = `${campaignData.rules || ''} ${campaignData.description || ''} ${campaignData.style || ''}`;
+  const hashtagMatches = text.match(/#[\w]+/g) || [];
+  
+  return [...new Set(hashtagMatches)];
 }
 
 /**
@@ -5831,8 +6045,53 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     scores: {},
     passed: false,
     totalScore: 0,
-    failedAt: null
+    failedAt: null,
+    mandatoryValidations: {}
   };
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PRE-JUDGE VALIDATIONS (Binary - Fail any = Disqualified)
+  // ═══════════════════════════════════════════════════════════════════════════
+  console.log(`   🔴 Pre-Judge Validations (Binary)...`);
+  
+  // 1. COMPLIANCE CHECK (Binary - all must pass)
+  const complianceResult = validateComplianceBinary(content, campaignData);
+  results.mandatoryValidations.compliance = complianceResult;
+  
+  if (!complianceResult.passed) {
+    console.log(`   ❌ COMPLIANCE FAIL: ${complianceResult.failedChecks.join(', ')}`);
+    results.failedAt = 'compliance_binary';
+    results.passed = false;
+    return results;
+  }
+  console.log(`   ✅ Compliance: ${complianceResult.passedChecks}/${complianceResult.totalChecks} checks passed`);
+  
+  // 2. G4 MANDATORY CHECK (Wajib 4 dari 5)
+  const g4MandatoryResult = validateG4Mandatory(content);
+  results.mandatoryValidations.g4Mandatory = g4MandatoryResult;
+  
+  if (!g4MandatoryResult.passed) {
+    console.log(`   ❌ G4 MANDATORY FAIL: ${g4MandatoryResult.count}/5 elements (need 4+)`);
+    results.failedAt = 'g4_mandatory';
+    results.passed = false;
+    return results;
+  }
+  console.log(`   ✅ G4 Mandatory: ${g4MandatoryResult.count}/5 elements passed`);
+  
+  // 3. X-FACTOR MANDATORY CHECK (Wajib 3 dari 5)
+  const xFactorMandatoryResult = validateXFactorMandatory(content);
+  results.mandatoryValidations.xFactorMandatory = xFactorMandatoryResult;
+  
+  if (!xFactorMandatoryResult.passed) {
+    console.log(`   ❌ X-FACTOR MANDATORY FAIL: ${xFactorMandatoryResult.count}/5 factors (need 3+)`);
+    results.failedAt = 'xfactor_mandatory';
+    results.passed = false;
+    return results;
+  }
+  console.log(`   ✅ X-Factor Mandatory: ${xFactorMandatoryResult.count}/5 factors passed`);
+  
+  // All mandatory validations passed
+  console.log(`   ✅ All Mandatory Validations PASSED!`);
   
   const llm = new MultiProviderLLM(CONFIG);
   
@@ -6108,6 +6367,12 @@ async function runFirstPassWorkflow(campaignInput) {
   console.log(`   Judge 2 (Evidence):      3/5 (60%)`);
   console.log(`   Judge 3 (Quality):      70/80 (87.5%)`);
   console.log(`   Total Required:         91/105 (86.7%)`);
+  
+  // Display MANDATORY validations (Binary)
+  console.log('\n🔴 MANDATORY VALIDATIONS (Binary - Fail = Disqualified):');
+  console.log(`   G4 Originality:          4/5 elements required`);
+  console.log(`   X-Factor:               3/5 factors required`);
+  console.log(`   Compliance:             All checks must pass`);
   
   // Fetch competitor submissions
   console.log('\n📥 Fetching competitor submissions...');
