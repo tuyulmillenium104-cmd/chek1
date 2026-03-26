@@ -6236,7 +6236,7 @@ async function runFirstPassWorkflow(campaignInput) {
 
 async function main() {
   const campaignArg = process.argv[2] || 'list';
-  const modeArg = process.argv[3] || 'firstpass';
+  const extraArg = process.argv[3] || '';
   
   // Handle "list" command
   if (campaignArg.toLowerCase() === 'list') {
@@ -6244,7 +6244,59 @@ async function main() {
     process.exit(0);
   }
   
-  console.log('\n📌 MODE: First Pass Wins (v9.8.3-final-v2)');
+  // Handle "comments" command - Generate 17 engagement comments
+  if (campaignArg.toLowerCase() === 'comments') {
+    const targetCampaign = extraArg;
+    if (!targetCampaign) {
+      console.log('\n❌ Usage: node rally-workflow-v9.8.3-final.js comments <campaign>');
+      console.log('   Example: node rally-workflow-v9.8.3-final.js comments "Share, Refer, Earn Forever"');
+      process.exit(1);
+    }
+    
+    console.log('\n💬 MODE: Generate 17 Engagement Comments');
+    
+    try {
+      // Resolve campaign
+      const campaignData = await resolveCampaign(targetCampaign);
+      if (!campaignData) {
+        console.log('❌ Campaign not found');
+        process.exit(1);
+      }
+      
+      // Check for existing winner content
+      let winnerContent = '';
+      const winnerFile = `${CONFIG.outputDir}/winner-content.txt`;
+      if (fs.existsSync(winnerFile)) {
+        winnerContent = fs.readFileSync(winnerFile, 'utf8').trim();
+        console.log(`   📄 Using winner content from: ${winnerFile}`);
+      } else {
+        // Generate content first
+        console.log('   📝 No winner content found. Generating content first...');
+        const result = await runFirstPassWorkflow(targetCampaign);
+        if (result) {
+          winnerContent = result.content;
+        } else {
+          console.log('❌ Failed to generate content');
+          process.exit(1);
+        }
+      }
+      
+      // Generate comments
+      await generateEngagementComments(
+        winnerContent,
+        campaignData.title,
+        campaignData.url || `https://app.rally.fun/campaign/${campaignData.intelligentContractAddress}`
+      );
+      
+      console.log('\n✅ Comments generated successfully!');
+      process.exit(0);
+    } catch (error) {
+      console.error('\n❌ Comments generation failed:', error.message);
+      process.exit(1);
+    }
+  }
+  
+  console.log('\n📌 MODE: First Pass Wins (v9.8.3-final-v3)');
   console.log('   Generate 3 contents PARALLEL → Judge with FAIL FAST → First pass wins');
   
   try {
@@ -6268,6 +6320,93 @@ async function main() {
     console.error(error.stack);
     process.exit(1);
   }
+}
+
+// ============================================================================
+// ENGAGEMENT COMMENTS GENERATOR - 17 Komentar untuk Boost Engagement
+// ============================================================================
+
+async function generateEngagementComments(winnerContent, campaignTitle, campaignUrl) {
+  console.log('\n' + '═'.repeat(60));
+  console.log('💬 GENERATING 17 ENGAGEMENT COMMENTS');
+  console.log('═'.repeat(60));
+  
+  const llm = new MultiProviderLLM(CONFIG);
+  
+  const prompt = 'Generate 17 engagement-boosting comments for this X (Twitter) post.\n\nWINNING CONTENT:\n' + winnerContent + '\n\nCAMPAIGN: ' + campaignTitle + '\n\nGenerate a JSON array with 17 comments. Mix these types:\n- Question (5): Ask clarifying questions\n- Skepticism (3): Express doubt\n- Experience (3): Share relatable experiences\n- Excitement (4): Show enthusiasm\n- Technical (2): Ask technical details\n- Supportive (2): Validate the content\n\nReturn JSON array ONLY:\n[{"id": 1, "type": "skepticism", "comment": "text", "reply": "response"}]\n\nRules:\n- Comments should feel like real X users (lowercase, casual)\n- No hashtags\n- Comments 20-50 chars, replies 15-40 chars';
+
+  try {
+    const response = await llm.chat([
+      { role: 'system', content: 'You are a social media expert. Generate realistic engagement comments. Return JSON array only.' },
+      { role: 'user', content: prompt }
+    ], { temperature: 0.8, maxTokens: 3000 });
+    
+    let comments = safeJsonParse(response.content);
+    
+    if (!comments || !Array.isArray(comments)) {
+      console.log('   ⚠️ Failed to parse comments, using defaults...');
+      comments = getDefaultComments(campaignTitle);
+    }
+    
+    console.log('   ✅ Generated ' + comments.length + ' comments');
+    
+    // Display comments
+    console.log('\n' + '─'.repeat(60));
+    comments.forEach((c, i) => {
+      console.log('\n💬 #' + (i + 1) + ' [' + c.type.toUpperCase() + ']');
+      console.log('   Comment: "' + c.comment + '"');
+      console.log('   Reply: "' + c.reply + '"');
+    });
+    console.log('\n' + '─'.repeat(60));
+    
+    // Save to file
+    const outputPath = CONFIG.outputDir + '/engagement-comments-' + Date.now() + '.json';
+    fs.writeFileSync(outputPath, JSON.stringify({
+      winnerContent,
+      campaign: campaignTitle,
+      generatedAt: new Date().toISOString(),
+      comments
+    }, null, 2));
+    console.log('\n💾 Comments saved to: ' + outputPath);
+    
+    // Save markdown
+    const mdPath = CONFIG.outputDir + '/engagement-comments-' + Date.now() + '.md';
+    let md = '# 17 Engagement Comments\n## ' + campaignTitle + '\n\n---\n\n';
+    comments.forEach((c, i) => {
+      md += '## 💬 Komentar #' + (i + 1) + ' - ' + c.type.toUpperCase() + '\n';
+      md += '**Komentar:** "' + c.comment + '"\n\n';
+      md += '**Jawaban:** "' + c.reply + '"\n\n---\n\n';
+    });
+    fs.writeFileSync(mdPath, md);
+    console.log('💾 Markdown saved to: ' + mdPath);
+    
+    return comments;
+  } catch (error) {
+    console.log('   ❌ Error: ' + error.message);
+    return getDefaultComments(campaignTitle);
+  }
+}
+
+function getDefaultComments(campaignTitle) {
+  return [
+    { id: 1, type: "skepticism", comment: "sounds too good. what is the catch?", reply: "No catch I found. It is tied to actual creator output." },
+    { id: 2, type: "question", comment: "how do I get started?", reply: "Check the link in the post. Pretty straightforward." },
+    { id: 3, type: "experience", comment: "tried similar stuff before, never worked out", reply: "This one is different. The on-chain verification is transparent." },
+    { id: 4, type: "excitement", comment: "this is actually legit, been using it", reply: "Glad to hear! The transparency is what sold me too." },
+    { id: 5, type: "technical", comment: "is this on-chain or off-chain?", reply: "Hybrid. AI validates on-chain, points settle transparently." },
+    { id: 6, type: "skepticism", comment: "another passive income scheme lol", reply: "Not passive from nothing. You refer, they work, you earn." },
+    { id: 7, type: "question", comment: "works internationally?", reply: "Yep, no geo restrictions. Just need X account and wallet." },
+    { id: 8, type: "supportive", comment: "been using rally for weeks, it works", reply: "The transparency is a game changer for sure." },
+    { id: 9, type: "experience", comment: "referred some friends last month, seeing results", reply: "That feeling when network equals net worth. Congrats!" },
+    { id: 10, type: "question", comment: "what if my referrals stop creating?", reply: "You keep what they earned. Forever applies while active." },
+    { id: 11, type: "skepticism", comment: "can you show actual numbers?", reply: "Fair ask. I will share breakdown after a full month." },
+    { id: 12, type: "excitement", comment: "finally something for smaller creators", reply: "The meritocracy angle is huge here." },
+    { id: 13, type: "technical", comment: "which chain is this on?", reply: "Built on Base with GenLayer for AI verification." },
+    { id: 14, type: "question", comment: "minimum followers required?", reply: "This campaign needs 100. Pretty accessible." },
+    { id: 15, type: "experience", comment: "my cousin made his first on-chain earnings here", reply: "Small real earnings beat big fake promises." },
+    { id: 16, type: "supportive", comment: "would tell my irl friends about this", reply: "When non-crypto friends get it, you know its useful." },
+    { id: 17, type: "excitement", comment: "this is gonna eat traditional platforms", reply: "Infrastructure is there. Just needs more creators." }
+  ];
 }
 
 main();
