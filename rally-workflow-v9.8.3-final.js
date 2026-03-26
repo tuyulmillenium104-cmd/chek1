@@ -1356,6 +1356,9 @@ const SESSION_STATE = {
     originalityFail: 0
   },
   
+  // Track detailed failure feedback
+  failureFeedback: [],
+  
   // Cycle-level adaptations
   adaptations: {
     increaseEmotionIntensity: false,
@@ -1388,14 +1391,24 @@ const SESSION_STATE = {
   },
   
   // Record failure for learning
-  recordFailure(config, reason) {
-    this.failedConfigurations.push({ ...config, reason, cycle: this.currentCycle });
+  recordFailure(config, reason, detail = '') {
+    this.failedConfigurations.push({ ...config, reason, detail, cycle: this.currentCycle });
     if (this.failureReasons[reason] !== undefined) {
       this.failureReasons[reason]++;
     }
     
+    // Store detailed feedback
+    if (detail) {
+      this.failureFeedback.push({ reason, detail, cycle: this.currentCycle });
+    }
+    
     // Trigger adaptations based on patterns
     this.updateAdaptations();
+  },
+  
+  // Get recent failure feedback for prompt
+  getRecentFeedback(maxItems = 3) {
+    return this.failureFeedback.slice(-maxItems);
   },
   
   // Update adaptations based on failure patterns
@@ -3293,11 +3306,24 @@ async function generateUniqueContent(llm, campaignData, competitorAnalysis, rese
   if (adaptations.avoidGenericClaims) adaptationNotes.push('🚫 Avoiding generic claims');
   if (adaptations.increaseVulnerability) adaptationNotes.push('💔 Increased vulnerability');
   
+  // Get recent failure feedback
+  const recentFailures = SESSION_STATE.getRecentFeedback(3);
+  
   console.log(`   🎭 Selected Persona: ${persona.name}`);
   console.log(`   📖 Narrative Structure: ${narrativeStructure.name}`);
   console.log(`   👥 Target Audience: ${audience.name}`);
   console.log(`   💫 Emotion Combo: ${emotionCombo.emotions.join(' + ')} (${emotionCombo.rarityLevel})`);
   console.log(`   🎣 Hook Type: ${selectedHookType.name}`);
+  
+  // Show active adaptations
+  if (adaptationNotes.length > 0) {
+    console.log(`   🧠 Adaptations: ${adaptationNotes.join(', ')}`);
+  }
+  
+  // Show recent failure feedback if any
+  if (recentFailures.length > 0) {
+    console.log(`   ⚠️ Previous failures: ${recentFailures.map(f => f.detail).join('; ')}`);
+  }
   
   // Platform context for X (Twitter)
   const platform = CONFIG.platform;
@@ -3576,12 +3602,75 @@ Remember:
 • AVOID all forbidden words and phrases
 • Be AUTHENTIC - write like a real person, not a brand
 
+${adaptations.increaseEmotionIntensity ? '⚠️ CRITICAL: Previous attempts failed due to weak emotions. Make emotions MORE INTENSE and SPECIFIC. Use vivid physical sensations.\n' : ''}${adaptations.useMoreSpecificData ? '⚠️ CRITICAL: Previous attempts failed fact-check. Use ONLY verified, specific data with sources. No vague claims.\n' : ''}${adaptations.avoidGenericClaims ? '⚠️ CRITICAL: Previous attempts lacked originality. Be MORE specific, MORE personal, MORE vulnerable. No generic statements.\n' : ''}${adaptations.increaseVulnerability ? '⚠️ CRITICAL: Share something embarrassing or personal. Real vulnerability creates connection.\n' : ''}
+
+═══════════════════════════════════════════════════════════════════════════════
+📝 EXAMPLES OF WINNING CONTENT STRUCTURE (DO NOT COPY - USE AS REFERENCE):
+═══════════════════════════════════════════════════════════════════════════════
+
+EXAMPLE 1 (Referral/Earning Campaign):
+"Three months. 47 referrals. $0 earned. Then I figured it out.
+
+The referral link sat in my notes app collecting dust. I'd share it occasionally, get a few signups, nothing happened. Pretty sure I made $3 total. Pathetic.
+
+Last week I changed ONE thing. Instead of 'check this out' I started telling the actual story of why I signed up in the first place. The problem I was trying to solve. The frustration of trying other solutions.
+
+My last 3 referrals generated $127. Still not life-changing, but it's $127 I didn't have before.
+
+If you've been sitting on referral links doing nothing: ${campaignData.campaignUrl || '[URL]'}
+
+What's worked for you?"
+
+Why this works:
+- Specific numbers (47, $3, $127)
+- Vulnerability (admitting "pathetic" results)
+- Clear before/after transformation
+- Natural URL integration
+- Ends with question to drive engagement
+
+EXAMPLE 2 (Product/Service Campaign):
+"Spent 6 hours comparing options. Made a spreadsheet. Cried a little.
+
+Okay not actually cried. But the spreadsheet was 47 rows and I still couldn't decide. Analysis paralysis is real.
+
+Then I realized I was optimizing for the wrong thing. I was comparing features I'd never use instead of focusing on what I actually needed.
+
+Picked one in 10 minutes after that shift. No regrets.
+
+If you're stuck in comparison mode: ${campaignData.campaignUrl || '[URL]'}
+
+Sometimes good enough is actually the best choice."
+
+Why this works:
+- Relatable struggle (spreadsheet, analysis paralysis)
+- Humor ("cried a little" then honest correction)
+- Specific detail (47 rows)
+- Personal insight/lesson learned
+- Natural CTA
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 YOUR CONTENT MUST HAVE:
+═══════════════════════════════════════════════════════════════════════════════
+1. SPECIFIC NUMBER or TIME (not "a while" or "some money" - use "47 minutes" or "$312")
+2. PERSONAL VULNERABILITY (admit a struggle, mistake, or embarrassing moment)
+3. BODY SENSATION (heart racing, stomach dropped, cold sweat, jaw dropped)
+4. EMOTIONAL JOURNEY (frustration → hope → action, or confusion → insight → result)
+5. NATURAL URL (flow with the story, not tacked on)
+6. ENGAGEMENT BAIT (genuine question, not "thoughts?")
+
+${recentFailures.length > 0 ? `═══════════════════════════════════════════════════════════════════════════════
+⚠️ LEARN FROM PREVIOUS FAILURES:
+═══════════════════════════════════════════════════════════════════════════════
+${recentFailures.map((f, i) => `${i + 1}. ${f.detail}`).join('\n')}
+
+IMPORTANT: Address these issues in your new content. Do NOT repeat the same mistakes!
+` : ''}
 Create content that makes readers STOP, FEEL, and ENGAGE.`;
 
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.8, maxTokens: 4000 });
+  ], { temperature: 0.7, maxTokens: 4000 });
   
   const result = safeJsonParse(response.content);
   
@@ -6101,11 +6190,32 @@ async function runFirstPassWorkflow(campaignInput) {
       if (r.status === 'fulfilled' && !r.value.passed && !r.value.skipped) {
         const result = r.value;
         let reason = 'lowQuality';
-        if (result.judgeScores) {
-          if (result.judgeScores.judge2 < 4) reason = 'factCheckFail';
-          if (result.judgeScores.judge3 < 70) reason = 'lowQuality';
+        let detailReason = '';
+        
+        // Determine specific failure reason
+        if (result.scores) {
+          const j1 = result.scores.judge1?.score || 0;
+          const j2 = result.scores.judge2?.score || 0;
+          const j3 = result.scores.judge3?.score || 0;
+          
+          if (j1 < 18) {
+            reason = 'originalityFail';
+            detailReason = `Gate score too low (${j1}/20) - need more original hook, better G4 elements`;
+          } else if (j2 < 3) {
+            reason = 'factCheckFail';
+            detailReason = `Evidence score too low (${j2}/5) - need more specific, verified data`;
+          } else if (j3 < 70) {
+            reason = 'lowQuality';
+            detailReason = `Quality score too low (${j3}/80) - need stronger emotions, better structure`;
+          }
         }
-        SESSION_STATE.recordFailure(validContents[idx]?.config || {}, reason);
+        
+        SESSION_STATE.recordFailure(validContents[idx]?.config || {}, reason, detailReason);
+        
+        // Show detailed feedback for next cycle
+        if (detailReason) {
+          console.log(`   📝 Content ${idx + 1} failed: ${detailReason}`);
+        }
       }
     });
     
