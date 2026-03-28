@@ -56,6 +56,9 @@ const path = require('path');
 // ============================================================================
 // CONSISTENT THRESHOLDS - Single Source of Truth
 // ============================================================================
+// Module-level cache for deep campaign intent (shared between content generation and judging)
+let _cachedCampaignIntent = null;
+
 const THRESHOLDS = {
   // Judge 1: Gate Master (Gate Utama + Gate Tambahan + G4 + Punctuation)
   // MUST BE SEMPURNA (100%) - No compromises on quality gate
@@ -3275,6 +3278,43 @@ ${comprehensionPlan._hashtagProhibitionMissed ? `
 🚨🚨🚨 HASHTAGS ARE PROHIBITED! DO NOT USE ANY #HASHTAGS! 🚨🚨🚨
 ` : ''}
 
+${comprehensionPlan._deepIntent ? `
+════════════════════════════════════════════════════════════════
+🧠🧠🧠 DEEP CAMPAIGN INTENT (UNDERSTAND THIS OR YOUR CONTENT WILL FAIL):
+════════════════════════════════════════════════════════════════
+WHAT THE CAMPAIGN ACTUALLY WANTS:
+${comprehensionPlan._trueIntent?.summary || 'See rules above'}
+
+CONTENT TYPE: ${comprehensionPlan._contentType || 'Personal experience'}
+DESIRED READER REACTION: ${comprehensionPlan._trueIntent?.desiredReaderReaction || 'Engage'}
+
+${comprehensionPlan._metricType ? `
+⚠️⚠️⚠️ METRIC TYPE REQUIRED: ${comprehensionPlan._metricType}
+- ONLY use metrics of type: ${comprehensionPlan._metricType}
+- These are the RIGHT metrics to use: ${(comprehensionPlan._correctMetrics || []).join(', ') || 'See rules'}
+- These metrics are WRONG — DO NOT USE: ${(comprehensionPlan._wrongMetrics || []).join(', ') || 'N/A'}
+- Example: If campaign wants GROWTH metrics → use user adoption, engagement rate, NOT TVL/volume
+` : ''}
+
+${(comprehensionPlan._contentToAvoid?.wrongMetricTypes?.length > 0) ? `
+🚫🚨🚨 WRONG METRIC TYPES TO AVOID:
+${comprehensionPlan._contentToAvoid.wrongMetricTypes.map(m => '- ❌ ' + m).join('\n')}
+Using these would be a FACTUAL ERROR even if the numbers are real!
+` : ''}
+
+${(comprehensionPlan._contentToUse?.rightMetricExamples?.length > 0) ? `
+✅ CORRECT METRICS/ANGLES TO USE:
+${comprehensionPlan._contentToUse.rightMetricExamples.map(m => '- ✓ ' + m).join('\n')}
+` : ''}
+
+${(comprehensionPlan._criticalWarnings?.length > 0) ? `
+🚨🚨🚨 CRITICAL WARNINGS FROM INTENT ANALYSIS:
+${comprehensionPlan._criticalWarnings.map(w => '- ⚠️ ' + w).join('\n')}
+` : ''}
+
+════════════════════════════════════════════════════════════════
+` : ''}
+
 ⚠️ THIS PLAN WAS CREATED BY READING ALL CAMPAIGN RULES. FOLLOW IT EXACTLY.
 ═══════════════════════════════════════════════════════════════════════════════
 ` : '';
@@ -4771,7 +4811,7 @@ Return JSON:
 }`;
 }
 
-function getJudge1UserPrompt(content, campaignData) {
+function getJudge1UserPrompt(content, campaignData, deepIntent = null) {
   const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Gate Utama:
 
@@ -4800,6 +4840,23 @@ ${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
 ${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
 
 Campaign URL: ${campaignData.campaignUrl || campaignData.url || 'Check for URL'}
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Evaluate considering campaign rules. Return JSON scores.`;
 }
@@ -4877,7 +4934,7 @@ Return JSON:
 }`;
 }
 
-function getJudge2UserPrompt(content, campaignData) {
+function getJudge2UserPrompt(content, campaignData, deepIntent = null) {
   const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Gate Tambahan:
 
@@ -4902,6 +4959,23 @@ ${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED' : ''}
 ${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED' : ''}
 ${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
 ${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Evaluate considering campaign rules and context. Return JSON scores.`;
 }
@@ -4988,7 +5062,7 @@ Return JSON:
 }`;
 }
 
-function getJudge3UserPrompt(content, campaignData) {
+function getJudge3UserPrompt(content, campaignData, deepIntent = null) {
   const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Penilaian Internal:
 
@@ -5028,6 +5102,23 @@ ${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
 ${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
 
 Target Audience: ${campaignData.targetAudience || 'General'}
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Evaluate considering ALL campaign rules. Return JSON scores.`;
 }
@@ -5145,7 +5236,7 @@ Return JSON:
 }`;
 }
 
-function getJudge4UserPrompt(content, campaignData) {
+function getJudge4UserPrompt(content, campaignData, deepIntent = null) {
   return `Check compliance for:
 
 CONTENT:
@@ -5189,6 +5280,23 @@ CHECK EACH REQUIREMENT CAREFULLY:
 
 4. STYLE: Does content match STYLE requirements?
    - "Write based on real usage" → should feel personal, not generic
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Return JSON with all checks.`;
 }
@@ -5245,7 +5353,7 @@ Return JSON:
 }`;
 }
 
-function getJudge5UserPrompt(content, campaignData) {
+function getJudge5UserPrompt(content, campaignData, deepIntent = null) {
   return `Fact-check this content:
 
 CONTENT:
@@ -5262,6 +5370,23 @@ ${campaignData.knowledgeBase || 'No specific KB provided'}
 
 CAMPAIGN RULES (verify compliance):
 ${campaignData.rules || 'Standard rules'}
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Use web search results to verify claims. Cross-check against knowledge base data.
 Return JSON with scores and verification results.`;
@@ -5340,7 +5465,7 @@ Return JSON:
 }`;
 }
 
-function getJudge6UserPrompt(content, campaignData, competitorContents) {
+function getJudge6UserPrompt(content, campaignData, competitorContents, deepIntent = null) {
   return `Verify uniqueness:
 
 CONTENT TO CHECK:
@@ -5351,6 +5476,23 @@ ${(competitorContents || []).slice(0, 5).map((c, i) => `
 --- Competitor ${i + 1} ---
 ${c.substring ? c.substring(0, 300) : c}
 `).join('\n')}
+
+${deepIntent?.metricClassification?.campaignMetricType ? `
+════════════════════════════════════════════════════════════════
+🚨 CRITICAL: METRIC TYPE CHECK
+════════════════════════════════════════════════════════════════
+This campaign requires ${deepIntent.metricClassification.campaignMetricType} metrics.
+
+WRONG metric types (auto-fail if used as campaign metrics):
+${(deepIntent.metricClassification.wrongMetricsToAvoid || []).map(m => '- ❌ ' + m).join('\n')}
+
+CORRECT metric types:
+${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' + m).join('\n')}
+
+⚠️ If content uses TVL/Volume numbers but campaign wants GROWTH metrics → SCORE 0
+⚠️ If content uses liquidity stats but campaign wants RETENTION metrics → SCORE 0
+⚠️ Using the RIGHT metric TYPE is more important than having big numbers
+` : ''}
 
 Compare and score uniqueness. Use NLP similarity data.`;
 }
@@ -5995,6 +6137,9 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     failedAt: null
   };
   
+  // Get deep intent from module cache (set by main workflow)
+  const deepIntent = _cachedCampaignIntent || null;
+  
   // AUTO-SAVE: Save content immediately after generation (before judging)
   try {
     const tempPath = `${CONFIG.outputDir}/content-${cycleNumber}-${contentIndex + 1}-${Date.now()}.txt`;
@@ -6123,7 +6268,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   const judge1Result = parseJudgeResult(
     (await llm.blindJudge(
       getJudge1SystemPrompt(),
-      getJudge1UserPrompt(content, campaignData),
+      getJudge1UserPrompt(content, campaignData, deepIntent),
       '1-GateUtama'
     )).content
   );
@@ -6132,7 +6277,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   const judge2Result = parseJudgeResult(
     (await llm.blindJudge(
       getJudge2SystemPrompt(),
-      getJudge2UserPrompt(content, campaignData),
+      getJudge2UserPrompt(content, campaignData, deepIntent),
       '2-GateTambahan'
     )).content
   );
@@ -6185,7 +6330,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   const judge5Result = parseJudgeResult(
     (await llm.factCheckJudge(
       getJudge5SystemPrompt(),
-      getJudge5UserPrompt(content, campaignData),
+      getJudge5UserPrompt(content, campaignData, deepIntent),
       '5-FactCheck'
     )).content
   );
@@ -6227,7 +6372,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     judge3Result = parseJudgeResult(
       (await llm.blindJudge(
         getJudge3SystemPrompt(),
-        getJudge3UserPrompt(content, campaignData),
+        getJudge3UserPrompt(content, campaignData, deepIntent),
         '3-PenilaianInternal'
       )).content
     );
@@ -6242,7 +6387,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     judge4Result = parseJudgeResult(
       (await llm.blindJudge(
         getJudge4SystemPrompt(),
-        getJudge4UserPrompt(content, campaignData),
+        getJudge4UserPrompt(content, campaignData, deepIntent),
         '4-Compliance'
       )).content
     );
@@ -6256,7 +6401,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     // Run Uniqueness (Judge 6 from base)
     const judge6Raw = (await llm.blindJudge(
       getJudge6SystemPrompt(),
-      getJudge6UserPrompt(content, campaignData, competitorContents),
+      getJudge6UserPrompt(content, campaignData, competitorContents, deepIntent),
       '6-Uniqueness'
     )).content;
     
@@ -6328,6 +6473,215 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   }
   
   return results;
+}
+
+/**
+ * DEEP CAMPAIGN INTENT ANALYZER
+ * Goes beyond surface-level rule parsing to understand:
+ * - WHAT TYPE of metrics/content the campaign truly wants
+ * - WHY these specific requirements exist
+ * - WHAT would make content genuinely successful for this campaign
+ * - WHAT types of metrics are WRONG even if they contain numbers
+ */
+async function deepCampaignIntentAnalyzer(llm, campaignData, parsedRequirements) {
+  console.log('\n   ┌─────────────────────────────────────────────────────────────┐');
+  console.log('   │  🧠 DEEP CAMPAIGN INTENT ANALYZER                          │');
+  console.log('   │  Understanding WHAT the campaign truly wants...              │');
+  console.log('   └─────────────────────────────────────────────────────────────┘');
+
+  const intentPrompt = `You are a CAMPAIGN INTELLIGENCE ANALYST. Your job is to DEEPLY understand what a campaign ACTUALLY wants — not just what the rules literally say.
+
+════════════════════════════════════════════════════════════════
+📋 CAMPAIGN DATA (READ EVERYTHING):
+════════════════════════════════════════════════════════════════
+
+CAMPAIGN TITLE: ${campaignData.title || 'Unknown'}
+MISSION: ${campaignData.missionTitle || 'Unknown'}
+
+MISSION GOAL/DESCRIPTION:
+${campaignData.description || campaignData.missionGoal || 'N/A'}
+
+RULES (THESE ARE MANDATORY - READ EACH WORD):
+${campaignData.rules || 'Standard rules'}
+
+STYLE:
+${campaignData.style || 'Standard'}
+
+KNOWLEDGE BASE:
+${campaignData.knowledgeBase || 'N/A'}
+
+ADDITIONAL INFO:
+${campaignData.additionalInfo || 'N/A'}
+
+════════════════════════════════════════════════════════════════
+🧠 YOUR ANALYSIS TASKS:
+════════════════════════════════════════════════════════════════
+
+TASK 1: IDENTIFY THE TRUE INTENT
+- What is this campaign ACTUALLY trying to achieve?
+- What emotion/reaction should the content create in readers?
+- What action should readers take after reading?
+- What would make campaign organizers say "THIS is exactly what we wanted"?
+
+TASK 2: CLASSIFY THE CONTENT TYPE
+Determine which type of content this campaign needs:
+- PERSONAL EXPERIENCE: "I tried X and here's what happened" (first-hand account)
+- EDUCATIONAL: "Here's how X works" (teaching something)
+- OPINION/TAKE: "My honest thoughts on X" (perspective)
+- SOCIAL PROOF: "Look at these numbers/results" (data-driven)
+- COMPARISON: "X vs Y - here's why X wins" (competitive)
+- COMMUNITY: "Who else is using X?" (belonging/engagement)
+Select the PRIMARY type and optionally a SECONDARY type.
+
+TASK 3: METRIC TYPE CLASSIFICATION (CRITICAL!)
+If the campaign mentions metrics, numbers, or data — classify EXACTLY what TYPE:
+
+METRIC TYPES:
+- RETENTION metrics: user engagement, repeat usage, DAU/MAU, session length, return rate, time spent
+- GROWTH metrics: user growth rate, new signups, growth trajectory, adoption curve, market expansion
+- LIQUIDITY metrics: TVL, trading volume, liquidity depth, market cap, trading pairs
+- REVENUE/EARNING metrics: fees earned, APY, yield, ROI, profit, earning rates
+- PERFORMANCE metrics: uptime, latency, speed, throughput, reliability, zero downtime
+- SOCIAL metrics: followers, community size, social engagement, viral reach
+
+For EACH metric mentioned in rules/KB, classify its TYPE.
+Then identify: which type does the campaign ACTUALLY want in the content?
+⚠️ WARNING: If campaign says "growth metrics" but knowledge base only has TVL/volume (liquidity),
+you MUST note that these are WRONG metric types and the content should NOT use TVL/volume as "growth metrics".
+
+TASK 4: CONTENT-TO-AVOID LIST
+What specific numbers, stats, or claims from the knowledge base should NOT be used because:
+- They're the wrong TYPE of metric for what the campaign wants
+- They're too promotional/sounding like an ad
+- They're cliché or overused by other content
+- They don't match the personal experience style required
+
+TASK 5: CONTENT-TO-USE LIST
+What specific data points, angles, or approaches WOULD work:
+- From knowledge base (specific facts to weave in naturally)
+- From the mission goal (what to focus on)
+- Personal experience angles that match the style requirements
+- Specific numbers that are the RIGHT TYPE for this campaign
+
+════════════════════════════════════════════════════════════════
+OUTPUT FORMAT:
+════════════════════════════════════════════════════════════════
+
+Return JSON:
+{
+  "trueIntent": {
+    "summary": "What this campaign ACTUALLY wants in 1-2 sentences",
+    "desiredReaderReaction": "What emotion/action the reader should have",
+    "contentPurpose": "Why this content exists (brand awareness, user acquisition, engagement, etc)"
+  },
+  "contentType": {
+    "primary": "PERSONAL_EXPERIENCE|EDUCATIONAL|OPINION|SOCIAL_PROOF|COMPARISON|COMMUNITY",
+    "secondary": "optional secondary type",
+    "reasoning": "Why this content type fits best"
+  },
+  "metricClassification": {
+    "campaignWantsMetrics": true/false,
+    "campaignMetricType": "RETENTION|GROWTH|LIQUIDITY|REVENUE|PERFORMANCE|SOCIAL|null",
+    "campaignMetricTypeReasoning": "Why this specific metric type is needed",
+    "knowledgeBaseMetrics": [
+      {"metric": "TVL $200B+", "type": "LIQUIDITY", "relevantToCampaign": false, "reason": "Campaign wants growth metrics, not liquidity"}
+    ],
+    "correctMetricsToUse": ["specific metrics that match what campaign wants", "e.g. user growth, engagement rates"],
+    "wrongMetricsToAvoid": ["specific metrics that DON'T match what campaign wants", "e.g. TVL, trading volume"]
+  },
+  "contentToAvoid": {
+    "wrongMetricTypes": ["LIQUIDITY metrics like TVL and volume"],
+    "overusedAngles": ["angles that competitors likely use"],
+    "promotionalLanguage": ["phrases that sound like ads"],
+    "specificClaimsToAvoid": ["claims from KB that don't match campaign intent"]
+  },
+  "contentToUse": {
+    "rightMetricExamples": ["specific numbers that ARE the right type"],
+    "suggestedAngles": ["angles that match both campaign intent and style"],
+    "personalExperienceHooks": ["specific personal moments to write about"],
+    "knowledgeBaseFactsToWeave": ["specific KB facts to naturally include"]
+  },
+  "criticalWarnings": [
+    "⚠️ WARNING: TVL/Volume are LIQUIDITY metrics, NOT growth metrics. Using them as 'growth' data would be factually wrong.",
+    "Any other critical warnings about misinterpreting the campaign"
+  ]
+}`;
+
+  try {
+    const response = await callAI([
+      { role: 'system', content: 'You are a CAMPAIGN INTELLIGENCE ANALYST. You deeply understand what campaigns truly want. You classify metric types accurately. You never confuse liquidity metrics with growth metrics. Return JSON only.' },
+      { role: 'user', content: intentPrompt }
+    ], { temperature: 0.2, maxTokens: 4000, model: 'glm-5', enableSearch: true });
+    
+    const intent = safeJsonParse(response.content);
+    
+    if (intent) {
+      // Display analysis results
+      console.log('\n   ╔═══════════════════════════════════════════════════════╗');
+      console.log('   ║  🧠 DEEP INTENT ANALYSIS RESULTS                       ║');
+      console.log('   ╠═══════════════════════════════════════════════════════╣');
+      console.log(`   ║ TRUE INTENT: ${intent.trueIntent?.summary?.substring(0, 55) || 'N/A'}...`);
+      console.log(`   ║ CONTENT TYPE: ${intent.contentType?.primary || 'N/A'} (${intent.contentType?.secondary || 'none'})`);
+      console.log(`   ║ METRIC TYPE: ${intent.metricClassification?.campaignMetricType || 'N/A'}`);
+      console.log(`   ║ DESIRED REACTION: ${intent.trueIntent?.desiredReaderReaction?.substring(0, 50) || 'N/A'}...`);
+      
+      if (intent.metricClassification?.wrongMetricsToAvoid?.length > 0) {
+        console.log('   ╠═══════════════════════════════════════════════════════╣');
+        console.log('   ║ 🚫 WRONG METRICS TO AVOID:');
+        intent.metricClassification.wrongMetricsToAvoid.forEach(m => {
+          console.log(`   ║    ❌ ${m}`);
+        });
+      }
+      
+      if (intent.metricClassification?.correctMetricsToUse?.length > 0) {
+        console.log('   ╠═══════════════════════════════════════════════════════╣');
+        console.log('   ║ ✅ CORRECT METRICS TO USE:');
+        intent.metricClassification.correctMetricsToUse.forEach(m => {
+          console.log(`   ║    ✓ ${m}`);
+        });
+      }
+      
+      if (intent.criticalWarnings?.length > 0) {
+        console.log('   ╠═══════════════════════════════════════════════════════╣');
+        console.log('   ║ ⚠️ CRITICAL WARNINGS:');
+        intent.criticalWarnings.forEach(w => {
+          console.log(`   ║    ${w}`);
+        });
+      }
+      
+      console.log('   ╚═══════════════════════════════════════════════════════╝');
+      
+      return intent;
+    } else {
+      console.log('   ⚠️ Could not parse intent analysis — using fallback');
+      return createFallbackIntent(campaignData);
+    }
+  } catch (error) {
+    console.log(`   ⚠️ Deep intent analysis failed: ${error.message}`);
+    return createFallbackIntent(campaignData);
+  }
+}
+
+function createFallbackIntent(campaignData) {
+  return {
+    trueIntent: {
+      summary: `Create authentic content about ${campaignData.title || 'this campaign'}`,
+      desiredReaderReaction: 'Engage with the content',
+      contentPurpose: 'Brand awareness and engagement'
+    },
+    contentType: { primary: 'PERSONAL_EXPERIENCE', secondary: 'OPINION', reasoning: 'Default' },
+    metricClassification: {
+      campaignWantsMetrics: false,
+      campaignMetricType: null,
+      campaignMetricTypeReasoning: 'Not analyzed',
+      knowledgeBaseMetrics: [],
+      correctMetricsToUse: [],
+      wrongMetricsToAvoid: []
+    },
+    contentToAvoid: { wrongMetricTypes: [], overusedAngles: [], promotionalLanguage: [], specificClaimsToAvoid: [] },
+    contentToUse: { rightMetricExamples: [], suggestedAngles: [], personalExperienceHooks: [], knowledgeBaseFactsToWeave: [] },
+    criticalWarnings: ['Intent analysis failed — using default. May produce misaligned content.']
+  };
 }
 
 /**
@@ -6681,11 +7035,31 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   );
   console.log(`   Competitor Contents: ${competitorContents.length} items`);
   
+  // ═══════════════════════════════════════════════════════════════
+  // STEP 4.5: DEEP CAMPAIGN INTENT ANALYSIS (NEW!)
+  // Understand WHAT the campaign truly wants, not just what rules say
+  // ═══════════════════════════════════════════════════════════════
+  console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
+  const campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
+  _cachedCampaignIntent = campaignIntent;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // 🆕 BUG #10 FIX: CAMPAIGN COMPREHENSION CHECK - AI reads and plans BEFORE generate
   // ═══════════════════════════════════════════════════════════════════════════
   console.log('\n🧠 STEP: Campaign Comprehension Check (AI reads rules BEFORE writing)...');
   const comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
+  
+  // Merge deep intent into comprehension plan for downstream use
+  comprehensionPlan._deepIntent = campaignIntent;
+  comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
+  comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
+  comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
+  comprehensionPlan._contentType = campaignIntent.contentType?.primary;
+  comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
+  comprehensionPlan._contentToUse = campaignIntent.contentToUse;
+  comprehensionPlan._trueIntent = campaignIntent.trueIntent;
+  comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
+  
   console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
   if (comprehensionPlan.understood) {
     console.log(`   📋 AI Plan: ${comprehensionPlan.execution_plan?.substring(0, 100)}...`);
@@ -6693,6 +7067,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
       console.log(`   ⚠️ Risk Items: ${comprehensionPlan.risk_items.join(', ')}`);
     }
   }
+  
   
   // Main loop - keep generating until we get a winner (with safety limit)
   let cycleNumber = 0;
