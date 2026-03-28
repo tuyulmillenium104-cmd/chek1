@@ -6252,7 +6252,8 @@ class MultiContentGenerator {
     } else if (reqs.mandatoryUrl) {
       urlInstruction = `🔗 URL REQUIRED: You MUST include this URL: ${campaignData.campaignUrl || campaignData.url}`;
     } else {
-      urlInstruction = '🔗 URL: Optional - Only include if it flows naturally with the content';
+      // URL is NOT required - explicitly tell AI NOT to include any URL
+      urlInstruction = '🚫 URL NOT REQUIRED: Do NOT include any URL or link in your content. The campaign rules do not require a URL.';
     }
 
     // Build prohibited items section
