@@ -3698,7 +3698,24 @@ async function quickJudgeCompliance(llm, content, campaignData) {
   console.log('\n   ' + '┌' + '─'.repeat(56) + '┐');
   console.log('   │         ⚡ QUICK JUDGE - Compliance Check              │');
   console.log('   ' + '└' + '─'.repeat(56) + '┘');
-  
+
+  // Parse requirements to get mandatory and prohibited items
+  const reqs = parseCampaignRequirements(campaignData);
+
+  // Build prohibited items section for prompt
+  let prohibitedItemsPrompt = '';
+  if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
+    prohibitedItemsPrompt = `
+📌 8. PROHIBITED ITEMS CHECK
+────────────────────────────
+${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED - Content must NOT contain any #hashtags' : ''}
+${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED - Content must NOT contain any URLs or links' : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 PROHIBITED TAGS - Content must NOT mention: ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 PROHIBITED KEYWORDS - Content must NOT use: ${reqs.prohibitedKeywords.join(', ')}` : ''}
+PASS: None of the prohibited items are present
+FAIL: Any prohibited item is found`;
+  }
+
   const systemPrompt = `You are a QUICK COMPLIANCE CHECKER for Rally.fun content.
 
 You check content compliance QUICKLY and STRICTLY. You do NOT know how this content was created.
@@ -3738,11 +3755,13 @@ FAIL: Ignores or misuses knowledge base
 PASS: No banned words detected
 FAIL: Contains banned promotional language
 
-📌 7. URL PRESENT
+📌 7. URL CHECK
 ────────────────────────────
-PASS: Required URL is included
-FAIL: URL missing
-
+${reqs.mandatoryUrl ? `PASS: Required URL is included
+FAIL: URL missing` : reqs.prohibitedUrl ? `PASS: No URL/link present (URL is PROHIBITED)
+FAIL: URL/link found when it should NOT be present` : `PASS: URL check (optional)
+FAIL: N/A`}
+${prohibitedItemsPrompt}
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT FORMAT:
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3765,7 +3784,17 @@ STYLE: ${campaignData.style || 'Standard professional style'}
 RULES: ${campaignData.rules || campaignData.requirements || 'No specific rules'}
 ADDITIONAL INFO: ${campaignData.additionalInfo || campaignData.additional_info || 'None'}
 KNOWLEDGE BASE: ${campaignData.knowledgeBase || campaignData.knowledge_base || 'None'}
-REQUIRED URL: ${campaignData.campaignUrl || campaignData.url || 'Required'}
+${reqs.mandatoryUrl ? `REQUIRED URL: ${campaignData.campaignUrl || campaignData.url || 'Required'}` : ''}
+${reqs.prohibitedUrl ? '🚫 URL PROHIBITED: No URLs or links allowed!' : ''}
+
+═══════════════════════════════════════════════════════════════
+PROHIBITED ITEMS (MUST NOT appear):
+═══════════════════════════════════════════════════════════════
+${reqs.prohibitedHashtags.length > 0 ? `🚫 HASHTAGS: No hashtags allowed!` : ''}
+${reqs.prohibitedUrl ? `🚫 URL/LINK: No URLs or links allowed!` : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 TAGS: ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 KEYWORDS: ${reqs.prohibitedKeywords.join(', ')}` : ''}
+${reqs.prohibitedHashtags.length === 0 && !reqs.prohibitedUrl && reqs.prohibitedTags.length === 0 && reqs.prohibitedKeywords.length === 0 ? 'None specified' : ''}
 
 ═══════════════════════════════════════════════════════════════
 BANNED WORDS (MUST NOT appear):
@@ -3804,9 +3833,14 @@ Return JSON format:
       "foundBannedWords": ["word1", "word2"] or [],
       "reason": "explain why pass or fail"
     },
-    "urlPresent": {
+    "urlCheck": {
       "pass": true/false,
       "urlFound": "the url found" or "not found",
+      "reason": "explain why pass or fail"
+    },
+    "prohibitedItems": {
+      "pass": true/false,
+      "foundItems": ["item1", "item2"] or [],
       "reason": "explain why pass or fail"
     }
   },
@@ -3835,25 +3869,26 @@ Return JSON format:
     additionalInfo: { pass: false, reason: 'Not checked' },
     knowledgeBase: { pass: false, reason: 'Not checked' },
     bannedWords: { pass: false, reason: 'Not checked', foundBannedWords: [] },
-    urlPresent: { pass: false, reason: 'Not checked' }
+    urlCheck: { pass: true, reason: 'URL check (optional)', urlFound: 'not applicable' },
+    prohibitedItems: { pass: true, reason: 'No prohibited items specified', foundItems: [] }
   };
-  
+
   parsedResult.checks = { ...defaultChecks, ...(parsedResult.checks || {}) };
-  
+
   // Recalculate allPass and failedChecks
   const failedChecks = Object.entries(parsedResult.checks)
     .filter(([key, check]) => check.pass !== true)
     .map(([key]) => key);
-  
+
   parsedResult.allPass = failedChecks.length === 0;
   parsedResult.failedChecks = failedChecks;
   parsedResult.success = true;
-  
+
   // Display results
   console.log('\n   ┌─────────────────────────────────────────────────────────┐');
   console.log('   │              COMPLIANCE CHECK RESULTS                  │');
   console.log('   ├─────────────────────────────────────────────────────────┤');
-  
+
   const checkNames = {
     campaignDescription: 'Description Match',
     rules: 'Rules Followed',
@@ -3861,21 +3896,22 @@ Return JSON format:
     additionalInfo: 'Additional Info',
     knowledgeBase: 'Knowledge Base',
     bannedWords: 'No Banned Words',
-    urlPresent: 'URL Present'
+    urlCheck: 'URL Check',
+    prohibitedItems: 'Prohibited Items'
   };
-  
+
   for (const [key, check] of Object.entries(parsedResult.checks)) {
     const icon = check.pass ? '✅' : '❌';
     const name = checkNames[key] || key;
     console.log(`   │ ${icon} ${name.padEnd(20)} ${check.pass ? 'PASS' : 'FAIL'.padEnd(22)}│`);
   }
-  
+
   console.log('   ├─────────────────────────────────────────────────────────┤');
   const statusIcon = parsedResult.allPass ? '✅' : '❌';
   const statusText = parsedResult.allPass ? 'ALL PASSED' : `${failedChecks.length} FAILED`;
   console.log(`   │              ${statusIcon} ${statusText.padEnd(30)}         │`);
   console.log('   └─────────────────────────────────────────────────────────┘');
-  
+
   if (!parsedResult.allPass && parsedResult.failedChecks.length > 0) {
     console.log('\n   ⚠️  FAILED CHECKS:');
     for (const checkName of parsedResult.failedChecks) {
@@ -3883,7 +3919,14 @@ Return JSON format:
       console.log(`      • ${checkName}: ${check?.reason || 'No reason provided'}`);
     }
   }
-  
+
+  // Show prohibited items status
+  if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
+    console.log('\n   🚫 PROHIBITED ITEMS STATUS:');
+    console.log(`      ${reqs.prohibitedUrl ? (parsedResult.checks.prohibitedItems?.pass ? '✅' : '❌') : '⚠️'} URL: ${reqs.prohibitedUrl ? (parsedResult.checks.prohibitedItems?.pass ? 'NOT found (good)' : 'FOUND (bad)') : 'Not prohibited'}`);
+    console.log(`      ${reqs.prohibitedHashtags.length > 0 ? (parsedResult.checks.prohibitedItems?.pass ? '✅' : '❌') : '⚠️'} Hashtags: ${reqs.prohibitedHashtags.length > 0 ? (parsedResult.checks.prohibitedItems?.pass ? 'NOT found (good)' : 'FOUND (bad)') : 'Not prohibited'}`);
+  }
+
   return parsedResult;
 }
 
@@ -3898,6 +3941,9 @@ Return JSON format:
  */
 function parseCampaignRequirements(campaignData) {
   const requirements = {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // MANDATORY ITEMS (yang HARUS ada)
+    // ═══════════════════════════════════════════════════════════════════════════
     mandatoryTags: [],         // @username mentions that MUST be included
     mandatoryHashtags: [],     // #hashtags that MUST be included
     mandatoryKeywords: [],     // Keywords that MUST be mentioned (explicit)
@@ -3906,6 +3952,17 @@ function parseCampaignRequirements(campaignData) {
     mandatoryScreenshot: false,// Does content need screenshot?
     focusTopic: null,          // What topic should content focus on?
     styleRequirements: [],     // Style requirements
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PROHIBITED ITEMS (yang DILARANG/TIDAK BOLEH ADA)
+    // ═══════════════════════════════════════════════════════════════════════════
+    prohibitedTags: [],        // @mentions that must NOT be included
+    prohibitedHashtags: [],    // #hashtags that must NOT be used
+    prohibitedKeywords: [],    // Words/phrases that must NOT appear
+    prohibitedUrl: false,      // URL must NOT be included
+    prohibitedElements: [],    // Other forbidden elements
+
+    // Raw data
     rawRules: '',
     rawStyle: '',
     rawDescription: '',
@@ -3966,12 +4023,17 @@ function parseCampaignRequirements(campaignData) {
   if (/no hashtags?\s*(required|needed)/i.test(rulesText)) {
     requirements.mandatoryHashtags = [];
   }
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // CHECK FOR METRIC REQUIREMENTS - Only if explicit about metrics/numbers
   // ═══════════════════════════════════════════════════════════════════════════
   // Must be about metrics, not just "specific feature"
-  requirements.mandatoryMetrics = /mention.*(?:metric|growth signal|statistic)|at least one specific (?:metric|number|stat)/i.test(rulesText);
+  requirements.mandatoryMetrics =
+    /mention.*(?:metric|growth signal|statistic)/i.test(rulesText) ||
+    /at least one specific (?:metric|number|stat)/i.test(rulesText) ||
+    /share.*(?:metric|growth signal|number|statistic)/i.test(rulesText) ||
+    /specific (?:growth signal|metric|number|stat)/i.test(rulesText) ||
+    /include.*(?:metric|number|stat)/i.test(rulesText);
   
   // ═══════════════════════════════════════════════════════════════════════════
   // CHECK FOR SCREENSHOT REQUIREMENT
@@ -4009,7 +4071,114 @@ function parseCampaignRequirements(campaignData) {
       }
     });
   });
-  
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🚫 PROHIBITED ITEMS DETECTION (yang TIDAK BOLEH ADA)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED HASHTAGS - "No hashtags", "No hashtag required", etc.
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (/no\s+hashtags?\s*(required|needed|allowed|necessary)?/i.test(rulesText)) {
+    requirements.prohibitedHashtags = ['ALL_HASHTAGS']; // No hashtags at all
+    console.log('   🚫 PROHIBITED: No hashtags allowed');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED URL - "No URL required", "No link needed", etc.
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (/no\s+(?:url|link)\s*(required|needed|allowed|necessary)?/i.test(rulesText) ||
+      /(?:url|link)\s*(?:is\s+)?not\s+(?:required|needed|allowed)/i.test(rulesText) ||
+      /do\s+not\s+(?:include|add|use)\s+(?:url|link)/i.test(rulesText) ||
+      /without\s+(?:url|link)/i.test(rulesText)) {
+    requirements.prohibitedUrl = true;
+    console.log('   🚫 PROHIBITED: No URL/link allowed');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED TAGS - "Do not tag @username", "No mention of @"
+  // ─────────────────────────────────────────────────────────────────────────────
+  const prohibitedTagPatterns = [
+    /do\s+not\s+(?:tag|mention)\s+@(\w+)/gi,
+    /no\s+(?:tag|mention)\s+@(\w+)/gi,
+    /avoid\s+(?:tagging|mentioning)\s+@(\w+)/gi,
+    /don'?t\s+(?:tag|mention)\s+@(\w+)/gi
+  ];
+
+  prohibitedTagPatterns.forEach(pattern => {
+    const matches = rulesText.match(pattern) || [];
+    matches.forEach(match => {
+      const username = match.match(/@(\w+)/);
+      if (username && username[1]) {
+        const tag = `@${username[1]}`;
+        if (!requirements.prohibitedTags.includes(tag)) {
+          requirements.prohibitedTags.push(tag);
+          console.log(`   🚫 PROHIBITED TAG: ${tag}`);
+        }
+      }
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED KEYWORDS/PHRASES - "Do not mention X", "Avoid X"
+  // ─────────────────────────────────────────────────────────────────────────────
+  const prohibitedKeywordPatterns = [
+    /do\s+not\s+(?:mention|include|use|say)\s+([a-zA-Z\s]{3,30})/gi,
+    /avoid\s+(?:mentioning|using|saying)?\s*([a-zA-Z\s]{3,30})/gi,
+    /don'?t\s+(?:mention|include|use|say)\s+([a-zA-Z\s]{3,30})/gi,
+    /no\s+([a-zA-Z\s]{3,30})\s+(?:allowed|permitted)/gi
+  ];
+
+  prohibitedKeywordPatterns.forEach(pattern => {
+    const matches = rulesText.match(pattern) || [];
+    matches.forEach(match => {
+      const keyword = match.replace(/^(do\s+not|don'?t|avoid|no)\s+(?:mention|include|use|say|mentioning|using|saying)?\s*/i, '').trim();
+      if (keyword.length > 2 && !keyword.includes('@') && !keyword.includes('#')) {
+        if (!requirements.prohibitedKeywords.includes(keyword)) {
+          requirements.prohibitedKeywords.push(keyword);
+          console.log(`   🚫 PROHIBITED KEYWORD: "${keyword}"`);
+        }
+      }
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED ELEMENTS - Other forbidden elements
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Check for "No X" patterns for other elements
+  const noElementPatterns = [
+    /no\s+(external\s+links?)/gi,
+    /no\s+(self\s+promotion)/gi,
+    /no\s+(spam)/gi,
+    /no\s+(referral\s+links?)/gi,
+    /no\s+(copy\s+paste)/gi,
+    /no\s+(ai\s+generated\s+content)/gi
+  ];
+
+  noElementPatterns.forEach(pattern => {
+    const matches = rulesText.match(pattern) || [];
+    matches.forEach(match => {
+      const element = match.replace(/^no\s+/i, '').trim();
+      if (!requirements.prohibitedElements.includes(element)) {
+        requirements.prohibitedElements.push(element);
+        console.log(`   🚫 PROHIBITED ELEMENT: "${element}"`);
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LOG FINAL REQUIREMENTS SUMMARY
+  // ═══════════════════════════════════════════════════════════════════════════
+  console.log('\n   📋 REQUIREMENTS SUMMARY:');
+  console.log(`   ├─ ✅ Mandatory Tags: ${requirements.mandatoryTags.length > 0 ? requirements.mandatoryTags.join(', ') : 'None'}`);
+  console.log(`   ├─ ✅ Mandatory Hashtags: ${requirements.mandatoryHashtags.length > 0 ? requirements.mandatoryHashtags.join(', ') : 'None'}`);
+  console.log(`   ├─ ✅ Mandatory Metrics: ${requirements.mandatoryMetrics ? 'Yes' : 'No'}`);
+  console.log(`   ├─ ✅ Mandatory URL: ${requirements.mandatoryUrl ? 'Yes' : 'No'}`);
+  console.log(`   ├─ 🚫 Prohibited Hashtags: ${requirements.prohibitedHashtags.length > 0 ? requirements.prohibitedHashtags.join(', ') : 'None'}`);
+  console.log(`   ├─ 🚫 Prohibited URL: ${requirements.prohibitedUrl ? 'Yes' : 'No'}`);
+  console.log(`   ├─ 🚫 Prohibited Tags: ${requirements.prohibitedTags.length > 0 ? requirements.prohibitedTags.join(', ') : 'None'}`);
+  console.log(`   └─ 🚫 Prohibited Keywords: ${requirements.prohibitedKeywords.length > 0 ? requirements.prohibitedKeywords.join(', ') : 'None'}`);
+
   return requirements;
 }
 
@@ -4204,7 +4373,154 @@ function validateCampaignRequirements(content, campaignData) {
       validation.passed = false;
     }
   }
-  
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🚫 CHECK 8: PROHIBITED ITEMS (items that must NOT appear)
+  // ═══════════════════════════════════════════════════════════════════════════
+  validation.prohibitedItemsFound = [];
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED HASHTAGS CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (requirements.prohibitedHashtags.includes('ALL_HASHTAGS')) {
+    const hashtagMatch = content.match(/#\w+/g);
+    if (hashtagMatch && hashtagMatch.length > 0) {
+      validation.checks.prohibitedHashtags = {
+        found: hashtagMatch,
+        passed: false,
+        message: '🚫 Hashtags are NOT allowed but found in content'
+      };
+      validation.prohibitedItemsFound.push(`🚫 PROHIBITED: Hashtags found: ${hashtagMatch.join(', ')}`);
+      validation.passed = false;
+    } else {
+      validation.checks.prohibitedHashtags = {
+        found: [],
+        passed: true,
+        message: '✅ No hashtags found (as required)'
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED URL CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (requirements.prohibitedUrl) {
+    const urlPatterns = [
+      /https?:\/\/[^\s]+/gi,
+      /rally\.fun/gi,
+      /app\.rally\.fun/gi,
+      /\[.*?\]\(https?:\/\/.*?\)/gi  // Markdown links
+    ];
+
+    const foundUrls = [];
+    urlPatterns.forEach(pattern => {
+      const matches = content.match(pattern) || [];
+      foundUrls.push(...matches);
+    });
+
+    if (foundUrls.length > 0) {
+      validation.checks.prohibitedUrl = {
+        found: foundUrls,
+        passed: false,
+        message: '🚫 URL/Link is NOT allowed but found in content'
+      };
+      validation.prohibitedItemsFound.push(`🚫 PROHIBITED: URLs found: ${foundUrls.join(', ')}`);
+      validation.passed = false;
+    } else {
+      validation.checks.prohibitedUrl = {
+        found: [],
+        passed: true,
+        message: '✅ No URL found (as required)'
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED TAGS CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (requirements.prohibitedTags.length > 0) {
+    const foundProhibitedTags = [];
+    requirements.prohibitedTags.forEach(tag => {
+      if (contentLower.includes(tag.toLowerCase())) {
+        foundProhibitedTags.push(tag);
+      }
+    });
+
+    if (foundProhibitedTags.length > 0) {
+      validation.checks.prohibitedTags = {
+        found: foundProhibitedTags,
+        passed: false,
+        message: '🚫 These tags are NOT allowed but found in content'
+      };
+      validation.prohibitedItemsFound.push(`🚫 PROHIBITED TAGS: ${foundProhibitedTags.join(', ')}`);
+      validation.passed = false;
+    } else {
+      validation.checks.prohibitedTags = {
+        found: [],
+        passed: true,
+        message: '✅ No prohibited tags found'
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED KEYWORDS CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (requirements.prohibitedKeywords.length > 0) {
+    const foundProhibitedKeywords = [];
+    requirements.prohibitedKeywords.forEach(keyword => {
+      if (contentLower.includes(keyword.toLowerCase())) {
+        foundProhibitedKeywords.push(keyword);
+      }
+    });
+
+    if (foundProhibitedKeywords.length > 0) {
+      validation.checks.prohibitedKeywords = {
+        found: foundProhibitedKeywords,
+        passed: false,
+        message: '🚫 These keywords are NOT allowed but found in content'
+      };
+      validation.prohibitedItemsFound.push(`🚫 PROHIBITED KEYWORDS: ${foundProhibitedKeywords.join(', ')}`);
+      validation.passed = false;
+    } else {
+      validation.checks.prohibitedKeywords = {
+        found: [],
+        passed: true,
+        message: '✅ No prohibited keywords found'
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROHIBITED ELEMENTS CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (requirements.prohibitedElements.length > 0) {
+    const foundProhibitedElements = [];
+
+    requirements.prohibitedElements.forEach(element => {
+      const elementLower = element.toLowerCase();
+      if (contentLower.includes(elementLower)) {
+        foundProhibitedElements.push(element);
+      }
+    });
+
+    if (foundProhibitedElements.length > 0) {
+      validation.checks.prohibitedElements = {
+        found: foundProhibitedElements,
+        passed: false,
+        message: '🚫 These elements are NOT allowed but found in content'
+      };
+      validation.prohibitedItemsFound.push(`🚫 PROHIBITED ELEMENTS: ${foundProhibitedElements.join(', ')}`);
+      validation.passed = false;
+    } else {
+      validation.checks.prohibitedElements = {
+        found: [],
+        passed: true,
+        message: '✅ No prohibited elements found'
+      };
+    }
+  }
+
   return validation;
 }
 
@@ -5899,15 +6215,33 @@ class MultiContentGenerator {
     const narrativeStructure = this._selectStructure(variation.structure);
     const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title);
     const emotionCombo = { emotions: variation.emotions, hook: `${variation.emotions[0]} → ${variation.emotions[1]}` };
-    
-    // Parse campaign requirements FIRST so we can use it in systemPrompt
+
+    // 🚨 CRITICAL: Parse requirements BEFORE building prompt
     const reqs = parseCampaignRequirements(campaignData);
 
-    // Build URL requirement based on explicit rules
-    // If URL is NOT explicitly required by rules, tell AI NOT to include it
-    const urlRequirement = reqs.mandatoryUrl 
-      ? `- URL: MUST include ${campaignData.campaignUrl || campaignData.url || 'the campaign URL'}`
-      : `- URL: DO NOT include any campaign URL or link - it is NOT required by this mission`;
+    // Build URL instruction based on requirements
+    let urlInstruction;
+    if (reqs.prohibitedUrl) {
+      urlInstruction = '🚫 URL PROHIBITED: Do NOT include any URL or link in your content!';
+    } else if (reqs.mandatoryUrl) {
+      urlInstruction = `🔗 URL REQUIRED: You MUST include this URL: ${campaignData.campaignUrl || campaignData.url}`;
+    } else {
+      urlInstruction = '🔗 URL: Optional - Only include if it flows naturally with the content';
+    }
+
+    // Build prohibited items section
+    let prohibitedSection = '';
+    if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
+      prohibitedSection = `
+═══════════════════════════════════════════════════════════════════════════════
+🚫🚫🚫 PROHIBITED ITEMS - DO NOT INCLUDE THESE OR YOUR CONTENT WILL BE REJECTED 🚫🚫🚫
+═══════════════════════════════════════════════════════════════════════════════
+${reqs.prohibitedHashtags.length > 0 ? `🚫 HASHTAGS PROHIBITED: Do NOT use any hashtags!` : ''}
+${reqs.prohibitedUrl ? `🚫 URL/LINK PROHIBITED: Do NOT include any URL or link!` : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 PROHIBITED TAGS: Do NOT mention ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 PROHIBITED KEYWORDS: Do NOT use "${reqs.prohibitedKeywords.join('", "')}"` : ''}
+═══════════════════════════════════════════════════════════════════════════════`;
+    }
 
     const systemPrompt = `You are an expert content creator for Rally.fun. Create UNIQUE, engaging content.
 
@@ -5931,7 +6265,7 @@ CRITICAL RULES:
 - AI PHRASES: delve, leverage, realm, tapestry, paradigm, landscape, nuance, underscores, pivotal, crucial, embark, journey, explore, unlock, harness
 - TEMPLATE OPENINGS: "Unpopular opinion:", "Hot take:", "In today's", "Picture this", "Let's dive in"
 - FORMAL ENDINGS: "In conclusion", "To summarize", "Ultimately"
-
+${prohibitedSection}
 ═══════════════════════════════════════════════════════════════════════════════
 ✅ REQUIRED G4 ORIGINALITY ELEMENTS (Must Include 4+):
 ═══════════════════════════════════════════════════════════════════════════════
@@ -5959,7 +6293,7 @@ CONTENT REQUIREMENTS:
 - Emotions: At least 3 different emotions
 - Body Feeling: Physical sensation the reader feels
 - CTA: Question or reply bait
-${urlRequirement}
+- ${urlInstruction}
 - Facts: Multi-layer evidence with SPECIFIC NUMBERS
 - X-Factors: At least 3 differentiators (specific numbers, time, embarrassing honesty, insider detail)
 
@@ -6052,6 +6386,10 @@ VARIATION SETTINGS:
 □ NO AI phrases (delve, leverage, realm)?
 ${reqs.mandatoryTags.length > 0 ? `□ Includes ALL required tags: ${reqs.mandatoryTags.join(', ')}?` : ''}
 ${reqs.mandatoryMetrics ? `□ Includes at least one specific metric/number?` : ''}
+${reqs.prohibitedHashtags.length > 0 ? `🚫 NO hashtags allowed - Do NOT use any #hashtags!` : ''}
+${reqs.prohibitedUrl ? `🚫 NO URL/link allowed - Do NOT include any URLs!` : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 Do NOT mention: ${reqs.prohibitedTags.join(', ')}!` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 Do NOT use these words: ${reqs.prohibitedKeywords.join(', ')}!` : ''}
 □ Follows ALL mission rules exactly?
 □ Matches the required style?
 □ Uses information from Knowledge Base?
@@ -6892,7 +7230,6 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   let totalGenerated = 0;
   let totalFailed = 0;
   const contentsPerCycle = 3;
-  let allJudgeResults = []; // Track all judge results across cycles
   
   while (!judgingState.hasWinner()) {
     cycleNumber++;
@@ -6947,9 +7284,6 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     // Instead of waiting for ALL to complete, we use a racing mechanism
     const judgeResults = await Promise.allSettled(judgePromises);
     
-    // Accumulate results for later use
-    allJudgeResults.push(...judgeResults);
-    
     // Count failures and save intermediate results
     const failedThisCycle = judgeResults.filter(r => 
       r.status === 'fulfilled' && !r.value.passed && !r.value.skipped
@@ -6995,6 +7329,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   let bestScore = 0;
   
   // Look through all judge results to find best content
+  const allJudgeResults = judgeResults || [];
   for (const result of allJudgeResults) {
     if (result.status === 'fulfilled' && result.value) {
       const score = result.value.totalScore || 0;
@@ -7163,28 +7498,6 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, winner.content);
   console.log(`💾 Winner content saved to: ${CONFIG.outputDir}/winner-content.txt`);
   
-  // Generate engagement comments
-  try {
-    const comments = await generateEngagementComments(llm, winner.content, campaignData);
-    const stats = saveEngagementComments(comments, winner.content, `${CONFIG.outputDir}/engagement-comments.json`);
-    
-    console.log('\n   ╔════════════════════════════════════════════════════════════╗');
-    console.log('   ║              💬 ENGAGEMENT COMMENTS GENERATED             ║');
-    console.log('   ╠════════════════════════════════════════════════════════════╣');
-    console.log(`   ║  Total Comments: ${stats.totalComments}                                       ║`);
-    console.log(`   ║  High Potential: ${stats.byPotential.high}  Medium: ${stats.byPotential.medium}                           ║`);
-    console.log('   ╚════════════════════════════════════════════════════════════╝');
-    
-    console.log('\n   📝 TOP 5 ENGAGEMENT COMMENTS:');
-    comments.slice(0, 5).forEach((c, i) => {
-      console.log(`   ${i + 1}. [${c.type}] ${c.text.substring(0, 60)}...`);
-    });
-    
-    console.log(`\n💾 Engagement comments saved to: ${CONFIG.outputDir}/engagement-comments.json`);
-  } catch (error) {
-    console.log(`   ⚠️ Could not generate engagement comments: ${error.message}`);
-  }
-  
   return {
     content: winner.content,
     score: winner.totalScore,
@@ -7197,149 +7510,6 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
       totalFailed
     }
   };
-}
-
-// ============================================================================
-// ENGAGEMENT COMMENTS GENERATOR - 20 High-Quality X Comments
-// ============================================================================
-
-async function generateEngagementComments(llm, content, campaignData) {
-  console.log('\n💬 Generating 20 engagement comments for X...');
-  
-  const systemPrompt = `You are an expert at creating engaging Twitter/X comments that drive interaction.
-
-Create 20 DIFFERENT comments/replies that someone could post to engage with this content. These should be:
-
-1. VARYING TYPES:
-   - Questions (genuine curiosity)
-   - Personal experiences (relatable stories)
-   - Contrarian takes (respectful disagreement)
-   - Additions (building on the topic)
-   - Appreciation (specific praise)
-   - Tagging friends (shareable moments)
-   - Follow-up insights (deeper knowledge)
-   - Humor/Wit (clever observations)
-   - Data requests (asking for sources)
-   - Comparisons (relating to other projects)
-
-2. AUTHENTIC VOICE:
-   - Sound like real crypto Twitter users
-   - Use natural slang (ngl, tbh, fr, wya)
-   - Keep it casual but intelligent
-   - Vary lengths (short punchy ones to thoughtful responses)
-
-3. ENGAGEMENT FOCUSED:
-   - Drive conversation
-   - Encourage replies
-   - Create shareable moments
-   - Build community feel
-
-4. NO SPAM/GENERIC COMMENTS:
-   - Avoid: "Great post!", "Thanks for sharing", "Bullish!"
-   - Be specific to the content
-   - Reference actual points from the tweet
-
-Return JSON array of 20 comments with this structure:
-{
-  "comments": [
-    {
-      "text": "the comment text",
-      "type": "question|experience|contrarian|addition|appreciation|tag|insight|humor|data|comparison",
-      "engagement_potential": "high|medium",
-      "best_time": "immediate|1hour|4hours|12hours"
-    }
-  ]
-}`;
-
-  const userPrompt = `Generate 20 engagement comments for this X/Twitter content:
-
-CONTENT:
-${content}
-
-CAMPAIGN CONTEXT:
-- Project: ${campaignData.title || 'Grvt'}
-- Topic: Growth metrics and momentum
-- Tag used: @grvt_io
-
-Generate comments that:
-1. Reference specific parts of the content
-2. Feel authentic to crypto Twitter culture
-3. Encourage further engagement
-4. Include a mix of all 10 types
-5. Have varying lengths and tones`;
-
-  try {
-    const response = await llm.chat([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ], { temperature: 0.8, maxTokens: 4000 });
-    
-    const result = safeJsonParse(response.content);
-    
-    if (result && result.comments && Array.isArray(result.comments)) {
-      console.log(`   ✅ Generated ${result.comments.length} engagement comments`);
-      return result.comments;
-    }
-    
-    // Fallback: try to extract from text
-    const lines = response.content.split('\n').filter(l => l.trim().length > 10);
-    return lines.slice(0, 20).map((text, i) => ({
-      text: text.replace(/^["\-\d.]+\s*/, '').replace(/"$/, ''),
-      type: ['question', 'experience', 'addition', 'insight'][i % 4],
-      engagement_potential: 'medium',
-      best_time: 'immediate'
-    }));
-  } catch (error) {
-    console.log(`   ⚠️ Error generating comments: ${error.message}`);
-    
-    // Provide fallback comments specific to Grvt content
-    return [
-      { text: "the unified balance feature is actually what got me interested too. most exchanges make you choose between trading and earning", type: "experience", engagement_potential: "high", best_time: "immediate" },
-      { text: "wait so the TVL is 100M+? that's actually insane for a relatively new DEX. what's the main trading pair?", type: "question", engagement_potential: "high", best_time: "immediate" },
-      { text: "lost 5 figures in 2022 myself. the trauma is real lol. glad you found something that actually works", type: "experience", engagement_potential: "high", best_time: "1hour" },
-      { text: "@grvt_io the zero downtime claim is wild. most CEXs can't even say that", type: "addition", engagement_potential: "medium", best_time: "immediate" },
-      { text: "ngl the 'fortress not casino' line hit different. that's exactly how I feel about self-custody", type: "appreciation", engagement_potential: "high", best_time: "immediate" },
-      { text: "question - how's the liquidity for larger trades? been burned by slippage on other DEXs", type: "question", engagement_potential: "high", best_time: "1hour" },
-      { text: "the $200B volume number is crazy. when did they hit that milestone?", type: "data", engagement_potential: "medium", best_time: "immediate" },
-      { text: "honestly the 11% yield feels too good. what's the catch? or is it actually sustainable?", type: "contrarian", engagement_potential: "high", best_time: "1hour" },
-      { text: "reminds me of when I finally understood what self-custody actually meant. game changer fr", type: "experience", engagement_potential: "medium", best_time: "4hours" },
-      { text: "tagging @friend who's been looking for a non-sketchy yield option. check this out", type: "tag", engagement_potential: "medium", best_time: "immediate" },
-      { text: "the chest tightening line... felt that. crypto PTSD is real 😅", type: "humor", engagement_potential: "high", best_time: "immediate" },
-      { text: "curious - what made you finally trust the metrics? I'm always skeptical of 'too good' numbers", type: "question", engagement_potential: "high", best_time: "1hour" },
-      { text: "compared to where we were in 2022, this kind of transparency is refreshing ngl", type: "comparison", engagement_potential: "medium", best_time: "4hours" },
-      { text: "been following @grvt_io for a while. the growth has been consistent which is rare in this space", type: "insight", engagement_potential: "medium", best_time: "immediate" },
-      { text: "that last question hits hard. why ARE we still accepting idle collateral?", type: "addition", engagement_potential: "high", best_time: "immediate" },
-      { text: "ok but how does the unified balance actually work technically? sounds interesting", type: "question", engagement_potential: "medium", best_time: "1hour" },
-      { text: "the 'fortress' metaphor is perfect. non-custodial + actual yield = the dream", type: "appreciation", engagement_potential: "medium", best_time: "immediate" },
-      { text: "wait $12k loss? I feel you on that. took me months to trust anything again", type: "experience", engagement_potential: "high", best_time: "1hour" },
-      { text: "this is the kind of content I actually want to see on CT. real experience + real metrics", type: "appreciation", engagement_potential: "medium", best_time: "immediate" },
-      { text: "anyone else notice how the tone completely changes when you actually DYOR? most don't bother smh", type: "insight", engagement_potential: "medium", best_time: "4hours" }
-    ];
-  }
-}
-
-function saveEngagementComments(comments, content, outputPath) {
-  const output = {
-    mainContent: content,
-    engagementComments: comments,
-    generatedAt: new Date().toISOString(),
-    stats: {
-      totalComments: comments.length,
-      byType: {},
-      byPotential: { high: 0, medium: 0 },
-      byTime: {}
-    }
-  };
-  
-  // Calculate stats
-  comments.forEach(c => {
-    output.stats.byType[c.type] = (output.stats.byType[c.type] || 0) + 1;
-    output.stats.byPotential[c.engagement_potential] = (output.stats.byPotential[c.engagement_potential] || 0) + 1;
-    output.stats.byTime[c.best_time] = (output.stats.byTime[c.best_time] || 0) + 1;
-  });
-  
-  fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
-  return output.stats;
 }
 
 // ============================================================================
