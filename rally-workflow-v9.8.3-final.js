@@ -119,7 +119,13 @@ try {
 }
 
 // HTTP Direct AI Call - No SDK!
-function callAIdirect(messages, maxTokens = 2000, temperature = 0.7) {
+// Model tier system:
+//   - 'glm-4-flash': fastest, used for simple/preliminary tasks
+//   - 'glm-5-flash': balanced, used for content generation (with thinking + search)
+//   - 'glm-4-plus':  strong, used for complex judging (with thinking + search)
+//   - 'glm-5':       top tier, used for critical tasks (comprehension, fact-check)
+// All models route to glm-4.6 on the gateway with automatic thinking (reasoning_content)
+function callAIdirect(messages, maxTokens = 2000, temperature = 0.7, options = {}) {
   return new Promise((resolve, reject) => {
     // Get current token - skip null if no valid config
     let tokenData = TOKENS[currentTokenIndex];
@@ -161,10 +167,12 @@ function callAIdirect(messages, maxTokens = 2000, temperature = 0.7) {
     GATEWAY.currentIndex = (GATEWAY.currentIndex + 1) % GATEWAY.hosts.length;
     
     const body = JSON.stringify({
-      model: 'glm-4-flash',
+      model: options.model || 'glm-4-flash',
       messages,
       max_tokens: maxTokens,
-      temperature
+      temperature,
+      ...(options.enableSearch ? { enable_search: true } : {}),
+      ...(options.enableThinking !== false ? {} : { enable_thinking: false })
     });
     
     const req = http.request({
@@ -220,7 +228,8 @@ async function callAI(messages, options = {}) {
       return await callAIdirect(
         messages,
         options.maxTokens || 2000,
-        options.temperature || 0.7
+        options.temperature || 0.7,
+        options  // Pass through model, enableSearch, enableThinking
       );
     } catch (e) {
       lastError = e;
@@ -363,11 +372,6 @@ async function webSearchSmart(query, num = 10) {
 // SDK compatibility aliases (for existing code)
 let ZAI = null;
 let SDK_AVAILABLE = false; // Always false - we use HTTP Direct
-
-async function initZAI() {
-  console.log('   ✅ HTTP Direct Mode initialized (No SDK required)');
-  return null;
-}
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -1604,15 +1608,15 @@ class MultiProviderLLM {
     const result = await callAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
-    ], { temperature: 0.3, maxTokens: 3000 });
+    ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Judge ${judgeId} success!`);
+    console.log(`   ✅ Judge ${judgeId} success! (model: glm-5 + search)`);
 
     return {
       content: result.content || '',
       thinking: result.thinking || null,
       provider: result.provider,
-      model: CONFIG.model?.name || 'glm-5'
+      model: 'glm-5'
     };
   }
   
@@ -1622,51 +1626,36 @@ class MultiProviderLLM {
     const result = await callAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
-    ], { temperature: 0.3, maxTokens: 3000 });
+    ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Context-Aware Judge ${judgeId} success!`);
+    console.log(`   ✅ Context-Aware Judge ${judgeId} success! (model: glm-5 + search)`);
 
     return {
       content: result.content || '',
       thinking: result.thinking || null,
       provider: result.provider,
-      model: CONFIG.model?.name || 'glm-5'
+      model: 'glm-5'
     };
   }
   
-  async factCheckJudge(systemPrompt, userPrompt, judgeId, customSearchQuery = null) {
-    console.log(`\n   🔍 FACT-CHECK JUDGE ${judgeId} - With Web Search`);
+  async factCheckJudge(systemPrompt, userPrompt, judgeId) {
+    console.log(`\n   🔍 FACT-CHECK JUDGE ${judgeId} - Model Built-in Search`);
 
-    const currentYear = new Date().getFullYear();
-    const searchQuery = customSearchQuery || `verify facts ${currentYear} latest`;
-
-    console.log(`   🔎 Searching for data from ${currentYear} and earlier...`);
-
-    // Smart search: SerpAPI → DuckDuckGo → SDK
-    const webSearchResults = await webSearchSmart(searchQuery);
-    
-    console.log(`   ✅ Web search: ${webSearchResults.length} results`);
-
-    const enhancedPrompt = userPrompt + `\n\n═══════════════════════════════════════════════════════════════
-🔍 WEB SEARCH RESULTS FOR FACT VERIFICATION:
-═══════════════════════════════════════════════════════════════
-${webSearchResults.length > 0 
-  ? webSearchResults.slice(0, 3).map((r, i) => `${i+1}. ${r.name || 'Source'}: ${r.snippet || ''}\n   URL: ${r.url || 'N/A'}`).join('\n\n')
-  : 'No web search results available - use general knowledge'}`;
-
+    // Model glm-5 dengan enable_search: true sudah otomatis melakukan web search
+    // Tidak perlu webSearchSmart terpisah — model akan search sendiri saat dibutuhkan
     const result = await callAI([
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: enhancedPrompt }
-    ], { temperature: 0.3, maxTokens: 3000 });
+      { role: 'user', content: userPrompt }
+    ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Fact-Check Judge ${judgeId} success!`);
+    console.log(`   ✅ Fact-Check Judge ${judgeId} success! (model: glm-5 + built-in search)`);
 
     return {
       content: result.content || '',
       thinking: result.thinking || null,
-      webSearchUsed: webSearchResults.length > 0,
+      webSearchUsed: true, // Model search aktif via enable_search
       provider: result.provider,
-      model: CONFIG.model?.name || 'glm-5'
+      model: 'glm-5'
     };
   }
   
@@ -1690,9 +1679,9 @@ ${webSearchResults.length > 0
     const result = await callAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: enhancedPrompt }
-    ], { temperature: 0.3, maxTokens: 3000 });
+    ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Hybrid Judge ${judgeId} success!`);
+    console.log(`   ✅ Hybrid Judge ${judgeId} success! (model: glm-5 + search)`);
 
     return {
       content: result.content || '',
@@ -1701,16 +1690,6 @@ ${webSearchResults.length > 0
       provider: result.provider,
       model: CONFIG.model?.name || 'glm-5'
     };
-  }
-  
-  async webSearch(query) {
-    const currentYear = new Date().getFullYear();
-    const enhancedQuery = `${query} ${currentYear} latest`;
-    
-    // Smart search: SerpAPI → DuckDuckGo → SDK
-    const result = await webSearchSmart(enhancedQuery);
-    
-    return result;
   }
   
   getNLPAnalyzer() {
@@ -1749,6 +1728,141 @@ ${webSearchResults.length > 0
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
+
+/**
+ * fixContentFormatting - Post-processing to ensure content has proper paragraph structure.
+ * LLMs often output single wall-of-text even when instructed to use paragraphs.
+ * This function detects and fixes formatting issues.
+ * 
+ * Rules:
+ * 1. If content has NO paragraph breaks (single wall of text), intelligently split into paragraphs
+ * 2. If content has some paragraphs but some are too long (>3 sentences), split them
+ * 3. Preserve existing intentional formatting (parenthetical asides, etc.)
+ * 4. Always use double newlines (\n\n) between paragraphs
+ */
+function fixContentFormatting(content) {
+  if (!content || typeof content !== 'string') return content;
+  
+  // Normalize existing whitespace
+  let fixed = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  
+  // Check if content is a wall of text (no paragraph breaks)
+  const hasParagraphs = /\n\s*\n/.test(fixed);
+  const lines = fixed.split('\n').filter(l => l.trim());
+  
+  if (!hasParagraphs && lines.length <= 2) {
+    // TRUE WALL OF TEXT - need to intelligently break into paragraphs
+    // Strategy: Split on sentence boundaries, group into 1-2 sentence paragraphs
+    
+    // First, normalize the text
+    let text = lines.join(' ').trim();
+    
+    // Protect parenthetical asides - they should be their own paragraph
+    const asides = [];
+    text = text.replace(/\([^)]{3,}\)/g, (match) => {
+      asides.push(match);
+      return `__ASIDE_${asides.length - 1}__`;
+    });
+    
+    // Split into sentences
+    const sentences = text.match(/[^.!?]+[.!?]+[\s]*/g) || [text];
+    
+    if (sentences.length <= 3) {
+      // Too short to split - just add breaks around the aside if any
+      if (asides.length > 0) {
+        for (let i = 0; i < asides.length; i++) {
+          text = text.replace(`__ASIDE_${i}__`, `\n\n${asides[i]}\n\n`);
+        }
+      }
+      fixed = text.replace(/\n\s*\n\s*\n\s*\n/g, '\n\n').trim();
+      return fixed;
+    }
+    
+    // Group sentences into paragraphs (1-2 sentences each)
+    const paragraphs = [];
+    let currentPara = '';
+    let pendingCTA = null; // Collect CTA sentences to append at the end
+    
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
+      
+      // Check if this sentence is a hook (first sentence)
+      if (i === 0) {
+        paragraphs.push(sentence);
+        continue;
+      }
+      
+      // Check if this sentence is a CTA or question (near the end)
+      const isCTA = /^\s*(what|anyone|curious|thoughts|who else|tag|any of you|agree|disagree|worth|just saying|tbh)/i.test(sentence);
+      const nearEnd = i >= sentences.length - 2;
+      
+      if (isCTA && nearEnd) {
+        // Save CTA to append at the very end
+        pendingCTA = pendingCTA ? pendingCTA + ' ' + sentence : sentence;
+        continue;
+      }
+      
+      // Check if sentence is short (< 60 chars) - could be standalone
+      const sentenceLen = sentence.length;
+      const currentLen = currentPara.length;
+      
+      if (!currentPara) {
+        currentPara = sentence;
+      } else if (currentLen + sentenceLen < 200 && currentPara.split(/\s+/).length < 25) {
+        // Combine with current paragraph if not too long
+        currentPara += ' ' + sentence;
+      } else {
+        // Start new paragraph
+        paragraphs.push(currentPara);
+        currentPara = sentence;
+      }
+    }
+    
+    // Don't forget the last paragraph
+    if (currentPara) {
+      paragraphs.push(currentPara);
+    }
+    
+    // Append CTA at the end
+    if (pendingCTA) {
+      paragraphs.push(pendingCTA);
+    }
+    
+    // Re-insert asides as standalone paragraphs
+    let result = paragraphs.join('\n\n');
+    for (let i = 0; i < asides.length; i++) {
+      result = result.replace(`__ASIDE_${i}__`, `${asides[i]}\n\n`);
+    }
+    
+    fixed = result.replace(/\n\s*\n\s*\n\s*\n/g, '\n\n').trim();
+    
+  } else if (hasParagraphs) {
+    // Content has some paragraphs - check for overly long ones
+    const paragraphs = fixed.split(/\n\s*\n/);
+    const fixedParas = paragraphs.map(para => {
+      const trimmed = para.trim();
+      const sentences = trimmed.match(/[^.!?]+[.!?]+/g) || [trimmed];
+      
+      // If a paragraph has > 3 sentences, split it
+      if (sentences.length > 3) {
+        const groups = [];
+        for (let i = 0; i < sentences.length; i++) {
+          if (i % 2 === 0) groups.push([]);
+          groups[groups.length - 1].push(sentences[i].trim());
+        }
+        return groups.map(g => g.join(' ')).join('\n\n');
+      }
+      return trimmed;
+    });
+    
+    fixed = fixedParas.join('\n\n').trim();
+  }
+  
+  // Final cleanup: ensure no more than 2 consecutive newlines
+  fixed = fixed.replace(/\n{3,}/g, '\n\n').trim();
+  
+  return fixed;
+}
 
 function safeJsonParse(str) {
   if (!str || typeof str !== 'string') {
@@ -2348,68 +2462,6 @@ function displayMindsetFramework() {
   console.log('   ╚════════════════════════════════════════════════════════════╝');
 }
 
-/**
- * Display G4 Analysis Summary
- */
-function displayG4Analysis(g4Result) {
-  console.log('\n   ╔════════════════════════════════════════════════════════════╗');
-  console.log('   ║              🔍 G4 ORIGINALITY ANALYSIS                    ║');
-  console.log('   ╠════════════════════════════════════════════════════════════╣');
-  
-  // Bonuses
-  console.log('   ║  ✅ BONUSES:                                              ║');
-  const bonusItems = [
-    ['Casual Hook', g4Result.bonuses.casualHookOpening],
-    ['Parenthetical', g4Result.bonuses.parentheticalAside],
-    ['Contractions', g4Result.bonuses.contractions?.passed || false],
-    ['Personal Angle', g4Result.bonuses.personalAngle],
-    ['Conv. Ending', g4Result.bonuses.conversationalEnding]
-  ];
-  bonusItems.forEach(([name, value]) => {
-    const status = value ? '✓' : '✗';
-    console.log(`   ║     ${status} ${name.padEnd(18)} ${value ? '+0.15-0.20' : 'MISSING'}             ║`);
-  });
-  
-  // Penalties
-  console.log('   ╠────────────────────────────────────────────────────────────╣');
-  console.log('   ║  ❌ PENALTIES:                                             ║');
-  const penaltyItems = [
-    ['Em Dashes', g4Result.penalties.emDashes?.present],
-    ['Smart Quotes', g4Result.penalties.smartQuotes?.present],
-    ['AI Phrases', g4Result.penalties.aiPhrases?.present],
-    ['Generic Open', g4Result.penalties.genericOpening],
-    ['Formal End', g4Result.penalties.formalEnding]
-  ];
-  penaltyItems.forEach(([name, value]) => {
-    const status = value ? '⚠️' : '✓';
-    console.log(`   ║     ${status} ${name.padEnd(18)} ${value ? 'PENALTY!' : 'OK'}                  ║`);
-  });
-  
-  // Summary
-  console.log('   ╠════════════════════════════════════════════════════════════╣');
-  console.log(`   ║  📊 Estimated G4 Score: ${g4Result.estimatedG4.toFixed(2)}/2.00                       ║`);
-  console.log(`   ║  📈 Total Bonus: +${g4Result.totalBonus.toFixed(2)}                                    ║`);
-  console.log(`   ║  📉 Total Penalty: -${g4Result.totalPenalty.toFixed(2)}                                  ║`);
-  console.log(`   ║  🎯 Can Achieve 2.0: ${g4Result.canAchieveMaxScore ? 'YES' : 'NO'}                              ║`);
-  console.log('   ╚════════════════════════════════════════════════════════════╝');
-  
-  // Issues
-  if (g4Result.issues.length > 0) {
-    console.log('\n   ⚠️  ISSUES TO FIX:');
-    g4Result.issues.forEach(issue => {
-      console.log(`      • ${issue}`);
-    });
-  }
-  
-  // Recommendations
-  if (g4Result.recommendations.length > 0) {
-    console.log('\n   💡 RECOMMENDATIONS:');
-    g4Result.recommendations.forEach(rec => {
-      console.log(`      • ${rec}`);
-    });
-  }
-}
-
 // ============================================================================
 // 🆕 NEW v9.8.3-ENHANCED: PRE-WRITING & VALIDATION FUNCTIONS
 // ============================================================================
@@ -2572,7 +2624,7 @@ Return JSON:
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.9, maxTokens: 2000 });
+  ], { temperature: 0.9, maxTokens: 2000, model: 'glm-5-flash', enableSearch: true });
   
   const result = safeJsonParse(response.content);
   
@@ -2960,7 +3012,7 @@ Extract and categorize in JSON format:
   const response = await llm.chat([
     { role: 'system', content: 'You are a competitive content analyst specializing in content differentiation. Return JSON only.' },
     { role: 'user', content: analysisPrompt }
-  ], { temperature: 0.5, maxTokens: 4000 });
+  ], { temperature: 0.5, maxTokens: 4000, model: 'glm-5-flash', enableSearch: true });
   
   const analysis = safeJsonParse(response.content);
   
@@ -2986,122 +3038,41 @@ Recommended Winning Angle: ${analysis.recommendations?.winningAngle || 'Be uniqu
 }
 
 // ============================================================================
-// MULTI-QUERY DEEP RESEARCH - Must Succeed!
+// DEEP RESEARCH - Single AI call with built-in search (no manual web search)
 // ============================================================================
 
 async function multiQueryDeepResearch(llm, campaignTitle, campaignData) {
   console.log('\n' + '─'.repeat(60));
-  console.log('🔎 MULTI-QUERY DEEP RESEARCH');
+  console.log('🔎 DEEP RESEARCH (AI Built-in Search)');
   console.log('─'.repeat(60));
   
-  const currentYear = new Date().getFullYear();
-  const topicKeywords = extractKeywords(campaignTitle);
+  // Model glm-5-flash dengan enable_search: true sudah otomatis melakukan web search
+  // Tidak perlu 6× webSearchSmart terpisah — SATU call AI dengan search sudah cukup
+  console.log('   🔍 Using model built-in search (no separate web search needed)...');
   
-  const searchQueries = [
-    `${campaignTitle} what is how it works ${currentYear}`,
-    `${topicKeywords.join(' ')} real cases examples success stories ${currentYear}`,
-    `${topicKeywords.join(' ')} controversy debate problems issues`,
-    `${topicKeywords.join(' ')} statistics data market size growth ${currentYear}`,
-    `${topicKeywords.join(' ')} expert opinion quote analysis insight`,
-    `${topicKeywords.join(' ')} untold story hidden problem nobody talks about`
-  ];
-  
-  const allResults = [];
-  let webSearchFailed = false;
-  
-  for (let i = 0; i < searchQueries.length; i++) {
-    console.log(`   🔍 Query ${i + 1}/${searchQueries.length}: "${searchQueries[i].substring(0, 50)}..."`);
-    
-    try {
-      const results = await llm.webSearch(searchQueries[i]);
-      
-      if (results && results.length > 0) {
-        allResults.push({
-          query: searchQueries[i],
-          queryType: ['basics', 'cases', 'controversies', 'statistics', 'expert', 'untold'][i],
-          results: results.slice(0, 3)
-        });
-      }
-      
-      // Use configured delay after web search
-      await delay(CONFIG.delays.afterWebSearch || 3000);
-      
-    } catch (error) {
-      if (isRateLimitError(error)) {
-        console.log('   ⚠️ Web search rate limited - switching to fallback research...');
-        webSearchFailed = true;
-        break; // Stop trying web searches
-      }
-      throw error;
-    }
-  }
-  
-  // If web search failed or returned no results, use AI-based research fallback
-  if (allResults.length === 0 || webSearchFailed) {
-    console.log('   📋 Using AI-based research fallback (no web search)...');
-    
-    const fallbackPrompt = `Generate research insights for creating unique content about "${campaignTitle}".
+  const researchPrompt = `You are a DEEP research expert. Research THOROUGHLY about "${campaignTitle}" for creating unique, high-quality social media content.
 
+════════════════════════════════════════════════════════════════
 CAMPAIGN CONTEXT:
-${campaignData.description || campaignData.goal || 'Not provided'}
-${campaignData.knowledgeBase ? '\nKNOWLEDGE BASE:\n' + campaignData.knowledgeBase : ''}
+════════════════════════════════════════════════════════════════
+Campaign: ${campaignTitle}
+Description: ${campaignData.description || campaignData.goal || 'Not provided'}
+${campaignData.knowledgeBase ? 'Knowledge Base: ' + campaignData.knowledgeBase.substring(0, 500) : ''}
 
-Generate in JSON format:
-{
-  "keyFacts": ["<fact1>", "<fact2>", ...],
-  "realCases": ["<case1>", "<case2>", ...],
-  "controversies": ["<controversy1>", "<controversy2>", ...],
-  "statistics": ["<stat1>", "<stat2>", ...],
-  "expertQuotes": ["<quote1>", "<quote2>", ...],
-  "untoldStories": ["<story1>", "<story2>", ...],
-  "uniqueAngles": [{"angle": "<angle>", "evidence": "<supporting evidence>", "uniqueness": "<why unique>"}],
-  "evidenceLayers": {
-    "macroData": "<large scale data>",
-    "caseStudy": "<specific example>",
-    "personalTouch": "<relatable element>",
-    "expertValidation": "<expert source>"
-  }
-}`;
+════════════════════════════════════════════════════════════════
+RESEARCH TASKS (search the web for ALL of these):
+════════════════════════════════════════════════════════════════
+1. BASIC FACTS: What is it, how does it work, key features
+2. REAL CASES: Success stories, real user experiences, examples
+3. CONTROVERSIES: Problems, debates, criticisms, risks
+4. STATISTICS: Market data, growth metrics, numbers
+5. EXPERT OPINIONS: Quotes, analysis, insider insights
+6. UNTOLD STORIES: Hidden problems, things nobody talks about
 
-    const response = await llm.chat([
-      { role: 'system', content: 'You are a research expert. Generate realistic, well-informed research insights based on general knowledge. Return JSON only.' },
-      { role: 'user', content: fallbackPrompt }
-    ], { temperature: 0.7, maxTokens: 3000 });
-    
-    let synthesis = safeJsonParse(response.content);
-    
-    if (!synthesis) {
-      console.log('   ⚠️ Could not parse fallback synthesis, using minimal data...');
-      synthesis = {
-        keyFacts: [`${campaignTitle} addresses structural problems in digital coordination`, 'Decentralized solutions are becoming mainstream'],
-        realCases: ['Users seeking dispute resolution without traditional courts'],
-        controversies: ['Traditional vs decentralized approaches'],
-        statistics: ['Growing adoption of decentralized systems'],
-        expertQuotes: ['Industry leaders see potential in this approach'],
-        untoldStories: ['The hidden costs of traditional dispute resolution'],
-        uniqueAngles: [{ angle: 'Fresh perspective on digital justice', evidence: 'Market trends', uniqueness: 'Underexplored angle' }],
-        evidenceLayers: {
-          macroData: 'Market growth data',
-          caseStudy: 'Real user experiences',
-          personalTouch: 'Relatable frustrations',
-          expertValidation: 'Industry analysis'
-        }
-      };
-    }
-    
-    displayThinking('RESEARCH', `Generated ${synthesis.keyFacts?.length || 0} facts, ${synthesis.uniqueAngles?.length || 0} unique angles (AI fallback)`);
-    
-    return { rawResults: [], synthesis, usedFallback: true };
-  }
-  
-  const synthesisPrompt = `Synthesize these research findings for creating unique content about "${campaignTitle}":
-
-${allResults.map(r => `
---- ${r.queryType.toUpperCase()} ---
-${r.results.map(res => `- ${res.name}: ${res.snippet?.substring(0, 150)}`).join('\n')}
-`).join('\n')}
-
-Extract in JSON format:
+════════════════════════════════════════════════════════════════
+OUTPUT FORMAT:
+════════════════════════════════════════════════════════════════
+Return JSON:
 {
   "keyFacts": ["<fact1>", "<fact2>", ...],
   "realCases": ["<case1>", "<case2>", ...],
@@ -3119,35 +3090,48 @@ Extract in JSON format:
 }`;
 
   const response = await llm.chat([
-    { role: 'system', content: 'You are a research synthesizer. Extract unique angles and evidence for content creation. Return JSON only.' },
-    { role: 'user', content: synthesisPrompt }
-  ], { temperature: 0.5, maxTokens: 3000 });
+    { role: 'system', content: 'You are a deep research expert. Search the web thoroughly and return well-researched JSON data. Return JSON only, no explanation.' },
+    { role: 'user', content: researchPrompt }
+  ], { temperature: 0.5, maxTokens: 4000, model: 'glm-5-flash', enableSearch: true });
   
   let synthesis = safeJsonParse(response.content);
   
-  // If parsing fails, create a default synthesis from raw results
   if (!synthesis) {
-    console.log('   ⚠️ Could not parse synthesis JSON, using fallback...');
+    console.log('   ⚠️ Could not parse research JSON, retrying with simpler prompt...');
+    
+    const retryResponse = await llm.chat([
+      { role: 'system', content: 'Return valid JSON only. No markdown, no explanation.' },
+      { role: 'user', content: `Research "${campaignTitle}" and return: {"keyFacts":["fact1","fact2"],"realCases":["case1"],"controversies":["controversy1"],"statistics":["stat1"],"uniqueAngles":[{"angle":"angle","evidence":"evidence","uniqueness":"why"}],"evidenceLayers":{"macroData":"data","caseStudy":"example","personalTouch":"relatable","expertValidation":"source"}}` }
+    ], { temperature: 0.5, maxTokens: 3000, model: 'glm-5-flash', enableSearch: true });
+    
+    synthesis = safeJsonParse(retryResponse.content);
+  }
+  
+  if (!synthesis) {
+    console.log('   ⚠️ Research parse failed, using minimal fallback...');
     synthesis = {
-      keyFacts: allResults.flatMap(r => r.results.slice(0, 2).map(res => res.snippet || res.name)).slice(0, 5),
+      keyFacts: [`${campaignTitle} - researched via AI built-in search`],
       realCases: [],
       controversies: [],
       statistics: [],
       expertQuotes: [],
       untoldStories: [],
-      uniqueAngles: [{ angle: 'Fresh perspective', evidence: 'Research-based', uniqueness: 'No competitor data' }],
+      uniqueAngles: [{ angle: 'AI-researched perspective', evidence: 'Built-in search', uniqueness: 'Fresh angle' }],
       evidenceLayers: {
-        macroData: allResults[0]?.results[0]?.snippet || 'Market data available',
-        caseStudy: 'Specific examples found in research',
-        personalTouch: 'Personal experience angle',
-        expertValidation: 'Expert opinions in research'
+        macroData: 'Available via search',
+        caseStudy: 'Found via research',
+        personalTouch: 'Relatable element',
+        expertValidation: 'Expert source'
       }
     };
   }
   
-  displayThinking('RESEARCH', `Found ${synthesis.keyFacts?.length || 0} facts, ${synthesis.uniqueAngles?.length || 0} unique angles`);
+  const factCount = synthesis.keyFacts?.length || 0;
+  const angleCount = synthesis.uniqueAngles?.length || 0;
+  console.log(`   ✅ Research complete: ${factCount} facts, ${angleCount} unique angles (single AI call + built-in search)`);
+  displayThinking('RESEARCH', `Found ${factCount} facts, ${angleCount} unique angles`);
   
-  return { rawResults: allResults, synthesis };
+  return { rawResults: [], synthesis };
 }
 
 // ============================================================================
@@ -3295,7 +3279,30 @@ ${comprehensionPlan._hashtagProhibitionMissed ? `
 ═══════════════════════════════════════════════════════════════════════════════
 ` : '';
   
-  const systemPrompt = `You are an ELITE content creator who writes viral, authentic content that resonates deeply with readers.
+  const systemPrompt = `You are a REAL PERSON writing on social media. Not a content creator, not a marketer, NOT AI. You are someone who genuinely uses crypto products and has real opinions.
+
+═══════════════════════════════════════════════════════════════════
+🚨🚨🚨 CRITICAL: THIS IS NOT AN AD OR PROMOTION 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════
+You are NOT promoting this product. You are SHARING YOUR GENUINE EXPERIENCE.
+
+❌ ABSOLUTELY FORBIDDEN (your content WILL BE REJECTED if it contains any of these):
+1. FEATURE LISTING: "unified balance system", "zkSync", "off-chain matching" — do NOT explain how the product works
+2. STAT DUMPING: "$100M+ TVL and $200B+ cumulative volume" — do NOT list stats like a brochure
+3. KNOWLEDGE BASE PARROTING: Copying facts directly from the campaign info into your tweet
+4. FAKE EMOTIONS: "My hands were shaking", "I was blown away" — these are AI cliches, real people don't talk like this
+5. AD-LIKE STRUCTURE: Problem → Feature → Benefit → CTA — this is advertising, not social media
+6. PRODUCT DESCRIPTION: Any sentence that explains WHAT the product IS or HOW it works
+7. GENERIC HYPERBOLE: "This changed everything", "Nothing like it", "Game changer"
+
+✅ WHAT YOUR CONTENT MUST BE INSTEAD:
+- A SPECIFIC MOMENT or EXPERIENCE you had (not "I discovered it", but the actual moment)
+- A SPECIFIC DETAIL that only someone who actually used it would know
+- A GENUINE OPINION (even if slightly negative or skeptical — this adds authenticity)
+- A QUESTION at the end that invites real conversation
+- Written the way you'd text a friend, not the way a company writes a tweet
+
+TELL A STORY, NOT FACTS. People don't engage with features. They engage with EXPERIENCES.
 
 ${perspectiveSection}
 ${comprehensionPlanSection}
@@ -3450,6 +3457,21 @@ limited time, act now, click here, don't miss out
 • Read it aloud - if it sounds weird, rewrite it
 
 ═══════════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 CRITICAL FORMATTING RULES (YOUR CONTENT WILL BE REJECTED IF VIOLATED):
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Your "content" field MUST contain actual newline characters (\n\n) between paragraphs
+2. NEVER output a single wall-of-text paragraph. EVER.
+3. Each paragraph must be 1-2 sentences MAX, separated by a blank line (\n\n)
+4. Your content MUST look like this:
+   "ngl I spent way too long last night.\n\n(downloaded at 2am, embarrassing to admit)\n\nWhat caught me wasn't the specs."
+5. This is NOT acceptable:
+   "ngl I spent way too long last night. (downloaded at 2am, embarrassing to admit) What caught me wasn't the specs."
+6. Use \n\n (double newline) between EVERY paragraph break
+7. A good tweet should have 4-8 short paragraphs separated by blank lines
+8. Blank lines create visual breathing room - they are ESSENTIAL for readability
+
+═══════════════════════════════════════════════════════════════════════════════
 📋 OUTPUT FORMAT:
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -3457,7 +3479,7 @@ Return JSON:
 {
   "tweets": [
     {
-      "content": "<full tweet text - make it feel AUTHENTIC>",
+      "content": "<full tweet text with \n\n between each paragraph - make it feel AUTHENTIC>",
       "hook": "<the opening hook>",
       "emotions": ["emotion1", "emotion2", "emotion3"],
       "bodyFeeling": "<physical sensation described>",
@@ -3599,6 +3621,12 @@ ${campaignData.campaignUrl || campaignData.url || 'Campaign URL must be included
   }
   return ''; // URL not required - don't show anything
 })()}
+${campaignData.characterLimit ? `
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ CHARACTER LIMIT (STRICT - YOUR CONTENT WILL BE REJECTED IF TOO LONG):
+═══════════════════════════════════════════════════════════════════════════════
+MAXIMUM: ${campaignData.characterLimit} characters. Your content MUST be within this limit.
+Count your characters carefully!` : ''}
 ═══════════════════════════════════════════════════════════════════════════════
 📊 RESEARCH DATA TO USE
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3706,7 +3734,7 @@ Create content that makes readers STOP, FEEL, and ENGAGE.`;
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.8, maxTokens: 4000 });
+  ], { temperature: 0.8, maxTokens: 4000, model: 'glm-5-flash', enableSearch: true });
   
   const result = safeJsonParse(response.content);
   
@@ -3715,6 +3743,147 @@ Create content that makes readers STOP, FEEL, and ENGAGE.`;
   }
   
   console.log(`   ✅ Generated ${result.tweets.length} tweets`);
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 🚨 STEP 1.3: FORMAT FIX - Ensure proper paragraph structure
+  // ═══════════════════════════════════════════════════════════════
+  console.log('\n   📝 STEP 1.3: Format Fix - Ensuring proper paragraph structure...');
+  
+  for (let i = 0; i < result.tweets.length; i++) {
+    const original = result.tweets[i].content;
+    const fixed = fixContentFormatting(original);
+    
+    if (fixed !== original) {
+      result.tweets[i].content = fixed;
+      const origParagraphs = original.split(/\n\s*\n/).filter(p => p.trim()).length;
+      const fixedParagraphs = fixed.split(/\n\s*\n/).filter(p => p.trim()).length;
+      console.log(`   📝 Tweet ${i + 1}: Fixed formatting (${origParagraphs} → ${fixedParagraphs} paragraphs)`);
+    } else {
+      const paragraphs = original.split(/\n\s*\n/).filter(p => p.trim()).length;
+      console.log(`   ✅ Tweet ${i + 1}: Format OK (${paragraphs} paragraphs)`);
+    }
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 🚨 STEP 1.5: ANTI-AI CONTENT GATE
+  // ═══════════════════════════════════════════════════════════════
+  console.log('\n   🤖 STEP 1.5: Anti-AI Content Detection...');
+  const aiPatterns = [
+    // Feature listing patterns
+    { pattern: /\b(unified balance|zkSync|off-chain matching|on-chain settlement|zero-knowledge proof|self-custody)\b/gi, weight: 30, label: 'Technical feature listing' },
+    // KB stat dumping
+    { pattern: /\$?\d+\+?\s*(TVL|volume|trading volume|cumulative|perpetual|markets)/gi, weight: 25, label: 'Direct stat copying from knowledge base' },
+    // Fake AI emotions
+    { pattern: /(\bmy hands were\b.*shaking|\bblood.*boil(ing)?\b|\bi was blown away\b|\bmind.*blown\b|\bjaw.*drop(ped)?\b.*floor|\bstill processing\b)/gi, weight: 30, label: 'Fake/forced AI emotion cliché' },
+    // Ad structure
+    { pattern: /(this (isn't|is not) just another|proof they're building|actually works for|nothing like (it|this)|game (changer|changer))/gi, weight: 25, label: 'Ad-like promotional language' },
+    // Product explanation
+    { pattern: /(the (unified|product|platform|exchange|system) (works|allows|lets|enables|gives)|you can (earn|trade|deposit) while|your (capital|funds|money) (stays|stays?|remains))/gi, weight: 30, label: 'Explaining how product works' },
+    // AI cliché phrases
+    { pattern: /\b(that's unheard of|in a (world|space) where|this isn't just|it's proof|building something that|works for (traders|you|everyone))\b/gi, weight: 20, label: 'Generic AI hype phrase' },
+    // Stat stacking (multiple stats in one sentence)
+    { pattern: /(\$\d+\+?.*?\b(and|with|while)\b.*\$\d+\+?|\bTVL\b.*\bvolume\b|\bvolume\b.*\bTVL\b)/gi, weight: 25, label: 'Multiple stats stacked (brochure-like)' }
+  ];
+  
+  for (let i = 0; i < result.tweets.length; i++) {
+    const tweet = result.tweets[i];
+    let aiScore = 0;
+    let detectedIssues = [];
+    
+    for (const check of aiPatterns) {
+      const matches = (tweet.content.match(check.pattern) || []).length;
+      if (matches > 0) {
+        const penalty = check.weight * matches;
+        aiScore += penalty;
+        detectedIssues.push(`  ⚠️ ${check.label} (×${matches}, -${penalty}pts)`);
+      }
+    }
+    
+    // Check if content reads more like an ad than a personal story
+    const personalWords = (tweet.content.match(/\b(I|my|me|we|us|our)\b/gi) || []).length;
+    const totalWords = tweet.content.split(/\s+/).length;
+    const personalRatio = totalWords > 0 ? personalWords / totalWords : 0;
+    
+    if (personalRatio < 0.08) {
+      aiScore += 40;
+      detectedIssues.push('  ⚠️ Too few personal words - reads like an ad, not a personal experience');
+    }
+    
+    // Check if content has a genuine personal moment (specific scenario, not vague)
+    const hasSpecificMoment = /yesterday|last (week|month|night|friday|sunday)|\d+ (am|pm|days?|hours?|weeks?|months?)/i.test(tweet.content);
+    if (!hasSpecificMoment && totalWords > 30) {
+      aiScore += 30;
+      detectedIssues.push('  ⚠️ No specific time/moment reference - content feels vague and generic');
+    }
+    
+    console.log(`   📝 Tweet ${i + 1}: AI Content Score: ${aiScore}/200 (higher = more AI-like)`);
+    
+    if (aiScore > 80) {
+      console.log(`   ❌ Tweet ${i + 1}: REJECTED - Too AI-like / Ad-like`);
+      detectedIssues.forEach(issue => console.log(issue));
+      
+      // Try to regenerate with stronger anti-AI prompt
+      console.log(`   🔄 Regenerating Tweet ${i + 1} with stronger anti-AI instructions...`);
+      
+      try {
+        const antiAiResponse = await callAI([
+          { role: 'system', content: `You are a REAL crypto user writing a tweet. Write EXACTLY like you would text your friend.
+
+RULES:
+- Do NOT mention any product features, tech terms, or statistics
+- Do NOT sound like an advertisement or promotion
+- Write about ONE specific moment/experience only
+- Use casual, imperfect language (contractions, incomplete sentences, slang)
+- Start with something casual (ngl, tbh, okay so, look, real talk)
+- End with a genuine question
+- Maximum 280 characters` },
+          { role: 'user', content: `Write a casual tweet about ${(campaignData.description || campaignData.missionGoal || 'this crypto thing').substring(0, 100)}.
+
+Your tweet should sound like you just experienced something and you're telling a friend about it. NOT like you're promoting it. Be skeptical, be real, be imperfect.
+
+Required: Include @grvt_io somewhere natural.
+
+IMPORTANT: Return ONLY the tweet text. No explanation, no formatting, no JSON. Just the tweet.` }
+        ], { temperature: 0.9, maxTokens: 300, model: 'glm-4-flash', enableThinking: false });
+        
+        // Extract content - skip any thinking/reasoning text
+        let regenerated = antiAiResponse.content.trim();
+        
+        // Remove thinking blocks if present (some models return reasoning first)
+        const thinkEnd = regenerated.indexOf('</think');
+        if (thinkEnd > 0) {
+          regenerated = regenerated.substring(thinkEnd + '</think'.length).trim();
+        }
+        const thinkStart = regenerated.indexOf('<think');
+        if (thinkStart === 0 && thinkEnd > 0) {
+          regenerated = regenerated.substring(thinkEnd + '</think'.length).trim();
+        }
+        
+        // Remove any JSON wrapping or markdown
+        regenerated = regenerated.replace(/^["'`]+|["'`]+$/gm, '').trim();
+        regenerated = regenerated.replace(/^\s*\{[\s\S]*?"content"\s*:\s*"([\s\S]*?)"[\s\S]*\}\s*$/, '$1');
+        
+        // Remove any "Here's your tweet" type prefixes
+        regenerated = regenerated.replace(/^(here'?s your tweet:?\s*)/im, '');
+        regenerated = regenerated.replace(/^(tweet:?\s*)/im, '');
+        
+        if (regenerated.length > 20 && regenerated.length < 1000) {
+          result.tweets[i].content = regenerated;
+          console.log(`   ✅ Tweet ${i + 1}: Regenerated (${regenerated.length} chars)`);
+          console.log(`   📝 Preview: "${regenerated.substring(0, 120)}..."`);
+        } else {
+          console.log(`   ⚠️ Tweet ${i + 1}: Regeneration produced invalid content (${regenerated.length} chars), keeping original`);
+        }
+      } catch (e) {
+        console.log(`   ⚠️ Regeneration failed: ${e.message}`);
+      }
+    } else if (aiScore > 40) {
+      console.log(`   ⚠️ Tweet ${i + 1}: Warning - somewhat AI-like, passing to judges anyway`);
+      detectedIssues.forEach(issue => console.log(issue));
+    } else {
+      console.log(`   ✅ Tweet ${i + 1}: Looks authentic`);
+    }
+  }
   
   // 🆕 NEW: Run Enhanced Validation on each tweet
   console.log('\n   🔬 STEP 2: Running Enhanced Validation Tests...');
@@ -4667,15 +4836,17 @@ Evidence layers to look for:
 
 📌 READABILITY (1-4)
 ────────────────────────────
-4 = EXCELLENT: Easy to read, good flow, appropriate length, uses contractions naturally
+4 = EXCELLENT: Easy to read, good flow, appropriate length, uses contractions naturally, proper paragraph breaks
 3 = GOOD: Readable with minor issues
 2 = FAIR: Somewhat hard to follow or too long/short
 1 = POOR: Confusing, poor structure, or walls of text
 
 Check for:
-• Short paragraphs (1-2 sentences)
+• Short paragraphs (1-2 sentences) separated by blank lines
+• Wall of text (no paragraph breaks) = AUTO SCORE 1
 • Good sentence variety
 • No jargon overload
+• CRITICAL: Content MUST have paragraph breaks (\n\n) between ideas. Single continuous paragraph = READABILITY 1
 
 📌 X-FACTOR DIFFERENTIATORS (1-4) - NEW!
 ────────────────────────────
@@ -5437,96 +5608,6 @@ function parseJudge6Result(content, nlpAnalysis) {
   return result;
 }
 
-function calculateJudge1Score(result) {
-  if (!result) return 0;
-  
-  // Base scores from judge
-  const scores = [
-    result.hookQuality?.score || 0,
-    result.emotionalImpact?.score || 0,
-    result.bodyFeeling?.score || 0,
-    result.ctaQuality?.score || 0,
-    result.urlPresence?.score || 0,
-    result.g4Originality?.score || 0  // NEW: G4 Originality scoring
-  ];
-  
-  let total = scores.reduce((a, b) => a + b, 0);
-  
-  // Apply penalty for forbidden elements
-  const forbiddenPenalty = result.forbiddenElements?.penalty || 0;
-  total = Math.max(0, total - forbiddenPenalty);
-  
-  return total;
-}
-
-function calculateJudge2Score(result) {
-  if (!result) return 0;
-  const scores = [
-    result.factQuality?.score || 0,
-    result.engagementHook?.score || 0,
-    result.readability?.score || 0,
-    result.xFactorDifferentiators?.score || 0  // NEW: X-Factor scoring (replaces originality)
-  ];
-  return scores.reduce((a, b) => a + b, 0);
-}
-
-function calculateJudge3Score(result) {
-  if (!result) return 0;
-  const scores = [
-    result.contentDepth?.score || 0,
-    result.storyQuality?.score || 0,
-    result.audienceFit?.score || 0,
-    result.emotionVariety?.score || 0,
-    result.evidenceLayering?.score || 0,
-    result.antiTemplate?.score || 0
-  ];
-  return scores.reduce((a, b) => a + b, 0);
-}
-
-function calculateJudge4Score(result) {
-  if (!result || !result.checks) return 0;
-  
-  const passedCount = Object.values(result.checks)
-    .filter(check => check.pass === true)
-    .length;
-  
-  return passedCount;
-}
-
-function calculateJudge5Score(result) {
-  if (!result) return 0;
-  const scores = [
-    result.claimAccuracy?.score || 0,
-    result.sourceQuality?.score || 0,
-    result.dataFreshness?.score || 0
-  ];
-  return Math.min(scores.reduce((a, b) => a + b, 0), 5);
-}
-
-function calculateJudge6Score(result) {
-  if (!result) return 0;
-  
-  let score = 0;
-  score += (result.differentiation?.score || 0) * 1.5;
-  score += (result.uniqueAngle?.score || 0);
-  score += (result.emotionUniqueness?.score || 0);
-  score += (result.templateAvoidance?.score || 0) * 0.5;  // BUG #24 FIX: Include templateAvoidance
-  
-  // BUG #24 FIX: Use isUnique from LLM response (not nlpEnhanced.rareCombo which requires NLP)
-  if (result.isUnique === true) {
-    score += 2;
-  }
-  if (result.nlpEnhanced?.rareCombo) {
-    score += 2;  // Keep NLP bonus if available
-  }
-  
-  if (result.nlpEnhanced?.similarity > 0.7) {
-    score -= 5;
-  }
-  
-  return Math.max(0, Math.min(25, score));
-}
-
 // ============================================================================
 // RALLY API FUNCTIONS - Campaign Search & Fetch
 // ============================================================================
@@ -5725,12 +5806,23 @@ async function fetchCampaignData(campaignAddress, missionNumber = null) {
         console.log(`   ⚠️ Mission ${missionNumber} not found. Available: 1-${missions.length}`);
       }
     } else if (missions.length > 0) {
-      console.log(`\n   📋 Available Missions:`);
-      missions.forEach((m, i) => {
-        const active = m.active !== false ? '🟢' : '🔴';
-        console.log(`      ${active} Mission ${i + 1}: ${m.title}`);
-      });
-      console.log(`   💡 Tip: Add mission number (1-${missions.length}) to select specific mission`);
+      // Auto-select first active mission if no mission number specified
+      const activeMissions = missions.map((m, i) => ({ ...m, index: i + 1 })).filter(m => m.active !== false);
+      
+      if (activeMissions.length > 0) {
+        missionData = activeMissions[0];
+        missionNumber = activeMissions[0].index;
+        console.log(`\n   📋 Available Missions:`);
+        missions.forEach((m, i) => {
+          const active = m.active !== false ? '🟢' : '🔴';
+          const auto = (i + 1) === missionNumber ? '  ◀ AUTO-SELECTED' : '';
+          console.log(`      ${active} Mission ${i + 1}: ${m.title}${auto}`);
+        });
+        console.log(`\n   ⚠️  No mission specified — AUTO-SELECTED Mission ${missionNumber}: ${missionData.title}`);
+        console.log(`   💡 Tip: Add mission number (1-${missions.length}) to select a different mission`);
+      } else {
+        console.log(`\n   ⚠️ No active missions found for this campaign.`);
+      }
     }
     
     const campaign = {
@@ -5744,6 +5836,8 @@ async function fetchCampaignData(campaignAddress, missionNumber = null) {
       rules: missionData?.rules || response.rules || 'Standard rules',
       knowledgeBase: missionData?.knowledgeBase || response.knowledgeBase || '',
       additionalInfo: missionData?.adminNotice || response.adminNotice || response.additionalInfo || '',
+      characterLimit: missionData?.characterLimit || missionData?.character_limit || response.characterLimit || response.character_limit || null,
+      contentType: missionData?.contentType || missionData?.content_type || response.contentType || response.content_type || 'tweet',
       campaignUrl: response.campaignUrl || `https://app.rally.fun/campaign/${response.intelligentContractAddress}`,
       url: response.campaignUrl || `https://app.rally.fun/campaign/${response.intelligentContractAddress}`
     };
@@ -5755,6 +5849,9 @@ async function fetchCampaignData(campaignAddress, missionNumber = null) {
     }
     console.log(`   🎨 Style: ${(campaign.style || 'Standard').substring(0, 50)}...`);
     console.log(`   📜 Rules: ${(campaign.rules || 'Standard rules').substring(0, 50)}...`);
+    if (campaign.characterLimit) {
+      console.log(`   📏 Character Limit: ${campaign.characterLimit}`);
+    }
     
     return campaign;
   } catch (error) {
@@ -5826,359 +5923,6 @@ async function fetchLeaderboard(campaignAddress) {
   } catch (error) {
     console.log(`   ⚠️ Failed to fetch leaderboard: ${error.message}`);
     return [];
-  }
-}
-
-// ============================================================================
-// REVISION LOOP
-// ============================================================================
-
-async function revisionLoop(llm, content, campaignData, competitorContents, attempt, feedback) {
-  console.log('\n' + '─'.repeat(60));
-  console.log(`🔄 REVISION LOOP - Attempt ${attempt + 1}`);
-  console.log('─'.repeat(60));
-  
-  if (attempt >= CONFIG.revision.maxAttempts) {
-    console.log('   ❌ Max revision attempts reached');
-    return null;
-  }
-
-  await delay(CONFIG.delays.beforeRevision);
-
-  // Check URL requirement for revision prompt
-  const revisionReqs = parseCampaignRequirements(campaignData);
-  let urlInstructionForRevision;
-  if (revisionReqs.mandatoryUrl) {
-    urlInstructionForRevision = '4. Keeps the URL included';
-  } else if (revisionReqs.prohibitedUrl) {
-    urlInstructionForRevision = '4. Do NOT include any URL or link';
-  } else {
-    urlInstructionForRevision = '4. Do NOT include URL unless naturally needed';
-  }
-
-  const revisionPrompt = `REVISE this content based on judge feedback.
-
-ORIGINAL CONTENT:
-${content}
-
-JUDGE FEEDBACK:
-${JSON.stringify(feedback, null, 2)}
-
-ISSUES TO FIX:
-${feedback?.issues?.join('\n') || 'None specific'}
-
-SUGGESTIONS:
-${feedback?.suggestions?.join('\n') || 'None specific'}
-
-Create REVISED content that:
-1. Addresses ALL failed checks
-2. Maintains the unique angle
-3. Improves weak areas
-${urlInstructionForRevision}
-
-Return JSON:
-{
-  "revisedContent": "<full revised tweet>",
-  "changes": ["change1", "change2", ...]
-}`;
-
-  const response = await llm.chat([
-    { role: 'system', content: 'You are a content revision specialist. Fix issues while maintaining uniqueness.' },
-    { role: 'user', content: revisionPrompt }
-  ], { temperature: 0.6, maxTokens: 2000 });
-  
-  const result = safeJsonParse(response.content);
-  
-  if (!result || !result.revisedContent) {
-    throw new Error('Failed to generate revision');
-  }
-  
-  console.log(`   ✅ Revision generated`);
-  console.log(`   📝 Changes: ${(result.changes || []).join(', ')}`);
-  return result.revisedContent;
-}
-
-// ============================================================================
-// v9.8.1: MULTI-CONTENT GENERATOR CLASS
-// ============================================================================
-
-class MultiContentGenerator {
-  constructor(llm, config) {
-    this.llm = llm;
-    this.config = config;
-    this.generatedContents = [];
-    this.judgingResults = [];
-    this.rankings = [];
-  }
-  
-  async generateMultipleContents(campaignData, competitorAnalysis, researchData) {
-    console.log('\n' + '═'.repeat(60));
-    console.log(`🚀 GENERATING ${this.config.multiContent.count} CONTENTS`);
-    console.log('═'.repeat(60));
-    
-    this.generatedContents = [];
-    const variations = this.config.multiContent.variations;
-    
-    for (let i = 0; i < this.config.multiContent.count; i++) {
-      console.log(`\n📝 Generating Content ${i + 1}/${this.config.multiContent.count}...`);
-      
-      const variation = {
-        index: i,
-        angle: variations.angles[i % variations.angles.length],
-        emotions: variations.emotions[i % variations.emotions.length],
-        structure: variations.structures[i % variations.structures.length]
-      };
-      
-      console.log(`   🎭 Angle: ${variation.angle}`);
-      console.log(`   💫 Emotions: ${variation.emotions.join(' → ')}`);
-      console.log(`   📖 Structure: ${variation.structure}`);
-      
-      const content = await this._generateSingleContent(
-        campaignData,
-        competitorAnalysis,
-        researchData,
-        variation
-      );
-      
-      if (content) {
-        this.generatedContents.push({
-          index: i + 1,
-          content: content,
-          variation: variation,
-          timestamp: new Date().toISOString()
-        });
-        console.log(`   ✅ Content ${i + 1} generated successfully`);
-      }
-      
-      // Use configured delay between content generation
-      await delay(this.config.delays.betweenContentGen || 5000);
-    }
-    
-    if (this.generatedContents.length === 0) {
-      throw new Error('Failed to generate any contents');
-    }
-    
-    console.log(`\n📊 Generated ${this.generatedContents.length}/${this.config.multiContent.count} contents`);
-    return this.generatedContents;
-  }
-  
-  async _generateSingleContent(campaignData, competitorAnalysis, researchData, variation) {
-    const persona = this._selectPersona(variation.angle);
-    const narrativeStructure = this._selectStructure(variation.structure);
-    const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title);
-    const emotionCombo = { emotions: variation.emotions, hook: `${variation.emotions[0]} → ${variation.emotions[1]}` };
-
-    // 🚨 CRITICAL: Parse requirements BEFORE building prompt
-    const reqs = parseCampaignRequirements(campaignData);
-
-    // Build URL instruction based on requirements
-    let urlInstruction;
-    if (reqs.prohibitedUrl) {
-      urlInstruction = '🚫 URL PROHIBITED: Do NOT include any URL or link in your content!';
-    } else if (reqs.mandatoryUrl) {
-      urlInstruction = `🔗 URL REQUIRED: You MUST include this URL: ${campaignData.campaignUrl || campaignData.url}`;
-    } else {
-      // URL is NOT required - explicitly tell AI NOT to include any URL
-      urlInstruction = '🚫 URL NOT REQUIRED: Do NOT include any URL or link in your content. The campaign rules do not require a URL.';
-    }
-
-    // Build prohibited items section
-    let prohibitedSection = '';
-    if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
-      prohibitedSection = `
-═══════════════════════════════════════════════════════════════════════════════
-🚫🚫🚫 PROHIBITED ITEMS - DO NOT INCLUDE THESE OR YOUR CONTENT WILL BE REJECTED 🚫🚫🚫
-═══════════════════════════════════════════════════════════════════════════════
-${reqs.prohibitedHashtags.length > 0 ? `🚫 HASHTAGS PROHIBITED: Do NOT use any hashtags!` : ''}
-${reqs.prohibitedUrl ? `🚫 URL/LINK PROHIBITED: Do NOT include any URL or link!` : ''}
-${reqs.prohibitedTags.length > 0 ? `🚫 PROHIBITED TAGS: Do NOT mention ${reqs.prohibitedTags.join(', ')}` : ''}
-${reqs.prohibitedKeywords.length > 0 ? `🚫 PROHIBITED KEYWORDS: Do NOT use "${reqs.prohibitedKeywords.join('", "')}"` : ''}
-═══════════════════════════════════════════════════════════════════════════════`;
-    }
-
-    const systemPrompt = `You are an expert content creator for Rally.fun. Create UNIQUE, engaging content.
-
-═══════════════════════════════════════════════════════════════════════════════
-CRITICAL RULES:
-═══════════════════════════════════════════════════════════════════════════════
-1. NO TEMPLATES - Content must flow naturally
-2. NO AI-SOUNDING language (avoid: delve, leverage, realm, tapestry, paradigm, landscape, nuance)
-3. Use PERSONAL, CONVERSATIONAL tone
-4. Include EVIDENCE LAYERS (data, case, personal touch, expert)
-5. Create EMOTIONAL journey (${variation.emotions.join(' → ')})
-6. Target AUDIENCE: ${audience.name} (Pain: ${audience.pain})
-7. Use ${persona.name} persona (${persona.trait})
-8. Follow ${narrativeStructure.name} flow: ${narrativeStructure.flow}
-
-═══════════════════════════════════════════════════════════════════════════════
-🚨 FORBIDDEN - DO NOT USE (AI Indicators):
-═══════════════════════════════════════════════════════════════════════════════
-- EM DASHES (— or –): Use hyphens (-) or commas instead
-- SMART QUOTES (" " ' '): Use straight quotes (" and ') only
-- AI PHRASES: delve, leverage, realm, tapestry, paradigm, landscape, nuance, underscores, pivotal, crucial, embark, journey, explore, unlock, harness
-- TEMPLATE OPENINGS: "Unpopular opinion:", "Hot take:", "In today's", "Picture this", "Let's dive in"
-- FORMAL ENDINGS: "In conclusion", "To summarize", "Ultimately"
-${prohibitedSection}
-═══════════════════════════════════════════════════════════════════════════════
-✅ REQUIRED G4 ORIGINALITY ELEMENTS (Must Include 4+):
-═══════════════════════════════════════════════════════════════════════════════
-1. CASUAL HOOK OPENING: Start with "ngl", "tbh", "honestly", "fun story", "okay so", "look", "real talk"
-2. PARENTHETICAL ASIDE: Add "(embarrassing to admit)", "(just saying)", "(not gonna lie)", "(for real)"
-3. CONTRACTIONS: Use 3+ contractions (don't, can't, it's, I'm, won't, wouldn't, let's, that's)
-4. PERSONAL ANGLE: Include "I", "my", "me" with specific experience
-5. CONVERSATIONAL ENDING: End with "tbh", "worth checking", "what do you think?", "just saying"
-
-═══════════════════════════════════════════════════════════════════════════════
-⭐ X-FACTOR DIFFERENTIATORS (Must Include 3+):
-═══════════════════════════════════════════════════════════════════════════════
-1. SPECIFIC NUMBERS: Use exact figures ("down 47%", "$1.2M", "3.5x") NOT vague ("down a lot")
-2. TIME SPECIFICITY: Include exact durations ("25 minutes", "3 hours") NOT vague ("a while")
-3. EMBARRASSING HONESTY: Admit something relatable ("embarrassing to admit I watched for 25 mins")
-4. INSIDER DETAIL: Share unique observation ("went from 68% to sweating bullets")
-5. UNEXPECTED ANGLE: Surprise twist or contrary view
-
-AVOID THESE OVERUSED ELEMENTS:
-${(competitorAnalysis?.saturatedElements || []).slice(0, 5).join(', ') || 'None specific'}
-${CONFIG.hardRequirements.templatePhrases.slice(0, 10).join(', ')}
-
-CONTENT REQUIREMENTS:
-- Hook: Natural, organic with CASUAL opening (NOT formulaic)
-- Emotions: At least 3 different emotions
-- Body Feeling: Physical sensation the reader feels
-- CTA: Question or reply bait
-- ${urlInstruction}
-- Facts: Multi-layer evidence with SPECIFIC NUMBERS
-- X-Factors: At least 3 differentiators (specific numbers, time, embarrassing honesty, insider detail)
-
-Return JSON:
-{
-  "tweets": [{
-    "content": "<full tweet text>",
-    "hook": "...",
-    "emotions": [],
-    "bodyFeeling": "...",
-    "cta": "...",
-    "g4Elements": ["casualHook", "parentheticalAside", "contractions", "personalAngle", "conversationalEnding"],
-    "xFactors": ["specificNumbers", "timeSpecificity", "embarrassingHonesty", "insiderDetail"]
-  }],
-  "strategyUsed": { "angle": "...", "differentiationPoint": "..." }
-}`;
-
-    const userPrompt = `═══════════════════════════════════════════════════════════════════════════════
-🚨🚨🚨 MANDATORY CAMPAIGN REQUIREMENTS - ALL ARE REQUIRED 🚨🚨🚨
-═══════════════════════════════════════════════════════════════════════════════
-
-CAMPAIGN: ${campaignData.title || 'Unknown Campaign'}
-${campaignData.missionTitle ? `🎯 MISSION: ${campaignData.missionTitle}` : ''}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ MISSION GOAL (YOUR CONTENT MUST ALIGN WITH THIS):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.description || campaignData.missionGoal || campaignData.goal || 'Not specified'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ MISSION RULES (YOU MUST FOLLOW ALL OF THESE - NO EXCEPTIONS):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.rules || campaignData.requirements || 'Standard content guidelines'}
-
-🚨 CRITICAL: If rules say "Tag @username" → Your content MUST include "@username"
-🚨 CRITICAL: If rules say "Mention a metric" → Your content MUST have specific numbers
-🚨 CRITICAL: If rules say "Focus on X" → Your content MUST be about X
-${reqs.mandatoryTags.length > 0 ? `
-🔴 REQUIRED TAGS: ${reqs.mandatoryTags.join(', ')} - These MUST appear in your tweet!` : ''}
-${reqs.mandatoryHashtags.length > 0 ? `
-#️⃣ REQUIRED HASHTAGS: ${reqs.mandatoryHashtags.join(', ')} - These MUST appear!` : ''}
-${reqs.mandatoryMetrics ? `
-📊 METRICS REQUIRED: Include specific numbers/metrics!` : ''}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ STYLE REQUIREMENTS (MANDATORY):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.style || 'Professional, authentic'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ KNOWLEDGE BASE (USE THIS INFORMATION):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.knowledgeBase || 'None provided'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ ADDITIONAL INFO (MANDATORY):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.additionalInfo || campaignData.adminNotice || 'None provided'}
-${reqs.mandatoryUrl ? `
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ REQUIRED URL (MUST BE IN YOUR CONTENT):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.campaignUrl || campaignData.url || 'Campaign URL must be included'}` : ''}
-
-═══════════════════════════════════════════════════════════════════════════════
-📊 RESEARCH DATA TO USE
-═══════════════════════════════════════════════════════════════════════════════
-KEY FACTS:
-${researchData?.synthesis?.keyFacts?.slice(0, 5).map((f, i) => `${i + 1}. ${f}`).join('\n') || 'No specific facts available'}
-
-═══════════════════════════════════════════════════════════════════════════════
-🎯 COMPETITIVE DIFFERENTIATION
-═══════════════════════════════════════════════════════════════════════════════
-ANGLES TO AVOID: ${(competitorAnalysis?.anglesUsed || []).slice(0, 5).join(', ') || 'None'}
-
-VARIATION SETTINGS:
-- Angle: ${variation.angle}
-- Emotions: ${variation.emotions.join(' → ')}
-- Structure: ${variation.structure}
-
-═══════════════════════════════════════════════════════════════════════════════
-✅ MANDATORY CHECKLIST - YOUR CONTENT WILL BE REJECTED IF ANY FAIL:
-═══════════════════════════════════════════════════════════════════════════════
-□ Opens with casual hook (ngl, tbh, honestly, fun story)?
-□ Uses 3+ contractions (don't, can't, I'm, won't)?
-□ Has personal angle (I, my, me)?
-□ Includes specific numbers/metrics from Knowledge Base?
-□ NO em dashes (— or –)?
-□ NO smart quotes (" " ' ')?
-□ NO AI phrases (delve, leverage, realm)?
-${reqs.mandatoryTags.length > 0 ? `□ Includes ALL required tags: ${reqs.mandatoryTags.join(', ')}?` : ''}
-${reqs.mandatoryMetrics ? `□ Includes at least one specific metric/number?` : ''}
-${reqs.prohibitedHashtags.length > 0 ? `🚫 NO hashtags allowed - Do NOT use any #hashtags!` : ''}
-${reqs.prohibitedUrl ? `🚫 NO URL/link allowed - Do NOT include any URLs!` : ''}
-${reqs.prohibitedTags.length > 0 ? `🚫 Do NOT mention: ${reqs.prohibitedTags.join(', ')}!` : ''}
-${reqs.prohibitedKeywords.length > 0 ? `🚫 Do NOT use these words: ${reqs.prohibitedKeywords.join(', ')}!` : ''}
-□ Follows ALL mission rules exactly?
-□ Matches the required style?
-□ Uses information from Knowledge Base?
-
-Create content that follows ALL requirements and scores HIGH on quality!`;
-
-    const response = await this.llm.chat([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ], { 
-      temperature: this.config.model.temperature.generation, 
-      maxTokens: 4000 
-    });
-    
-    const result = safeJsonParse(response.content);
-    
-    if (result && result.tweets) {
-      return result.tweets[0]?.content || result.tweets[0]?.text || null;
-    }
-    
-    return null;
-  }
-  
-  _selectPersona(angle) {
-    const personaMap = {
-      'personal_story': CONFIG.personas.find(p => p.id === 'storyteller'),
-      'data_driven': CONFIG.personas.find(p => p.id === 'researcher'),
-      'contrarian': CONFIG.personas.find(p => p.id === 'contrarian'),
-      'insider_perspective': CONFIG.personas.find(p => p.id === 'insider'),
-      'case_study': CONFIG.personas.find(p => p.id === 'researcher')
-    };
-    return personaMap[angle] || CONFIG.personas[0];
-  }
-  
-  _selectStructure(structureId) {
-    return CONFIG.narrativeStructures.find(s => s.id === structureId) || CONFIG.narrativeStructures[0];
   }
 }
 
@@ -6258,6 +6002,43 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     console.log(`   💾 Content saved: ${tempPath}`);
   } catch (saveErr) {
     console.log(`   ⚠️ Could not save content: ${saveErr.message}`);
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 🆕 PRE-CHECK: Formatting Validation (BEFORE any judge)
+  // Wall-of-text content is automatically rejected
+  // ═══════════════════════════════════════════════════════════════
+  const hasParagraphBreaks = /\n\s*\n/.test(content);
+  const wordCount = content.split(/\s+/).filter(w => w).length;
+  const sentencesCount = (content.match(/[.!?]+/g) || []).length;
+  const avgWordsPerSentence = sentencesCount > 0 ? Math.round(wordCount / sentencesCount) : wordCount;
+  
+  if (!hasParagraphBreaks && wordCount > 50) {
+    console.log('\n   ❌ FORMAT REJECT: Content is a wall-of-text (no paragraph breaks)');
+    console.log(`      → ${wordCount} words, ${sentencesCount} sentences, 0 paragraph breaks`);
+    console.log('      → Content must have \\n\\n paragraph breaks between ideas');
+    
+    // Try to auto-fix formatting before rejecting
+    const fixedContent = fixContentFormatting(content);
+    const fixedHasBreaks = /\n\s*\n/.test(fixedContent);
+    
+    if (fixedHasBreaks && fixedContent !== content) {
+      console.log('   📝 Auto-fixing formatting...');
+      results.content = fixedContent;
+      content = fixedContent; // Use fixed content for judging
+      const fixedParas = content.split(/\n\s*\n/).filter(p => p.trim()).length;
+      console.log(`   ✅ Auto-fixed: ${fixedParas} paragraphs created`);
+    } else {
+      results.passed = false;
+      results.failedAt = 'Format Check - Wall of Text';
+      results.scores.requirementsValidation = { score: 0, max: 20, passed: false, missingElements: ['Wall-of-text: no paragraph breaks'] };
+      return results;
+    }
+  } else if (hasParagraphBreaks) {
+    const paragraphCount = content.split(/\n\s*\n/).filter(p => p.trim()).length;
+    console.log(`   ✅ Format OK: ${paragraphCount} paragraphs, ${wordCount} words`);
+  } else {
+    console.log(`   ✅ Format OK: Short content (${wordCount} words)`);
   }
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -6654,7 +6435,7 @@ Return JSON:
     const response = await llm.chat([
       { role: 'system', content: 'You are a meticulous content strategist who reads rules line by line. Your plan ensures ZERO rule violations. Return JSON only.' },
       { role: 'user', content: comprehensionPrompt }
-    ], { temperature: 0.3, maxTokens: 2000 });
+    ], { temperature: 0.3, maxTokens: 2000, model: 'glm-5', enableSearch: true });
     
     const plan = safeJsonParse(response.content);
     
@@ -7189,6 +6970,10 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
       version: '9.8.3-final',
       timestamp: new Date().toISOString(),
       duration: `${(totalDuration / 1000).toFixed(1)}s`,
+      campaign: campaignData.title || 'Unknown',
+      mission: campaignData.missionTitle || 'All Missions (no specific mission selected)',
+      missionNumber: campaignData.missionNumber || null,
+      campaignAddress: campaignData.intelligentContractAddress || null,
       thresholds: { judge1: { pass: 20, max: 20, percent: '100%' }, judge2: { pass: 3, max: 5, percent: '60%' }, judge3: { pass: 60, max: 80, percent: '75%' }, total: { pass: 80, max: 105, percent: '76%' } }
     }
   };
@@ -7198,9 +6983,29 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   fs.writeFileSync(outputPath, JSON.stringify(finalResults, null, 2));
   console.log(`\n💾 Results saved to: ${outputPath}`);
   
-  // Save winner content to simple text file
-  fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, winner.content);
+  // Save winner content with campaign/mission header for clarity
+  const winnerHeader = [
+    `═══════════════════════════════════════════════════════════════`,
+    `📌 CAMPAIGN: ${campaignData.title || 'Unknown'}`,
+    `🎯 MISSION: ${campaignData.missionTitle || 'All Missions (no specific mission selected)'}`,
+    `📍 Address: ${campaignData.intelligentContractAddress || 'N/A'}`,
+    `📊 Score: ${winner.totalScore}/105`,
+    `🔄 Cycle: ${winner.cycleNumber} | Duration: ${(totalDuration / 1000).toFixed(1)}s`,
+    `⏰ Generated: ${new Date().toISOString()}`,
+    `═══════════════════════════════════════════════════════════════`,
+    ``
+  ].join('\n');
+  fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, `${winnerHeader}\n${winner.content}`);
   console.log(`💾 Winner content saved to: ${CONFIG.outputDir}/winner-content.txt`);
+  console.log(`   📌 Campaign: ${campaignData.title || 'Unknown'}`);
+  console.log(`   🎯 Mission: ${campaignData.missionTitle || 'All Missions (no specific mission selected)'}`);
+  
+  // ═══════════════════════════════════════════════════════════════
+  // 💬 GENERATE 20 ENGAGEMENT Q&A FOR THE WINNER CONTENT
+  // ═══════════════════════════════════════════════════════════════
+  console.log('\n💬 Generating 20 engagement Q&A to boost replies...');
+  const qaList = await generateEngagementQA(winner.content, campaignData, researchData);
+  await displayAndSaveEngagementQA(qaList, campaignData, winner.content);
   
   return {
     content: winner.content,
@@ -7217,8 +7022,213 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
 }
 
 // ============================================================================
-// ENTRY POINT - Supports both campaign address and campaign name
+// ENGAGEMENT Q&A GENERATOR - 20 High-Quality Questions & Answers
 // ============================================================================
+
+async function generateEngagementQA(winnerContent, campaignData, researchData) {
+  console.log('\n' + '═'.repeat(70));
+  console.log('💬 GENERATING 20 ENGAGEMENT Q&A FOR WINNER CONTENT');
+  console.log('═'.repeat(70));
+  
+  try {
+    const qaPrompt = `You are a social media engagement expert. Given the following tweet/content and its campaign context, generate 20 HIGH-QUALITY questions with their suggested answers that can be used to:
+
+1. Reply to comments on the tweet
+2. Create follow-up engagement tweets
+3. Spark debate and discussion in the replies
+4. Build authority by answering technical questions
+5. Encourage others to share their own experiences
+
+TWEET CONTENT:
+"""
+${winnerContent}
+"""
+
+CAMPAIGN: ${campaignData.title || 'Unknown'}
+MISSION: ${campaignData.missionTitle || 'N/A'}
+MISSION GOAL: ${(campaignData.description || campaignData.missionGoal || '').substring(0, 300)}
+RULES: ${(campaignData.rules || '').substring(0, 300)}
+KNOWLEDGE BASE: ${(campaignData.knowledgeBase || '').substring(0, 500)}
+
+${researchData?.synthesis?.keyFacts?.length > 0 ? `KEY FACTS FROM RESEARCH:\n${researchData.synthesis.keyFacts.slice(0, 8).map((f, i) => `${i + 1}. ${f}`).join('\n')}` : ''}
+${researchData?.synthesis?.statistics?.length > 0 ? `STATISTICS:\n${researchData.synthesis.statistics.slice(0, 5).map((s, i) => `${i + 1}. ${s}`).join('\n')}` : ''}
+
+REQUIREMENTS:
+- Generate EXACTLY 20 Q&A pairs
+- Questions should feel NATURAL and conversational (not corporate or robotic)
+- Each question should be something a REAL person would ask after reading the tweet
+- Answers should be informative, add value, and maintain the same tone as the tweet
+- Mix of question types:
+  * 4-5 technical questions (about the product/protocol specifics)
+  * 4-5 personal experience questions (relatable scenarios)
+  * 3-4 debate/discussion questions (controversial or opinion-based)
+  * 3-4 follow-up curiosity questions (deeper dives into claims)
+  * 3-4 engagement bait questions (encourage sharing stories/opinions)
+- Answers should include SPECIFIC DATA points where possible
+- Answers should NOT be generic - they must relate directly to the tweet's content
+- Keep answers concise (1-3 sentences each) but informative
+- Some Q&A should acknowledge doubts/skepticism (adds authenticity)
+- Use casual, conversational language - NO AI-sounding phrases
+
+Return JSON:
+{
+  "engagement_qa": [
+    {
+      "number": 1,
+      "question": "the question someone might ask",
+      "answer": "your suggested reply",
+      "type": "technical|personal|debate|curiosity|engagement",
+      "context": "why this question matters for engagement"
+    },
+    ... (20 total)
+  ]
+}`;
+
+    const response = await callAI([
+      { role: 'system', content: 'You are a social media engagement expert who writes natural, authentic replies that boost engagement. Never use AI-sounding phrases like "delve", "leverage", "tapestry", "paradigm". Write like a real person who actually uses the product.' },
+      { role: 'user', content: qaPrompt }
+    ], { maxTokens: 4000, temperature: 0.7, model: 'glm-5-flash', enableSearch: true });
+    
+    const result = safeJsonParse(response.content);
+    
+    if (!result || !result.engagement_qa || result.engagement_qa.length === 0) {
+      console.log('   ⚠️ Failed to parse Q&A, trying simpler format...');
+      
+      // Fallback: try to extract Q&A from plain text
+      const fallbackResponse = await callAI([
+        { role: 'system', content: 'You are a social media expert. Generate exactly 20 question-answer pairs. Format each as: Q1: question\\nA1: answer\\n\\nQ2: question\\nA2: answer' },
+        { role: 'user', content: `Based on this tweet:\n\n${winnerContent}\n\nCampaign: ${campaignData.title}\n\nGenerate 20 natural Q&A pairs for engagement.` }
+      ], { maxTokens: 4000, temperature: 0.7, model: 'glm-5-flash' });
+      
+      // Parse plain text format
+      const qaPairs = [];
+      const lines = fallbackResponse.content.split('\n');
+      let currentQ = null;
+      let currentA = null;
+      
+      for (const line of lines) {
+        const qMatch = line.match(/^Q(\d+)[.:]\s*(.+)/i);
+        const aMatch = line.match(/^A(\d+)[.:]\s*(.+)/i);
+        if (qMatch) {
+          if (currentQ && currentA) {
+            qaPairs.push({ number: qaPairs.length + 1, question: currentQ, answer: currentA, type: 'general', context: 'Engagement reply' });
+          }
+          currentQ = qMatch[2].trim();
+          currentA = null;
+        } else if (aMatch && currentQ) {
+          currentA = aMatch[2].trim();
+        } else if (currentA) {
+          currentA += ' ' + line.trim();
+        }
+      }
+      if (currentQ && currentA) {
+        qaPairs.push({ number: qaPairs.length + 1, question: currentQ, answer: currentA, type: 'general', context: 'Engagement reply' });
+      }
+      
+      if (qaPairs.length > 0) {
+        return qaPairs;
+      }
+      
+      console.log('   ⚠️ Could not generate Q&A');
+      return null;
+    }
+    
+    return result.engagement_qa.slice(0, 20);
+    
+  } catch (e) {
+    console.log(`   ⚠️ Q&A generation error: ${e.message}`);
+    return null;
+  }
+}
+
+async function displayAndSaveEngagementQA(qaList, campaignData, winnerContent) {
+  if (!qaList || qaList.length === 0) {
+    console.log('\n   ⚠️ No Q&A generated');
+    return;
+  }
+  
+  // Type labels and icons
+  const typeConfig = {
+    'technical': { icon: '🔧', label: 'Technical' },
+    'personal': { icon: '👤', label: 'Personal Experience' },
+    'debate': { icon: '🔥', label: 'Debate/Discussion' },
+    'curiosity': { icon: '🤔', label: 'Deep Dive' },
+    'engagement': { icon: '💬', label: 'Engagement Bait' },
+    'general': { icon: '💬', label: 'General' }
+  };
+  
+  // Group by type
+  const grouped = {};
+  qaList.forEach(qa => {
+    const type = qa.type || 'general';
+    if (!grouped[type]) grouped[type] = [];
+    grouped[type].push(qa);
+  });
+  
+  console.log('\n   ╔════════════════════════════════════════════════════════════════╗');
+  console.log('   ║           💬 20 ENGAGEMENT Q&A FOR REPLIES                    ║');
+  console.log('   ╠════════════════════════════════════════════════════════════════╣');
+  console.log(`   ║  📌 Campaign: ${(campaignData.title || 'Unknown').padEnd(45)}║`);
+  console.log(`   ║  🎯 Mission: ${(campaignData.missionTitle || 'N/A').padEnd(46)}║`);
+  console.log(`   ║  💬 Total Q&A: ${String(qaList.length).padEnd(49)}║`);
+  console.log('   ╠════════════════════════════════════════════════════════════════╣');
+  
+  qaList.forEach(qa => {
+    const cfg = typeConfig[qa.type] || typeConfig['general'];
+    console.log(`   ║                                                              ║`);
+    console.log(`   ║  ${cfg.icon} Q${qa.number}: ${qa.question.substring(0, 52).padEnd(52)}║`);
+    if (qa.question.length > 52) {
+      console.log(`   ║       ${qa.question.substring(52).padEnd(52)}║`);
+    }
+    console.log(`   ║  💡 A${qa.number}: ${qa.answer.substring(0, 52).padEnd(52)}║`);
+    if (qa.answer.length > 52) {
+      const remaining = qa.answer.substring(52);
+      // Split into chunks of 52
+      for (let i = 0; i < remaining.length; i += 52) {
+        console.log(`   ║       ${remaining.substring(i, i + 52).padEnd(52)}║`);
+      }
+    }
+  });
+  
+  console.log('   ╚════════════════════════════════════════════════════════════════╝');
+  
+  // Save to file with campaign/mission header
+  const qaHeader = [
+    `═══════════════════════════════════════════════════════════════`,
+    `📌 CAMPAIGN: ${campaignData.title || 'Unknown'}`,
+    `🎯 MISSION: ${campaignData.missionTitle || 'N/A'}`,
+    `📍 Address: ${campaignData.intelligentContractAddress || 'N/A'}`,
+    `💬 Total Q&A: ${qaList.length}`,
+    `⏰ Generated: ${new Date().toISOString()}`,
+    `═══════════════════════════════════════════════════════════════`,
+    ``,
+    `📂 ORIGINAL CONTENT:`,
+    `───────────────────────────────────────────────────────────────`,
+    winnerContent,
+    ``,
+    `═══════════════════════════════════════════════════════════════`,
+    `💬 20 ENGAGEMENT Q&A`,
+    `═══════════════════════════════════════════════════════════════`,
+    ``
+  ].join('\n');
+  
+  let qaText = '';
+  qaList.forEach(qa => {
+    const cfg = typeConfig[qa.type] || typeConfig['general'];
+    qaText += `${cfg.icon} Q${qa.number} [${cfg.label}]: ${qa.question}\n`;
+    qaText += `💡 A${qa.number}: ${qa.answer}\n`;
+    if (qa.context) {
+      qaText += `   📌 Context: ${qa.context}\n`;
+    }
+    qaText += '\n';
+  });
+  
+  const qaOutputPath = `${CONFIG.outputDir}/engagement-qa-${campaignData.title?.replace(/\s+/g, '-').toLowerCase() || 'campaign'}-m${campaignData.missionNumber || 'all'}.txt`;
+  fs.writeFileSync(qaOutputPath, `${qaHeader}\n${qaText}`);
+  console.log(`\n   💾 Engagement Q&A saved to: ${qaOutputPath}`);
+  
+  return qaOutputPath;
+}
 
 // FIXED: Add global error handlers with better recovery
 process.on('unhandledRejection', (reason, promise) => {
