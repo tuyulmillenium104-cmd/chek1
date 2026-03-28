@@ -1,7 +1,13 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * RALLY WORKFLOW V9.8.3 - COMPLETE EDITION
+ * RALLY WORKFLOW V9.8.3 - COMPLETE EDITION (SDK VARIANT - ARCHIVE)
  * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * ⚠️ DEPRECATED: This is the OLD SDK-based variant. The ACTIVE workflow is:
+ *    rally-workflow-v9.8.3-final.js (HTTP Direct, no SDK dependency)
+ * 
+ * This file is kept for reference only. Do NOT use for production.
+ *
  * 
  * 🎯 ARCHITECTURE: 3 AI Judges + Fail Fast + Highest Score Selection
  * 🐛 HYBRID: Python NLP + JavaScript AI/SDK

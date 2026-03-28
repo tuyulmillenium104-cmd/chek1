@@ -1,13 +1,13 @@
 {
   "name": "rally-workflow-v9.8.3",
-  "version": "9.8.3",
-  "description": "Rally.fun Content Generator with 3 AI Judges Architecture",
-  "main": "src/rally-workflow-v9.8.3.js",
+  "version": "9.8.3-final",
+  "description": "Rally.fun Content Generator - First Pass Wins with 3 AI Judges",
+  "main": "rally-workflow-v9.8.3-final.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node src/rally-workflow-v9.8.3.js",
-    "list": "node src/rally-workflow-v9.8.3.js list",
-    "test": "node src/rally-workflow-v9.8.3.js list"
+    "start": "node rally-workflow-v9.8.3-final.js",
+    "list": "node rally-workflow-v9.8.3-final.js list",
+    "test": "node --check rally-workflow-v9.8.3-final.js"
   },
   "keywords": [
     "rally",
@@ -19,9 +19,6 @@
   ],
   "author": "Rally Workflow Team",
   "license": "MIT",
-  "dependencies": {
-    "z-ai-web-dev-sdk": "latest"
-  },
   "engines": {
     "node": ">=18.0.0"
   }

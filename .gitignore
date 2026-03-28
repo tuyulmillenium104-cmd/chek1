@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Token configs (sensitive)
+config/tokens.js
+
+# Output & generated files
+output/
+*.output.txt
+winner-content.txt
+best-content-*.txt
+content-*.txt
+intermediate-results-*.json
+rally-v9.8.3-*.json
+
+# Cache
+.cache/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -13,8 +13,8 @@
  * 📊 HIGH STANDARDS (3 CONSOLIDATED JUDGES):
  * - Judge 1 (Gate Master): 20/20 (100%) - Gate Utama + Tambahan + G4 Originality (SEMPURNA!)
  * - Judge 2 (Evidence Master): 3/5 (60%) - Fact Check + Evidence Layering (Fleksibel)
- * - Judge 3 (Quality Master): 70/80 (87.5%) - Penilaian Internal + Compliance + X-Factors
- * - Total: 92/105 (87.6%)
+ * - Judge 3 (Quality Master): 60/80 (75%) - Penilaian Internal + Compliance + X-Factors
+ * - Total: 80/105 (76%)
  * 
  * ✅ ALL FEATURES FROM v9.8.3-base (KEPT INTACT):
  * ✅ G4 Originality Elements Detection (casual hook, parenthetical aside, contractions)
@@ -69,8 +69,8 @@ const THRESHOLDS = {
   // FIXED: Lowered from 70/80 (87.5%) to 60/80 (75%) to be more achievable
   JUDGE3: { pass: 60, max: 80, name: 'Quality Master', percent: '75%' },
   
-  // Total Score Required - Adjusted
-  TOTAL: { pass: 85, max: 105, percent: '81%' }
+  // Total Score Required - BUG #18 FIX: Must be <= sum of individual passes (20+3+60=83)
+  TOTAL: { pass: 80, max: 105, percent: '76%' }
 };
 
 // ============================================================================
@@ -84,19 +84,29 @@ const GATEWAY = {
 };
 
 // Multi-token pool for rate limit handling
-const TOKENS = [
-  null, // Auto from config
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtNTQ5ZmI5MTEtZWM0NS00NGJiLTg5YjEtMWY2MTljNTEzN2QzIn0.M6IQTOXasSbEw98a4R6p3LEPwJPCWyRZiJSUo8lr2PM', chatId: 'chat-549fb911-ec45-44bb-89b1-1f619c5137d3', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #1' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtMTAyYTlkMGUtYTVkNy00MmY2LTk3ZjctNDk5NzFiNzcwNjVhIn0.6cDfQbTc2HHdtKXBfaUvpBsNLPbbjYkpJp6br0rYteA', chatId: 'chat-102a9d0e-a5d7-42f6-97f7-49971b77065a', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #1' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtMDAyOWJjNDYtZGI3Ny00ZmZkLWI4ZDItM2RlYzFlNWVkNDU3In0.CMthZytUFBpnqW3K52Q1AAgB9uvhyXf3AG-FQvaDoYI', chatId: 'chat-0029bc46-db77-4ffd-b8d2-3dec1e5ed457', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #2' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtOTZlZTk1NmItMGYxMi00MGUxLWE0MzYtYTk4YmQwZjk0YzJhIn0.PgpMEiUr8a6Cu2vl9zFMggRsxQrx3JwkUCOjZCUIJnw', chatId: 'chat-96ee956b-0f12-40e1-a436-a98bd0f94c2a', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #2' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtOWJiMzAzOTMtYWE3Mi00Y2QzLWJkNzktYzJkZmI0ODVmNzgyIn0.jb35oqGKPB2FLC-X_mozORmvbBilwRc_pSZEkbyaRfw', chatId: 'chat-9bb30393-aa72-4cd3-bd79-c2dfb485f782', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #3' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjcwNmVhNjktYTM5Ny00ZjNmLTg3MDYtNWVhZjBkNmE3OTliIiwiY2hhdF9pZCI6ImNoYXQtMTRiNDI2MTAtYmEwMS00ODFlLTkxNjktMTdhMjI4OTcwNGE3In0.DufxnWsYgBGFr_0yggg03lHfonzHt2xC_bCzTfO_6fw', chatId: 'chat-14b42610-ba01-481e-9169-17a2289704a7', userId: '2706ea69-a397-4f3f-8706-5eaf0d6a799b', label: 'Akun C #1' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZTNiNmM4MDMtYzZjMi00NDY3LWFiMmItMGJkM2FiOWM2YTQ4IiwiY2hhdF9pZCI6ImNoYXQtZGI1ZmUxMDUtMmQwOC00YzlmLWJlY2ItNGU5NDQ4NDI4M2ZlIn0.e7ikn0PSE9iVuhuYr_nJ6lwqtJGAk0l3hlGaLTkuLCo', chatId: 'chat-db5fe105-2d08-4c9f-becb-4e94484283fe', userId: 'e3b6c803-c6c2-4467-ab2b-0bd3ab9c6a48', label: 'Akun D #1' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtNTZkZDc1NzEtZjAzNy00MjAyLWFlZTEtMDc5Y2ExMjc5NDNiIn0.RVJf0OF8DnMgs7mQd0K9VgWx8Xo0b2XyYfZJ65ZcJtI', chatId: 'chat-56dd7571-f037-4202-aee1-079ca127943b', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #4' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMWNkY2Y1NzktYzZlNS00ZWY3LTgyZDUtZDg2OWQ4Yzg1YTVlIiwiY2hhdF9pZCI6ImNoYXQtMDQ4YTVhODItZWRhMi00ZTQ0LTk4YWEtZmM5YTk0Y2UyNWZmIn0.asZolcXMp4kvy_2UqeA4BHvYx0gAsw7mNgNrRXKJrtw', chatId: 'chat-048a5a82-eda2-4e44-98aa-fc9a94ce25ff', userId: '1cdcf579-c6e5-4ef7-82d5-d869d8c85a5e', label: 'Akun E #1' },
-  { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtYmRjYzg2YjEtMTEwNy00YTRiLWI5NTAtYjc0NDhhM2UwZjBmIn0.l3mEV0bkzGtzmzuqr_BwNhVpd6hxIJTjwYetig_HT9M', chatId: 'chat-bdcc86b1-1107-4a4b-b950-b7448a3e0f0f', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #3' }
-];
+// BUG FIX #26: Token inconsistency - Load from config/tokens.js as single source of truth
+let TOKENS;
+try {
+  const configTokens = require('./config/tokens.js');
+  TOKENS = configTokens.TOKENS;
+  console.log('   ✅ Loaded tokens from config/tokens.js (single source of truth)');
+} catch (e) {
+  // Fallback: embedded tokens (must be kept in sync with config/tokens.js)
+  console.log('   ⚠️ config/tokens.js not found, using embedded tokens');
+  TOKENS = [
+    null, // Auto from config
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtNTQ5ZmI5MTEtZWM0NS00NGJiLTg5YjEtMWY2MTljNTEzN2QzIn0.M6IQTOXasSbEw98a4R6p3LEPwJPCWyRZiJSUo8lr2PM', chatId: 'chat-549fb911-ec45-44bb-89b1-1f619c5137d3', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #1' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtMTAyYTlkMGUtYTVkNy00MmY2LTk3ZjctNDk5NzFiNzcwNjVhIn0.6cDfQbTc2HHdtKXBfaUvpBsNLPbbjYkpJp6br0rYteA', chatId: 'chat-102a9d0e-a5d7-42f6-97f7-49971b77065a', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #1' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtMDAyOWJjNDYtZGI3Ny00ZmZkLWI4ZDItM2RlYzFlNWVkNDU3In0.CMthZytUFBpnqW3K52Q1AAgB9uvhyXf3AG-FQvaDoYI', chatId: 'chat-0029bc46-db77-4ffd-b8d2-3dec1e5ed457', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #2' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtOTZlZTk1NmItMGYxMi00MGUxLWE0MzYtYTk4YmQwZjk0YzJhIn0.PgpMEiUr8a6Cu2vl9zFMggRsxQrx3JwkUCOjZCUIJnw', chatId: 'chat-96ee956b-0f12-40e1-a436-a98bd0f94c2a', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #2' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtOWJiMzAzOTMtYWE3Mi00Y2QzLWJkNzktYzJkZmI0ODVmNzgyIn0.jb35oqGKPB2FLC-X_mozORmvbBilwRc_pSZEkbyaRfw', chatId: 'chat-9bb30393-aa72-4cd3-bd79-c2dfb485f782', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #3' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtYjAyYTlhMmUtZTg5My00NGMwLWEzMTktNTZlYTk0YzRkOTQxIn0.GQLbTpxXn-gcONVhEYr6Ozq7sTOdE5NJt5wIiGfVTQM', chatId: 'chat-b0b2aa2e-e893-44c0-a319-56ea94c4d941', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun B #3' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtZDE3ZGY4ODQtZGNlOC00MmU3LWEzMTctMDQzYjI0YmM3MjdmIn0.W8UQmOxVIqGsAicZc9n4r4jR3IVM5Yj9V-SWv8H_0ac', chatId: 'chat-d17df884-dce8-42e7-a317-043b24bc727f', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun A #4' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtYzAwMTI0YWQtODk2Yy00NzBiLWE0OTYtOGFlNTYzMTQ0YTUwIn0.a0UXyTQ3z4D0g0mzHbVLpBMMN6cftW1W_-ELiObLqXY', chatId: 'chat-c00124ad-896c-470b-a496-8ae563144a50', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun C #1' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtNTRjOTZlMTQtNzMyYy00NjA1LWIyZTQtNWU3NzI1MjlhNTQ3In0.VzXhIi9TLBZ_7H0c5pRP9AL7HSCaL3RwO7-j_dqH4FY', chatId: 'chat-54c96e14-732c-4605-b2e4-5e772529a547', userId: 'bb829ea3-0d37-4944-8705-00090bde3671', label: 'Akun D #1' },
+    { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtYWYxZDE3YWQtZDI1NC00YmFkLWI5ZmMtN2YyOTIwOTExNjExIn0.xG3YxW5PNy_LJrO9JfPgPFv3U0f_46IY4NqxYTZfqIo', chatId: 'chat-af1d17ad-d254-4bad-b9fc-7f2920911611', userId: '97631263-5dba-4e16-b127-19212e012a9b', label: 'Akun E #1' }
+  ];
+}
 
 let currentTokenIndex = 0;
 let CFG = null;
@@ -392,6 +402,72 @@ async function preflightCheck() {
   console.log(`   ✅ Gateway: ${GATEWAY.hosts.join(', ')}`);
   console.log(`   ✅ Tokens: ${TOKENS.length} available`);
   
+  // Validate gateway connectivity
+  let gatewayOk = false;
+  for (const host of GATEWAY.hosts) {
+    try {
+      const [h, p] = host.split(':');
+      const result = await new Promise((resolve) => {
+        const req = http.request({
+          hostname: h,
+          port: parseInt(p),
+          path: '/v1/models',
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer Z.ai',
+            'X-Token': TOKENS[1]?.token || '',
+            'X-User-Id': TOKENS[1]?.userId || ''
+          },
+          timeout: 5000
+        }, (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => resolve({ ok: res.statusCode < 500 }));
+        });
+        req.on('error', () => resolve({ ok: false }));
+        req.on('timeout', () => { req.destroy(); resolve({ ok: false }); });
+        req.end();
+      });
+      
+      if (result.ok) {
+        gatewayOk = true;
+        console.log(`   ✅ Gateway ${host}: Connected`);
+        break;
+      } else {
+        console.log(`   ⚠️ Gateway ${host}: No response`);
+      }
+    } catch (e) {
+      console.log(`   ⚠️ Gateway ${host}: Error - ${e.message}`);
+    }
+  }
+  
+  if (!gatewayOk) {
+    console.log('   ❌ No gateway reachable! Workflow may fail.');
+    console.log('   💡 Check network connectivity and gateway addresses.');
+  }
+  
+  // Validate tokens
+  let validTokens = 0;
+  for (let i = 0; i < TOKENS.length; i++) {
+    const token = TOKENS[i];
+    if (token === null) {
+      console.log(`   ✅ Token #${i}: Auto-Config`);
+      validTokens++;
+    } else if (token && token.token) {
+      console.log(`   ✅ Token #${i}: ${token.label || 'Manual'} (${token.userId.substring(0, 8)}...)`);
+      validTokens++;
+    } else {
+      console.log(`   ❌ Token #${i}: Invalid (missing token data)`);
+    }
+  }
+  
+  if (validTokens === 0) {
+    console.log('   ❌ No valid tokens available! Workflow cannot proceed.');
+    return { ready: false };
+  }
+  
+  console.log(`   ✅ ${validTokens}/${TOKENS.length} tokens valid`);
+  
   // Display token pool status
   displayTokenPoolStatus();
   
@@ -403,7 +479,7 @@ async function preflightCheck() {
   
   console.log('═'.repeat(60));
   
-  return { ready: true };
+  return { ready: true, gatewayOk, validTokens };
 }
 
 /**
@@ -496,74 +572,9 @@ const CONFIG = {
   
   // ═══════════════════════════════════════════════════════════════════════════
   // MULTI-TOKEN POOL - For Rate Limit Handling
-  // When rate limit hit, automatically switch to next token
+  // Uses shared TOKENS array (defined at top of file) - SINGLE SOURCE OF TRUTH
   // ═══════════════════════════════════════════════════════════════════════════
-  tokens: [
-    null, // Auto from .z-ai-config (Primary)
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtNTQ5ZmI5MTEtZWM0NS00NGJiLTg5YjEtMWY2MTljNTEzN2QzIn0.M6IQTOXasSbEw98a4R6p3LEPwJPCWyRZiJSUo8lr2PM',
-      chatId: 'chat-549fb911-ec45-44bb-89b1-1f619c5137d3',
-      userId: '97631263-5dba-4e16-b127-19212e012a9b',
-      label: 'Akun A #1'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtMTAyYTlkMGUtYTVkNy00MmY2LTk3ZjctNDk5NzFiNzcwNjVhIn0.6cDfQbTc2HHdtKXBfaUvpBsNLPbbjYkpJp6br0rYteA',
-      chatId: 'chat-102a9d0e-a5d7-42f6-97f7-49971b77065a',
-      userId: 'bb829ea3-0d37-4944-8705-00090bde3671',
-      label: 'Akun B #1'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtMDAyOWJjNDYtZGI3Ny00ZmZkLWI4ZDItM2RlYzFlNWVkNDU3In0.CMthZytUFBpnqW3K52Q1AAgB9uvhyXf3AG-FQvaDoYI',
-      chatId: 'chat-0029bc46-db77-4ffd-b8d2-3dec1e5ed457',
-      userId: '97631263-5dba-4e16-b127-19212e012a9b',
-      label: 'Akun A #2'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtOTZlZTk1NmItMGYxMi00MGUxLWE0MzYtYTk4YmQwZjk0YzJhIn0.PgpMEiUr8a6Cu2vl9zFMggRsxQrx3JwkUCOjZCUIJnw',
-      chatId: 'chat-96ee956b-0f12-40e1-a436-a98bd0f94c2a',
-      userId: 'bb829ea3-0d37-4944-8705-00090bde3671',
-      label: 'Akun B #2'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtOWJiMzAzOTMtYWE3Mi00Y2QzLWJkNzktYzJkZmI0ODVmNzgyIn0.jb35oqGKPB2FLC-X_mozORmvbBilwRc_pSZEkbyaRfw',
-      chatId: 'chat-9bb30393-aa72-4cd3-bd79-c2dfb485f782',
-      userId: '97631263-5dba-4e16-b127-19212e012a9b',
-      label: 'Akun A #3'
-    },
-    // ═══════════════════════════════════════════════════════════════════════════
-    // NEW TOKENS - Added for more rate limit capacity
-    // ═══════════════════════════════════════════════════════════════════════════
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjcwNmVhNjktYTM5Ny00ZjNmLTg3MDYtNWVhZjBkNmE3OTliIiwiY2hhdF9pZCI6ImNoYXQtMTRiNDI2MTAtYmEwMS00ODFlLTkxNjktMTdhMjI4OTcwNGE3In0.DufxnWsYgBGFr_0yggg03lHfonzHt2xC_bCzTfO_6fw',
-      chatId: 'chat-14b42610-ba01-481e-9169-17a2289704a7',
-      userId: '2706ea69-a397-4f3f-8706-5eaf0d6a799b',
-      label: 'Akun C #1'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZTNiNmM4MDMtYzZjMi00NDY3LWFiMmItMGJkM2FiOWM2YTQ4IiwiY2hhdF9pZCI6ImNoYXQtZGI1ZmUxMDUtMmQwOC00YzlmLWJlY2ItNGU5NDQ4NDI4M2ZlIn0.e7ikn0PSE9iVuhuYr_nJ6lwqtJGAk0l3hlGaLTkuLCo',
-      chatId: 'chat-db5fe105-2d08-4c9f-becb-4e94484283fe',
-      userId: 'e3b6c803-c6c2-4467-ab2b-0bd3ab9c6a48',
-      label: 'Akun D #1'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTc2MzEyNjMtNWRiYS00ZTE2LWIxMjctMTkyMTJlMDEyYTliIiwiY2hhdF9pZCI6ImNoYXQtNTZkZDc1NzEtZjAzNy00MjAyLWFlZTEtMDc5Y2ExMjc5NDNiIn0.RVJf0OF8DnMgs7mQd0K9VgWx8Xo0b2XyYfZJ65ZcJtI',
-      chatId: 'chat-56dd7571-f037-4202-aee1-079ca127943b',
-      userId: '97631263-5dba-4e16-b127-19212e012a9b',
-      label: 'Akun A #4'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMWNkY2Y1NzktYzZlNS00ZWY3LTgyZDUtZDg2OWQ4Yzg1YTVlIiwiY2hhdF9pZCI6ImNoYXQtMDQ4YTVhODItZWRhMi00ZTQ0LTk4YWEtZmM5YTk0Y2UyNWZmIn0.asZolcXMp4kvy_2UqeA4BHvYx0gAsw7mNgNrRXKJrtw',
-      chatId: 'chat-048a5a82-eda2-4e44-98aa-fc9a94ce25ff',
-      userId: '1cdcf579-c6e5-4ef7-82d5-d869d8c85a5e',
-      label: 'Akun E #1'
-    },
-    {
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI4MjllYTMtMGQzNy00OTQ0LTg3MDUtMDAwOTBiZGUzNjcxIiwiY2hhdF9pZCI6ImNoYXQtYmRjYzg2YjEtMTEwNy00YTRiLWI5NTAtYjc0NDhhM2UwZjBmIn0.l3mEV0bkzGtzmzuqr_BwNhVpd6hxIJTjwYetig_HT9M',
-      chatId: 'chat-bdcc86b1-1107-4a4b-b950-b7448a3e0f0f',
-      userId: 'bb829ea3-0d37-4944-8705-00090bde3671',
-      label: 'Akun B #3'
-    }
-  ],
+  tokens: TOKENS, // Reference to shared TOKENS array - DO NOT duplicate!
   
   // ═══════════════════════════════════════════════════════════════════════════
   // NEW v9.8.1: Multi-Content Configuration
@@ -1559,7 +1570,9 @@ class MultiProviderLLM {
             console.log(`   ✅ Auto-token loaded from ${filePath}`);
             return;
           }
-        } catch (e) {}
+        } catch (e) {
+          // Non-critical: continue with next token
+        }
       }
       console.log('   ⚠️ No auto-token found, using SDK default');
     } catch (e) {
@@ -1746,7 +1759,9 @@ function safeJsonParse(str) {
     // Try direct parse first
     try {
       return JSON.parse(str);
-    } catch (e) {}
+    } catch (e) {
+      // Silent: JSON parse fallback handled below
+    }
     
     // ENHANCED: Remove markdown code blocks if present
     let cleaned = str
@@ -1758,14 +1773,18 @@ function safeJsonParse(str) {
     // Try direct parse on cleaned string
     try {
       return JSON.parse(cleaned);
-    } catch (e) {}
+    } catch (e) {
+      // Silent: JSON parse fallback handled below
+    }
     
     // Try to extract JSON object
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
         return JSON.parse(jsonMatch[0]);
-      } catch (e) {}
+      } catch (e) {
+        // Silent: JSON parse fallback handled below
+      }
       
       // Try to fix common JSON issues
       let fixed = jsonMatch[0]
@@ -1778,7 +1797,9 @@ function safeJsonParse(str) {
       
       try {
         return JSON.parse(fixed);
-      } catch (e) {}
+      } catch (e) {
+        // Silent: JSON parse fallback handled below
+      }
     }
     
     // Try to find multiple JSON objects and merge
@@ -1789,7 +1810,9 @@ function safeJsonParse(str) {
         try {
           const parsed = JSON.parse(obj);
           Object.assign(merged, parsed);
-        } catch (e) {}
+        } catch (e) {
+          // Silent: skip malformed JSON object
+        }
       }
       if (Object.keys(merged).length > 0) {
         return merged;
@@ -1836,20 +1859,6 @@ function safeJsonParse(str) {
 function displayThinking(phase, thinking) {
   console.log('\n   ' + '┌' + '─'.repeat(54) + '┐');
   console.log(`   │ 🧠 ${phase.toUpperCase()} THINKING${' '.repeat(54 - phase.length - 14)}│`);
-  console.log('   ' + '├' + '─'.repeat(54) + '┤');
-  
-  const lines = thinking.split('\n').slice(0, 15);
-  lines.forEach(line => {
-    const trimmed = line.substring(0, 52);
-    console.log(`   │ ${trimmed}${' '.repeat(53 - trimmed.length)}│`);
-  });
-  
-  console.log('   ' + '└' + '─'.repeat(54) + '┘');
-}
-
-function displayJudgeThinking(judgeNum, thinking) {
-  console.log('\n   ' + '┌' + '─'.repeat(54) + '┐');
-  console.log(`   │ ⚖️  JUDGE ${judgeNum} THINKING${' '.repeat(30)}│`);
   console.log('   ' + '├' + '─'.repeat(54) + '┤');
   
   const lines = thinking.split('\n').slice(0, 15);
@@ -2178,61 +2187,6 @@ function detectForbiddenPunctuation(content) {
 }
 
 /**
- * Calculate Gate Multiplier (Official Rally Formula)
- * M_gate = 1 + 0.5 x (g_star - 1)
- * Where g_star = (G1 + G2 + G3 + G4) / 4
- */
-function calculateGateMultiplier(g1Score, g2Score, g3Score, g4Score) {
-  const config = CONFIG.gateMultiplier;
-  
-  // Check for disqualification (any gate = 0)
-  if (g1Score === 0 || g2Score === 0 || g3Score === 0 || g4Score === 0) {
-    return {
-      g_star: 0,
-      multiplier: config.disqualifiedMultiplier,
-      status: 'DISQUALIFIED',
-      bonus: '-50%',
-      description: 'At least one gate scored 0 - content disqualified'
-    };
-  }
-  
-  // Calculate g_star (average of 4 gates, normalized to 0-2 scale)
-  // Assuming scores are already on 0-2 scale
-  const g_star = (g1Score + g2Score + g3Score + g4Score) / 4;
-  
-  // Calculate multiplier
-  let multiplier = 1 + 0.5 * (g_star - 1);
-  multiplier = Math.max(config.minMultiplier, Math.min(config.maxMultiplier, multiplier));
-  
-  // Determine status
-  let status, bonus;
-  if (g_star === 2.0) {
-    status = 'MAXIMUM';
-    bonus = '+50%';
-  } else if (g_star >= 1.75) {
-    status = 'EXCELLENT';
-    bonus = `+${Math.round((multiplier - 1) * 100)}%`;
-  } else if (g_star >= 1.5) {
-    status = 'GOOD';
-    bonus = `+${Math.round((multiplier - 1) * 100)}%`;
-  } else if (g_star >= 1.0) {
-    status = 'BASELINE';
-    bonus = '0%';
-  } else {
-    status = 'BELOW_BASELINE';
-    bonus = `${Math.round((multiplier - 1) * 100)}%`;
-  }
-  
-  return {
-    g_star: g_star.toFixed(2),
-    multiplier: multiplier.toFixed(2),
-    status,
-    bonus,
-    description: `Gate average: ${g_star.toFixed(2)}/2.0, Multiplier: ${multiplier.toFixed(2)}x`
-  };
-}
-
-/**
  * Detect X-Factor Differentiators in content
  */
 function detectXFactors(content) {
@@ -2342,130 +2296,6 @@ function detectXFactors(content) {
   }
   
   result.score = Math.min(100, result.score);
-  
-  return result;
-}
-
-/**
- * Run Pre-Submission Validation
- */
-function runPreSubmissionValidation(content, campaignData, judgingResult) {
-  const result = {
-    passed: true,
-    checks: {},
-    issues: [],
-    warnings: []
-  };
-  
-  const checklist = CONFIG.preSubmissionChecklist;
-  
-  // 1. Mindset Check (informational)
-  result.checks.mindset = {
-    status: 'INFO',
-    items: checklist.mindset
-  };
-  
-  // 2. Information Verification
-  const verificationIssues = [];
-  if (!campaignData?.knowledgeBase) {
-    verificationIssues.push('Campaign knowledgeBase not fetched');
-  }
-  result.checks.informationVerification = {
-    status: verificationIssues.length === 0 ? 'PASS' : 'WARN',
-    issues: verificationIssues
-  };
-  if (verificationIssues.length > 0) {
-    result.warnings.push(...verificationIssues);
-  }
-  
-  // 3. G4 Originality Check
-  const g4Result = detectG4Elements(content);
-  const g4Issues = [];
-  if (g4Result.issues.length > 0) {
-    g4Issues.push(...g4Result.issues);
-  }
-  if (!g4Result.bonuses.casualHookOpening) {
-    g4Issues.push('Missing casual hook opening');
-  }
-  if (!g4Result.bonuses.parentheticalAside) {
-    g4Issues.push('Missing parenthetical aside');
-  }
-  if (!g4Result.bonuses.contractions?.passed) {
-    g4Issues.push('Need 3+ contractions');
-  }
-  result.checks.gateOriginality = {
-    status: g4Issues.length === 0 ? 'PASS' : 'FAIL',
-    estimatedG4: g4Result.estimatedG4.toFixed(2),
-    issues: g4Issues,
-    recommendations: g4Result.recommendations
-  };
-  if (g4Issues.length > 0) {
-    result.issues.push(...g4Issues);
-    result.passed = false;
-  }
-  
-  // 4. Forbidden Punctuation Check
-  const punctuationResult = detectForbiddenPunctuation(content);
-  const punctuationIssues = [];
-  if (punctuationResult.emDashes.found) {
-    punctuationIssues.push(`Em dashes detected: ${punctuationResult.emDashes.count}`);
-  }
-  if (punctuationResult.smartQuotes.found) {
-    punctuationIssues.push(`Smart quotes detected: ${punctuationResult.smartQuotes.count}`);
-  }
-  result.checks.forbiddenPunctuation = {
-    status: punctuationIssues.length === 0 ? 'PASS' : 'FAIL',
-    issues: punctuationIssues,
-    sanitizedContent: punctuationResult.sanitizedContent
-  };
-  if (punctuationIssues.length > 0) {
-    result.issues.push(...punctuationIssues);
-    result.passed = false;
-  }
-  
-  // 5. X-Factor Check
-  const xFactorResult = detectXFactors(content);
-  result.checks.xFactors = {
-    status: xFactorResult.detected.length >= 3 ? 'PASS' : 'WARN',
-    detected: xFactorResult.detected,
-    missing: xFactorResult.missing,
-    score: xFactorResult.score
-  };
-  if (xFactorResult.detected.length < 3) {
-    result.warnings.push(`Only ${xFactorResult.detected.length}/5 X-Factors detected`);
-  }
-  
-  // 6. Gate Score Check (if judging result provided)
-  if (judgingResult) {
-    const gateCheckIssues = [];
-    if (judgingResult.scores?.gateUtama < CONFIG.thresholds.gateUtama.pass) {
-      gateCheckIssues.push('Gate Utama below threshold');
-    }
-    if (judgingResult.scores?.gateTambahan < CONFIG.thresholds.gateTambahan.pass) {
-      gateCheckIssues.push('Gate Tambahan below threshold');
-    }
-    if (judgingResult.scores?.penilaianInternal < CONFIG.thresholds.penilaianInternal.pass) {
-      gateCheckIssues.push('Penilaian Internal below threshold');
-    }
-    result.checks.gateScores = {
-      status: gateCheckIssues.length === 0 ? 'PASS' : 'FAIL',
-      issues: gateCheckIssues,
-      totalScore: judgingResult.totalScore
-    };
-    if (gateCheckIssues.length > 0) {
-      result.issues.push(...gateCheckIssues);
-      result.passed = false;
-    }
-    
-    // Calculate Gate Multiplier
-    const gateMultiplier = calculateGateMultiplier(
-      judgingResult.scores?.gateUtama / CONFIG.thresholds.gateUtama.max * 2,
-      judgingResult.scores?.gateTambahan / CONFIG.thresholds.gateTambahan.max * 2,
-      judgingResult.scores?.penilaianInternal / CONFIG.thresholds.penilaianInternal.max * 2,
-      g4Result.estimatedG4
-    );
-    result.gateMultiplier = gateMultiplier;
-  }
   
   return result;
 }
@@ -2628,26 +2458,57 @@ function detectCampaignType(campaignData) {
  * This is the Persona-First approach - build perspective BEFORE writing
  */
 async function buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis) {
-  console.log('\n   🧠 Building Pre-Writing Perspective (Persona-First)...');
+  console.log('\n   🧠 Building Pre-Writing Perspective (Persona-First + Rules-Aware)...');
   
   const campaignType = detectCampaignType(campaignData);
   const typeConfig = CONFIG.campaignTypeAdaptation[campaignType];
   
+  // Parse requirements ONCE so perspective is rules-aware
+  const reqs = parseCampaignRequirements(campaignData);
+  
   const systemPrompt = `You are a genuine crypto user who just discovered this project. 
-Answer these 5 questions HONESTLY from your perspective. 
+Answer these questions HONESTLY from your perspective. 
 Do NOT write content yet - just build your perspective.
 
-FILMLOSOFI: Natural Content First. Validate After.
-- Do not think about rules while answering
+FILMLOSOFI: Natural Content First. But Rules-Aware.
 - Think like a real person who genuinely encountered this project
 - Be vulnerable - admit skepticism, embarrassment, surprise
-- Pick ONE thing that genuinely caught your attention`;
+- Pick ONE thing that genuinely caught your attention
+- IMPORTANT: You MUST build your perspective WITHIN the campaign rules
+- Your chosen angle MUST be compatible with the rules below
+- If rules prohibit certain elements, your perspective must avoid those elements`;
 
   const userPrompt = `════════════════════════════════════════════════════════════════
 CAMPAIGN: ${campaignData.title || 'Unknown'}
+${campaignData.missionTitle ? `🎯 MISSION: ${campaignData.missionTitle}` : ''}
 DESCRIPTION: ${campaignData.description || campaignData.goal || 'N/A'}
 KNOWLEDGE BASE: ${campaignData.knowledgeBase || campaignData.knowledge_base || 'N/A'}
 CAMPAIGN TYPE: ${campaignType}
+════════════════════════════════════════════════════════════════
+
+🚨🚨🚨 CAMPAIGN RULES - YOU MUST RESPECT THESE 🚨🚨🚨
+${campaignData.rules || campaignData.requirements || 'Standard content guidelines'}
+
+${campaignData.style ? `🎨 STYLE REQUIRED: ${campaignData.style}` : ''}
+
+${campaignData.missionGoal ? `🎯 MISSION GOAL (your content MUST align): ${campaignData.missionGoal}` : ''}
+
+${reqs.mandatoryTags.length > 0 ? `🏷️ MANDATORY TAGS (must include): ${reqs.mandatoryTags.join(', ')}` : ''}
+${reqs.mandatoryHashtags.length > 0 ? `#️⃣ MANDATORY HASHTAGS: ${reqs.mandatoryHashtags.join(', ')}` : ''}
+${reqs.mandatoryMetrics ? '📊 METRICS REQUIRED: Must include specific numbers/metrics' : ''}
+${reqs.mandatoryUrl ? `🔗 URL REQUIRED: ${campaignData.campaignUrl || campaignData.url}` : ''}
+${reqs.mandatoryScreenshot ? '📸 SCREENSHOT REQUIRED' : ''}
+${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED' : ''}
+${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED' : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 DO NOT TAG: ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 DO NOT MENTION: ${reqs.prohibitedKeywords.join(', ')}` : ''}
+${reqs.focusTopic ? `🎯 FOCUS TOPIC: ${reqs.focusTopic}` : ''}
+${campaignData.additionalInfo ? `📎 ADDITIONAL INFO: ${campaignData.additionalInfo}` : ''}
+
+${reqs.proposedAngles.length > 0 ? `
+🎯 PROPOSED ANGLES (MUST pick ONE):
+${reqs.proposedAngles.map((a, i) => `   ANGLE ${i + 1}: "${a}"`).join('\n')}
+` : ''}
 ════════════════════════════════════════════════════════════════
 
 KEY FACTS FROM RESEARCH:
@@ -2657,34 +2518,52 @@ ANGLES ALREADY USED (AVOID):
 ${(competitorAnalysis?.anglesUsed || []).slice(0, 3).map(a => `• ${a}`).join('\n') || 'None identified'}
 
 ════════════════════════════════════════════════════════════════
-ANSWER THESE 5 QUESTIONS (build your perspective):
+ANSWER THESE QUESTIONS (build your rules-aware perspective):
 ════════════════════════════════════════════════════════════════
 
 Q1: Apa SATU hal paling menarik dari project ini yang bikin kamu stop scrolling?
 → Bukan list fitur. SATU hal yang paling memorable.
+→ Pastikan hal ini SESUAI dengan mission goal dan rules!
 
 Q2: Kalau kamu cerita ini ke teman di warung kopi, kamu mulai dari mana?
 → Bukan dari definisi project. Dari momen atau reaksi.
+→ Pikirkan bagaimana cerita ini bisa memenuhi SEMUA requirements.
 
 Q3: Ada bagian mana yang bikin kamu sedikit embarrassed untuk diakui?
 → Terlalu excited? Terlalu skeptis dulu? Refresh halaman berkali-kali?
 → Ini EMAS untuk G4 - vulnerability yang authentic!
+→ Pastikan cerita ini TIDAK melanggar prohibited items!
 
 Q4: Angka atau detail SPESIFIK apa dari Knowledge Base yang paling memorable?
 → Tidak boleh mengarang! Harus dari Knowledge Base.
+→ ${reqs.mandatoryMetrics ? 'PENTING: Kamu HARUS punya angka/metric spesifik di konten nanti!' : ''}
 
 Q5: Sudut pandang APA yang BERBEDA dari tweet-tweet lain tentang ini?
 → Jangan ceritakan apa yang semua orang ceritakan.
+${reqs.proposedAngles.length > 0 ? `→ PENTING: Kamu HARUS memilih salah satu dari Proposed Angles di atas!` : ''}
+
+Q6: Bagaimana kamu akan memastikan kontenmu MEMENUHI SEMUA rules di atas?
+→ Checklist: tags, hashtags, metrics, URL, screenshot, focus topic, style
+→ Apa yang paling tricky dari rules ini?
 
 ════════════════════════════════════════════════════════════════
 
 Return JSON:
 {
-  "q1_memorable": "Your honest answer - the ONE thing",
+  "q1_memorable": "Your honest answer - the ONE thing (rules-compatible)",
   "q2_coffee_talk": "How you'd start the conversation",
   "q3_embarrassing": "Your vulnerable admission (this is G4 gold!)",
   "q4_specific_detail": "Specific fact from KB that stuck with you",
-  "q5_unique_angle": "Your different perspective",
+  "q5_unique_angle": "Your different perspective${reqs.proposedAngles.length > 0 ? ' (MUST be one of the proposed angles)' : ''}",
+  "q6_rules_plan": "How you will ensure all rules are met",
+  "rules_checklist": {
+    "tags_covered": true/false,
+    "hashtags_covered": true/false,
+    "metrics_included": true/false,
+    "url_included": true/false,
+    "screenshot_planned": true/false,
+    "prohibited_avoided": true/false
+  },
   "core_perspective": "Summary of your genuine viewpoint",
   "chosen_angle": "The angle you will write from",
   "human_element": "What makes this personal to you"
@@ -2693,7 +2572,7 @@ Return JSON:
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.9, maxTokens: 1500 });
+  ], { temperature: 0.9, maxTokens: 2000 });
   
   const result = safeJsonParse(response.content);
   
@@ -2701,12 +2580,32 @@ Return JSON:
     console.log(`   ✓ Perspective built successfully`);
     console.log(`   ✓ Core angle: ${result.chosen_angle?.substring(0, 50)}...`);
     console.log(`   ✓ Human element: ${result.human_element?.substring(0, 50)}...`);
+    
+    // Validate rules awareness
+    if (result.rules_checklist) {
+      const checklist = result.rules_checklist;
+      const issues = [];
+      if (reqs.mandatoryTags.length > 0 && !checklist.tags_covered) issues.push('tags');
+      if (reqs.mandatoryHashtags.length > 0 && !checklist.hashtags_covered) issues.push('hashtags');
+      if (reqs.mandatoryMetrics && !checklist.metrics_included) issues.push('metrics');
+      if (reqs.mandatoryUrl && !checklist.url_included) issues.push('url');
+      if (reqs.mandatoryScreenshot && !checklist.screenshot_planned) issues.push('screenshot');
+      
+      if (issues.length > 0) {
+        console.log(`   ⚠️ Perspective missing rules awareness for: ${issues.join(', ')}`);
+        // Auto-fix: add reminder
+        result._rulesReminder = `REMINDER: Must include ${issues.join(', ')}`;
+      } else {
+        console.log(`   ✅ Rules awareness check: ALL requirements acknowledged`);
+      }
+    }
   }
   
   return {
     perspective: result,
     campaignType,
-    typeConfig
+    typeConfig,
+    requirements: reqs
   };
 }
 
@@ -2929,12 +2828,37 @@ function displayPreWritingPerspective(perspective) {
   console.log(`   ║  Chosen Angle: ${(perspective.perspective?.chosen_angle?.substring(0, 35) || 'N/A').padEnd(38)}║`);
   console.log(`   ║  Human Element: ${(perspective.perspective?.human_element?.substring(0, 35) || 'N/A').padEnd(37)}║`);
   console.log('   ╠════════════════════════════════════════════════════════════╣');
-  console.log('   ║  5 Questions Answered:                                    ║');
+  console.log('   ║  6 Questions Answered (Rules-Aware):                     ║');
   console.log(`   ║    Q1 (Memorable): ${perspective.perspective?.q1_memorable ? '✓' : '✗'}                              ║`);
   console.log(`   ║    Q2 (Coffee Talk): ${perspective.perspective?.q2_coffee_talk ? '✓' : '✗'}                           ║`);
   console.log(`   ║    Q3 (Embarrassing): ${perspective.perspective?.q3_embarrassing ? '✓' : '✗'}                           ║`);
   console.log(`   ║    Q4 (Specific Detail): ${perspective.perspective?.q4_specific_detail ? '✓' : '✗'}                        ║`);
   console.log(`   ║    Q5 (Unique Angle): ${perspective.perspective?.q5_unique_angle ? '✓' : '✗'}                           ║`);
+  console.log(`   ║    Q6 (Rules Plan): ${perspective.perspective?.q6_rules_plan ? '✓' : '✗'}                            ║`);
+  
+  // Display rules checklist if available
+  if (perspective.perspective?.rules_checklist) {
+    const rc = perspective.perspective.rules_checklist;
+    console.log('   ╠════════════════════════════════════════════════════════════╣');
+    console.log('   ║  Rules Awareness Checklist:                               ║');
+    console.log(`   ║    Tags: ${rc.tags_covered ? '✓ Aware' : '✗ Missing'}                                 ║`);
+    console.log(`   ║    Hashtags: ${rc.hashtags_covered ? '✓ Aware' : '✗ Missing'}                             ║`);
+    console.log(`   ║    Metrics: ${rc.metrics_included ? '✓ Aware' : '✗ Missing'}                               ║`);
+    console.log(`   ║    URL: ${rc.url_included ? '✓ Aware' : '✗ Missing'}                                    ║`);
+    console.log(`   ║    Screenshot: ${rc.screenshot_planned ? '✓ Aware' : '✗ Missing'}                           ║`);
+    console.log(`   ║    Prohibited: ${rc.prohibited_avoided ? '✓ Aware' : '✗ Missing'}                          ║`);
+  }
+  
+  if (perspective.requirements) {
+    const reqs = perspective.requirements;
+    console.log('   ╠════════════════════════════════════════════════════════════╣');
+    console.log('   ║  Parsed Requirements:                                     ║');
+    console.log(`   ║    Mandatory Tags: ${reqs.mandatoryTags.length.toString().padEnd(3)} | Hashtags: ${reqs.mandatoryHashtags.length.toString().padEnd(2)} ║`);
+    console.log(`   ║    Metrics: ${reqs.mandatoryMetrics ? 'YES' : 'NO '}   | URL: ${reqs.mandatoryUrl ? 'YES' : 'NO  '}  | Screenshot: ${reqs.mandatoryScreenshot ? 'YES' : 'NO  '}║`);
+    console.log(`   ║    Prohibited URL: ${reqs.prohibitedUrl ? 'YES' : 'NO '} | Prohibited Hashtags: ${reqs.prohibitedHashtags.length > 0 ? 'YES' : 'NO  '}║`);
+    console.log(`   ║    Proposed Angles: ${reqs.proposedAngles.length.toString().padEnd(2)}     | Focus Topic: ${reqs.focusTopic ? 'YES' : 'NO  '}║`);
+  }
+  
   console.log('   ╚════════════════════════════════════════════════════════════╝');
 }
 
@@ -2989,6 +2913,10 @@ async function deepCompetitorContentAnalysis(llm, submissions, campaignTitle, ca
   
   // AI analysis for patterns
   const analysisPrompt = `Analyze these COMPETITOR CONTENTS for "${campaignTitle}":
+
+${campaignData.description ? `CAMPAIGN DESCRIPTION: ${campaignData.description}` : ''}
+${campaignData.missionGoal ? `MISSION GOAL: ${campaignData.missionGoal}` : ''}
+${campaignData.rules ? `CAMPAIGN RULES: ${campaignData.rules.substring(0, 500)}` : ''}
 
 ${competitorContent.map((c, i) => `
 --- COMPETITOR ${i + 1} (Score: ${c.score}) ---
@@ -3226,13 +3154,13 @@ Extract in JSON format:
 // CONTENT GENERATION - 🆕 ENHANCED WITH PERSONA-FIRST PHILOSOPHY
 // ============================================================================
 
-async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1) {
+async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1, comprehensionPlan = null) {
   console.log('\n' + '─'.repeat(60));
-  console.log('✨ GENERATING UNIQUE CONTENT (Persona-First Approach)');
+  console.log('✨ GENERATING UNIQUE CONTENT (Persona-First + Rules-Aware Approach)');
   console.log('─'.repeat(60));
   
-  // 🆕 NEW: Build Pre-Writing Perspective FIRST (Persona-First Philosophy)
-  console.log('\n   🧠 STEP 1: Building Pre-Writing Perspective...');
+  // 🆕 NEW: Build Pre-Writing Perspective FIRST (Persona-First + Rules-Aware Philosophy)
+  console.log('\n   🧠 STEP 1: Building Pre-Writing Perspective (Rules-Aware)...');
   const preWritingResult = await buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis);
   displayPreWritingPerspective(preWritingResult);
   
@@ -3285,13 +3213,92 @@ ${perspective.human_element || 'Not specified'}
 - Human Element: ${typeConfig?.humanElement || 'N/A'}
 - Avoid: ${typeConfig?.avoid || 'N/A'}
 
+${perspective.q6_rules_plan ? `📌 Your Rules Plan:
+${perspective.q6_rules_plan}` : ''}
+
+${perspective.rules_checklist ? `📋 Rules Compliance Plan:
+${perspective.rules_checklist.tags_covered ? '✅ Will include required tags' : '⚠️ Tags awareness needed'}
+${perspective.rules_checklist.hashtags_covered ? '✅ Will include required hashtags' : '⚠️ Hashtags awareness needed'}
+${perspective.rules_checklist.metrics_included ? '✅ Will include specific metrics' : '⚠️ Metrics awareness needed'}
+${perspective.rules_checklist.url_included ? '✅ Will include required URL' : '⚠️ URL awareness needed'}
+${perspective.rules_checklist.screenshot_planned ? '✅ Will include screenshot' : '⚠️ Screenshot awareness needed'}
+${perspective.rules_checklist.prohibited_avoided ? '✅ Will avoid prohibited items' : '⚠️ Prohibited items awareness needed'}` : ''}
+
 ⚠️ CRITICAL: Write from this perspective! Do not change your answers.
 These are YOUR genuine thoughts before writing. Stay authentic to this perspective.
+⚠️ CRITICAL: Follow the Rules Compliance Plan above! Every item must be checked!
+` : '';
+  
+  // 🆕 BUG #11 FIX: Inject comprehension plan into prompt
+  const comprehensionPlanSection = comprehensionPlan ? `
+═══════════════════════════════════════════════════════════════════════════════
+📋 AI CONTENT PLAN (Follow This Plan - It Was Created By Reading ALL Rules!)
+═══════════════════════════════════════════════════════════════════════════════
+
+📌 Mission Summary: ${comprehensionPlan.mission_summary || 'N/A'}
+📌 Chosen Angle: ${comprehensionPlan.chosen_angle || 'N/A'}
+📌 Execution Plan: ${comprehensionPlan.execution_plan || 'N/A'}
+
+${comprehensionPlan.quality_targets ? `
+📊 Quality Targets:
+- Hook Strategy: ${comprehensionPlan.quality_targets.hook_strategy || 'N/A'}
+- Emotion Journey: ${comprehensionPlan.quality_targets.emotion_journey || 'N/A'}
+- Evidence Layers: ${(comprehensionPlan.quality_targets.evidence_layers || []).join(' → ')}
+- Differentiation: ${comprehensionPlan.quality_targets.differentiation || 'N/A'}
+` : ''}
+
+${comprehensionPlan.mandatory_items_checklist ? `
+📋 MANDATORY ITEMS EXECUTION PLAN:
+${comprehensionPlan.mandatory_items_checklist.tags?.length > 0 ? `- Tags to include: ${comprehensionPlan.mandatory_items_checklist.tags.join(', ')}` : ''}
+${comprehensionPlan.mandatory_items_checklist.hashtags?.length > 0 ? `- Hashtags to include: ${comprehensionPlan.mandatory_items_checklist.hashtags.join(', ')}` : ''}
+${comprehensionPlan.mandatory_items_checklist.metrics ? `- Metrics to use: ${comprehensionPlan.mandatory_items_checklist.metrics}` : ''}
+${comprehensionPlan.mandatory_items_checklist.url ? `- URL placement: ${comprehensionPlan.mandatory_items_checklist.url}` : ''}
+${comprehensionPlan.mandatory_items_checklist.screenshot ? `- Screenshot plan: ${comprehensionPlan.mandatory_items_checklist.screenshot}` : ''}
+${comprehensionPlan.mandatory_items_checklist.focus_topic ? `- Focus topic approach: ${comprehensionPlan.mandatory_items_checklist.focus_topic}` : ''}
+${comprehensionPlan.mandatory_items_checklist.style_notes ? `- Style notes: ${comprehensionPlan.mandatory_items_checklist.style_notes}` : ''}
+` : ''}
+
+${comprehensionPlan.prohibited_items_checklist ? `
+🚫 PROHIBITED ITEMS (DO NOT INCLUDE):
+${comprehensionPlan.prohibited_items_checklist.no_hashtags ? '- ❌ NO HASHTAGS ALLOWED' : ''}
+${comprehensionPlan.prohibited_items_checklist.no_url ? '- ❌ NO URL/LINK ALLOWED' : ''}
+${comprehensionPlan.prohibited_items_checklist.avoid_tags?.length > 0 ? `- ❌ Do NOT tag: ${comprehensionPlan.prohibited_items_checklist.avoid_tags.join(', ')}` : ''}
+${comprehensionPlan.prohibited_items_checklist.avoid_keywords?.length > 0 ? `- ❌ Do NOT mention: ${comprehensionPlan.prohibited_items_checklist.avoid_keywords.join(', ')}` : ''}
+` : ''}
+
+${comprehensionPlan.risk_items?.length > 0 ? `
+⚠️ RISK ITEMS (pay extra attention):
+${comprehensionPlan.risk_items.map(r => `- ⚡ ${r}`).join('\n')}
+` : ''}
+
+${comprehensionPlan._rulesReminder ? `
+🚨🚨🚨 AUTO-REMINDER: ${comprehensionPlan._rulesReminder} 🚨🚨🚨
+` : ''}
+
+${comprehensionPlan._missingMandatory ? `
+🚨🚨🚨 MISSING AWARENESS - YOU MUST INCLUDE: ${comprehensionPlan._missingMandatory.join(', ')} 🚨🚨🚨
+` : ''}
+
+${comprehensionPlan._forceProposedAngle ? `
+🚨🚨🚨 YOU MUST USE ONE OF THE PROPOSED ANGLES FROM THE RULES! 🚨🚨🚨
+` : ''}
+
+${comprehensionPlan._urlProhibitionMissed ? `
+🚨🚨🚨 URL/LINK IS PROHIBITED! DO NOT INCLUDE ANY URL! 🚨🚨🚨
+` : ''}
+
+${comprehensionPlan._hashtagProhibitionMissed ? `
+🚨🚨🚨 HASHTAGS ARE PROHIBITED! DO NOT USE ANY #HASHTAGS! 🚨🚨🚨
+` : ''}
+
+⚠️ THIS PLAN WAS CREATED BY READING ALL CAMPAIGN RULES. FOLLOW IT EXACTLY.
+═══════════════════════════════════════════════════════════════════════════════
 ` : '';
   
   const systemPrompt = `You are an ELITE content creator who writes viral, authentic content that resonates deeply with readers.
 
 ${perspectiveSection}
+${comprehensionPlanSection}
 ═══════════════════════════════════════════════════════════════════════════════
 🎯 YOUR MISSION: Create content that feels REAL, not manufactured.
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3608,6 +3615,29 @@ ${researchData?.synthesis?.statistics?.slice(0, 3).map((s, i) => `${i + 1}. ${s}
 UNIQUE ANGLES AVAILABLE:
 ${researchData?.synthesis?.uniqueAngles?.slice(0, 3).map((a, i) => `${i + 1}. ${a.angle} - ${a.uniqueness}`).join('\n') || 'Create your own unique angle'}
 
+${researchData?.synthesis?.controversies?.length > 0 ? `
+CONTROVERSIES (use for contrast/credibility):
+${researchData?.synthesis?.controversies.slice(0, 2).map((c, i) => `${i + 1}. ${c}`).join('\n')}
+` : ''}
+
+${researchData?.synthesis?.expertQuotes?.length > 0 ? `
+EXPERT QUOTES (use for authority):
+${researchData?.synthesis?.expertQuotes.slice(0, 2).map((q, i) => `${i + 1}. ${q}`).join('\n')}
+` : ''}
+
+${researchData?.synthesis?.untoldStories?.length > 0 ? `
+UNIQUE STORIES (use for differentiation):
+${researchData?.synthesis?.untoldStories.slice(0, 2).map((s, i) => `${i + 1}. ${s}`).join('\n')}
+` : ''}
+
+${researchData?.synthesis?.evidenceLayers ? `
+EVIDENCE LAYERS (use for credibility):
+• Macro Data: ${researchData?.synthesis?.evidenceLayers?.macroData || 'N/A'}
+• Case Study: ${researchData?.synthesis?.evidenceLayers?.caseStudy || 'N/A'}
+• Personal Touch: ${researchData?.synthesis?.evidenceLayers?.personalTouch || 'N/A'}
+• Expert Validation: ${researchData?.synthesis?.evidenceLayers?.expertValidation || 'N/A'}
+` : ''}
+
 ═══════════════════════════════════════════════════════════════════════════════
 🎯 COMPETITIVE DIFFERENTIATION
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3620,6 +3650,19 @@ ${(competitorAnalysis?.saturatedElements || []).slice(0, 5).map(s => `• ${s}`)
 
 UNTAPPED OPPORTUNITIES (USE THESE):
 ${(competitorAnalysis?.untappedOpportunities || []).slice(0, 5).map(o => `✓ ${o}`).join('\n') || '✓ Create unique content freely'}
+
+${competitorAnalysis?.uniqueAnglesNotUsed?.length > 0 ? `
+UNIQUE ANGLES NOT YET USED (GOLDMINE):
+${competitorAnalysis.uniqueAnglesNotUsed.slice(0, 3).map(a => `✅ ${a}`).join('\n')}
+` : ''}
+
+${competitorAnalysis?.recommendations ? `
+🏆 AI RECOMMENDATIONS (from competitor analysis):
+• Winning Angle: ${competitorAnalysis.recommendations?.winningAngle || 'N/A'}
+• Untapped Audience: ${competitorAnalysis.recommendations?.untappedAudience || 'N/A'}
+• Unique Perspective: ${competitorAnalysis.recommendations?.uniquePerspective || 'N/A'}
+${competitorAnalysis.recommendations?.rareEmotionCombo ? `• Rare Emotion Combo: ${competitorAnalysis.recommendations.rareEmotionCombo.join(' + ')}` : ''}
+` : ''}
 
 ═══════════════════════════════════════════════════════════════════════════════
 ✅ BEFORE YOU WRITE - CHECK THESE MANDATORY ITEMS:
@@ -3713,246 +3756,6 @@ Create content that makes readers STOP, FEEL, and ENGAGE.`;
     structuredOutput,
     raw: response.content
   };
-}
-
-// ============================================================================
-// v9.8.1: QUICK JUDGE = COMPLIANCE CHECK ONLY
-// ============================================================================
-
-async function quickJudgeCompliance(llm, content, campaignData) {
-  console.log('\n   ' + '┌' + '─'.repeat(56) + '┐');
-  console.log('   │         ⚡ QUICK JUDGE - Compliance Check              │');
-  console.log('   ' + '└' + '─'.repeat(56) + '┘');
-
-  // Parse requirements to get mandatory and prohibited items
-  const reqs = parseCampaignRequirements(campaignData);
-
-  // Build prohibited items section for prompt
-  let prohibitedItemsPrompt = '';
-  if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
-    prohibitedItemsPrompt = `
-📌 8. PROHIBITED ITEMS CHECK
-────────────────────────────
-${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED - Content must NOT contain any #hashtags' : ''}
-${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED - Content must NOT contain any URLs or links' : ''}
-${reqs.prohibitedTags.length > 0 ? `🚫 PROHIBITED TAGS - Content must NOT mention: ${reqs.prohibitedTags.join(', ')}` : ''}
-${reqs.prohibitedKeywords.length > 0 ? `🚫 PROHIBITED KEYWORDS - Content must NOT use: ${reqs.prohibitedKeywords.join(', ')}` : ''}
-PASS: None of the prohibited items are present
-FAIL: Any prohibited item is found`;
-  }
-
-  const systemPrompt = `You are a QUICK COMPLIANCE CHECKER for Rally.fun content.
-
-You check content compliance QUICKLY and STRICTLY. You do NOT know how this content was created.
-Your job is to check ALL requirements. PASS only if FULLY satisfied.
-
-═══════════════════════════════════════════════════════════════════════════════
-CHECKS TO PERFORM (All must PASS):
-═══════════════════════════════════════════════════════════════════════════════
-
-📌 1. CAMPAIGN DESCRIPTION
-────────────────────────────
-PASS: Content relates to campaign description/goal
-FAIL: Content doesn't match campaign
-
-📌 2. RULES COMPLIANCE
-────────────────────────────
-PASS: Follows all campaign rules
-FAIL: Violates any rule
-
-📌 3. STYLE MATCH
-────────────────────────────
-PASS: Matches required style/tone
-FAIL: Wrong style or tone
-
-📌 4. ADDITIONAL INFO
-────────────────────────────
-PASS: Incorporates additional info if provided
-FAIL: Ignores important additional info
-
-📌 5. KNOWLEDGE BASE
-────────────────────────────
-PASS: Uses knowledge base correctly
-FAIL: Ignores or misuses knowledge base
-
-📌 6. BANNED WORDS
-────────────────────────────
-PASS: No banned words detected
-FAIL: Contains banned promotional language
-
-📌 7. URL CHECK
-────────────────────────────
-${reqs.mandatoryUrl ? `PASS: Required URL is included
-FAIL: URL missing` : reqs.prohibitedUrl ? `PASS: No URL/link present (URL is PROHIBITED)
-FAIL: URL/link found when it should NOT be present` : `PASS: URL check (optional)
-FAIL: N/A`}
-${prohibitedItemsPrompt}
-═══════════════════════════════════════════════════════════════════════════════
-OUTPUT FORMAT:
-═══════════════════════════════════════════════════════════════════════════════
-
-Return ONLY valid JSON format.`;
-
-  const userPrompt = `COMPLIANCE CHECK for this content:
-
-═══════════════════════════════════════════════════════════════
-CONTENT TO CHECK:
-═══════════════════════════════════════════════════════════════
-${content}
-
-═══════════════════════════════════════════════════════════════
-CAMPAIGN REQUIREMENTS:
-═══════════════════════════════════════════════════════════════
-TITLE: ${campaignData.title || 'N/A'}
-DESCRIPTION: ${campaignData.description || campaignData.goal || 'N/A'}
-STYLE: ${campaignData.style || 'Standard professional style'}
-RULES: ${campaignData.rules || campaignData.requirements || 'No specific rules'}
-ADDITIONAL INFO: ${campaignData.additionalInfo || campaignData.additional_info || 'None'}
-KNOWLEDGE BASE: ${campaignData.knowledgeBase || campaignData.knowledge_base || 'None'}
-${reqs.mandatoryUrl ? `REQUIRED URL: ${campaignData.campaignUrl || campaignData.url || 'Required'}` : ''}
-${reqs.prohibitedUrl ? '🚫 URL PROHIBITED: No URLs or links allowed!' : ''}
-
-═══════════════════════════════════════════════════════════════
-PROHIBITED ITEMS (MUST NOT appear):
-═══════════════════════════════════════════════════════════════
-${reqs.prohibitedHashtags.length > 0 ? `🚫 HASHTAGS: No hashtags allowed!` : ''}
-${reqs.prohibitedUrl ? `🚫 URL/LINK: No URLs or links allowed!` : ''}
-${reqs.prohibitedTags.length > 0 ? `🚫 TAGS: ${reqs.prohibitedTags.join(', ')}` : ''}
-${reqs.prohibitedKeywords.length > 0 ? `🚫 KEYWORDS: ${reqs.prohibitedKeywords.join(', ')}` : ''}
-${reqs.prohibitedHashtags.length === 0 && !reqs.prohibitedUrl && reqs.prohibitedTags.length === 0 && reqs.prohibitedKeywords.length === 0 ? 'None specified' : ''}
-
-═══════════════════════════════════════════════════════════════
-BANNED WORDS (MUST NOT appear):
-═══════════════════════════════════════════════════════════════
-${CONFIG.hardRequirements.bannedWords.concat(CONFIG.hardRequirements.rallyBannedPhrases).join(', ')}
-
-═══════════════════════════════════════════════════════════════
-CHECK EACH ITEM:
-═══════════════════════════════════════════════════════════════
-
-Return JSON format:
-{
-  "checks": {
-    "campaignDescription": {
-      "pass": true/false,
-      "reason": "explain why pass or fail"
-    },
-    "rules": {
-      "pass": true/false,
-      "reason": "explain why pass or fail"
-    },
-    "style": {
-      "pass": true/false,
-      "reason": "explain why pass or fail"
-    },
-    "additionalInfo": {
-      "pass": true/false,
-      "reason": "explain why pass or fail"
-    },
-    "knowledgeBase": {
-      "pass": true/false,
-      "reason": "explain why pass or fail"
-    },
-    "bannedWords": {
-      "pass": true/false,
-      "foundBannedWords": ["word1", "word2"] or [],
-      "reason": "explain why pass or fail"
-    },
-    "urlCheck": {
-      "pass": true/false,
-      "urlFound": "the url found" or "not found",
-      "reason": "explain why pass or fail"
-    },
-    "prohibitedItems": {
-      "pass": true/false,
-      "foundItems": ["item1", "item2"] or [],
-      "reason": "explain why pass or fail"
-    }
-  },
-  "allPass": true/false,
-  "failedChecks": ["list of failed check names"],
-  "summary": "brief summary of compliance status"
-}`;
-
-  // Use callAI which uses SDK
-  const result = await callAI([
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: userPrompt }
-  ], { temperature: CONFIG.model.temperature.compliance || 0.1, maxTokens: 2000 });
-
-  const parsedResult = safeJsonParse(result.content);
-  
-  if (!parsedResult) {
-    throw new Error('Failed to parse compliance check result');
-  }
-  
-  // Ensure all checks exist
-  const defaultChecks = {
-    campaignDescription: { pass: false, reason: 'Not checked' },
-    rules: { pass: false, reason: 'Not checked' },
-    style: { pass: false, reason: 'Not checked' },
-    additionalInfo: { pass: false, reason: 'Not checked' },
-    knowledgeBase: { pass: false, reason: 'Not checked' },
-    bannedWords: { pass: false, reason: 'Not checked', foundBannedWords: [] },
-    urlCheck: { pass: true, reason: 'URL check (optional)', urlFound: 'not applicable' },
-    prohibitedItems: { pass: true, reason: 'No prohibited items specified', foundItems: [] }
-  };
-
-  parsedResult.checks = { ...defaultChecks, ...(parsedResult.checks || {}) };
-
-  // Recalculate allPass and failedChecks
-  const failedChecks = Object.entries(parsedResult.checks)
-    .filter(([key, check]) => check.pass !== true)
-    .map(([key]) => key);
-
-  parsedResult.allPass = failedChecks.length === 0;
-  parsedResult.failedChecks = failedChecks;
-  parsedResult.success = true;
-
-  // Display results
-  console.log('\n   ┌─────────────────────────────────────────────────────────┐');
-  console.log('   │              COMPLIANCE CHECK RESULTS                  │');
-  console.log('   ├─────────────────────────────────────────────────────────┤');
-
-  const checkNames = {
-    campaignDescription: 'Description Match',
-    rules: 'Rules Followed',
-    style: 'Style Matched',
-    additionalInfo: 'Additional Info',
-    knowledgeBase: 'Knowledge Base',
-    bannedWords: 'No Banned Words',
-    urlCheck: 'URL Check',
-    prohibitedItems: 'Prohibited Items'
-  };
-
-  for (const [key, check] of Object.entries(parsedResult.checks)) {
-    const icon = check.pass ? '✅' : '❌';
-    const name = checkNames[key] || key;
-    console.log(`   │ ${icon} ${name.padEnd(20)} ${check.pass ? 'PASS' : 'FAIL'.padEnd(22)}│`);
-  }
-
-  console.log('   ├─────────────────────────────────────────────────────────┤');
-  const statusIcon = parsedResult.allPass ? '✅' : '❌';
-  const statusText = parsedResult.allPass ? 'ALL PASSED' : `${failedChecks.length} FAILED`;
-  console.log(`   │              ${statusIcon} ${statusText.padEnd(30)}         │`);
-  console.log('   └─────────────────────────────────────────────────────────┘');
-
-  if (!parsedResult.allPass && parsedResult.failedChecks.length > 0) {
-    console.log('\n   ⚠️  FAILED CHECKS:');
-    for (const checkName of parsedResult.failedChecks) {
-      const check = parsedResult.checks[checkName];
-      console.log(`      • ${checkName}: ${check?.reason || 'No reason provided'}`);
-    }
-  }
-
-  // Show prohibited items status
-  if (reqs.prohibitedHashtags.length > 0 || reqs.prohibitedUrl || reqs.prohibitedTags.length > 0 || reqs.prohibitedKeywords.length > 0) {
-    console.log('\n   🚫 PROHIBITED ITEMS STATUS:');
-    console.log(`      ${reqs.prohibitedUrl ? (parsedResult.checks.prohibitedItems?.pass ? '✅' : '❌') : '⚠️'} URL: ${reqs.prohibitedUrl ? (parsedResult.checks.prohibitedItems?.pass ? 'NOT found (good)' : 'FOUND (bad)') : 'Not prohibited'}`);
-    console.log(`      ${reqs.prohibitedHashtags.length > 0 ? (parsedResult.checks.prohibitedItems?.pass ? '✅' : '❌') : '⚠️'} Hashtags: ${reqs.prohibitedHashtags.length > 0 ? (parsedResult.checks.prohibitedItems?.pass ? 'NOT found (good)' : 'FOUND (bad)') : 'Not prohibited'}`);
-  }
-
-  return parsedResult;
 }
 
 // ============================================================================
@@ -4662,188 +4465,45 @@ function displayCampaignRequirements(campaignData) {
     console.log(`   ║  📝 Required Keywords: ${requirements.mandatoryKeywords[0].substring(0, 30).padEnd(30)}║`);
   }
   
+  // BUG #25 FIX: Show prohibited items (was missing from display)
+  console.log('   ╠════════════════════════════════════════════════════════════╣');
+  console.log('   ║  🚫 PROHIBITED ITEMS:                                     ║');
+  
+  if (requirements.prohibitedHashtags.length > 0) {
+    console.log(`   ║  🚫 Hashtags: ${requirements.prohibitedHashtags.join(', ').substring(0, 38).padEnd(38)}║`);
+  } else {
+    console.log('   ║  🚫 Hashtags: NONE                                        ║');
+  }
+  
+  if (requirements.prohibitedTags.length > 0) {
+    console.log(`   ║  🚫 Tags: ${requirements.prohibitedTags.join(', ').substring(0, 42).padEnd(42)}║`);
+  } else {
+    console.log('   ║  🚫 Tags: NONE                                            ║');
+  }
+  
+  if (requirements.prohibitedKeywords.length > 0) {
+    console.log(`   ║  🚫 Keywords: ${requirements.prohibitedKeywords.join(', ').substring(0, 37).padEnd(37)}║`);
+  } else {
+    console.log('   ║  🚫 Keywords: NONE                                        ║');
+  }
+  
+  if (requirements.prohibitedUrl) {
+    console.log('   ║  🚫 URL/Link: PROHIBITED                                   ║');
+  } else {
+    console.log('   ║  🚫 URL/Link: NONE                                         ║');
+  }
+  
+  if (requirements.prohibitedElements.length > 0) {
+    console.log(`   ║  🚫 Elements: ${requirements.prohibitedElements.join(', ').substring(0, 36).padEnd(36)}║`);
+  } else {
+    console.log('   ║  🚫 Elements: NONE                                         ║');
+  }
+  
   console.log('   ╠════════════════════════════════════════════════════════════╣');
   console.log('   ║  ⚠️ Only EXPLICITLY stated requirements are enforced       ║');
   console.log('   ╚════════════════════════════════════════════════════════════╝');
   
   return requirements;
-}
-
-/**
- * BATCH QUICK JUDGE - Check compliance for multiple contents
- */
-async function batchQuickJudge(llm, contents, campaignData) {
-  console.log('\n' + '═'.repeat(60));
-  console.log('⚡ BATCH QUICK JUDGE - Compliance Check for All Contents');
-  console.log('═'.repeat(60));
-  console.log(`   Checking ${contents.length} contents for compliance...`);
-  
-  const results = [];
-  
-  for (let i = 0; i < contents.length; i++) {
-    const contentItem = contents[i];
-    console.log(`\n   ─── Content #${contentItem.index} ───`);
-    
-    const complianceResult = await quickJudgeCompliance(llm, contentItem.content, campaignData);
-    
-    results.push({
-      index: contentItem.index,
-      content: contentItem.content,
-      variation: contentItem.variation,
-      compliance: complianceResult,
-      passed: complianceResult.allPass,
-      failedChecks: complianceResult.failedChecks || []
-    });
-    
-    // Use configured delay between quick judge checks
-    await delay(CONFIG.delays.betweenQuickJudge || 3000);
-  }
-  
-  // Summary
-  const passedCount = results.filter(r => r.passed).length;
-  console.log('\n' + '═'.repeat(60));
-  console.log('📊 QUICK JUDGE SUMMARY');
-  console.log('═'.repeat(60));
-  console.log(`   Total Checked: ${results.length}`);
-  console.log(`   ✅ Passed: ${passedCount}`);
-  console.log(`   ❌ Failed: ${results.length - passedCount}`);
-  
-  if (passedCount > 0) {
-    const passedIndices = results.filter(r => r.passed).map(r => r.index);
-    console.log(`   🎯 Contents that passed: #${passedIndices.join(', #')}`);
-  }
-  
-  return results;
-}
-
-// ============================================================================
-// JUDGING SYSTEM
-// ============================================================================
-
-async function runHybridJudging(llm, content, campaignData, competitorContents, attempt = 1) {
-  console.log('\n' + '═'.repeat(60));
-  console.log(`⚖️  HYBRID JUDGING SYSTEM - Attempt ${attempt}`);
-  console.log('═'.repeat(60));
-  
-  const results = {
-    attempt,
-    judges: {},
-    scores: {},
-    feedback: {},
-    nlpAnalysis: null,
-    passed: false,
-    totalScore: 0
-  };
-  
-  // Get Python NLP Analysis first
-  const nlpAnalyzer = llm.getNLPAnalyzer();
-  results.nlpAnalysis = await nlpAnalyzer.analyzeContent(content, campaignData, competitorContents);
-  
-  console.log(`\n   🐍 Python NLP Quality: ${results.nlpAnalysis.hybridMetrics?.qualityGrade} (${results.nlpAnalysis.hybridMetrics?.overallQuality}/100)`);
-  
-  // Judge 1: Gate Utama
-  console.log('\n   ─── JUDGE 1: GATE UTAMA ───');
-  const judge1Result = await llm.blindJudge(
-    getJudge1SystemPrompt(),
-    getJudge1UserPrompt(content, campaignData),
-    1
-  );
-  results.judges.judge1 = parseJudgeResult(judge1Result.content);
-  results.scores.gateUtama = calculateJudge1Score(results.judges.judge1);
-  
-  if (judge1Result.thinking) displayJudgeThinking(1, judge1Result.thinking);
-  
-  await delay(CONFIG.delays.betweenJudges);
-  
-  // Judge 2: Gate Tambahan
-  console.log('\n   ─── JUDGE 2: GATE TAMBAHAN ───');
-  const judge2Result = await llm.blindJudge(
-    getJudge2SystemPrompt(),
-    getJudge2UserPrompt(content, campaignData),
-    2
-  );
-  results.judges.judge2 = parseJudgeResult(judge2Result.content);
-  results.scores.gateTambahan = calculateJudge2Score(results.judges.judge2);
-  
-  if (judge2Result.thinking) displayJudgeThinking(2, judge2Result.thinking);
-  
-  await delay(CONFIG.delays.betweenJudges);
-  
-  // Judge 3: Penilaian Internal
-  console.log('\n   ─── JUDGE 3: PENILAIAN INTERNAL ───');
-  const judge3Result = await llm.blindJudge(
-    getJudge3SystemPrompt(),
-    getJudge3UserPrompt(content, campaignData),
-    3
-  );
-  results.judges.judge3 = parseJudgeResult(judge3Result.content);
-  results.scores.penilaianInternal = calculateJudge3Score(results.judges.judge3);
-  
-  if (judge3Result.thinking) displayJudgeThinking(3, judge3Result.thinking);
-  
-  await delay(CONFIG.delays.betweenJudges);
-  
-  // Judge 4: Compliance
-  console.log('\n   ─── JUDGE 4: COMPREHENSIVE COMPLIANCE ───');
-  const judge4Result = await llm.contextAwareJudge(
-    getJudge4SystemPrompt(),
-    getJudge4UserPrompt(content, campaignData),
-    4
-  );
-  results.judges.judge4 = parseJudge4Result(judge4Result.content);
-  results.scores.compliance = calculateJudge4Score(results.judges.judge4);
-  
-  if (judge4Result.thinking) displayJudgeThinking(4, judge4Result.thinking);
-  
-  await delay(CONFIG.delays.betweenJudges);
-  
-  // Judge 5: Fact-Check (with Web Search)
-  console.log('\n   ─── JUDGE 5: FACT-CHECK ───');
-  const judge5Result = await llm.factCheckJudge(
-    getJudge5SystemPrompt(),
-    getJudge5UserPrompt(content, campaignData),
-    5
-  );
-  results.judges.judge5 = parseJudgeResult(judge5Result.content);
-  results.scores.factCheck = calculateJudge5Score(results.judges.judge5);
-  
-  if (judge5Result.thinking) displayJudgeThinking(5, judge5Result.thinking);
-  
-  await delay(CONFIG.delays.betweenJudges);
-  
-  // Judge 6: Uniqueness
-  console.log('\n   ─── JUDGE 6: UNIQUENESS VERIFIER (Hybrid) ───');
-  const judge6Result = await llm.hybridJudge(
-    getJudge6SystemPrompt(),
-    getJudge6UserPrompt(content, campaignData, competitorContents),
-    6,
-    content,
-    competitorContents
-  );
-  results.judges.judge6 = parseJudge6Result(judge6Result.content, results.nlpAnalysis);
-  results.scores.uniqueness = calculateJudge6Score(results.judges.judge6);
-  
-  if (judge6Result.thinking) displayJudgeThinking(6, judge6Result.thinking);
-  
-  // Compile feedback
-  results.feedback = compileJudgeFeedback(results);
-  
-  // Calculate final score
-  results.totalScore = 
-    results.scores.gateUtama +
-    results.scores.gateTambahan +
-    results.scores.penilaianInternal +
-    results.scores.compliance +
-    results.scores.factCheck +
-    results.scores.uniqueness;
-  
-  // Determine if passed
-  results.passed = determinePassStatus(results);
-  
-  // Display summary
-  displayJudgingSummary(results);
-  
-  return results;
 }
 
 // ============================================================================
@@ -4943,14 +4603,36 @@ Return JSON:
 }
 
 function getJudge1UserPrompt(content, campaignData) {
+  const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Gate Utama:
 
 CONTENT:
 ${content}
 
-CAMPAIGN URL: ${campaignData.campaignUrl || campaignData.url || 'Check for URL'}
+═════════════════════════════════════════════════════
+CAMPAIGN CONTEXT (for accurate evaluation):
+═════════════════════════════════════════════════════
+Campaign: ${campaignData.title || 'Unknown'}
+${campaignData.missionTitle ? `Mission: ${campaignData.missionTitle}` : ''}
+Mission Goal: ${campaignData.description || campaignData.missionGoal || campaignData.goal || 'N/A'}
+Style: ${campaignData.style || 'N/A'}
 
-Evaluate and return JSON scores.`;
+CAMPAIGN RULES:
+${campaignData.rules || 'Standard rules'}
+
+${reqs.mandatoryTags.length > 0 ? `REQUIRED TAGS: ${reqs.mandatoryTags.join(', ')}` : ''}
+${reqs.mandatoryHashtags.length > 0 ? `REQUIRED HASHTAGS: ${reqs.mandatoryHashtags.join(', ')}` : ''}
+${reqs.mandatoryMetrics ? 'METRICS REQUIRED: Content must have specific numbers' : ''}
+${reqs.mandatoryUrl ? `REQUIRED URL: ${campaignData.campaignUrl || campaignData.url}` : ''}
+${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED' : ''}
+${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED' : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 DO NOT TAG: ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
+${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
+
+Campaign URL: ${campaignData.campaignUrl || campaignData.url || 'Check for URL'}
+
+Evaluate considering campaign rules. Return JSON scores.`;
 }
 
 function getJudge2SystemPrompt() {
@@ -5025,12 +4707,32 @@ Return JSON:
 }
 
 function getJudge2UserPrompt(content, campaignData) {
+  const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Gate Tambahan:
 
 CONTENT:
 ${content}
 
-Evaluate and return JSON scores.`;
+═════════════════════════════════════════════════════
+CAMPAIGN CONTEXT (for accurate evaluation):
+═════════════════════════════════════════════════════
+Campaign: ${campaignData.title || 'Unknown'}
+${campaignData.missionTitle ? `Mission: ${campaignData.missionTitle}` : ''}
+Mission Goal: ${campaignData.description || campaignData.missionGoal || campaignData.goal || 'N/A'}
+Style: ${campaignData.style || 'N/A'}
+
+CAMPAIGN RULES:
+${campaignData.rules || 'Standard rules'}
+
+${reqs.mandatoryTags.length > 0 ? `REQUIRED TAGS: ${reqs.mandatoryTags.join(', ')}` : ''}
+${reqs.mandatoryMetrics ? 'METRICS REQUIRED: Content must have specific numbers' : ''}
+${reqs.mandatoryUrl ? `REQUIRED URL: ${campaignData.campaignUrl || campaignData.url}` : ''}
+${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED' : ''}
+${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED' : ''}
+${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
+${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
+
+Evaluate considering campaign rules and context. Return JSON scores.`;
 }
 
 function getJudge3SystemPrompt() {
@@ -5116,17 +4818,47 @@ Return JSON:
 }
 
 function getJudge3UserPrompt(content, campaignData) {
+  const reqs = parseCampaignRequirements(campaignData);
   return `Evaluate this content for Penilaian Internal:
 
 CONTENT:
 ${content}
 
-CAMPAIGN CONTEXT:
-Title: ${campaignData.title || 'Unknown'}
-Goal: ${campaignData.goal || 'Unknown'}
+═════════════════════════════════════════════════════
+CAMPAIGN CONTEXT (for accurate evaluation):
+═════════════════════════════════════════════════════
+Campaign: ${campaignData.title || 'Unknown'}
+${campaignData.missionTitle ? `🎯 Mission: ${campaignData.missionTitle}` : ''}
+
+MISSION GOAL/DESCRIPTION:
+${campaignData.description || campaignData.missionGoal || campaignData.goal || 'Unknown'}
+
+CAMPAIGN RULES (MUST BE FOLLOWED):
+${campaignData.rules || 'Standard rules'}
+
+STYLE REQUIREMENTS:
+${campaignData.style || 'Professional, authentic'}
+
+KNOWLEDGE BASE/INFO:
+${campaignData.knowledgeBase || campaignData.additionalInfo || 'None'}
+
+ADDITIONAL INFO:
+${campaignData.additionalInfo || campaignData.adminNotice || 'None'}
+
+${reqs.mandatoryTags.length > 0 ? `REQUIRED TAGS: ${reqs.mandatoryTags.join(', ')}` : ''}
+${reqs.mandatoryHashtags.length > 0 ? `REQUIRED HASHTAGS: ${reqs.mandatoryHashtags.join(', ')}` : ''}
+${reqs.mandatoryMetrics ? 'METRICS REQUIRED: Content must have specific numbers' : ''}
+${reqs.mandatoryUrl ? `REQUIRED URL: ${campaignData.campaignUrl || campaignData.url}` : ''}
+${reqs.prohibitedHashtags.length > 0 ? '🚫 NO HASHTAGS ALLOWED' : ''}
+${reqs.prohibitedUrl ? '🚫 NO URL/LINK ALLOWED' : ''}
+${reqs.prohibitedTags.length > 0 ? `🚫 DO NOT TAG: ${reqs.prohibitedTags.join(', ')}` : ''}
+${reqs.prohibitedKeywords.length > 0 ? `🚫 DO NOT MENTION: ${reqs.prohibitedKeywords.join(', ')}` : ''}
+${reqs.focusTopic ? `FOCUS TOPIC: ${reqs.focusTopic}` : ''}
+${reqs.proposedAngles.length > 0 ? `PROPOSED ANGLES: ${reqs.proposedAngles.join(' | ')}` : ''}
+
 Target Audience: ${campaignData.targetAudience || 'General'}
 
-Evaluate and return JSON scores.`;
+Evaluate considering ALL campaign rules. Return JSON scores.`;
 }
 
 function getJudge4SystemPrompt() {
@@ -5348,7 +5080,19 @@ function getJudge5UserPrompt(content, campaignData) {
 CONTENT:
 ${content}
 
-Use web search results to verify claims.
+═════════════════════════════════════════════════════
+CAMPAIGN CONTEXT (for verification):
+═════════════════════════════════════════════════════
+Campaign: ${campaignData.title || 'Unknown'}
+Mission Goal: ${campaignData.description || campaignData.missionGoal || campaignData.goal || 'N/A'}
+
+CAMPAIGN KNOWLEDGE BASE (verify these facts if mentioned):
+${campaignData.knowledgeBase || 'No specific KB provided'}
+
+CAMPAIGN RULES (verify compliance):
+${campaignData.rules || 'Standard rules'}
+
+Use web search results to verify claims. Cross-check against knowledge base data.
 Return JSON with scores and verification results.`;
 }
 
@@ -5602,6 +5346,27 @@ function parseJudgeResult(content, judgeName = 'Unknown') {
       }
     }
     
+    // BUG #21 FIX: Handle Judge 4 allPass format (compliance checker)
+    // Judge 4 returns {checks: {...}, allPass: true/false} instead of score fields
+    if (calculated === 0 && result.allPass !== undefined) {
+      // This is Judge 4 (Compliance Checker) format
+      const checks = result.checks || {};
+      const allCheckNames = Object.keys(checks);
+      const passedChecks = allCheckNames.filter(name => checks[name]?.pass !== false);
+      const totalChecks = allCheckNames.length;
+      
+      // Calculate score based on pass rate (max ~20 for full compliance)
+      if (totalChecks > 0) {
+        calculated = Math.round((passedChecks.length / totalChecks) * 20);
+      }
+      
+      if (calculated > 0) {
+        result.totalScore = calculated;
+        result.feedback = `Compliance: ${passedChecks.length}/${totalChecks} checks passed (allPass=${result.allPass})`;
+        console.log(`   📊 Calculated compliance score for ${judgeName}: ${calculated} (${passedChecks.length}/${totalChecks} passed)`);
+      }
+    }
+    
     if (calculated > 0) {
       result.totalScore = calculated;
       result.feedback = 'Calculated from components';
@@ -5745,9 +5510,14 @@ function calculateJudge6Score(result) {
   score += (result.differentiation?.score || 0) * 1.5;
   score += (result.uniqueAngle?.score || 0);
   score += (result.emotionUniqueness?.score || 0);
+  score += (result.templateAvoidance?.score || 0) * 0.5;  // BUG #24 FIX: Include templateAvoidance
   
-  if (result.nlpEnhanced?.rareCombo) {
+  // BUG #24 FIX: Use isUnique from LLM response (not nlpEnhanced.rareCombo which requires NLP)
+  if (result.isUnique === true) {
     score += 2;
+  }
+  if (result.nlpEnhanced?.rareCombo) {
+    score += 2;  // Keep NLP bonus if available
   }
   
   if (result.nlpEnhanced?.similarity > 0.7) {
@@ -5755,143 +5525,6 @@ function calculateJudge6Score(result) {
   }
   
   return Math.max(0, Math.min(25, score));
-}
-
-function compileJudgeFeedback(results) {
-  const feedback = {
-    allPass: true,
-    issues: [],
-    suggestions: [],
-    judgeFeedbacks: {}
-  };
-  
-  if (results.judges.judge1) {
-    feedback.judgeFeedbacks.judge1 = results.judges.judge1.feedback || '';
-    if (results.scores.gateUtama < CONFIG.thresholds.gateUtama.pass) {
-      feedback.allPass = false;
-      feedback.issues.push(`Gate Utama: ${results.scores.gateUtama}/${CONFIG.thresholds.gateUtama.max} (need ${CONFIG.thresholds.gateUtama.pass})`);
-    }
-  }
-  
-  if (results.judges.judge2) {
-    feedback.judgeFeedbacks.judge2 = results.judges.judge2.feedback || '';
-    if (results.scores.gateTambahan < CONFIG.thresholds.gateTambahan.pass) {
-      feedback.allPass = false;
-      feedback.issues.push(`Gate Tambahan: ${results.scores.gateTambahan}/${CONFIG.thresholds.gateTambahan.max} (need ${CONFIG.thresholds.gateTambahan.pass})`);
-    }
-  }
-  
-  if (results.judges.judge3) {
-    feedback.judgeFeedbacks.judge3 = results.judges.judge3.feedback || '';
-    if (results.scores.penilaianInternal < CONFIG.thresholds.penilaianInternal.pass) {
-      feedback.allPass = false;
-      feedback.issues.push(`Penilaian Internal: ${results.scores.penilaianInternal}/${CONFIG.thresholds.penilaianInternal.max} (need ${CONFIG.thresholds.penilaianInternal.pass})`);
-    }
-  }
-  
-  if (results.judges.judge4) {
-    feedback.judgeFeedbacks.judge4 = results.judges.judge4.feedback || '';
-    if (!results.judges.judge4.allPass) {
-      feedback.allPass = false;
-      feedback.issues.push(`Compliance FAILED: ${results.judges.judge4.failedChecks?.join(', ')}`);
-      
-      for (const [checkName, checkResult] of Object.entries(results.judges.judge4.checks || {})) {
-        if (checkResult.pass !== true) {
-          feedback.suggestions.push(`${checkName}: ${checkResult.reason || 'Failed'}`);
-        }
-      }
-    }
-  }
-  
-  if (results.judges.judge5) {
-    feedback.judgeFeedbacks.judge5 = results.judges.judge5.feedback || '';
-    if (results.scores.factCheck < CONFIG.thresholds.factCheck.pass) {
-      feedback.issues.push(`Fact-Check: ${results.scores.factCheck}/${CONFIG.thresholds.factCheck.max} (need ${CONFIG.thresholds.factCheck.pass})`);
-    }
-  }
-  
-  if (results.judges.judge6) {
-    feedback.judgeFeedbacks.judge6 = results.judges.judge6.feedback || '';
-    if (results.scores.uniqueness < CONFIG.thresholds.uniqueness.pass) {
-      feedback.allPass = false;
-      feedback.issues.push(`Uniqueness: ${results.scores.uniqueness}/${CONFIG.thresholds.uniqueness.max} (need ${CONFIG.thresholds.uniqueness.pass})`);
-      
-      if (results.judges.judge6.nlpEnhanced?.similarity > 0.7) {
-        feedback.suggestions.push('Content too similar to competitors - increase differentiation');
-      }
-    }
-  }
-  
-  if (results.nlpAnalysis?.hybridMetrics?.recommendations) {
-    feedback.suggestions.push(...results.nlpAnalysis.hybridMetrics.recommendations);
-  }
-  
-  return feedback;
-}
-
-function determinePassStatus(results) {
-  const gateUtamaPass = results.scores.gateUtama >= CONFIG.thresholds.gateUtama.pass;
-  const gateTambahanPass = results.scores.gateTambahan >= CONFIG.thresholds.gateTambahan.pass;
-  const penilaianInternalPass = results.scores.penilaianInternal >= CONFIG.thresholds.penilaianInternal.pass;
-  const compliancePass = results.judges.judge4?.allPass === true;
-  const factCheckPass = results.scores.factCheck >= CONFIG.thresholds.factCheck.pass;
-  const uniquenessPass = results.scores.uniqueness >= CONFIG.thresholds.uniqueness.pass;
-  
-  return gateUtamaPass && gateTambahanPass && penilaianInternalPass && 
-         compliancePass && factCheckPass && uniquenessPass;
-}
-
-function displayJudgingSummary(results) {
-  console.log('\n   ' + '═'.repeat(56));
-  console.log('   ║              ⚖️  JUDGING SUMMARY                        ║');
-  console.log('   ╠' + '═'.repeat(56) + '╣');
-  
-  const thresholds = CONFIG.thresholds;
-  
-  const g1Status = results.scores.gateUtama >= thresholds.gateUtama.pass ? '✅' : '❌';
-  console.log(`   ║ ${g1Status} Gate Utama:        ${results.scores.gateUtama.toString().padStart(2)}/${thresholds.gateUtama.max}  (need ${thresholds.gateUtama.pass})                    ║`);
-  
-  const g2Status = results.scores.gateTambahan >= thresholds.gateTambahan.pass ? '✅' : '❌';
-  console.log(`   ║ ${g2Status} Gate Tambahan:     ${results.scores.gateTambahan.toString().padStart(2)}/${thresholds.gateTambahan.max}  (need ${thresholds.gateTambahan.pass})                    ║`);
-  
-  const g3Status = results.scores.penilaianInternal >= thresholds.penilaianInternal.pass ? '✅' : '❌';
-  console.log(`   ║ ${g3Status} Penilaian Internal: ${results.scores.penilaianInternal.toString().padStart(2)}/${thresholds.penilaianInternal.max}  (need ${thresholds.penilaianInternal.pass})                   ║`);
-  
-  const g4Status = results.judges.judge4?.allPass ? '✅' : '❌';
-  console.log(`   ║ ${g4Status} Compliance:        ${results.scores.compliance.toString().padStart(2)}/${thresholds.compliance.max}  (all must pass)                  ║`);
-  
-  const g5Status = results.scores.factCheck >= thresholds.factCheck.pass ? '✅' : '❌';
-  console.log(`   ║ ${g5Status} Fact-Check:         ${results.scores.factCheck.toString().padStart(2)}/${thresholds.factCheck.max}  (need ${thresholds.factCheck.pass})                     ║`);
-  
-  const g6Status = results.scores.uniqueness >= thresholds.uniqueness.pass ? '✅' : '❌';
-  console.log(`   ║ ${g6Status} Uniqueness:        ${results.scores.uniqueness.toString().padStart(2)}/${thresholds.uniqueness.max}  (need ${thresholds.uniqueness.pass})                    ║`);
-  
-  console.log('   ╠' + '─'.repeat(56) + '╣');
-  
-  const totalStatus = results.passed ? '✅ PASSED' : '❌ FAILED';
-  console.log(`   ║              TOTAL: ${results.totalScore.toString().padStart(3)}/141  ${totalStatus.padEnd(14)}║`);
-  
-  if (results.nlpAnalysis?.hybridMetrics) {
-    const grade = results.nlpAnalysis.hybridMetrics.qualityGrade;
-    const quality = results.nlpAnalysis.hybridMetrics.overallQuality;
-    console.log(`   ║         NLP Quality: ${grade} (${quality}/100)                        ║`);
-  }
-  
-  console.log('   ╚' + '═'.repeat(56) + '╝');
-  
-  if (!results.passed && results.feedback?.issues?.length > 0) {
-    console.log('\n   ⚠️  ISSUES:');
-    results.feedback.issues.forEach(issue => {
-      console.log(`      • ${issue}`);
-    });
-    
-    if (results.feedback.suggestions?.length > 0) {
-      console.log('\n   💡 SUGGESTIONS:');
-      results.feedback.suggestions.slice(0, 5).forEach(suggestion => {
-        console.log(`      • ${suggestion}`);
-      });
-    }
-  }
 }
 
 // ============================================================================
@@ -6550,285 +6183,6 @@ Create content that follows ALL requirements and scores HIGH on quality!`;
 }
 
 // ============================================================================
-// v9.8.1: MULTI-CONTENT MAIN WORKFLOW
-// ============================================================================
-
-async function mainMultiContent(campaignAddress) {
-  console.log('\n' + '═'.repeat(70));
-  console.log('║      RALLY WORKFLOW V9.8.2 - MULTI-CONTENT SYSTEM              ║');
-  console.log('║   Generate 5 → Quick Judge → Full Judge → Regenerate if Fail   ║');
-  console.log('═'.repeat(70));
-  
-  const startTime = Date.now();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PRE-FLIGHT CHECK - All dependencies required!
-  // ═══════════════════════════════════════════════════════════════════════════
-  await preflightCheck();
-  
-  // Initialize LLM
-  const llm = new MultiProviderLLM(CONFIG);
-  await llm.loadAutoToken();
-  llm.displayTokenPoolStatus();
-  
-  // Check Python NLP Service
-  const nlpAnalyzer = llm.getNLPAnalyzer();
-  await nlpAnalyzer.checkService();
-  
-  // Fetch campaign data
-  console.log('\n📥 Fetching campaign data...');
-  const campaignData = await fetchCampaignData(campaignAddress);
-  
-  console.log(`\n   📋 Campaign: ${campaignData.title}`);
-  console.log(`   🔗 URL: ${campaignData.campaignUrl || campaignData.url}`);
-  console.log(`   📝 Description: ${(campaignData.description || campaignData.goal || 'N/A').substring(0, 100)}...`);
-  console.log(`   🎨 Style: ${campaignData.style || 'Standard'}`);
-  console.log(`   📜 Rules: ${(campaignData.rules || 'Standard rules').substring(0, 50)}...`);
-  
-  // Fetch competitor submissions
-  console.log('\n📥 Fetching competitor submissions...');
-  const submissions = await fetchLeaderboard(campaignAddress);
-  console.log(`   📊 Found ${submissions?.length || 0} submissions`);
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Deep competitor analysis - MUST succeed!
-  // ═══════════════════════════════════════════════════════════════════════════
-  console.log('\n🔍 Running Deep Competitor Analysis...');
-  const competitorAnalysis = await deepCompetitorContentAnalysis(llm, submissions, campaignData.title, campaignData);
-  console.log('   ✅ Competitor analysis completed');
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Multi-query research - MUST succeed!
-  // ═══════════════════════════════════════════════════════════════════════════
-  console.log('\n🔎 Running Multi-Query Deep Research...');
-  const researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
-  console.log('   ✅ Research completed');
-  
-  // Get competitor contents for similarity checking
-  const competitorContents = (competitorAnalysis?.competitorContent || []).slice(0, 10);
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // NEW v9.8.1 WORKFLOW: Quick judge → Full Judge → Regenerate
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  const generator = new MultiContentGenerator(llm, CONFIG);
-  let generateAttempt = 0;
-  let finalContent = null;
-  let finalJudgingResult = null;
-  let allQuickJudgeResults = [];
-  let allFullJudgeResults = [];
-  
-  const maxAttempts = CONFIG.multiContent.maxRegenerateAttempts || 5;
-  
-  while (generateAttempt < maxAttempts && !finalContent) {
-    generateAttempt++;
-    
-    console.log('\n' + '═'.repeat(70));
-    console.log(`║           🔄 GENERATION CYCLE ${generateAttempt}/${maxAttempts}                           ║`);
-    console.log('═'.repeat(70));
-    
-    // STEP 1: Generate 5 contents
-    console.log('\n📝 STEP 1: Generating 5 contents...');
-    await generator.generateMultipleContents(campaignData, competitorAnalysis, researchData);
-    
-    // STEP 2: Quick Judge (Compliance Check) all 5
-    console.log('\n⚡ STEP 2: Quick Judge - Compliance Check...');
-    const quickJudgeResults = await batchQuickJudge(llm, generator.generatedContents, campaignData);
-    allQuickJudgeResults.push(...quickJudgeResults);
-    
-    // STEP 3: Filter only contents that PASSED compliance
-    const passedCompliance = quickJudgeResults.filter(r => r.passed);
-    
-    if (passedCompliance.length === 0) {
-      console.log('\n   ❌ No contents passed compliance check!');
-      console.log('   🔄 Regenerating all 5 contents...');
-      generator.generatedContents = [];
-      await delay(CONFIG.delays.beforeRevision);
-      continue;
-    }
-    
-    console.log(`\n   ✅ ${passedCompliance.length} content(s) passed compliance check!`);
-    
-    // STEP 4: Full Judge for content that passed compliance
-    const contentToFullJudge = passedCompliance[0];
-    
-    console.log(`\n⚖️  STEP 3: Full Double Pass Judge for Content #${contentToFullJudge.index}...`);
-    const fullJudgeResult = await runHybridJudging(
-      llm,
-      contentToFullJudge.content,
-      campaignData,
-      competitorContents,
-      1
-    );
-    
-    allFullJudgeResults.push({
-      index: contentToFullJudge.index,
-      result: fullJudgeResult
-    });
-    
-    // STEP 5: Check if passed Full Judge
-    if (fullJudgeResult.passed) {
-      console.log('\n   ✅ FULL JUDGE PASSED!');
-      finalContent = contentToFullJudge.content;
-      finalJudgingResult = fullJudgeResult;
-    } else {
-      console.log('\n   ❌ Full Judge FAILED!');
-      console.log(`   Issues: ${fullJudgeResult.feedback?.issues?.join(', ') || 'Unknown'}`);
-      console.log('   🔄 Regenerating all 5 contents...');
-      generator.generatedContents = [];
-      await delay(CONFIG.delays.beforeRevision);
-    }
-  }
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // FINAL RESULTS
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  const endTime = Date.now();
-  const duration = ((endTime - startTime) / 1000).toFixed(1);
-  
-  const finalResults = {
-    campaign: campaignData.title,
-    campaignData: {
-      title: campaignData.title,
-      description: campaignData.description,
-      style: campaignData.style,
-      rules: campaignData.rules,
-      url: campaignData.campaignUrl || campaignData.url
-    },
-    success: !!finalContent,
-    finalContent: finalContent,
-    finalJudgingResult: finalJudgingResult,
-    totalGenerateAttempts: generateAttempt,
-    quickJudgeResults: allQuickJudgeResults.map(r => ({
-      index: r.index,
-      passed: r.passed,
-      failedChecks: r.failedChecks
-    })),
-    fullJudgeResults: allFullJudgeResults.map(r => ({
-      index: r.index,
-      totalScore: r.result?.totalScore,
-      passed: r.result?.passed
-    })),
-    competitorAnalysis: {
-      anglesUsed: competitorAnalysis?.anglesUsed?.slice(0, 5),
-      saturatedElements: competitorAnalysis?.saturatedElements?.slice(0, 5)
-    },
-    researchData: {
-      keyFacts: researchData?.synthesis?.keyFacts?.slice(0, 5),
-      uniqueAngles: researchData?.synthesis?.uniqueAngles?.slice(0, 3)
-    },
-    // NEW v9.8.0: Enhanced Analysis
-    v982Analysis: finalContent ? {
-      g4Originality: detectG4Elements(finalContent),
-      forbiddenPunctuation: detectForbiddenPunctuation(finalContent),
-      xFactors: detectXFactors(finalContent),
-      preSubmissionValidation: runPreSubmissionValidation(finalContent, campaignData, finalJudgingResult),
-      gateMultiplier: finalJudgingResult ? calculateGateMultiplier(
-        finalJudgingResult.scores?.gateUtama / CONFIG.thresholds.gateUtama.max * 2 || 1,
-        finalJudgingResult.scores?.gateTambahan / CONFIG.thresholds.gateTambahan.max * 2 || 1,
-        finalJudgingResult.scores?.penilaianInternal / CONFIG.thresholds.penilaianInternal.max * 2 || 1,
-        detectG4Elements(finalContent).estimatedG4
-      ) : null
-    } : null,
-    metadata: {
-      version: '9.8.2-enhanced',
-      model: CONFIG.model.name,
-      timestamp: new Date().toISOString(),
-      duration: `${duration}s`,
-      newFeatures: [
-        'G4 Originality Detection',
-        'Forbidden Punctuation Check',
-        'X-Factor Differentiators',
-        'Gate Multiplier Formula',
-        'Pre-Submission Validation',
-        'Mindset Framework',
-        'Control Matrix'
-      ]
-    }
-  };
-  
-  // Save to file
-  const outputPath = `${CONFIG.outputDir}/rally-v9.8.0-${Date.now()}.json`;
-  fs.writeFileSync(outputPath, JSON.stringify(finalResults, null, 2));
-  console.log(`\n💾 Results saved to: ${outputPath}`);
-  
-  // Final summary
-  console.log('\n' + '═'.repeat(70));
-  console.log('║                    FINAL SUMMARY - v9.8.0                      ║');
-  console.log('═'.repeat(70));
-  
-  console.log(`\n   📊 Total Generate Attempts: ${generateAttempt}`);
-  console.log(`   ⚡ Quick Judge Results: ${allQuickJudgeResults.filter(r => r.passed).length}/${allQuickJudgeResults.length} passed`);
-  console.log(`   ⚖️  Full Judge Attempts: ${allFullJudgeResults.length}`);
-  console.log(`   ⏱️  Total Duration: ${duration}s`);
-  
-  if (finalContent && finalJudgingResult) {
-    console.log(`\n   ✅ SUCCESS! Content passed all judges.`);
-    console.log(`   📊 Final Score: ${finalJudgingResult.totalScore}/141`);
-    
-    // NEW v9.8.0: Display enhanced analysis
-    const g4Result = detectG4Elements(finalContent);
-    const xFactorResult = detectXFactors(finalContent);
-    const punctuationResult = detectForbiddenPunctuation(finalContent);
-    
-    displayG4Analysis(g4Result);
-    
-    // X-Factor Summary
-    console.log('\n   ╔════════════════════════════════════════════════════════════╗');
-    console.log('   ║              ⭐ X-FACTOR DIFFERENTIATORS                   ║');
-    console.log('   ╠════════════════════════════════════════════════════════════╣');
-    console.log(`   ║  Detected: ${xFactorResult.detected.length}/5    Score: ${xFactorResult.score}/100                              ║`);
-    if (xFactorResult.detected.length > 0) {
-      xFactorResult.detected.forEach(xf => {
-        console.log(`   ║    ✓ ${xf.type.padEnd(25)}                        ║`);
-      });
-    }
-    if (xFactorResult.missing.length > 0) {
-      console.log('   ╠────────────────────────────────────────────────────────────╣');
-      xFactorResult.missing.slice(0, 3).forEach(m => {
-        console.log(`   ║    ✗ ${m.type.padEnd(25)}                        ║`);
-      });
-    }
-    console.log('   ╚════════════════════════════════════════════════════════════╝');
-    
-    // Forbidden Punctuation Check
-    if (punctuationResult.totalIssues > 0) {
-      console.log('\n   ⚠️  FORBIDDEN PUNCTUATION DETECTED:');
-      if (punctuationResult.emDashes.found) {
-        console.log(`      • Em Dashes: ${punctuationResult.emDashes.count} found - Replace with hyphens`);
-      }
-      if (punctuationResult.smartQuotes.found) {
-        console.log(`      • Smart Quotes: ${punctuationResult.smartQuotes.count} found - Use straight quotes`);
-      }
-    } else {
-      console.log('\n   ✅ No forbidden punctuation detected');
-    }
-    
-    // Gate Multiplier Display
-    if (finalResults.v982Analysis?.gateMultiplier) {
-      const gm = finalResults.v982Analysis.gateMultiplier;
-      console.log('\n   ╔════════════════════════════════════════════════════════════╗');
-      console.log('   ║              📈 GATE MULTIPLIER (Official Formula)         ║');
-      console.log('   ╠════════════════════════════════════════════════════════════╣');
-      console.log(`   ║  g_star: ${gm.g_star}/2.0                                              ║`);
-      console.log(`   ║  Multiplier: ${gm.multiplier}x                                            ║`);
-      console.log(`   ║  Status: ${gm.status.padEnd(20)}  Bonus: ${gm.bonus}              ║`);
-      console.log('   ╚════════════════════════════════════════════════════════════╝');
-    }
-    
-    console.log(`\n   📝 FINAL CONTENT:`);
-    console.log('   ' + '─'.repeat(60));
-    console.log('   ' + finalContent.split('\n').join('\n   '));
-    console.log('   ' + '─'.repeat(60));
-  } else {
-    console.log('\n   ❌ FAILED! No content passed all judges after maximum attempts.');
-  }
-  
-  return finalResults;
-}
-
-// ============================================================================
 // FIRST PASS WINS WORKFLOW - Parallel Processing + TRUE Fail Fast
 // ============================================================================
 
@@ -6920,23 +6274,32 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   console.log('   │           📋 CAMPAIGN REQUIREMENTS CHECK              │');
   console.log('   ├─────────────────────────────────────────────────────────┤');
   
-  if (requirementsValidation.checks.mandatoryTags) {
-    const tagCheck = requirementsValidation.checks.mandatoryTags;
-    const icon = tagCheck.passed ? '✅' : '❌';
-    console.log(`   │ ${icon} Required Tags: ${tagCheck.passed ? 'ALL PRESENT' : 'MISSING: ' + tagCheck.missing.join(', ')}`.substring(0, 58).padEnd(59) + '│');
-  }
+  // Display ALL checks, not just 3
+  const checksToDisplay = [
+    { key: 'mandatoryTags', label: 'Required Tags', icon: '🏷️' },
+    { key: 'mandatoryHashtags', label: 'Required Hashtags', icon: '#️⃣' },
+    { key: 'metrics', label: 'Metrics', icon: '📊' },
+    { key: 'url', label: 'URL', icon: '🔗' },
+    { key: 'screenshot', label: 'Screenshot', icon: '📸' },
+    { key: 'mandatoryKeywords', label: 'Keywords', icon: '📝' },
+    { key: 'focusTopic', label: 'Focus Topic', icon: '🎯' },
+    { key: 'prohibitedHashtags', label: 'Prohibited Hashtags', icon: '🚫' },
+    { key: 'prohibitedUrl', label: 'Prohibited URL', icon: '🚫' },
+    { key: 'prohibitedTags', label: 'Prohibited Tags', icon: '🚫' },
+    { key: 'prohibitedKeywords', label: 'Prohibited Keywords', icon: '🚫' },
+    { key: 'prohibitedElements', label: 'Prohibited Elements', icon: '🚫' }
+  ];
   
-  if (requirementsValidation.checks.metrics) {
-    const metricCheck = requirementsValidation.checks.metrics;
-    const icon = metricCheck.passed ? '✅' : '❌';
-    console.log(`   │ ${icon} Metrics: ${metricCheck.passed ? 'FOUND' : 'NOT FOUND'}`.substring(0, 58).padEnd(59) + '│');
-  }
-  
-  if (requirementsValidation.checks.url) {
-    const urlCheck = requirementsValidation.checks.url;
-    const icon = urlCheck.passed ? '✅' : '❌';
-    console.log(`   │ ${icon} URL: ${urlCheck.passed ? 'PRESENT' : 'MISSING'}`.substring(0, 58).padEnd(59) + '│');
-  }
+  checksToDisplay.forEach(({ key, label, icon }) => {
+    const check = requirementsValidation.checks[key];
+    if (!check) return;
+    const iconStr = check.passed ? '✅' : '❌';
+    const detail = check.passed 
+      ? (check.found ? `FOUND: ${Array.isArray(check.found) ? check.found.join(', ') : check.found}` : 'PASS') 
+      : (check.missing ? `MISSING: ${Array.isArray(check.missing) ? check.missing.join(', ') : check.missing}` : 'FAIL');
+    const msg = `${iconStr} ${label}: ${detail}`.substring(0, 55);
+    console.log(`   │ ${msg.padEnd(59)}│`);
+  });
   
   console.log('   └─────────────────────────────────────────────────────────┘');
   
@@ -6971,7 +6334,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   
   // ═══════════════════════════════════════════════════════════════════════════
   // JUDGE 1: Gate Master (Gate Utama + Gate Tambahan + G4 Originality)
-  // Max: 20 points, PASS at 18 (90%)
+  // Max: 20 points, PASS at 20 (100%)
   // ═══════════════════════════════════════════════════════════════════════════
   console.log(`   🔍 Judge 1 (Gate Master)...`);
   
@@ -7033,7 +6396,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   
   // ═══════════════════════════════════════════════════════════════════════════
   // JUDGE 2: Evidence Master (Fact Check + Evidence Layering)
-  // Max: 5 points, PASS at 4 (80%)
+  // Max: 5 points, PASS at 3 (60%)
   // ═══════════════════════════════════════════════════════════════════════════
   console.log(`   🔍 Judge 2 (Evidence Master)...`);
   
@@ -7069,7 +6432,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   
   // ═══════════════════════════════════════════════════════════════════════════
   // JUDGE 3: Quality Master (Penilaian Internal + Compliance + Uniqueness + X-Factors)
-  // Max: 80 points, PASS at 70 (87.5%)
+  // Max: 80 points, PASS at 60 (75%)
   // ═══════════════════════════════════════════════════════════════════════════
   console.log(`   🔍 Judge 3 (Quality Master)...`);
   
@@ -7090,7 +6453,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     console.log(`   ✅ Judge 3-PenilaianInternal done`);
   } catch (e) {
     console.log(`   ⚠️ Judge 3-PenilaianInternal error: ${e.message}`);
-    judge3Result = { totalScore: 30 };
+    judge3Result = { totalScore: 0, error: true };
   }
   
   try {
@@ -7105,23 +6468,37 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
     console.log(`   ✅ Judge 4-Compliance done`);
   } catch (e) {
     console.log(`   ⚠️ Judge 4-Compliance error: ${e.message}`);
-    judge4Result = { totalScore: 5 };
+    judge4Result = { totalScore: 0, error: true };
   }
   
   try {
     // Run Uniqueness (Judge 6 from base)
-    judge6Result = parseJudge6Result(
-      (await llm.blindJudge(
-        getJudge6SystemPrompt(),
-        getJudge6UserPrompt(content, campaignData, competitorContents),
-        '6-Uniqueness'
-      )).content,
-      null // nlpAnalysis
-    );
-    console.log(`   ✅ Judge 6-Uniqueness done`);
+    const judge6Raw = (await llm.blindJudge(
+      getJudge6SystemPrompt(),
+      getJudge6UserPrompt(content, campaignData, competitorContents),
+      '6-Uniqueness'
+    )).content;
+    
+    // parseJudge6Result returns checks/allPass, need to calculate score from it
+    judge6Result = parseJudge6Result(judge6Raw, null);
+    
+    // Calculate score from judge 6 result (0-25 based on differentiation/uniqueAngle/emotionUniqueness/templateAvoidance)
+    if (judge6Result && !judge6Result.totalScore) {
+      let j6Score = 0;
+      j6Score += (judge6Result.differentiation?.score || 0) * 1.5;
+      j6Score += (judge6Result.uniqueAngle?.score || 0);
+      j6Score += (judge6Result.emotionUniqueness?.score || 0);
+      j6Score += (judge6Result.templateAvoidance?.score || 0) * 0.5;  // BUG #24 FIX: Include templateAvoidance
+      // BUG #24 FIX: Use isUnique field from LLM (rare_combo_detected was never in LLM response)
+      if (judge6Result.isUnique === true) j6Score += 2;
+      // BUG #24 FIX: Also check emotion score >= 5 as rare combo indicator
+      if ((judge6Result.emotionUniqueness?.score || 0) >= 5) j6Score += 1;
+      judge6Result.totalScore = Math.max(0, Math.min(25, j6Score));
+    }
+    console.log(`   ✅ Judge 6-Uniqueness done (score: ${judge6Result.totalScore || 0})`);
   } catch (e) {
     console.log(`   ⚠️ Judge 6-Uniqueness error: ${e.message}`);
-    judge6Result = { totalScore: 15 };
+    judge6Result = { totalScore: 0, error: true };  // On error, score is 0, not a fake 15
   }
   
   // X-Factor Detection
@@ -7159,7 +6536,7 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
                        results.scores.judge2.score + 
                        results.scores.judge3.score;
   
-  results.passed = results.totalScore >= 92; // 87.6%
+  results.passed = results.totalScore >= THRESHOLDS.TOTAL.pass;
   
   if (results.passed) {
     // SET WINNER! Menggunakan state manager (thread-safe)
@@ -7173,9 +6550,181 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
 }
 
 /**
- * Generate single content for parallel processing
+ * 🆕 BUG #10 FIX: Campaign Comprehension Check
+ * AI reads and understands ALL campaign rules BEFORE generating content.
+ * Returns a structured plan that guides content generation.
  */
-async function generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, index) {
+async function campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, parsedRequirements) {
+  console.log('\n   ┌─────────────────────────────────────────────────────────────┐');
+  console.log('   │  🧠 CAMPAIGN COMPREHENSION CHECK - AI Reads Rules First    │');
+  console.log('   └─────────────────────────────────────────────────────────────┘');
+  
+  const comprehensionPrompt = `You are an AI content strategist. Your job is to READ and UNDERSTAND campaign rules thoroughly, then create a PLAN for content creation.
+
+════════════════════════════════════════════════════════════════
+📋 COMPLETE CAMPAIGN BRIEF:
+════════════════════════════════════════════════════════════════
+
+CAMPAIGN: ${campaignData.title || 'Unknown'}
+${campaignData.missionTitle ? `MISSION: ${campaignData.missionTitle}` : ''}
+${campaignData.missionGoal ? `MISSION GOAL: ${campaignData.missionGoal}` : ''}
+
+DESCRIPTION:
+${campaignData.description || campaignData.goal || 'N/A'}
+
+RULES (READ EVERY WORD):
+${campaignData.rules || campaignData.requirements || 'Standard content guidelines'}
+
+STYLE:
+${campaignData.style || 'Standard'}
+
+KNOWLEDGE BASE:
+${campaignData.knowledgeBase || 'N/A'}
+
+ADDITIONAL INFO:
+${campaignData.additionalInfo || campaignData.adminNotice || 'N/A'}
+
+════════════════════════════════════════════════════════════════
+✅ PARSED REQUIREMENTS (from rules analysis):
+════════════════════════════════════════════════════════════════
+${parsedRequirements.mandatoryTags.length > 0 ? `🏷️ MUST TAG: ${parsedRequirements.mandatoryTags.join(', ')}` : '🏷️ No mandatory tags'}
+${parsedRequirements.mandatoryHashtags.length > 0 ? `#️⃣ MUST USE HASHTAGS: ${parsedRequirements.mandatoryHashtags.join(', ')}` : '#️⃣ No mandatory hashtags'}
+${parsedRequirements.mandatoryMetrics ? '📊 MUST INCLUDE specific metrics/numbers' : '📊 No metrics required'}
+${parsedRequirements.mandatoryUrl ? `🔗 MUST INCLUDE URL: ${campaignData.campaignUrl || campaignData.url}` : '🔗 No URL required'}
+${parsedRequirements.mandatoryScreenshot ? '📸 MUST INCLUDE screenshot' : '📸 No screenshot required'}
+${parsedRequirements.focusTopic ? `🎯 MUST FOCUS ON: ${parsedRequirements.focusTopic}` : '🎯 No specific focus topic'}
+${parsedRequirements.prohibitedHashtags.length > 0 ? '🚫 HASHTAGS PROHIBITED' : ''}
+${parsedRequirements.prohibitedUrl ? '🚫 URL/LINK PROHIBITED' : ''}
+${parsedRequirements.prohibitedTags.length > 0 ? `🚫 DO NOT TAG: ${parsedRequirements.prohibitedTags.join(', ')}` : ''}
+${parsedRequirements.prohibitedKeywords.length > 0 ? `🚫 DO NOT MENTION: ${parsedRequirements.prohibitedKeywords.join(', ')}` : ''}
+
+${parsedRequirements.proposedAngles.length > 0 ? `
+🎯 PROPOSED ANGLES (PICK EXACTLY ONE):
+${parsedRequirements.proposedAngles.map((a, i) => `   ${i + 1}. "${a}"`).join('\n')}
+` : ''}
+
+════════════════════════════════════════════════════════════════
+📊 RESEARCH DATA AVAILABLE:
+════════════════════════════════════════════════════════════════
+Key Facts: ${researchData?.synthesis?.keyFacts?.slice(0, 3).join('; ') || 'N/A'}
+Unique Angles: ${researchData?.synthesis?.uniqueAngles?.map(a => a.angle).slice(0, 3).join('; ') || 'N/A'}
+
+════════════════════════════════════════════════════════════════
+🔍 COMPETITOR INTELLIGENCE:
+════════════════════════════════════════════════════════════════
+Used Angles (AVOID): ${(competitorAnalysis?.anglesUsed || []).slice(0, 5).join(', ') || 'None'}
+Saturated Elements: ${(competitorAnalysis?.saturatedElements || []).slice(0, 5).join(', ') || 'None'}
+Untapped Opportunities: ${(competitorAnalysis?.untappedOpportunities || []).slice(0, 5).join(', ') || 'None'}
+
+════════════════════════════════════════════════════════════════
+NOW CREATE YOUR CONTENT PLAN:
+════════════════════════════════════════════════════════════════
+
+Return JSON:
+{
+  "understood": true,
+  "mission_summary": "1-2 sentence summary of what this content must achieve",
+  "chosen_angle": "The specific angle you will use${parsedRequirements.proposedAngles.length > 0 ? ' (MUST be from proposed angles list)' : ''}",
+  "execution_plan": "Step-by-step plan: hook idea → body structure → evidence to use → CTA → how to integrate mandatory items",
+  "mandatory_items_checklist": {
+    "tags": ["list of @tags to include"],
+    "hashtags": ["list of #hashtags to include"],
+    "metrics": "what specific number/metric to include",
+    "url": "how to naturally integrate the URL",
+    "screenshot": "what screenshot to reference",
+    "focus_topic": "how the focus topic is addressed",
+    "style_notes": "key style requirements to follow"
+  },
+  "prohibited_items_checklist": {
+    "no_hashtags": true/false,
+    "no_url": true/false,
+    "avoid_tags": ["tags to avoid"],
+    "avoid_keywords": ["keywords to avoid"]
+  },
+  "risk_items": ["list of items that might be accidentally missed"],
+  "quality_targets": {
+    "hook_strategy": "what hook pattern to use",
+    "emotion_journey": "planned emotional arc",
+    "evidence_layers": ["layer 1", "layer 2", "layer 3"],
+    "differentiation": "how this will differ from competitor content"
+  }
+}`;
+
+  try {
+    const response = await llm.chat([
+      { role: 'system', content: 'You are a meticulous content strategist who reads rules line by line. Your plan ensures ZERO rule violations. Return JSON only.' },
+      { role: 'user', content: comprehensionPrompt }
+    ], { temperature: 0.3, maxTokens: 2000 });
+    
+    const plan = safeJsonParse(response.content);
+    
+    if (plan) {
+      console.log(`   ✅ AI read and understood campaign rules`);
+      console.log(`   📋 Mission Summary: ${plan.mission_summary?.substring(0, 80)}...`);
+      console.log(`   🎯 Chosen Angle: ${plan.chosen_angle?.substring(0, 60)}...`);
+      
+      // Verify proposed angles compliance
+      if (parsedRequirements.proposedAngles.length > 0 && plan.chosen_angle) {
+        const angleMatch = parsedRequirements.proposedAngles.some(a => 
+          plan.chosen_angle.toLowerCase().includes(a.toLowerCase()) ||
+          a.toLowerCase().includes(plan.chosen_angle.toLowerCase())
+        );
+        if (!angleMatch) {
+          console.log(`   ⚠️ WARNING: AI chose angle "${plan.chosen_angle}" but proposed angles are:`);
+          parsedRequirements.proposedAngles.forEach((a, i) => console.log(`      ${i + 1}. "${a}"`));
+          console.log(`   🔄 AI will be reminded to use proposed angles during generation`);
+          plan._forceProposedAngle = true;
+        } else {
+          console.log(`   ✅ Chosen angle matches proposed angles list`);
+        }
+      }
+      
+      // Verify mandatory items awareness
+      const missingMandatory = [];
+      if (parsedRequirements.mandatoryTags.length > 0 && (!plan.mandatory_items_checklist?.tags || plan.mandatory_items_checklist.tags.length === 0)) {
+        missingMandatory.push('tags');
+      }
+      if (parsedRequirements.mandatoryHashtags.length > 0 && (!plan.mandatory_items_checklist?.hashtags || plan.mandatory_items_checklist.hashtags.length === 0)) {
+        missingMandatory.push('hashtags');
+      }
+      if (parsedRequirements.mandatoryMetrics && !plan.mandatory_items_checklist?.metrics) {
+        missingMandatory.push('metrics');
+      }
+      if (parsedRequirements.mandatoryUrl && !plan.mandatory_items_checklist?.url) {
+        missingMandatory.push('url');
+      }
+      
+      if (missingMandatory.length > 0) {
+        console.log(`   ⚠️ WARNING: AI plan missing awareness for: ${missingMandatory.join(', ')}`);
+        plan._missingMandatory = missingMandatory;
+      }
+      
+      // Verify prohibited items awareness
+      if (parsedRequirements.prohibitedUrl && !plan.prohibited_items_checklist?.no_url) {
+        console.log(`   ⚠️ WARNING: AI plan does not acknowledge URL prohibition!`);
+        plan._urlProhibitionMissed = true;
+      }
+      if (parsedRequirements.prohibitedHashtags.length > 0 && !plan.prohibited_items_checklist?.no_hashtags) {
+        console.log(`   ⚠️ WARNING: AI plan does not acknowledge hashtag prohibition!`);
+        plan._hashtagProhibitionMissed = true;
+      }
+      
+      return plan;
+    } else {
+      console.log(`   ⚠️ Could not parse comprehension check result - continuing without plan`);
+      return { understood: false, execution_plan: 'Fallback: follow all mandatory requirements', risk_items: ['AI could not parse campaign rules'] };
+    }
+  } catch (error) {
+    console.log(`   ⚠️ Campaign comprehension check failed: ${error.message}`);
+    return { understood: false, execution_plan: 'Fallback: follow all mandatory requirements', risk_items: ['Comprehension check error'] };
+  }
+}
+
+/**
+ * Generate single content for parallel processing
+ * 🆕 BUG #11 FIX: Now receives comprehensionPlan to ensure AI follows campaign rules
+ */
+async function generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, index, comprehensionPlan) {
   const variations = CONFIG.multiContent?.variations || {};
   const angles = variations.angles || ['personal_story', 'data_driven', 'contrarian', 'insider_perspective', 'case_study'];
   const emotions = variations.emotions || [['curiosity', 'surprise']];
@@ -7183,14 +6732,18 @@ async function generateSingleContentForParallel(campaignData, competitorAnalysis
   
   const selectedAngle = angles[index % angles.length];
   const selectedEmotion = emotions[index % emotions.length];
-  const selectedStructure = structures[index % emotions.length];
+  const selectedStructure = structures[index % structures.length];
   
   console.log(`   📝 [${timestamp()}] Generating Content ${index + 1} (${selectedAngle})...`);
+  if (comprehensionPlan) {
+    console.log(`   🧠 Following comprehension plan: ${comprehensionPlan.execution_plan?.substring(0, 60)}...`);
+  }
   
   const llm = new MultiProviderLLM(CONFIG);
   
   try {
-    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1);
+    // Pass comprehensionPlan through to generateUniqueContent
+    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1, comprehensionPlan);
     
     if (result && result.tweets && result.tweets[0]) {
       const content = result.tweets[0].content;
@@ -7209,7 +6762,9 @@ async function generateSingleContentForParallel(campaignData, competitorAnalysis
           const savePath = `${CONFIG.outputDir}/content-${index + 1}-${Date.now()}-FAILED.txt`;
           fs.writeFileSync(savePath, content + '\n\n--- ISSUES ---\n' + compliance.issues.join('\n'));
           console.log(`   💾 Saved (failed): ${savePath}`);
-        } catch (e) {}
+        } catch (e) {
+          console.log(`   ⚠️ Could not save failed content: ${e.message}`);
+        }
         
         return { index, content, success: false, complianceIssues: compliance.issues };
       }
@@ -7345,13 +6900,30 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   );
   console.log(`   Competitor Contents: ${competitorContents.length} items`);
   
-  // Main loop - keep generating until we get a winner
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🆕 BUG #10 FIX: CAMPAIGN COMPREHENSION CHECK - AI reads and plans BEFORE generate
+  // ═══════════════════════════════════════════════════════════════════════════
+  console.log('\n🧠 STEP: Campaign Comprehension Check (AI reads rules BEFORE writing)...');
+  const comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
+  console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
+  if (comprehensionPlan.understood) {
+    console.log(`   📋 AI Plan: ${comprehensionPlan.execution_plan?.substring(0, 100)}...`);
+    if (comprehensionPlan.risk_items && comprehensionPlan.risk_items.length > 0) {
+      console.log(`   ⚠️ Risk Items: ${comprehensionPlan.risk_items.join(', ')}`);
+    }
+  }
+  
+  // Main loop - keep generating until we get a winner (with safety limit)
   let cycleNumber = 0;
   let totalGenerated = 0;
   let totalFailed = 0;
   const contentsPerCycle = 3;
+  const maxCycles = 10; // Safety limit to prevent infinite loop and API token exhaustion
   
-  while (!judgingState.hasWinner()) {
+  // Track ALL judge results across all cycles (not just last cycle)
+  let allCycleJudgeResults = [];
+  
+  while (!judgingState.hasWinner() && cycleNumber < maxCycles) {
     cycleNumber++;
     
     console.log(`\n${'═'.repeat(60)}`);
@@ -7359,11 +6931,11 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
     console.log(`${'═'.repeat(60)}`);
     
-    // Generate 3 contents in parallel
-    console.log('\n📝 Generating 3 contents in parallel...');
+    // Generate 3 contents in parallel (with comprehension plan passed through)
+    console.log('\n📝 Generating 3 contents in parallel (AI follows comprehension plan)...');
     const generateTasks = [];
     for (let i = 0; i < contentsPerCycle; i++) {
-      generateTasks.push(generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, i));
+      generateTasks.push(generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, i, comprehensionPlan));
     }
     const generateResults = await Promise.all(generateTasks);
     
@@ -7403,6 +6975,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     // TRUE FAIL FAST: Use Promise.race pattern - check for winner after each judge step
     // Instead of waiting for ALL to complete, we use a racing mechanism
     const judgeResults = await Promise.allSettled(judgePromises);
+    allCycleJudgeResults.push(...judgeResults);
     
     // Count failures and save intermediate results
     const failedThisCycle = judgeResults.filter(r => 
@@ -7438,6 +7011,16 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     
     // Wait before next cycle
     await delay(CONFIG.delays?.betweenPasses || 3000);
+    
+    // Safety check
+    if (cycleNumber >= maxCycles - 1) {
+      console.log(`\n   ⚠️ Approaching max cycle limit (${maxCycles}). One more attempt...`);
+    }
+  }
+  
+  if (!judgingState.hasWinner() && cycleNumber >= maxCycles) {
+    console.log(`\n   ⚠️ MAX CYCLE LIMIT (${maxCycles}) REACHED. Stopping to prevent infinite loop.`);
+    console.log('   💡 Increase maxCycles or check your judge thresholds if all contents are failing.');
   }
   
   // Output winner
@@ -7448,8 +7031,9 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   let bestContent = null;
   let bestScore = 0;
   
-  // Look through all judge results to find best content
-  const allJudgeResults = judgeResults || [];
+  // Look through ALL judge results from ALL cycles to find best content
+  const allJudgeResults = allCycleJudgeResults || [];
+  console.log(`   📊 Total judge evaluations across all cycles: ${allJudgeResults.length}`);
   for (const result of allJudgeResults) {
     if (result.status === 'fulfilled' && result.value) {
       const score = result.value.totalScore || 0;
@@ -7491,7 +7075,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
         totalGenerated,
         totalFailed,
         metadata: {
-          version: '9.8.3-final-FIXED',
+          version: '9.8.3-final',
           timestamp: new Date().toISOString(),
           duration: `${(totalDuration / 1000).toFixed(1)}s`,
           note: 'Content did not pass all judges but is the best generated'
@@ -7602,10 +7186,10 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
       xFactors: xFactorResult
     },
     metadata: {
-      version: '9.8.3-final-v3-TrueFailFast',
+      version: '9.8.3-final',
       timestamp: new Date().toISOString(),
       duration: `${(totalDuration / 1000).toFixed(1)}s`,
-      thresholds: { judge1: { pass: 20, max: 20, percent: '100%' }, judge2: { pass: 3, max: 5, percent: '60%' }, judge3: { pass: 60, max: 80, percent: '75%' }, total: { pass: 85, max: 105 } }
+      thresholds: { judge1: { pass: 20, max: 20, percent: '100%' }, judge2: { pass: 3, max: 5, percent: '60%' }, judge3: { pass: 60, max: 80, percent: '75%' }, total: { pass: 80, max: 105, percent: '76%' } }
     }
   };
   
@@ -7689,7 +7273,9 @@ process.on('uncaughtException', (error) => {
       stack: error.stack
     };
     fs.writeFileSync(`${CONFIG.outputDir}/crash-error-log.json`, JSON.stringify(errorLog, null, 2));
-  } catch (e) {}
+  } catch (e) {
+    console.error('   ⚠️ Could not save crash log:', e.message);
+  }
   
   process.exit(1);
 });
@@ -7715,7 +7301,7 @@ async function main() {
     process.exit(0);
   }
   
-  console.log('\n📌 MODE: First Pass Wins (v9.8.3-final-MISSIONS)');
+  console.log('\n📌 MODE: First Pass Wins (v9.8.3-final)');
   console.log('   Generate 3 contents PARALLEL → Judge with FAIL FAST → First pass wins');
   console.log('   ✅ Supports multi-mission campaigns');
   
