@@ -3511,7 +3511,7 @@ ${(() => {
     });
     mandatorySection += '\n';
   }
-  
+
   if (reqs.mandatoryHashtags.length > 0) {
     mandatorySection += `#️⃣ REQUIRED HASHTAGS (YOU MUST INCLUDE THESE):\n`;
     reqs.mandatoryHashtags.forEach(tag => {
@@ -3519,13 +3519,31 @@ ${(() => {
     });
     mandatorySection += '\n';
   }
-  
+
   if (reqs.mandatoryMetrics) {
     mandatorySection += `📊 METRICS REQUIRED: YES - Include specific numbers/metrics!\n\n`;
   }
 
   if (reqs.focusTopic) {
     mandatorySection += `🎯 FOCUS TOPIC: ${reqs.focusTopic} - Content MUST be about this!\n\n`;
+  }
+
+  // 🎯 PROPOSED ANGLES - MUST PICK ONE!
+  if (reqs.proposedAngles.length > 0) {
+    mandatorySection += `\n`;
+    mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
+    mandatorySection += `🎯🎯🎯 PROPOSED ANGLES - YOU MUST PICK EXACTLY ONE! 🎯🎯🎯\n`;
+    mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
+    mandatorySection += `\n`;
+    mandatorySection += `⚠️ CRITICAL: You MUST choose ONE of these angles. Do NOT create your own angle!\n`;
+    mandatorySection += `⚠️ Your content will be REJECTED if you don't follow one of these angles exactly!\n\n`;
+    reqs.proposedAngles.forEach((angle, i) => {
+      mandatorySection += `   ANGLE ${i + 1}: "${angle}"\n`;
+    });
+    mandatorySection += `\n`;
+    mandatorySection += `→ Choose the angle that resonates most with your experience.\n`;
+    mandatorySection += `→ Your entire content must support this ONE angle.\n`;
+    mandatorySection += `→ State which angle you chose in your response.\n\n`;
   }
 
   // Only show URL requirement if MANDATORY (explicitly required in rules)
@@ -3542,7 +3560,7 @@ ${(() => {
 
   mandatorySection += `⚠️ YOUR CONTENT WILL BE REJECTED IF ANY OF THE ABOVE ARE MISSING!\n`;
   mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
-  
+
   return mandatorySection;
 })()}
 
@@ -3552,7 +3570,7 @@ ${(() => {
 ${campaignData.style || 'Professional, authentic'}
 
 ═══════════════════════════════════════════════════════════════════════════════
-⚠️ KNOWLEDGE BASE (USE THIS INFORMATION):
+⚠️ KNOWLEDGE BASE (USE AT LEAST 3-5 FACTS FROM HERE):
 ═══════════════════════════════════════════════════════════════════════════════
 ${campaignData.knowledgeBase || campaignData.additionalInfo || 'None provided'}
 
@@ -3959,6 +3977,7 @@ function parseCampaignRequirements(campaignData) {
     mandatoryScreenshot: false,// Does content need screenshot?
     focusTopic: null,          // What topic should content focus on?
     styleRequirements: [],     // Style requirements
+    proposedAngles: [],        // Proposed angles from campaign (MUST pick one)
 
     // ═══════════════════════════════════════════════════════════════════════════
     // PROHIBITED ITEMS (yang DILARANG/TIDAK BOLEH ADA)
@@ -4174,6 +4193,56 @@ function parseCampaignRequirements(campaignData) {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // 🎯 EXTRACT PROPOSED ANGLES from description
+  // ═══════════════════════════════════════════════════════════════════════════
+  const descriptionText = requirements.rawDescription + ' ' + (campaignData.description || '');
+
+  // Look for "Proposed angles:" or "Angles:" or numbered list of angles
+  const anglesMatch = descriptionText.match(/(?:proposed\s+angles?|angles?):?\s*([\s\S]*?)(?=\n\s*\n|Rules|Style|Additional|$)/i);
+  if (anglesMatch) {
+    const anglesText = anglesMatch[1];
+    // Extract bullet points or numbered items
+    const angleItems = anglesText.match(/[•\-\*]\s*([^\n•\-\*]+)/g) ||
+                       anglesText.match(/\d+[\.\)]\s*([^\n]+)/g);
+    if (angleItems) {
+      angleItems.forEach(item => {
+        const angle = item.replace(/^[•\-\*\d\.\)\s]+/, '').trim();
+        if (angle.length > 10) {
+          requirements.proposedAngles.push(angle);
+        }
+      });
+    }
+  }
+
+  // Also check for angles in a simple format (each line starting with - or number)
+  if (requirements.proposedAngles.length === 0) {
+    const lines = descriptionText.split('\n');
+    let inAnglesSection = false;
+    lines.forEach(line => {
+      if (/proposed\s+angles?|angles?:/i.test(line)) {
+        inAnglesSection = true;
+        return;
+      }
+      if (inAnglesSection && /^(?:[\-\*•]|\d+[\.\)])/i.test(line.trim())) {
+        const angle = line.replace(/^[\-\*•\d\.\)\s]+/, '').trim();
+        if (angle.length > 10) {
+          requirements.proposedAngles.push(angle);
+        }
+      }
+      if (inAnglesSection && /^(?:rules|style|additional)/i.test(line.trim())) {
+        inAnglesSection = false;
+      }
+    });
+  }
+
+  if (requirements.proposedAngles.length > 0) {
+    console.log(`   🎯 Proposed Angles Found:`);
+    requirements.proposedAngles.forEach((angle, i) => {
+      console.log(`      ${i + 1}. ${angle}`);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // LOG FINAL REQUIREMENTS SUMMARY
   // ═══════════════════════════════════════════════════════════════════════════
   console.log('\n   📋 REQUIREMENTS SUMMARY:');
@@ -4181,6 +4250,7 @@ function parseCampaignRequirements(campaignData) {
   console.log(`   ├─ ✅ Mandatory Hashtags: ${requirements.mandatoryHashtags.length > 0 ? requirements.mandatoryHashtags.join(', ') : 'None'}`);
   console.log(`   ├─ ✅ Mandatory Metrics: ${requirements.mandatoryMetrics ? 'Yes' : 'No'}`);
   console.log(`   ├─ ✅ Mandatory URL: ${requirements.mandatoryUrl ? 'Yes' : 'No'}`);
+  console.log(`   ├─ 🎯 Proposed Angles: ${requirements.proposedAngles.length > 0 ? requirements.proposedAngles.length + ' angles' : 'None'}`);
   console.log(`   ├─ 🚫 Prohibited Hashtags: ${requirements.prohibitedHashtags.length > 0 ? requirements.prohibitedHashtags.join(', ') : 'None'}`);
   console.log(`   ├─ 🚫 Prohibited URL: ${requirements.prohibitedUrl ? 'Yes' : 'No'}`);
   console.log(`   ├─ 🚫 Prohibited Tags: ${requirements.prohibitedTags.length > 0 ? requirements.prohibitedTags.join(', ') : 'None'}`);
