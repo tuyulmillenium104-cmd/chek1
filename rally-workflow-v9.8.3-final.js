@@ -4193,44 +4193,60 @@ function parseCampaignRequirements(campaignData) {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 🎯 EXTRACT PROPOSED ANGLES from description
+  // 🎯 EXTRACT PROPOSED ANGLES from description/rules
   // ═══════════════════════════════════════════════════════════════════════════
-  const descriptionText = requirements.rawDescription + ' ' + (campaignData.description || '');
+  const fullText = requirements.rawDescription + ' ' + requirements.rawRules + ' ' + (campaignData.description || '') + ' ' + (campaignData.rules || '');
 
-  // Look for "Proposed angles:" or "Angles:" or numbered list of angles
-  const anglesMatch = descriptionText.match(/(?:proposed\s+angles?|angles?):?\s*([\s\S]*?)(?=\n\s*\n|Rules|Style|Additional|$)/i);
-  if (anglesMatch) {
-    const anglesText = anglesMatch[1];
-    // Extract bullet points or numbered items
-    const angleItems = anglesText.match(/[•\-\*]\s*([^\n•\-\*]+)/g) ||
-                       anglesText.match(/\d+[\.\)]\s*([^\n]+)/g);
-    if (angleItems) {
-      angleItems.forEach(item => {
-        const angle = item.replace(/^[•\-\*\d\.\)\s]+/, '').trim();
-        if (angle.length > 10) {
+  // Method 1: Look for "Proposed angles:" followed by list items - find the SECTION
+  const proposedAnglesSection = fullText.split('\n').reduce((found, line, idx, arr) => {
+    if (found.found) return found;
+    if (/^Proposed\s+angles?:?\s*$/i.test(line.trim())) {
+      found.start = idx + 1;
+      found.found = true;
+    }
+    return found;
+  }, { found: false, start: -1 });
+
+  if (proposedAnglesSection.found && proposedAnglesSection.start >= 0) {
+    const lines = fullText.split('\n');
+    for (let i = proposedAnglesSection.start; i < lines.length; i++) {
+      const line = lines[i].trim();
+      // Stop at empty line or section header
+      if (line === '' || /^(Rules|Style|Description|Additional|Tag|Mention|Focus|Write|Highly|No |Original|Pick)/i.test(line)) {
+        break;
+      }
+      // Skip short lines and "Participants" lines (not angles)
+      if (line.length > 15 && !line.includes('Participants') && !line.includes('Telegram')) {
+        const angle = line.replace(/^[\-\*•\d\.\)\s]+/, '').trim();
+        if (angle.length > 15 && !requirements.proposedAngles.includes(angle)) {
           requirements.proposedAngles.push(angle);
         }
-      });
+      }
     }
   }
 
-  // Also check for angles in a simple format (each line starting with - or number)
+  // Method 2: Direct pattern match for known angle patterns
   if (requirements.proposedAngles.length === 0) {
-    const lines = descriptionText.split('\n');
-    let inAnglesSection = false;
+    // Look for lines matching typical angle patterns
+    const anglePatterns = [
+      /(?:TVL|volume|Twitter|social|expanding|market)\s+(?:continues?|increasing|buzz|while|steady)/i,
+      /(?:Grvt|Trading)\s+[A-Za-z\s]{15,80}/i
+    ];
+    
+    const lines = fullText.split('\n');
     lines.forEach(line => {
-      if (/proposed\s+angles?|angles?:/i.test(line)) {
-        inAnglesSection = true;
-        return;
-      }
-      if (inAnglesSection && /^(?:[\-\*•]|\d+[\.\)])/i.test(line.trim())) {
-        const angle = line.replace(/^[\-\*•\d\.\)\s]+/, '').trim();
-        if (angle.length > 10) {
-          requirements.proposedAngles.push(angle);
+      const trimmed = line.trim();
+      // Check if line matches angle pattern
+      if (trimmed.length > 20 && trimmed.length < 100) {
+        const cleanLine = trimmed.replace(/^[\-\*•\d\.\)\s]+/, '').trim();
+        // Check if it looks like an angle (starts with relevant words)
+        if (/^(?:Grvt|Trading|Strong|TVL)[A-Za-z\s]/i.test(cleanLine)) {
+          if (!requirements.proposedAngles.includes(cleanLine) && 
+              !cleanLine.includes('Participants') &&
+              !cleanLine.includes('Telegram')) {
+            requirements.proposedAngles.push(cleanLine);
+          }
         }
-      }
-      if (inAnglesSection && /^(?:rules|style|additional)/i.test(line.trim())) {
-        inAnglesSection = false;
       }
     });
   }
