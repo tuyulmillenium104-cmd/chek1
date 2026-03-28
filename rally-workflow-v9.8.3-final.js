@@ -6886,6 +6886,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   let totalGenerated = 0;
   let totalFailed = 0;
   const contentsPerCycle = 3;
+  let allJudgeResults = []; // Track all judge results across cycles
   
   while (!judgingState.hasWinner()) {
     cycleNumber++;
@@ -6940,6 +6941,9 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     // Instead of waiting for ALL to complete, we use a racing mechanism
     const judgeResults = await Promise.allSettled(judgePromises);
     
+    // Accumulate results for later use
+    allJudgeResults.push(...judgeResults);
+    
     // Count failures and save intermediate results
     const failedThisCycle = judgeResults.filter(r => 
       r.status === 'fulfilled' && !r.value.passed && !r.value.skipped
@@ -6985,7 +6989,6 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   let bestScore = 0;
   
   // Look through all judge results to find best content
-  const allJudgeResults = judgeResults || [];
   for (const result of allJudgeResults) {
     if (result.status === 'fulfilled' && result.value) {
       const score = result.value.totalScore || 0;
