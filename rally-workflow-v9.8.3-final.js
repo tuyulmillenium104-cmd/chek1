@@ -7157,6 +7157,28 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, winner.content);
   console.log(`💾 Winner content saved to: ${CONFIG.outputDir}/winner-content.txt`);
   
+  // Generate engagement comments
+  try {
+    const comments = await generateEngagementComments(llm, winner.content, campaignData);
+    const stats = saveEngagementComments(comments, winner.content, `${CONFIG.outputDir}/engagement-comments.json`);
+    
+    console.log('\n   ╔════════════════════════════════════════════════════════════╗');
+    console.log('   ║              💬 ENGAGEMENT COMMENTS GENERATED             ║');
+    console.log('   ╠════════════════════════════════════════════════════════════╣');
+    console.log(`   ║  Total Comments: ${stats.totalComments}                                       ║`);
+    console.log(`   ║  High Potential: ${stats.byPotential.high}  Medium: ${stats.byPotential.medium}                           ║`);
+    console.log('   ╚════════════════════════════════════════════════════════════╝');
+    
+    console.log('\n   📝 TOP 5 ENGAGEMENT COMMENTS:');
+    comments.slice(0, 5).forEach((c, i) => {
+      console.log(`   ${i + 1}. [${c.type}] ${c.text.substring(0, 60)}...`);
+    });
+    
+    console.log(`\n💾 Engagement comments saved to: ${CONFIG.outputDir}/engagement-comments.json`);
+  } catch (error) {
+    console.log(`   ⚠️ Could not generate engagement comments: ${error.message}`);
+  }
+  
   return {
     content: winner.content,
     score: winner.totalScore,
@@ -7169,6 +7191,149 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
       totalFailed
     }
   };
+}
+
+// ============================================================================
+// ENGAGEMENT COMMENTS GENERATOR - 20 High-Quality X Comments
+// ============================================================================
+
+async function generateEngagementComments(llm, content, campaignData) {
+  console.log('\n💬 Generating 20 engagement comments for X...');
+  
+  const systemPrompt = `You are an expert at creating engaging Twitter/X comments that drive interaction.
+
+Create 20 DIFFERENT comments/replies that someone could post to engage with this content. These should be:
+
+1. VARYING TYPES:
+   - Questions (genuine curiosity)
+   - Personal experiences (relatable stories)
+   - Contrarian takes (respectful disagreement)
+   - Additions (building on the topic)
+   - Appreciation (specific praise)
+   - Tagging friends (shareable moments)
+   - Follow-up insights (deeper knowledge)
+   - Humor/Wit (clever observations)
+   - Data requests (asking for sources)
+   - Comparisons (relating to other projects)
+
+2. AUTHENTIC VOICE:
+   - Sound like real crypto Twitter users
+   - Use natural slang (ngl, tbh, fr, wya)
+   - Keep it casual but intelligent
+   - Vary lengths (short punchy ones to thoughtful responses)
+
+3. ENGAGEMENT FOCUSED:
+   - Drive conversation
+   - Encourage replies
+   - Create shareable moments
+   - Build community feel
+
+4. NO SPAM/GENERIC COMMENTS:
+   - Avoid: "Great post!", "Thanks for sharing", "Bullish!"
+   - Be specific to the content
+   - Reference actual points from the tweet
+
+Return JSON array of 20 comments with this structure:
+{
+  "comments": [
+    {
+      "text": "the comment text",
+      "type": "question|experience|contrarian|addition|appreciation|tag|insight|humor|data|comparison",
+      "engagement_potential": "high|medium",
+      "best_time": "immediate|1hour|4hours|12hours"
+    }
+  ]
+}`;
+
+  const userPrompt = `Generate 20 engagement comments for this X/Twitter content:
+
+CONTENT:
+${content}
+
+CAMPAIGN CONTEXT:
+- Project: ${campaignData.title || 'Grvt'}
+- Topic: Growth metrics and momentum
+- Tag used: @grvt_io
+
+Generate comments that:
+1. Reference specific parts of the content
+2. Feel authentic to crypto Twitter culture
+3. Encourage further engagement
+4. Include a mix of all 10 types
+5. Have varying lengths and tones`;
+
+  try {
+    const response = await llm.chat([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ], { temperature: 0.8, maxTokens: 4000 });
+    
+    const result = safeJsonParse(response.content);
+    
+    if (result && result.comments && Array.isArray(result.comments)) {
+      console.log(`   ✅ Generated ${result.comments.length} engagement comments`);
+      return result.comments;
+    }
+    
+    // Fallback: try to extract from text
+    const lines = response.content.split('\n').filter(l => l.trim().length > 10);
+    return lines.slice(0, 20).map((text, i) => ({
+      text: text.replace(/^["\-\d.]+\s*/, '').replace(/"$/, ''),
+      type: ['question', 'experience', 'addition', 'insight'][i % 4],
+      engagement_potential: 'medium',
+      best_time: 'immediate'
+    }));
+  } catch (error) {
+    console.log(`   ⚠️ Error generating comments: ${error.message}`);
+    
+    // Provide fallback comments specific to Grvt content
+    return [
+      { text: "the unified balance feature is actually what got me interested too. most exchanges make you choose between trading and earning", type: "experience", engagement_potential: "high", best_time: "immediate" },
+      { text: "wait so the TVL is 100M+? that's actually insane for a relatively new DEX. what's the main trading pair?", type: "question", engagement_potential: "high", best_time: "immediate" },
+      { text: "lost 5 figures in 2022 myself. the trauma is real lol. glad you found something that actually works", type: "experience", engagement_potential: "high", best_time: "1hour" },
+      { text: "@grvt_io the zero downtime claim is wild. most CEXs can't even say that", type: "addition", engagement_potential: "medium", best_time: "immediate" },
+      { text: "ngl the 'fortress not casino' line hit different. that's exactly how I feel about self-custody", type: "appreciation", engagement_potential: "high", best_time: "immediate" },
+      { text: "question - how's the liquidity for larger trades? been burned by slippage on other DEXs", type: "question", engagement_potential: "high", best_time: "1hour" },
+      { text: "the $200B volume number is crazy. when did they hit that milestone?", type: "data", engagement_potential: "medium", best_time: "immediate" },
+      { text: "honestly the 11% yield feels too good. what's the catch? or is it actually sustainable?", type: "contrarian", engagement_potential: "high", best_time: "1hour" },
+      { text: "reminds me of when I finally understood what self-custody actually meant. game changer fr", type: "experience", engagement_potential: "medium", best_time: "4hours" },
+      { text: "tagging @friend who's been looking for a non-sketchy yield option. check this out", type: "tag", engagement_potential: "medium", best_time: "immediate" },
+      { text: "the chest tightening line... felt that. crypto PTSD is real 😅", type: "humor", engagement_potential: "high", best_time: "immediate" },
+      { text: "curious - what made you finally trust the metrics? I'm always skeptical of 'too good' numbers", type: "question", engagement_potential: "high", best_time: "1hour" },
+      { text: "compared to where we were in 2022, this kind of transparency is refreshing ngl", type: "comparison", engagement_potential: "medium", best_time: "4hours" },
+      { text: "been following @grvt_io for a while. the growth has been consistent which is rare in this space", type: "insight", engagement_potential: "medium", best_time: "immediate" },
+      { text: "that last question hits hard. why ARE we still accepting idle collateral?", type: "addition", engagement_potential: "high", best_time: "immediate" },
+      { text: "ok but how does the unified balance actually work technically? sounds interesting", type: "question", engagement_potential: "medium", best_time: "1hour" },
+      { text: "the 'fortress' metaphor is perfect. non-custodial + actual yield = the dream", type: "appreciation", engagement_potential: "medium", best_time: "immediate" },
+      { text: "wait $12k loss? I feel you on that. took me months to trust anything again", type: "experience", engagement_potential: "high", best_time: "1hour" },
+      { text: "this is the kind of content I actually want to see on CT. real experience + real metrics", type: "appreciation", engagement_potential: "medium", best_time: "immediate" },
+      { text: "anyone else notice how the tone completely changes when you actually DYOR? most don't bother smh", type: "insight", engagement_potential: "medium", best_time: "4hours" }
+    ];
+  }
+}
+
+function saveEngagementComments(comments, content, outputPath) {
+  const output = {
+    mainContent: content,
+    engagementComments: comments,
+    generatedAt: new Date().toISOString(),
+    stats: {
+      totalComments: comments.length,
+      byType: {},
+      byPotential: { high: 0, medium: 0 },
+      byTime: {}
+    }
+  };
+  
+  // Calculate stats
+  comments.forEach(c => {
+    output.stats.byType[c.type] = (output.stats.byType[c.type] || 0) + 1;
+    output.stats.byPotential[c.engagement_potential] = (output.stats.byPotential[c.engagement_potential] || 0) + 1;
+    output.stats.byTime[c.best_time] = (output.stats.byTime[c.best_time] || 0) + 1;
+  });
+  
+  fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+  return output.stats;
 }
 
 // ============================================================================
