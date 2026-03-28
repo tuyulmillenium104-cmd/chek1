@@ -3554,11 +3554,19 @@ ${campaignData.knowledgeBase || campaignData.additionalInfo || 'None provided'}
 ═══════════════════════════════════════════════════════════════════════════════
 ${campaignData.additionalInfo || campaignData.adminNotice || 'None provided'}
 
+${(() => {
+  // Only show URL requirement if explicitly required in rules
+  const reqs = parseCampaignRequirements(campaignData);
+  if (reqs.mandatoryUrl) {
+    return `
 ═══════════════════════════════════════════════════════════════════════════════
 ⚠️ REQUIRED URL (MUST BE IN YOUR CONTENT):
 ═══════════════════════════════════════════════════════════════════════════════
 ${campaignData.campaignUrl || campaignData.url || 'Campaign URL must be included'}
-
+`;
+  }
+  return ''; // URL not required - don't show anything
+})()}
 ═══════════════════════════════════════════════════════════════════════════════
 📊 RESEARCH DATA TO USE
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3593,10 +3601,16 @@ ${(competitorAnalysis?.untappedOpportunities || []).slice(0, 5).map(o => `✓ ${
 ═══════════════════════════════════════════════════════════════════════════════
 
 □ Did you include ALL required tags/mentions from rules?
-□ Did you include at least one specific metric/number?
+${(() => {
+  const reqs = parseCampaignRequirements(campaignData);
+  let checks = '';
+  if (reqs.mandatoryMetrics) checks += '□ Did you include at least one specific metric/number?\n';
+  if (reqs.mandatoryUrl) checks += '□ Did you include the required URL?\n';
+  if (reqs.mandatoryScreenshot) checks += '□ Did you include a screenshot?\n';
+  return checks;
+})()}
 □ Does your content align with the mission goal?
 □ Does your content follow the style requirements?
-□ Did you include the required URL?
 □ Is your hook natural (not a template)?
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -3609,11 +3623,16 @@ Remember:
 • Add physical body feeling
 • Layer your evidence (data + case + personal)
 • End with engaging CTA
-• Integrate URL naturally
 • FOLLOW ALL MISSION RULES EXACTLY
 • AVOID all forbidden words and phrases
 • Be AUTHENTIC - write like a real person, not a brand
-
+${(() => {
+  const reqs = parseCampaignRequirements(campaignData);
+  if (reqs.mandatoryUrl) {
+    return '• Integrate URL naturally\n';
+  }
+  return '';
+})()}
 Create content that makes readers STOP, FEEL, and ENGAGE.`;
 
   const response = await llm.chat([
