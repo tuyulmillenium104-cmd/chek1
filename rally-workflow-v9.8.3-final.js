@@ -5899,6 +5899,14 @@ class MultiContentGenerator {
     const narrativeStructure = this._selectStructure(variation.structure);
     const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title);
     const emotionCombo = { emotions: variation.emotions, hook: `${variation.emotions[0]} → ${variation.emotions[1]}` };
+    
+    // Parse campaign requirements FIRST so we can use it in systemPrompt
+    const reqs = parseCampaignRequirements(campaignData);
+
+    // Build URL requirement based on explicit rules
+    const urlRequirement = reqs.mandatoryUrl 
+      ? `- URL: MUST include ${campaignData.campaignUrl || campaignData.url || 'the campaign URL'}`
+      : '- URL: OPTIONAL - only include if naturally fits the narrative';
 
     const systemPrompt = `You are an expert content creator for Rally.fun. Create UNIQUE, engaging content.
 
@@ -5950,7 +5958,7 @@ CONTENT REQUIREMENTS:
 - Emotions: At least 3 different emotions
 - Body Feeling: Physical sensation the reader feels
 - CTA: Question or reply bait
-- URL: MUST include ${campaignData.campaignUrl || campaignData.url || 'the campaign URL'}
+${urlRequirement}
 - Facts: Multi-layer evidence with SPECIFIC NUMBERS
 - X-Factors: At least 3 differentiators (specific numbers, time, embarrassing honesty, insider detail)
 
@@ -5967,9 +5975,6 @@ Return JSON:
   }],
   "strategyUsed": { "angle": "...", "differentiationPoint": "..." }
 }`;
-
-    // Parse campaign requirements for mandatory elements
-    const reqs = parseCampaignRequirements(campaignData);
 
     const userPrompt = `═══════════════════════════════════════════════════════════════════════════════
 🚨🚨🚨 MANDATORY CAMPAIGN REQUIREMENTS - ALL ARE REQUIRED 🚨🚨🚨
