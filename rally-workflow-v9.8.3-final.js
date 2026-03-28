@@ -5968,39 +5968,89 @@ Return JSON:
   "strategyUsed": { "angle": "...", "differentiationPoint": "..." }
 }`;
 
-    const userPrompt = `Create 1 UNIQUE tweet for:
+    // Parse campaign requirements for mandatory elements
+    const reqs = parseCampaignRequirements(campaignData);
 
-CAMPAIGN: ${campaignData.title || 'Unknown'}
-GOAL: ${campaignData.goal || campaignData.description || 'Not provided'}
-KNOWLEDGE BASE: ${campaignData.knowledgeBase || 'Not provided'}
-URL: ${campaignData.campaignUrl || campaignData.url || 'Include campaign URL'}
+    const userPrompt = `═══════════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 MANDATORY CAMPAIGN REQUIREMENTS - ALL ARE REQUIRED 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════════
+
+CAMPAIGN: ${campaignData.title || 'Unknown Campaign'}
+${campaignData.missionTitle ? `🎯 MISSION: ${campaignData.missionTitle}` : ''}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ MISSION GOAL (YOUR CONTENT MUST ALIGN WITH THIS):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.description || campaignData.missionGoal || campaignData.goal || 'Not specified'}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ MISSION RULES (YOU MUST FOLLOW ALL OF THESE - NO EXCEPTIONS):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.rules || campaignData.requirements || 'Standard content guidelines'}
+
+🚨 CRITICAL: If rules say "Tag @username" → Your content MUST include "@username"
+🚨 CRITICAL: If rules say "Mention a metric" → Your content MUST have specific numbers
+🚨 CRITICAL: If rules say "Focus on X" → Your content MUST be about X
+${reqs.mandatoryTags.length > 0 ? `
+🔴 REQUIRED TAGS: ${reqs.mandatoryTags.join(', ')} - These MUST appear in your tweet!` : ''}
+${reqs.mandatoryHashtags.length > 0 ? `
+#️⃣ REQUIRED HASHTAGS: ${reqs.mandatoryHashtags.join(', ')} - These MUST appear!` : ''}
+${reqs.mandatoryMetrics ? `
+📊 METRICS REQUIRED: Include specific numbers/metrics!` : ''}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ STYLE REQUIREMENTS (MANDATORY):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.style || 'Professional, authentic'}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ KNOWLEDGE BASE (USE THIS INFORMATION):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.knowledgeBase || 'None provided'}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ ADDITIONAL INFO (MANDATORY):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.additionalInfo || campaignData.adminNotice || 'None provided'}
+${reqs.mandatoryUrl ? `
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ REQUIRED URL (MUST BE IN YOUR CONTENT):
+═══════════════════════════════════════════════════════════════════════════════
+${campaignData.campaignUrl || campaignData.url || 'Campaign URL must be included'}` : ''}
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 RESEARCH DATA TO USE
+═══════════════════════════════════════════════════════════════════════════════
+KEY FACTS:
+${researchData?.synthesis?.keyFacts?.slice(0, 5).map((f, i) => `${i + 1}. ${f}`).join('\n') || 'No specific facts available'}
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 COMPETITIVE DIFFERENTIATION
+═══════════════════════════════════════════════════════════════════════════════
+ANGLES TO AVOID: ${(competitorAnalysis?.anglesUsed || []).slice(0, 5).join(', ') || 'None'}
 
 VARIATION SETTINGS:
 - Angle: ${variation.angle}
 - Emotions: ${variation.emotions.join(' → ')}
 - Structure: ${variation.structure}
 
-RESEARCH DATA:
-${researchData?.synthesis?.keyFacts?.slice(0, 5).join('\n') || 'No research data'}
-
-COMPETITOR ANGLES TO AVOID:
-${(competitorAnalysis?.anglesUsed || []).slice(0, 5).join(', ') || 'None'}
-
 ═══════════════════════════════════════════════════════════════════════════════
-CHECKLIST BEFORE SUBMITTING:
+✅ MANDATORY CHECKLIST - YOUR CONTENT WILL BE REJECTED IF ANY FAIL:
 ═══════════════════════════════════════════════════════════════════════════════
 □ Opens with casual hook (ngl, tbh, honestly, fun story)?
-□ Has parenthetical aside (embarrassing to admit, just saying)?
 □ Uses 3+ contractions (don't, can't, I'm, won't)?
 □ Has personal angle (I, my, me)?
-□ Includes specific numbers (47%, $1.2M)?
-□ Has time specificity (25 minutes)?
-□ Shows embarrassing honesty?
+□ Includes specific numbers/metrics from Knowledge Base?
 □ NO em dashes (— or –)?
 □ NO smart quotes (" " ' ')?
 □ NO AI phrases (delve, leverage, realm)?
+${reqs.mandatoryTags.length > 0 ? `□ Includes ALL required tags: ${reqs.mandatoryTags.join(', ')}?` : ''}
+${reqs.mandatoryMetrics ? `□ Includes at least one specific metric/number?` : ''}
+□ Follows ALL mission rules exactly?
+□ Matches the required style?
+□ Uses information from Knowledge Base?
 
-Create content that scores HIGH on G4 Originality and X-Factors!`;
+Create content that follows ALL requirements and scores HIGH on quality!`;
 
     const response = await this.llm.chat([
       { role: 'system', content: systemPrompt },
