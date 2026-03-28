@@ -5401,20 +5401,35 @@ function validateMissionCompliance(content, campaignData) {
   if (missionGoal.includes('growth') || missionTitle.includes('growth')) {
     const growthKeywords = ['tvl', 'volume', 'growth', 'momentum', 'metrics', 'increasing', 'rising'];
     const hasGrowthFocus = growthKeywords.some(kw => contentLower.includes(kw));
-    
+
     if (!hasGrowthFocus) {
       issues.push('Mission requires "Growth & Metrics" focus but content doesn\'t address growth topics');
     } else {
       passed.push('Content addresses growth/metrics focus');
     }
   }
-  
-  // 4. CHECK URL
-  const requiredUrl = campaignData.campaignUrl || campaignData.url || '';
-  if (requiredUrl && !content.includes(requiredUrl)) {
-    issues.push(`Missing required URL: ${requiredUrl}`);
-  } else if (requiredUrl) {
-    passed.push('Required URL included');
+
+  // 4. CHECK URL - Only if MANDATORY
+  const reqs = parseCampaignRequirements(campaignData);
+  if (reqs.mandatoryUrl) {
+    const requiredUrl = campaignData.campaignUrl || campaignData.url || '';
+    if (requiredUrl && !content.includes(requiredUrl)) {
+      issues.push(`Missing required URL: ${requiredUrl}`);
+    } else if (requiredUrl) {
+      passed.push('Required URL included');
+    }
+  } else if (reqs.prohibitedUrl) {
+    // Check if URL is present when it should NOT be
+    const urlPatterns = [/https?:\/\/[^\s]+/gi, /rally\.fun/gi];
+    const hasUrl = urlPatterns.some(p => p.test(content));
+    if (hasUrl) {
+      issues.push('URL/link found but URL is PROHIBITED by campaign rules');
+    } else {
+      passed.push('No URL found (correct - URL not required)');
+    }
+  } else {
+    // URL is optional - just note it
+    passed.push('URL check skipped (not required)');
   }
   
   // 5. CHECK STYLE REQUIREMENTS
@@ -6101,9 +6116,20 @@ async function revisionLoop(llm, content, campaignData, competitorContents, atte
     console.log('   ❌ Max revision attempts reached');
     return null;
   }
-  
+
   await delay(CONFIG.delays.beforeRevision);
-  
+
+  // Check URL requirement for revision prompt
+  const revisionReqs = parseCampaignRequirements(campaignData);
+  let urlInstructionForRevision;
+  if (revisionReqs.mandatoryUrl) {
+    urlInstructionForRevision = '4. Keeps the URL included';
+  } else if (revisionReqs.prohibitedUrl) {
+    urlInstructionForRevision = '4. Do NOT include any URL or link';
+  } else {
+    urlInstructionForRevision = '4. Do NOT include URL unless naturally needed';
+  }
+
   const revisionPrompt = `REVISE this content based on judge feedback.
 
 ORIGINAL CONTENT:
@@ -6122,7 +6148,7 @@ Create REVISED content that:
 1. Addresses ALL failed checks
 2. Maintains the unique angle
 3. Improves weak areas
-4. Keeps the URL included
+${urlInstructionForRevision}
 
 Return JSON:
 {
