@@ -5904,9 +5904,10 @@ class MultiContentGenerator {
     const reqs = parseCampaignRequirements(campaignData);
 
     // Build URL requirement based on explicit rules
+    // If URL is NOT explicitly required by rules, tell AI NOT to include it
     const urlRequirement = reqs.mandatoryUrl 
       ? `- URL: MUST include ${campaignData.campaignUrl || campaignData.url || 'the campaign URL'}`
-      : '- URL: OPTIONAL - only include if naturally fits the narrative';
+      : `- URL: DO NOT include any campaign URL or link - it is NOT required by this mission`;
 
     const systemPrompt = `You are an expert content creator for Rally.fun. Create UNIQUE, engaging content.
 
