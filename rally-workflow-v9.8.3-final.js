@@ -3523,16 +3523,23 @@ ${(() => {
   if (reqs.mandatoryMetrics) {
     mandatorySection += `📊 METRICS REQUIRED: YES - Include specific numbers/metrics!\n\n`;
   }
-  
+
   if (reqs.focusTopic) {
     mandatorySection += `🎯 FOCUS TOPIC: ${reqs.focusTopic} - Content MUST be about this!\n\n`;
   }
-  
-  if (reqs.campaignUrl) {
+
+  // Only show URL requirement if MANDATORY (explicitly required in rules)
+  if (reqs.mandatoryUrl && reqs.campaignUrl) {
     mandatorySection += `🔗 REQUIRED URL: ${reqs.campaignUrl}\n`;
     mandatorySection += `   → This URL MUST appear in your tweet!\n\n`;
   }
-  
+
+  // Show prohibition notice if URL is NOT required
+  if (!reqs.mandatoryUrl) {
+    mandatorySection += `🚫 URL NOT REQUIRED: Do NOT include any URL or link!\n`;
+    mandatorySection += `   → Campaign rules do NOT require a URL\n\n`;
+  }
+
   mandatorySection += `⚠️ YOUR CONTENT WILL BE REJECTED IF ANY OF THE ABOVE ARE MISSING!\n`;
   mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
   
