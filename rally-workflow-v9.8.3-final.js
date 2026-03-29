@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * RALLY WORKFLOW V9.8.3-FINAL - ENHANCED WITH PDF INSIGHTS
+ * RALLY WORKFLOW V9.8.3-FINAL - ENHANCED WITH LEARNING SYSTEM
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * 🎯 ALUR BARU (Parallel Processing + First Pass Wins):
@@ -40,6 +40,15 @@
  * ✅ Campaign Type Adaptation (Metrics, Product, Community, DeFi, NFT)
  * ✅ Structured Output Format (Campaign Analysis + Self-Check)
  * 
+ * 🧠 LEARNING SYSTEM (v9.8.3-LEARN):
+ * ✅ Failure Analysis: Analyzes judge results after each cycle to find patterns
+ * ✅ Adaptive Prompting: Injects learning insights into next cycle's content generation
+ * ✅ Near-Miss Detection: Identifies content that almost passed and what to fix
+ * ✅ Deduplication: Avoids repeating same angles/approaches that failed
+ * ✅ Strategy Shifting: Changes strategy based on which judge keeps rejecting
+ * ✅ Persistent Learning Log: Saves insights for future sessions
+ * ✅ Content History: Tracks previous content to avoid repetition
+ *
  * BASED ON: v9.8.3-base.js + v9.9.2-stable.js (HTTP Direct)
  * 
  * Usage:
@@ -557,7 +566,7 @@ const CONFIG = {
   
   // v9.8.1: Increased delays to prevent rate limits
   delays: {
-    betweenJudges: 8000,        // 8 seconds between each judge (was 3s)
+    betweenJudges: 2000,        // 2 seconds between judges (optimized for checkpoint runs)
     betweenPasses: 10000,       // 10 seconds between passes
     beforeRevision: 8000,       // 8 seconds before revision
     beforeTieBreaker: 10000,    // 10 seconds before tie breaker
@@ -578,7 +587,14 @@ const CONFIG = {
     { id: 'newbie', name: 'The Newbie', trait: 'Fresh perspective, relatable confusion' },
     { id: 'contrarian', name: 'The Contrarian', trait: 'Bold statement, challenge status quo' },
     { id: 'researcher', name: 'The Researcher', trait: 'Data-driven discovery' },
-    { id: 'storyteller', name: 'The Storyteller', trait: 'Narrative-driven, human interest' }
+    { id: 'storyteller', name: 'The Storyteller', trait: 'Narrative-driven, human interest' },
+    { id: 'late_adopter', name: 'The Late Adopter', trait: 'Finally tried it after resisting, surprised' },
+    { id: 'burned_veteran', name: 'The Burned Veteran', trait: 'Been hurt before, cautiously optimistic' },
+    { id: 'accidental_discoverer', name: 'The Accidental Discoverer', trait: 'Stumbled on it randomly, now hooked' },
+    { id: 'frustrated_switcher', name: 'The Frustrated Switcher', trait: 'Switched from competitor, comparing' },
+    { id: 'curious_lurker', name: 'The Curious Lurker', trait: 'Watched from sidelines, finally participating' },
+    { id: 'technical_deep_dive', name: 'The Techie', trait: 'Obsessed with how things work under the hood' },
+    { id: 'risk_taker', name: 'The Risk Taker', trait: 'High risk tolerance, early adopter mentality' }
   ],
   
   narrativeStructures: [
@@ -592,13 +608,44 @@ const CONFIG = {
   ],
   
   audienceSegments: {
-    'internet_court': [
+    internet_court: [
       { id: 'scammed_crypto', name: 'Crypto Users Who Got Scammed', pain: 'Lost money, no recourse' },
       { id: 'freelancers', name: 'Freelancers with Unpaid Clients', pain: 'Client ghosted, no contract' },
       { id: 'dao_participants', name: 'DAO/Governance Participants', pain: 'Disputes in voting, unclear resolution' },
-      { id: 'ecommerce', name: 'E-commerce Dispute Victims', pain: 'Buyer/seller disputes, biased platforms' },
       { id: 'smart_contract_users', name: 'Smart Contract Users', pain: 'Bugs, hacks, unclear liability' }
-    ]
+    ],
+    defi_protocol: [
+      { id: 'yield_farmer', name: 'Yield Farmers Chasing APY', pain: 'Rug pulls, diminishing returns' },
+      { id: 'lp_victim', name: 'LPs Rekt by Impermanent Loss', pain: 'Thought earning, actually losing' },
+      { id: 'degen_trader', name: 'Degen Traders', pain: 'High gas, MEV, frontrunning' },
+      { id: 'stablecoin_user', name: 'Stablecoin Users', pain: 'Depeg events, bank runs' },
+    ],
+    metrics_momentum: [
+      { id: 'data_nerd', name: 'Onchain Data Analysts', pain: 'Numbers do not match narrative' },
+      { id: 'fomo_victim', name: 'FOMO Buyers', pain: 'Always buying the top' },
+      { id: 'early_user', name: 'Early Users of Everything', pain: 'Most projects die, some survive' },
+      { id: 'trend_watcher', name: 'Crypto Trend Watchers', pain: 'Signal vs noise' },
+    ],
+    product_launch: [
+      { id: 'beta_tester', name: 'Beta Testers', pain: 'Bugs, rough UX, but first access' },
+      { id: 'tool_switcher', name: 'People Looking for Better Tools', pain: 'Current tools suck' },
+      { id: 'feature_requester', name: 'Power Users', pain: 'Missing features that matter' },
+    ],
+    community_ecosystem: [
+      { id: 'community_builder', name: 'Community Builders', pain: 'Engagement is hard, retention harder' },
+      { id: 'airdrop_hunter', name: 'Airdrop Hunters', pain: 'Wasted time on low-value rewards' },
+      { id: 'governance_voter', name: 'Governance Voters', pain: 'Proposals vs actual implementation' },
+    ],
+    nft_gaming_social: [
+      { id: 'floor_watcher', name: 'Floor Price Monitors', pain: 'Buy high, watch floor collapse' },
+      { id: 'gamer_first', name: 'Gamers Who Found NFTs', pain: 'Terrible gameplay, just speculation' },
+      { id: 'social_user', name: 'Social Platform Users', pain: 'Privacy, data ownership' },
+    ],
+    general: [
+      { id: 'crypto_curious', name: 'Crypto Curious Normals', pain: 'Too confusing, too risky' },
+      { id: 'skeptical_friend', name: 'Skeptical Friend Group', pain: 'Friends keep shilling, unsure' },
+      { id: 'returning_user', name: 'Returning After Break', pain: 'Left during bear, considering return' },
+    ],
   },
   
   emotionCombos: {
@@ -607,12 +654,21 @@ const CONFIG = {
       { emotions: ['relief', 'curiosity'], hook: 'Finally, a solution you did not know' },
       { emotions: ['fear', 'empowerment'], hook: 'The threat is real, but so is hope' },
       { emotions: ['frustration', 'vindication'], hook: 'You were right to be mad' },
-      { emotions: ['confusion', 'clarity'], hook: 'The mystery solved' }
+      { emotions: ['confusion', 'clarity'], hook: 'The mystery solved' },
+      { emotions: ['schadenfreude', 'guilt'], hook: 'Dark humor about crypto pain' },
+      { emotions: ['nostalgia', 'dread'], hook: 'Remember when things were simpler?' },
+      { emotions: ['awe', 'suspicion'], hook: 'Impressed but something feels off' },
+      { emotions: ['jealousy', 'inspiration'], hook: 'Why not me? Actually, let me try' },
+      { emotions: ['embarrassment', 'pride'], hook: 'Hard to admit this but proud now' },
+      { emotions: ['disgust', 'hope'], hook: 'The current state is gross but there is a way' },
+      { emotions: ['boredom', 'excitement'], hook: 'Was not interested until THIS happened' },
     ],
     common: [
       { emotions: ['curiosity', 'hope'], hook: 'Standard curiosity driver' },
       { emotions: ['fear', 'urgency'], hook: 'Fear-based urgency' },
-      { emotions: ['pain', 'hope'], hook: 'Pain to hope journey' }
+      { emotions: ['pain', 'hope'], hook: 'Pain to hope journey' },
+      { emotions: ['surprise', 'delight'], hook: 'Unexpectedly good outcome' },
+      { emotions: ['skepticism', 'satisfaction'], hook: 'Doubted it but it works' },
     ]
   },
   
@@ -732,6 +788,7 @@ const CONFIG = {
         description: 'Uses sentence fragments for casual effect',
         weight: 0.15
       },
+      // sentenceFragments patterns checked in detectG4Elements
       personalAngle: {
         patterns: ['i ', 'my ', 'me ', 'sat there', 'watched', 'spent', 'went from'],
         description: 'Has personal story or angle',
@@ -1879,103 +1936,99 @@ function displayThinking(phase, thinking) {
 }
 
 // ============================================================================
-// SELECTION FUNCTIONS
+// SELECTION FUNCTIONS (v2 — Shuffle + Cycle Tracking)
 // ============================================================================
 
+// Cycle-level tracking — prevents reusing same params across cycles
+let _cycleUsed = { personas: new Set(), structures: new Set(), emotions: new Set(), audiences: new Set() };
+
+function resetCycleTracking() {
+  _cycleUsed = { personas: new Set(), structures: new Set(), emotions: new Set(), audiences: new Set() };
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function selectUnusedPersona(competitorAnalysis) {
-  const usedPersonas = competitorAnalysis?.personasUsed || [];
-  const availablePersonas = CONFIG.personas.filter(p => 
-    !usedPersonas.some(used => 
-      used.toLowerCase().includes(p.id.toLowerCase()) ||
-      used.toLowerCase().includes(p.name.toLowerCase())
-    )
+  const usedIds = new Set([
+    ...(competitorAnalysis?.personasUsed || []).map(u => u.toLowerCase()),
+    ..._cycleUsed.personas
+  ]);
+  const available = CONFIG.personas.filter(p =>
+    !usedIds.has(p.id.toLowerCase()) && !usedIds.has(p.name.toLowerCase())
   );
-  
-  if (availablePersonas.length === 0) {
-    return CONFIG.personas[Math.floor(Math.random() * CONFIG.personas.length)];
-  }
-  
-  const preferredOrder = ['contrarian', 'skeptic', 'insider', 'researcher', 'storyteller', 'victim_to_hero', 'newbie'];
-  for (const pref of preferredOrder) {
-    const found = availablePersonas.find(p => p.id === pref);
-    if (found) return found;
-  }
-  
-  return availablePersonas[0];
+  const pool = available.length > 0 ? available : CONFIG.personas;
+  const picked = shuffle(pool)[0];
+  _cycleUsed.personas.add(picked.id.toLowerCase());
+  return picked;
 }
 
 function selectUnusedNarrativeStructure(competitorAnalysis) {
-  const usedStructures = competitorAnalysis?.structuresUsed || [];
-  const availableStructures = CONFIG.narrativeStructures.filter(s => 
-    !usedStructures.some(used => 
-      used.toLowerCase().includes(s.id.toLowerCase()) ||
-      used.toLowerCase().includes(s.name.toLowerCase())
-    )
+  const usedIds = new Set([
+    ...(competitorAnalysis?.structuresUsed || []).map(u => u.toLowerCase()),
+    ..._cycleUsed.structures
+  ]);
+  const available = CONFIG.narrativeStructures.filter(s =>
+    !usedIds.has(s.id.toLowerCase()) && !usedIds.has(s.name.toLowerCase())
   );
-  
-  if (availableStructures.length === 0) {
-    return CONFIG.narrativeStructures[Math.floor(Math.random() * CONFIG.narrativeStructures.length)];
-  }
-  
-  const preferredOrder = ['mystery', 'contrast', 'case_study', 'qa', 'hero_journey', 'pas', 'bab'];
-  for (const pref of preferredOrder) {
-    const found = availableStructures.find(s => s.id === pref);
-    if (found) return found;
-  }
-  
-  return availableStructures[0];
+  const pool = available.length > 0 ? available : CONFIG.narrativeStructures;
+  const picked = shuffle(pool)[0];
+  _cycleUsed.structures.add(picked.id.toLowerCase());
+  return picked;
 }
 
 function selectUnaddressedAudience(competitorAnalysis, campaignTopic) {
+  // Determine category from campaign data
   const topicLower = (campaignTopic || '').toLowerCase();
-  let category = 'internet_court';
-  
-  const addressedAudiences = competitorAnalysis?.audienceAddressed || [];
-  const segments = CONFIG.audienceSegments[category] || [];
-  const availableSegments = segments.filter(s => 
-    !addressedAudiences.some(addr => 
-      addr.toLowerCase().includes(s.id.toLowerCase()) ||
-      addr.toLowerCase().includes(s.name.toLowerCase())
-    )
-  );
-  
-  if (availableSegments.length === 0) {
-    return segments[0] || { id: 'general', name: 'General Audience', pain: 'General interest' };
+  let category = 'general';
+  const allCats = Object.keys(CONFIG.audienceSegments);
+  for (const cat of allCats) {
+    if (topicLower.includes(cat.replace('_', ' ')) || topicLower.includes(cat)) {
+      category = cat;
+      break;
+    }
   }
-  
-  return availableSegments[0];
+
+  const segments = CONFIG.audienceSegments[category] || CONFIG.audienceSegments.general;
+  const addressedIds = new Set([
+    ...(competitorAnalysis?.audienceAddressed || []).map(a => a.toLowerCase()),
+    ..._cycleUsed.audiences
+  ]);
+  const available = segments.filter(s =>
+    !addressedIds.has(s.id.toLowerCase()) && !addressedIds.has(s.name.toLowerCase())
+  );
+  const pool = available.length > 0 ? available : segments;
+  const picked = shuffle(pool)[0];
+  _cycleUsed.audiences.add(picked.id.toLowerCase());
+  return picked;
 }
 
 function selectRareEmotionCombo(competitorAnalysis) {
-  const usedEmotions = (competitorAnalysis?.emotionsUsed || []).map(e => 
-    typeof e === 'object' ? e.emotion?.toLowerCase() : e.toLowerCase()
+  const usedEmotions = new Set([
+    ...(competitorAnalysis?.emotionsUsed || []).map(e =>
+      typeof e === 'object' ? e.emotion?.toLowerCase() : e.toLowerCase()
+    ),
+    ..._cycleUsed.emotions
+  ]);
+
+  // Try rare combos first
+  const allCombos = [...CONFIG.emotionCombos.rare, ...CONFIG.emotionCombos.common];
+  const available = allCombos.filter(combo =>
+    !combo.emotions.every(em => usedEmotions.has(em.toLowerCase()))
   );
-  
-  const rareCombos = CONFIG.emotionCombos.rare;
-  const commonCombos = CONFIG.emotionCombos.common;
-  
-  const availableRare = rareCombos.filter(combo => 
-    !combo.emotions.some(em => usedEmotions.includes(em.toLowerCase()))
-  );
-  
-  if (availableRare.length > 0) {
-    return { ...availableRare[0], rarityLevel: 'very rare' };
-  }
-  
-  const availableCommon = commonCombos.filter(combo =>
-    !combo.emotions.every(em => usedEmotions.includes(em.toLowerCase()))
-  );
-  
-  if (availableCommon.length > 0) {
-    return { ...availableCommon[0], rarityLevel: 'common' };
-  }
-  
-  return {
-    emotions: ['curiosity', 'surprise', 'hope'],
-    hook: 'Discovery-driven engagement',
-    rarityLevel: 'common'
-  };
+  const pool = available.length > 0 ? available : allCombos;
+  const picked = shuffle(pool)[0];
+  const isRare = CONFIG.emotionCombos.rare.some(r => r.emotions.join('+') === picked.emotions.join('+'));
+  _cycleUsed.emotions.add(picked.emotions.join('+').toLowerCase());
+  return { ...picked, rarityLevel: isRare ? 'very rare' : 'common' };
 }
+
 
 function extractKeywords(title) {
   const stopWords = ['the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'shall', 'can', 'need', 'dare', 'ought', 'used', 'to', 'of', 'in', 'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between', 'under', 'again', 'further', 'then', 'once'];
@@ -2075,8 +2128,17 @@ function detectG4Elements(content) {
     result.recommendations.push('Add conversational ending (tbh, worth checking, what do you think)');
   }
   
+  // Sentence fragments check (starts with casual conjunction)
+  const fragStarters = /^(just|but|and|so|cause|cuz|though|yet|or|well|look|ngl|tbh|nah|okay|wait|honestim)/im;
+  const frags = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const hasFragments = frags.some(s => fragStarters.test(s.trim()));
+  result.bonuses.sentenceFragments = hasFragments;
+  if (hasFragments) {
+    result.totalBonus += g4Checklist.bonuses.sentenceFragments.weight;
+  }
+
   // Check PENALTIES
-  
+
   // 1. Em Dashes
   const emDashCount = g4Checklist.penalties.emDashes.patterns.filter(p =>
     content.includes(p)
@@ -2529,7 +2591,7 @@ function detectCampaignType(campaignData) {
  * Build perspective by answering 5 Pre-Writing Questions
  * This is the Persona-First approach - build perspective BEFORE writing
  */
-async function buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis) {
+async function buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis, learningInsights = null) {
   console.log('\n   🧠 Building Pre-Writing Perspective (Persona-First + Rules-Aware)...');
   
   const campaignType = detectCampaignType(campaignData);
@@ -2593,6 +2655,10 @@ ${(competitorAnalysis?.anglesUsed || []).slice(0, 3).map(a => `• ${a}`).join('
 ANSWER THESE QUESTIONS (build your rules-aware perspective):
 ════════════════════════════════════════════════════════════════
 
+${learningInsights?.contentHistory?.length > 0 ? `
+⚠️ HOOKS YANG SUDAH GAGAL (JANGAN GUNAKAN!):
+${learningInsights.contentHistory.slice(-5).map(h => '• "' + h.opening + '" → skor ' + h.score + '/105 (' + h.failedAt + ')').join('\n')}
+` : ''}
 Q1: Apa SATU hal paling menarik dari project ini yang bikin kamu stop scrolling?
 → Bukan list fitur. SATU hal yang paling memorable.
 → Pastikan hal ini SESUAI dengan mission goal dan rules!
@@ -3155,17 +3221,439 @@ Return JSON:
 }
 
 // ============================================================================
+// 🧠 LEARNING SYSTEM - Failure Analysis + Adaptive Prompting
+// ============================================================================
+
+/**
+ * Analyzes all judge results from previous cycles to find failure patterns
+ * This is the BRAIN of the learning system - it turns raw judge data into actionable insights
+ */
+function analyzeFailures(allCycleJudgeResults, cycleNumber, previousContentHistory = []) {
+  const insights = {
+    totalFailed: 0,
+    cycleAnalyzed: cycleNumber,
+    failurePatterns: {},      // Which judge/stage fails most
+    specificIssues: [],       // Detailed reasons for failure
+    nearMiss: null,           // Content that almost passed
+    bestScore: 0,
+    bestFailedContent: null,
+    missingElements: [],      // What mandatory items keep being missed
+    strategyHints: [],        // Strategy adaptation suggestions
+    contentHistory: [...previousContentHistory], // Track all content for dedup
+    learnedAngles: [],        // Angles that were tried and failed
+    learnedEmotions: [],      // Emotions that failed to resonate
+  };
+
+  // Process each judge result
+  for (const result of allCycleJudgeResults) {
+    if (result.status !== 'fulfilled' || !result.value) continue;
+    const r = result.value;
+
+    // Skip if this content passed (winner)
+    if (r.passed && !r.failedAt) continue;
+
+    insights.totalFailed++;
+
+    // Track the content for deduplication
+    if (r.content) {
+      // Extract opening line (hook) for pattern tracking
+      const firstLine = r.content.split('\n')[0]?.trim().substring(0, 80) || '';
+      if (firstLine && !insights.contentHistory.some(h => h.opening === firstLine)) {
+        insights.contentHistory.push({
+          opening: firstLine,
+          score: r.totalScore || 0,
+          failedAt: r.failedAt || 'unknown',
+          cycle: r.cycleNumber || 0
+        });
+      }
+    }
+
+    // Track which stage/judge fails most
+    if (r.failedAt) {
+      insights.failurePatterns[r.failedAt] = (insights.failurePatterns[r.failedAt] || 0) + 1;
+    }
+
+    // Extract specific issues from scores
+    if (r.scores) {
+      // Judge 0 - Campaign Requirements: extract missing elements
+      if (r.scores.requirementsValidation && !r.scores.requirementsValidation.passed) {
+        const missing = r.scores.requirementsValidation.missingElements || [];
+        for (const m of missing) {
+          if (!insights.missingElements.some(me => me.includes(m.substring(0, 30)))) {
+            insights.missingElements.push(m);
+          }
+        }
+      }
+
+      // Judge 1 - Gate Master details
+      if (r.scores.judge1 && !r.scores.judge1.passed) {
+        const details = r.scores.judge1.details || {};
+        if (details.gateUtama < 8) {
+          insights.specificIssues.push('GATE UTAMA terlalu rendah - hook/body kurang memikat');
+        }
+        if (details.gateTambahan < 4) {
+          insights.specificIssues.push('GATE TAMBAHAN gagal - kurang elemen diferensiasi');
+        }
+        if (details.g4Score < 4) {
+          insights.specificIssues.push('G4 ORIGINALITY rendah - terlalu terstruktur seperti AI');
+        }
+        if (details.punctuationScore === 0) {
+          insights.specificIssues.push('FORBIDDEN PUNCTUATION terdeteksi - hindari em dash (—) dan smart quotes');
+        }
+        // Track G4 result details
+        if (r.scores.judge1.g4Result) {
+          const g4 = r.scores.judge1.g4Result;
+          if (!g4.hasCasualHook) insights.learnedEmotions.push('Hook terlalu formal');
+          if (!g4.hasParentheticalAside) insights.learnedEmotions.push('Tidak ada parenthetical aside');
+          if (!g4.hasContractions) insights.learnedEmotions.push('Tidak ada contractions (I\'m, can\'t, dll)');
+        }
+      }
+
+      // Judge 2 - Evidence Master
+      if (r.scores.judge2 && !r.scores.judge2.passed) {
+        insights.specificIssues.push('EVIDENCE/FACT CHECK gagal - kurang bukti atau data tidak akurat');
+      }
+
+      // Judge 3 - Quality Master
+      if (r.scores.judge3 && !r.scores.judge3.passed) {
+        const score = r.scores.judge3.score || 0;
+        if (score < 40) {
+          insights.specificIssues.push('QUALITY sangat rendah (<40/80) - konten kurang personal dan engaging');
+        } else if (score < 55) {
+          insights.specificIssues.push('QUALITY mendekati tapi kurang (<55/80) - perlu lebih authenticity');
+        }
+      }
+    }
+
+    // Track near-miss (highest scoring failed content)
+    const totalScore = r.totalScore || 0;
+    if (totalScore > insights.bestScore) {
+      insights.bestScore = totalScore;
+      insights.bestFailedContent = {
+        content: r.content?.substring(0, 500),
+        score: totalScore,
+        failedAt: r.failedAt,
+        cycle: r.cycleNumber,
+        scores: r.scores
+      };
+    }
+  }
+
+  // Build near-miss analysis
+  if (insights.bestScore > 60) {
+    insights.nearMiss = {
+      score: insights.bestScore,
+      failedAt: insights.bestFailedContent?.failedAt,
+      whatToFix: generateFixSuggestion(insights.bestFailedContent),
+      contentPreview: insights.bestFailedContent?.content?.substring(0, 300)
+    };
+  }
+
+  // Generate strategy hints based on patterns
+  insights.strategyHints = generateStrategyHints(insights);
+
+  return insights;
+}
+
+/**
+ * Generates specific fix suggestions based on where near-miss content failed
+ */
+function generateFixSuggestion(bestFailed) {
+  if (!bestFailed) return 'Generate completely different approach';
+  
+  const failedAt = bestFailed.failedAt;
+  const fixes = {
+    'Judge 0 - Campaign Requirements': 'PERBAIKI: Pastikan SEMUA mandatory items ada (tags, hashtags, URL, metrics). Cek rules satu per satu sebelum submit.',
+    'Metric Type Check': 'PERBAIKI: Kamu menggunakan metrik yang salah! Cek DEEP CAMPAIGN INTENT untuk tahu metrik yang BENAR.',
+    'Format Check - Wall of Text': 'PERBAIKI: Gunakan \\n\\n (double newline) antar paragraf! Setiap paragraf max 1-2 kalimat.',
+    'judge1': (() => {
+      const d = bestFailed.scores?.judge1?.details || {};
+      if (d.g4Score < 4) return 'PERBAIKI: Tulis lebih casual! Gunakan parenthetical (like this), contractions (I\'m, can\'t), hook yang natural.';
+      if (d.punctuationScore === 0) return 'PERBAIKI: Jangan gunakan em dash (—) atau smart quotes (""). Gunakan regular dash (-) dan straight quotes (").';
+      if (d.gateUtama < 8) return 'PERBAIKI: Hook dan body perlu lebih memikat. Gunakan specific moment, bukan general statement.';
+      return 'PERBAIKI: Tingkatkan Gate score overall. Fokus pada authenticity dan G4 elements.';
+    })(),
+    'judge2': 'PERBAIKI: Tambah bukti! Gunakan specific numbers, case study, atau personal experience sebagai evidence.',
+    'judge3': 'PERBAIKI: Quality score kurang. Perlu lebih personal, lebih emotional depth, lebih unique angle.',
+    'timeout': 'PERBAIKI: Konten sebelumnya timeout saat judging. Coba buat konten yang lebih ringkas.',
+    'error': 'PERBAIKI: Error saat judging. Coba pendekatan yang berbeda.',
+  };
+  
+  return fixes[failedAt] || `PERBAIKI: Gagal di "${failedAt}". Coba pendekatan yang berbeda.`;
+}
+
+/**
+ * Generates strategy adaptation hints based on failure patterns
+ */
+function generateStrategyHints(insights) {
+  const hints = [];
+  const patterns = insights.failurePatterns;
+
+  // If most failures are at Judge 0 (Requirements)
+  const reqFailures = (patterns['Judge 0 - Campaign Requirements'] || 0);
+  if (reqFailures >= 2) {
+    hints.push('⚠️ STRATEGY: ' + reqFailures + 'x gagal di Requirements! FOKUS PRIORITAS: Pastikan SETIAP mandatory item ADA di konten sebelum menulis. Buat checklist dulu.');
+  }
+
+  // If failing at Metric Type
+  if (patterns['Metric Type Check'] >= 1) {
+    hints.push('⚠️ STRATEGY: Gagal Metric Type Check! Kamu menggunakan metrik yang SALAH untuk campaign ini. HANYA gunakan metrik yang sesuai dengan campaign intent.');
+  }
+
+  // If failing at Format
+  if (patterns['Format Check - Wall of Text'] >= 1) {
+    hints.push('⚠️ STRATEGY: Gagal format! SELALU gunakan \\n\\n antar paragraf. Setiap paragraf max 2 kalimat. Ini BUKAN opsional.');
+  }
+
+  // If failing at Judge 1 (Gate Master)
+  if ((patterns['judge1'] || 0) >= 2) {
+    hints.push('⚠️ STRATEGY: ' + (patterns['judge1'] || 0) + 'x gagal di Gate Master! Perubahan RADIKAL dibutuhkan: tulis seperti chat ke teman, bukan seperti artikel. Gunakan casual hook, parenthetical aside, contractions.');
+  }
+
+  // If failing at Judge 2 (Evidence)
+  if ((patterns['judge2'] || 0) >= 2) {
+    hints.push('⚠️ STRATEGY: ' + (patterns['judge2'] || 0) + 'x gagal di Evidence Master! Kamu perlu LEBIH BANYAK bukti. Tambah specific numbers, real cases, atau personal testimony.');
+  }
+
+  // If failing at Judge 3 (Quality)
+  if ((patterns['judge3'] || 0) >= 2) {
+    hints.push('⚠️ STRATEGY: ' + (patterns['judge3'] || 0) + 'x gagal di Quality Master! Konten masih terlalu "AI-like". Perlu lebih authenticity, vulnerability, dan unique perspective.');
+  }
+
+  // If near-miss exists
+  if (insights.nearMiss) {
+    hints.push('💡 HOPE: Ada konten skor ' + insights.nearMiss.score + '/105 yang HAMPIR lolos! Hanya perlu perbaiki: ' + insights.nearMiss.failedAt);
+  }
+
+  // If too many failures overall - suggest radical change
+  if (insights.totalFailed >= 6) {
+    hints.push('🔄 RADICAL CHANGE: Sudah ' + insights.totalFailed + ' konten gagal. UBAH pendekatan DRASTIS - persona berbeda, angle berbeda, gaya bahasa berbeda.');
+  }
+
+  return hints;
+}
+
+/**
+ * Builds the learning section string that gets injected into the content generation prompt
+ * This is what the AI actually reads when generating new content
+ */
+function buildLearningSection(insights) {
+  if (!insights || insights.totalFailed === 0) return '';
+
+  let section = '';
+  
+  // Header
+  section += `═══════════════════════════════════════════════════════════════════════════════\n`;
+  section += `🧠🧠🧠 LEARNING FROM PREVIOUS ATTEMPTS (BACA INI DENGAN SEKSAMA!) 🧠🧠🧠\n`;
+  section += `═══════════════════════════════════════════════════════════════════════════════\n\n`;
+  section += `${insights.totalFailed} konten sudah DICOBAKAN sebelumnya dan SEMUA GAGAL.\n\n`;
+
+  // Failure Pattern Analysis
+  if (Object.keys(insights.failurePatterns).length > 0) {
+    section += `📊 PATTERN KEGAGALAN (apa yang sering salah):\n`;
+    section += `─────────────────────────────────────\n`;
+    const sorted = Object.entries(insights.failurePatterns).sort((a, b) => b[1] - a[1]);
+    for (const [stage, count] of sorted) {
+      const icon = count >= 3 ? '🔴' : count >= 2 ? '🟡' : '🟠';
+      section += `${icon} ${stage}: GAGAL ${count} kali\n`;
+    }
+    section += '\n';
+  }
+
+  // Missing mandatory elements
+  if (insights.missingElements.length > 0) {
+    section += `🚨 MANDATORY ITEMS YANG SERING TERLEWAT:\n`;
+    section += `─────────────────────────────────────\n`;
+    for (const m of insights.missingElements) {
+      section += `❌ ${m}\n`;
+    }
+    section += `\n⚠️ KAMU HARUS MEMASUKKAN SEMUA ITEM DI ATAS!\n\n`;
+  }
+
+  // Specific issues from judges
+  if (insights.specificIssues.length > 0) {
+    section += `📋 FEEDBACK DARI JUDGE (apa yang salah dengan konten sebelumnya):\n`;
+    section += `─────────────────────────────────────\n`;
+    // Deduplicate
+    const unique = [...new Set(insights.specificIssues)];
+    for (const issue of unique) {
+      section += `• ${issue}\n`;
+    }
+    section += '\n';
+  }
+
+  // Strategy hints
+  if (insights.strategyHints.length > 0) {
+    section += `💡 STRATEGY ADAPTATION (ubah cara menulis kamu):\n`;
+    section += `─────────────────────────────────────\n`;
+    for (const hint of insights.strategyHints) {
+      section += `${hint}\n\n`;
+    }
+  }
+
+  // Near-miss analysis
+  if (insights.nearMiss) {
+    section += `🌟 KONTEN TERBAIK YANG HAMPIR LOLOS (skor ${insights.nearMiss.score}/105):\n`;
+    section += `─────────────────────────────────────\n`;
+    section += `Gagal di: ${insights.nearMiss.failedAt}\n`;
+    section += `${insights.nearMiss.whatToFix}\n`;
+    if (insights.nearMiss.contentPreview) {
+      section += `\nPreview konten terbaik (untuk referensi BUKAN copy):\n`;
+      section += `"${insights.nearMiss.contentPreview.substring(0, 200)}..."\n`;
+    }
+    section += `\n⚠️ BELI SEDIKIT LAGI! Konten di atas hampir perfect. Perbaiki bagian yang salah dan kamu bisa lolos!\n\n`;
+  }
+
+  // Previous content openings (for dedup)
+  if (insights.contentHistory.length > 0) {
+    section += `📝 HOOKS YANG SUDAH DICOBA (JANGAN ULANGI!):\n`;
+    section += `─────────────────────────────────────\n`;
+    for (const h of insights.contentHistory.slice(-8)) {
+      section += `❌ "${h.opening}" → skor ${h.score}/105 (${h.failedAt})\n`;
+    }
+    section += `\n⚠️ GUNAKAN HOOK YANG BERBEDA DARI SEMUA DI ATAS!\n\n`;
+  }
+
+  // Closing warning
+  section += `═══════════════════════════════════════════════════════════════════════════════\n`;
+  section += `🚨🚨🚨 KAMU SEDANG BELAJAR DARI KEGAGALAN SEBELUMNYA 🚨🚨🚨\n`;
+  section += `═══════════════════════════════════════════════════════════════════════════════\n`;
+  section += `JANGAN mengulang kesalahan yang sama.\n`;
+  section += `JANGAN menggunakan hook yang sudah dicoba.\n`;
+  section += `JANGAN mengabaikan missing mandatory items.\n`;
+  section += `LAKUKAN perubahan RADIKAL jika sudah banyak gagal.\n`;
+  section += `Konten berikutnya harus LEBIH BAIK dari semua konten sebelumnya.\n`;
+  section += `═══════════════════════════════════════════════════════════════════════════════\n`;
+
+  return section;
+}
+
+/**
+ * Saves learning log to persistent file for cross-session learning
+ */
+function saveLearningLog(campaignTitle, insights, outputDir) {
+  if (!insights || insights.totalFailed === 0) return;
+  
+  try {
+    const logPath = `${outputDir}/learning-log.json`;
+    let existingLog = [];
+    
+    try {
+      if (fs.existsSync(logPath)) {
+        existingLog = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+      }
+    } catch (e) { /* New log file */ }
+    
+    const entry = {
+      campaign: campaignTitle,
+      timestamp: new Date().toISOString(),
+      totalFailed: insights.totalFailed,
+      failurePatterns: insights.failurePatterns,
+      missingElements: insights.missingElements,
+      bestScore: insights.bestScore,
+      strategyHints: insights.strategyHints,
+      nearMiss: insights.nearMiss ? { score: insights.nearMiss.score, failedAt: insights.nearMiss.failedAt } : null
+    };
+    
+    existingLog.push(entry);
+    
+    // Keep only last 50 entries to prevent file bloat
+    if (existingLog.length > 50) {
+      existingLog = existingLog.slice(-50);
+    }
+    
+    fs.writeFileSync(logPath, JSON.stringify(existingLog, null, 2));
+    console.log(`   🧠 Learning log updated: ${logPath} (${existingLog.length} entries)`);
+  } catch (e) {
+    console.log(`   ⚠️ Could not save learning log: ${e.message}`);
+  }
+}
+
+/**
+ * Load previous learning log for cross-session learning
+ */
+function loadLearningLog(outputDir) {
+  try {
+    const logPath = `${outputDir}/learning-log.json`;
+    if (fs.existsSync(logPath)) {
+      const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+      console.log(`   🧠 Loaded ${log.length} previous learning entries`);
+      return log;
+    }
+  } catch (e) { /* No log yet */ }
+  return [];
+}
+
+// ============================================================================
+// 🧠 KNOWLEDGE BASE DIGEST - Extract key facts, not raw dump (Conflict Fix #1, #6)
+// ============================================================================
+
+/**
+ * Pre-digests the Knowledge Base into 3-5 key facts
+ * Instead of dumping thousands of words of marketing text,
+ * extract only the most relevant, factual sentences
+ */
+function digestKnowledgeBase(kb) {
+  if (!kb || typeof kb !== 'string') return { digestedFacts: [], totalSentences: 0, extractedCount: 0 };
+  
+  // Split into sentences
+  const sentences = kb.split(/[.!?]+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 25 && s.length < 300);
+  
+  if (sentences.length === 0) return { digestedFacts: [], totalSentences: 0, extractedCount: 0 };
+  
+  // Priority 1: Sentences with specific numbers/data (metrics, users, stats)
+  const numberWithData = sentences.filter(s => 
+    /\$?\d[\d,.]*\s*(%|M|B|K|million|billion|thousand|users?|traders?|TVL|volume|APY|perpetual|order|markets?|protocols?)/i.test(s)
+  );
+  
+  // Priority 2: Sentences with unique claims (first, only, largest, etc.)
+  const uniqueClaims = sentences.filter(s => 
+    /(first|only|unique|largest|fastest|most|built on|powered by|integrates?|supports?)/i.test(s) 
+    && !numberWithData.includes(s)
+  );
+  
+  // Priority 3: Specific capabilities (not generic marketing)
+  const capabilities = sentences.filter(s => 
+    /(allows?|enables?|provides?|offers?|gives? you)/i.test(s) 
+    && !/(revolutionary|game.?chang|ground.?break|cutting.?edge|world.?class)/i.test(s)
+    && !numberWithData.includes(s) 
+    && !uniqueClaims.includes(s)
+  );
+  
+  // Take top 5 most informative facts, avoiding duplicates by first 30 chars
+  const seen = new Set();
+  const digestedFacts = [];
+  const candidates = [...numberWithData, ...uniqueClaims, ...capabilities];
+  
+  for (const fact of candidates) {
+    const key = fact.substring(0, 30).toLowerCase();
+    if (!seen.has(key) && digestedFacts.length < 5) {
+      seen.add(key);
+      digestedFacts.push(fact.trim());
+    }
+  }
+  
+  return {
+    digestedFacts,
+    totalSentences: sentences.length,
+    extractedCount: digestedFacts.length
+  };
+}
+
+// ============================================================================
 // CONTENT GENERATION - 🆕 ENHANCED WITH PERSONA-FIRST PHILOSOPHY
 // ============================================================================
 
-async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1, comprehensionPlan = null) {
+async function generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, tweetCount = 1, comprehensionPlan = null, learningInsights = null, forcedPersona = null, forcedStructure = null, forcedAudience = null, forcedEmotion = null) {
   console.log('\n' + '─'.repeat(60));
   console.log('✨ GENERATING UNIQUE CONTENT (Persona-First + Rules-Aware Approach)');
   console.log('─'.repeat(60));
   
   // 🆕 NEW: Build Pre-Writing Perspective FIRST (Persona-First + Rules-Aware Philosophy)
   console.log('\n   🧠 STEP 1: Building Pre-Writing Perspective (Rules-Aware)...');
-  const preWritingResult = await buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis);
+  const preWritingResult = await buildPreWritingPerspective(llm, campaignData, researchData, competitorAnalysis, learningInsights);
   displayPreWritingPerspective(preWritingResult);
   
   // Use pre-writing perspective in content generation
@@ -3173,10 +3661,10 @@ async function generateUniqueContent(llm, campaignData, competitorAnalysis, rese
   const campaignType = preWritingResult.campaignType;
   const typeConfig = preWritingResult.typeConfig;
   
-  const persona = selectUnusedPersona(competitorAnalysis);
-  const narrativeStructure = selectUnusedNarrativeStructure(competitorAnalysis);
-  const audience = selectUnaddressedAudience(competitorAnalysis, campaignData.title);
-  const emotionCombo = selectRareEmotionCombo(competitorAnalysis);
+  const persona = forcedPersona || selectUnusedPersona(competitorAnalysis);
+  const narrativeStructure = forcedStructure || selectUnusedNarrativeStructure(competitorAnalysis);
+  const audience = forcedAudience || selectUnaddressedAudience(competitorAnalysis, campaignData.title);
+  const emotionCombo = forcedEmotion || selectRareEmotionCombo(competitorAnalysis);
   
   console.log(`   🎭 Selected Persona: ${persona.name}`);
   console.log(`   📖 Narrative Structure: ${narrativeStructure.name}`);
@@ -3335,458 +3823,114 @@ ${comprehensionPlan._criticalWarnings.map(w => '- ⚠️ ' + w).join('\n')}
 ⚠️ THIS PLAN WAS CREATED BY READING ALL CAMPAIGN RULES. FOLLOW IT EXACTLY.
 ═══════════════════════════════════════════════════════════════════════════════
 ` : '';
+
+  // 🧠 LEARNING SYSTEM: Inject insights from previous failed cycles
+  const learningSection = learningInsights ? buildLearningSection(learningInsights) : '';
   
-  const systemPrompt = `You are a REAL PERSON writing on social media. Not a content creator, not a marketer, NOT AI. You are someone who genuinely uses crypto products and has real opinions.
+  // 🧠 FIX: Pre-digest Knowledge Base — extract key facts, not raw dump (Conflict #1, #6)
+  const kbDigest = digestKnowledgeBase(campaignData.knowledgeBase || campaignData.knowledge_base);
+  
+  // 🧠 FIX: Parse requirements ONCE and reuse (was called 3x — Conflict #13)
+  const _reqs = parseCampaignRequirements(campaignData);
+  
+  const systemPrompt = `You are a REAL PERSON who genuinely uses crypto products and shares opinions on social media. You write like texting a friend, NOT like a marketer.
+
+${perspectiveSection}${comprehensionPlanSection}
+═══════════════════════════════════════════════════════════════════
+WHO YOU ARE (stay in character):
+═══════════════════════════════════════════════════════════════════
+You are: ${persona.name} — ${persona.trait}
+Writing for: ${audience.name} who feel "${audience.pain}"
+Story structure: ${narrativeStructure.name} (${narrativeStructure.flow})
+Emotion journey: ${emotionCombo.emotions.join(' → ')}
 
 ═══════════════════════════════════════════════════════════════════
-🚨🚨🚨 CRITICAL: THIS IS NOT AN AD OR PROMOTION 🚨🚨🚨
+CONTENT FORMULA (what actually makes content pass judging):
 ═══════════════════════════════════════════════════════════════════
-You are NOT promoting this product. You are SHARING YOUR GENUINE EXPERIENCE.
+1. HOOK — Start with a specific MOMENT you experienced, not "unpopular opinion" or "stop scrolling"
+2. STORY — Share YOUR experience: specific time, place, reaction. Not a product review.
+3. EVIDENCE — Weave facts into your story naturally as personal observations (not a list)
+4. FEELING — One physical sensation: "my stomach dropped", "jaw hit the floor"
+5. ENDING — Genuine question that invites real conversation, not "follow for more"
+6. VOICE — Contractions (I'm, can't, won't), short sentences, casual tone, parenthetical asides
 
-❌ ABSOLUTELY FORBIDDEN (your content WILL BE REJECTED if it contains any of these):
-1. FEATURE LISTING: "unified balance system", "zkSync", "off-chain matching" — do NOT explain how the product works
-2. STAT DUMPING: "$100M+ TVL and $200B+ cumulative volume" — do NOT list stats like a brochure
-3. KNOWLEDGE BASE PARROTING: Copying facts directly from the campaign info into your tweet
-4. FAKE EMOTIONS: "My hands were shaking", "I was blown away" — these are AI cliches, real people don't talk like this
-5. AD-LIKE STRUCTURE: Problem → Feature → Benefit → CTA — this is advertising, not social media
-6. PRODUCT DESCRIPTION: Any sentence that explains WHAT the product IS or HOW it works
-7. GENERIC HYPERBOLE: "This changed everything", "Nothing like it", "Game changer"
+═══════════════════════════════════════════════════════════════════
+REJECTION TRIGGERS (your content WILL be rejected):
+═══════════════════════════════════════════════════════════════════
+❌ Explaining how the product works (features, tech specs, architecture)
+❌ Listing multiple stats like a brochure — instead embed ONE number naturally in your story
+❌ AI clichés: "game changer", "this changed everything", "nobody is talking about", "picture this"
+❌ Template hooks: "unpopular opinion", "hot take", "stop scrolling", "quick thread", "let me explain"
+❌ Promotional language: "you should try", "highly recommend", "must check out"
+❌ Fake emotions: "my hands were shaking", "I was blown away", "mind blown"
+❌ Em dashes (—) and smart quotes ("") — use regular dash (-) and straight quotes (")
 
-✅ WHAT YOUR CONTENT MUST BE INSTEAD:
-- A SPECIFIC MOMENT or EXPERIENCE you had (not "I discovered it", but the actual moment)
-- A SPECIFIC DETAIL that only someone who actually used it would know
-- A GENUINE OPINION (even if slightly negative or skeptical — this adds authenticity)
-- A QUESTION at the end that invites real conversation
-- Written the way you'd text a friend, not the way a company writes a tweet
+═══════════════════════════════════════════════════════════════════
+FORMATTING (mandatory):
+═══════════════════════════════════════════════════════════════════
+• Each paragraph: 1-2 sentences max
+• Separate EVERY paragraph with blank line (\\n\\n)
+• Total: 4-8 paragraphs
+• Must look like a real tweet, NOT an article
 
-TELL A STORY, NOT FACTS. People don't engage with features. They engage with EXPERIENCES.
-
-${perspectiveSection}
-${comprehensionPlanSection}
-═══════════════════════════════════════════════════════════════════════════════
-🎯 YOUR MISSION: Create content that feels REAL, not manufactured.
-═══════════════════════════════════════════════════════════════════════════════
-
-You are writing as: ${persona.name}
-Persona trait: ${persona.trait}
-Target audience: ${audience.name} who feel "${audience.pain}"
-Narrative structure: ${narrativeStructure.name} (${narrativeStructure.flow})
-Emotion journey to create: ${emotionCombo.emotions.join(' → ')}
-
-═══════════════════════════════════════════════════════════════════════════════
-✅ QUALITY CRITERIA - Your content MUST excel in these areas:
-═══════════════════════════════════════════════════════════════════════════════
-
-📌 1. HOOK - The Opening Line
-────────────────────────────────────
-Your hook is CRITICAL. It determines if people stop scrolling.
-
-✅ EXCELLENT HOOKS (Use these patterns):
-• Start with a specific moment: "Last March, I lost $47,000 in 8 minutes."
-• Start with a shocking statement: "The system is rigged. Here's proof."
-• Start with a relatable pain: "Three dead ends. That's what I hit."
-• Start with contrarian view: "Everyone's wrong about this."
-• Start with a question that hits: "Ever been ghosted by a client? Me too."
-
-❌ TERRIBLE HOOKS (NEVER use these):
-• "Unpopular opinion:"
-• "Hot take:"
-• "Here's the thing:"
-• "Let me tell you a story:"
-• "I've been thinking about..."
-• "Nobody is talking about..."
-• "Stop scrolling:"
-• "This changed everything:"
-• "Quick thread:"
-
-📌 2. EMOTIONAL IMPACT - Make Them FEEL
-────────────────────────────────────
-Readers must experience genuine emotions, not just read about them.
-
-✅ HOW TO CREATE REAL EMOTIONS:
-• Use specific, personal details (not generic statements)
-• Show vulnerability and real struggle
-• Take readers on an emotional journey
-• Include at least 3 distinct emotions (curiosity, frustration, hope, surprise, etc.)
-• Use the rare combo: ${emotionCombo.emotions.join(' + ')}
-
-Example transformation:
-❌ "I was frustrated." (telling, weak)
-✅ "Three months. Twelve emails. Zero responses. My blood was boiling." (showing, strong)
-
-📌 3. BODY FEELING - Physical Sensation
-────────────────────────────────────
-Readers should PHYSICALLY FEEL something in their body.
-
-✅ EXCELLENT BODY FEELINGS:
-• "My stomach dropped."
-• "Cold sweat down my back."
-• "Heart racing at 3am."
-• "Chest tightened."
-• "Jaw on the floor."
-• "Hands wouldn't stop shaking."
-• "Blood boiled."
-• "Breath caught in my throat."
-
-❌ WEAK (don't use):
-• "I felt bad"
-• "I was nervous"
-• "It was scary"
-
-📌 4. EVIDENCE LAYERING - Multi-Depth Proof
-────────────────────────────────────
-Stack your evidence in layers. Each layer adds credibility.
-
-Layer 1 - MACRO DATA: "23 million Americans lost money to crypto scams last year (FTC 2023)"
-Layer 2 - CASE STUDY: "Take Sarah - lost $15K to a rug pull, got zero help from authorities"
-Layer 3 - PERSONAL TOUCH: "I know because I was one of them"
-Layer 4 - EXPERT/VALIDATION: "Even the SEC admits they can't help most victims"
-
-✅ Your content should have at least 2-3 evidence layers
-
-📌 5. CTA (Call to Action) - Engagement Hook
-────────────────────────────────────
-End with something that makes people WANT to reply.
-
-✅ EXCELLENT CTAs:
-• "Curious if anyone else has dealt with this?"
-• "What would you have done differently?"
-• "Anyone else been through something similar?"
-• "Still processing this. Thoughts?"
-• "Tag someone who needs to see this."
-
-❌ WEAK CTAs:
-• "Follow for more"
-• "Like and subscribe"
-• "Share this"
-• "Click the link"
-
-📌 6. URL INTEGRATION - Natural Placement
-────────────────────────────────────
-The URL must feel NATURAL, not forced.
-
-✅ GOOD URL PLACEMENT:
-• "Finally found something that actually helps: [URL]"
-• "This changed my approach: [URL]"
-• "Worth checking out if you're in this situation: [URL]"
-• "More details here: [URL]"
-
-❌ BAD URL PLACEMENT:
-• "Check out [URL] for more!"
-• "Visit [URL] now!"
-• "Click here: [URL]"
-
-═══════════════════════════════════════════════════════════════════════════════
-🚫 FORBIDDEN - These will DESTROY your content quality:
-═══════════════════════════════════════════════════════════════════════════════
-
-❌ AI-DETECTED WORDS (NEVER use these):
-delve, leverage, realm, tapestry, paradigm, landscape, nuance, underscores,
-pivotal, crucial, embark, journey (as metaphor), explore, unlock, harness,
-symphony, dance, navigate, embrace, foster, cultivate
-
-❌ AI-DETECTED PHRASES (NEVER use these):
-picture this, let's dive in, in this thread, key takeaways, here's the thing,
-imagine a world, it goes without saying, at the end of the day, on the other hand,
-in conclusion, in today's digital landscape, plays a crucial role
-
-❌ TEMPLATE PHRASES (NEVER use these):
-unpopular opinion, hot take, thread alert, breaking, this is your sign, psa,
-reminder that, quick thread, important thread, drop everything, stop scrolling,
-hear me out, let me explain, nobody is talking about, story time
-
-❌ BANNED PROMOTIONAL LANGUAGE:
-guaranteed, 100%, risk-free, financial advice, buy now, get rich, passive income,
-limited time, act now, click here, don't miss out
-
-═══════════════════════════════════════════════════════════════════════════════
-🎨 STYLE PRINCIPLES:
-═══════════════════════════════════════════════════════════════════════════════
-
-• Write like you're talking to a friend over coffee, not giving a presentation
-• Use SHORT paragraphs (1-2 sentences max)
-• Mix sentence lengths for rhythm
-• Be specific ("$47,000" not "a lot of money")
-• Show, don't tell
-• Use contractions naturally (I'm, can't, won't, it's)
-• Avoid passive voice
-• Cut every unnecessary word
-• Read it aloud - if it sounds weird, rewrite it
-
-═══════════════════════════════════════════════════════════════════════════════
-🚨🚨🚨 CRITICAL FORMATTING RULES (YOUR CONTENT WILL BE REJECTED IF VIOLATED):
-═══════════════════════════════════════════════════════════════════════════════
-
-1. Your "content" field MUST contain actual newline characters (\n\n) between paragraphs
-2. NEVER output a single wall-of-text paragraph. EVER.
-3. Each paragraph must be 1-2 sentences MAX, separated by a blank line (\n\n)
-4. Your content MUST look like this:
-   "ngl I spent way too long last night.\n\n(downloaded at 2am, embarrassing to admit)\n\nWhat caught me wasn't the specs."
-5. This is NOT acceptable:
-   "ngl I spent way too long last night. (downloaded at 2am, embarrassing to admit) What caught me wasn't the specs."
-6. Use \n\n (double newline) between EVERY paragraph break
-7. A good tweet should have 4-8 short paragraphs separated by blank lines
-8. Blank lines create visual breathing room - they are ESSENTIAL for readability
-
-═══════════════════════════════════════════════════════════════════════════════
-📋 OUTPUT FORMAT:
-═══════════════════════════════════════════════════════════════════════════════
-
+═══════════════════════════════════════════════════════════════════
+OUTPUT FORMAT:
+═══════════════════════════════════════════════════════════════════
 Return JSON:
 {
-  "tweets": [
-    {
-      "content": "<full tweet text with \n\n between each paragraph - make it feel AUTHENTIC>",
-      "hook": "<the opening hook>",
-      "emotions": ["emotion1", "emotion2", "emotion3"],
-      "bodyFeeling": "<physical sensation described>",
-      "cta": "<the call to action>",
-      "evidenceUsed": ["<evidence layer 1>", "<evidence layer 2>"],
-      "qualityChecklist": {
-        "hookIsNatural": true,
-        "has3PlusEmotions": true,
-        "hasBodyFeeling": true,
-        "hasEvidenceLayers": true,
-        "hasEngagingCTA": true,
-        "urlIncluded": true,
-        "noAIPatterns": true,
-        "noTemplatePhrases": true
-      }
-    }
-  ],
+  "tweets": [{
+    "content": "<full tweet with \\n\\n between paragraphs>",
+    "hook": "<the opening line>",
+    "emotions": ["e1","e2","e3"],
+    "bodyFeeling": "<physical sensation>",
+    "cta": "<how you end it>"
+  }],
   "strategyUsed": {
-    "angle": "<your unique angle>",
-    "differentiationPoint": "<how this differs from competitors>",
-    "emotionJourney": "<emotional arc described>"
+    "angle": "<your chosen angle>",
+    "differentiationPoint": "<how it differs from competitors>"
   }
 }`;
 
-  const userPrompt = `═══════════════════════════════════════════════════════════════════════════════
-🚨🚨🚨 MANDATORY CAMPAIGN REQUIREMENTS - ALL ARE REQUIRED 🚨🚨🚨
-═══════════════════════════════════════════════════════════════════════════════
+  // 🧠 FIX: Build user prompt ONCE with single _reqs parse (Conflict #13)
+  // 🧠 FIX: KB is digested, not raw dumped (Conflict #1, #6)
+  // 🧠 FIX: URL/tags/metrics only shown when relevant (Conflict #3, #8)
+  // 🧠 FIX: Metric guidance is unified — "ONE number naturally" (Conflict #5, #7)
+  // 🧠 FIX: No more triple-repeated requirements (Conflict #13)
+  const userPrompt = `═══════════════════════════════════════════════════════════════════
+📋 CAMPAIGN BRIEF
+═══════════════════════════════════════════════════════════════════
+Campaign: ${campaignData.title || 'Unknown'}${campaignData.missionTitle ? ' | Mission: ' + campaignData.missionTitle : ''}
 
-CAMPAIGN: ${campaignData.title || 'Unknown Campaign'}
-${campaignData.missionTitle ? `🎯 MISSION: ${campaignData.missionTitle}` : ''}
+Mission Goal:
+${campaignData.description || campaignData.missionGoal || 'Not specified'}
 
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ MISSION GOAL (YOUR CONTENT MUST ALIGN WITH THIS):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.description || campaignData.missionGoal || campaignData.goal || 'Not specified'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ MISSION RULES (YOU MUST FOLLOW ALL OF THESE - NO EXCEPTIONS):
-═══════════════════════════════════════════════════════════════════════════════
+Rules:
 ${campaignData.rules || campaignData.requirements || 'Standard content guidelines'}
 
-🚨 CRITICAL: If rules say "Tag @username" → Your content MUST include "@username"
-🚨 CRITICAL: If rules say "Mention a metric" → Your content MUST have specific numbers
-🚨 CRITICAL: If rules say "Focus on X" → Your content MUST be about X
+${_reqs.focusTopic ? '🎯 FOCUS TOPIC: Your content MUST be about: ' + _reqs.focusTopic + '\n' : ''}${campaignData.style ? '🎨 Style: ' + campaignData.style + '\n' : ''}${campaignData.characterLimit ? '📏 Character limit: ' + campaignData.characterLimit + ' chars MAX\n' : ''}
+═══════════════════════════════════════════════════════════════════
+🔴 MANDATORY CHECKLIST (every item here MUST appear in your content):
+═══════════════════════════════════════════════════════════════════
+${_reqs.mandatoryTags.length > 0 ? '🏷️ Tags: ' + _reqs.mandatoryTags.map(t => '"' + t + '"').join(', ') + '\n' : ''}${_reqs.mandatoryHashtags.length > 0 ? '#️⃣ Hashtags: ' + _reqs.mandatoryHashtags.join(', ') + '\n' : ''}${_reqs.mandatoryMetrics ? '📊 Metric: Include ONE specific number naturally in your story (not a stat dump)\n' : ''}${_reqs.mandatoryUrl ? '🔗 URL: ' + (campaignData.campaignUrl || campaignData.url || 'required') + ' — place it naturally like "found this: [URL]"\n' : ''}${_reqs.mandatoryScreenshot ? '📸 Screenshot: Mention taking/including a screenshot\n' : ''}
+${_reqs.proposedAngles.length > 0 ? '\n🎯 CHOOSE ONE angle — your content MUST follow one of these:\n' + _reqs.proposedAngles.map((a, i) => '   ' + (i+1) + '. "' + a + '"').join('\n') + '\n\n⚠️ Do NOT invent your own angle. Pick ONE from above.\n' : ''}
+═══════════════════════════════════════════════════════════════════
+🚫 PROHIBITED (content WILL be rejected if it includes these):
+═══════════════════════════════════════════════════════════════════
+${_reqs.prohibitedUrl ? '❌ NO URL/LINK allowed\n' : ''}${_reqs.prohibitedHashtags.length > 0 ? '❌ NO HASHTAGS allowed\n' : ''}${_reqs.prohibitedTags.length > 0 ? '❌ Do NOT tag: ' + _reqs.prohibitedTags.join(', ') + '\n' : ''}${_reqs.prohibitedKeywords.length > 0 ? '❌ Do NOT mention: ' + _reqs.prohibitedKeywords.join(', ') + '\n' : ''}${(campaignData.disallowedContent || campaignData.disallowed_content || '') ? '❌ Disallowed content: ' + (campaignData.disallowedContent || campaignData.disallowed_content) + '\n' : ''}
+═══════════════════════════════════════════════════════════════════
+📖 KEY FACTS (weave these into your story naturally — don't paste them):
+═══════════════════════════════════════════════════════════════════
+${kbDigest.digestedFacts.length > 0 ? kbDigest.digestedFacts.map((f, i) => (i+1) + '. ' + f + '.').join('\n') : '• See research data below'}
+${kbDigest.totalSentences > kbDigest.extractedCount ? '\nℹ️ Knowledge base had ' + kbDigest.totalSentences + ' sentences — extracted the ' + kbDigest.extractedCount + ' most relevant above.' : ''}
 
-${(() => {
-  const reqs = parseCampaignRequirements(campaignData);
-  let mandatorySection = `
-═══════════════════════════════════════════════════════════════════════════════
-🔴🔴🔴 EXTRACTED MANDATORY REQUIREMENTS - ALL ARE REQUIRED 🔴🔴🔴
-═══════════════════════════════════════════════════════════════════════════════
+${(researchData?.synthesis?.keyFacts?.length > 0) ? '═══════════════════════════════════════════════════════════════════\n📊 RESEARCH DATA (use to make your story credible):\n═══════════════════════════════════════════════════════════════════\n' + (researchData?.synthesis?.keyFacts?.slice(0, 3).map((f, i) => (i+1) + '. ' + f).join('\n') || '') + (researchData?.synthesis?.realCases?.slice(0, 2).map((c, i) => (i+1) + '. ' + c).join('\n') || '') + (researchData?.synthesis?.statistics?.slice(0, 2).map((s, i) => (i+1) + '. ' + s).join('\n') || '') : ''}
 
-`;
-  if (reqs.mandatoryTags.length > 0) {
-    mandatorySection += `🏷️ REQUIRED TAGS (YOU MUST INCLUDE THESE EXACTLY):\n`;
-    reqs.mandatoryTags.forEach(tag => {
-      mandatorySection += `   → "${tag}" - This MUST appear in your tweet!\n`;
-    });
-    mandatorySection += '\n';
-  }
-
-  if (reqs.mandatoryHashtags.length > 0) {
-    mandatorySection += `#️⃣ REQUIRED HASHTAGS (YOU MUST INCLUDE THESE):\n`;
-    reqs.mandatoryHashtags.forEach(tag => {
-      mandatorySection += `   → "${tag}" - This MUST appear in your tweet!\n`;
-    });
-    mandatorySection += '\n';
-  }
-
-  if (reqs.mandatoryMetrics) {
-    mandatorySection += `📊 METRICS REQUIRED: YES - Include specific numbers/metrics!\n\n`;
-  }
-
-  if (reqs.focusTopic) {
-    mandatorySection += `🎯 FOCUS TOPIC: ${reqs.focusTopic} - Content MUST be about this!\n\n`;
-  }
-
-  // 🎯 PROPOSED ANGLES - MUST PICK ONE!
-  if (reqs.proposedAngles.length > 0) {
-    mandatorySection += `\n`;
-    mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
-    mandatorySection += `🎯🎯🎯 PROPOSED ANGLES - YOU MUST PICK EXACTLY ONE! 🎯🎯🎯\n`;
-    mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
-    mandatorySection += `\n`;
-    mandatorySection += `⚠️ CRITICAL: You MUST choose ONE of these angles. Do NOT create your own angle!\n`;
-    mandatorySection += `⚠️ Your content will be REJECTED if you don't follow one of these angles exactly!\n\n`;
-    reqs.proposedAngles.forEach((angle, i) => {
-      mandatorySection += `   ANGLE ${i + 1}: "${angle}"\n`;
-    });
-    mandatorySection += `\n`;
-    mandatorySection += `→ Choose the angle that resonates most with your experience.\n`;
-    mandatorySection += `→ Your entire content must support this ONE angle.\n`;
-    mandatorySection += `→ State which angle you chose in your response.\n\n`;
-  }
-
-  // Only show URL requirement if MANDATORY (explicitly required in rules)
-  if (reqs.mandatoryUrl && reqs.campaignUrl) {
-    mandatorySection += `🔗 REQUIRED URL: ${reqs.campaignUrl}\n`;
-    mandatorySection += `   → This URL MUST appear in your tweet!\n\n`;
-  }
-
-  // Show prohibition notice if URL is NOT required
-  if (!reqs.mandatoryUrl) {
-    mandatorySection += `🚫 URL NOT REQUIRED: Do NOT include any URL or link!\n`;
-    mandatorySection += `   → Campaign rules do NOT require a URL\n\n`;
-  }
-
-  mandatorySection += `⚠️ YOUR CONTENT WILL BE REJECTED IF ANY OF THE ABOVE ARE MISSING!\n`;
-  mandatorySection += `═══════════════════════════════════════════════════════════════════════════════\n`;
-
-  return mandatorySection;
-})()}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ STYLE REQUIREMENTS (MANDATORY):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.style || 'Professional, authentic'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ KNOWLEDGE BASE (USE AT LEAST 3-5 FACTS FROM HERE):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.knowledgeBase || campaignData.additionalInfo || 'None provided'}
-
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ ADDITIONAL INFO (MANDATORY):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.additionalInfo || campaignData.adminNotice || 'None provided'}
-
-${(() => {
-  // Only show URL requirement if explicitly required in rules
-  const reqs = parseCampaignRequirements(campaignData);
-  if (reqs.mandatoryUrl) {
-    return `
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ REQUIRED URL (MUST BE IN YOUR CONTENT):
-═══════════════════════════════════════════════════════════════════════════════
-${campaignData.campaignUrl || campaignData.url || 'Campaign URL must be included'}
-`;
-  }
-  return ''; // URL not required - don't show anything
-})()}
-${campaignData.characterLimit ? `
-═══════════════════════════════════════════════════════════════════════════════
-⚠️ CHARACTER LIMIT (STRICT - YOUR CONTENT WILL BE REJECTED IF TOO LONG):
-═══════════════════════════════════════════════════════════════════════════════
-MAXIMUM: ${campaignData.characterLimit} characters. Your content MUST be within this limit.
-Count your characters carefully!` : ''}
-═══════════════════════════════════════════════════════════════════════════════
-📊 RESEARCH DATA TO USE
-═══════════════════════════════════════════════════════════════════════════════
-
-KEY FACTS:
-${researchData?.synthesis?.keyFacts?.slice(0, 5).map((f, i) => `${i + 1}. ${f}`).join('\n') || 'No specific facts available'}
-
-REAL CASES:
-${researchData?.synthesis?.realCases?.slice(0, 3).map((c, i) => `${i + 1}. ${c}`).join('\n') || 'Use general examples'}
-
-STATISTICS:
-${researchData?.synthesis?.statistics?.slice(0, 3).map((s, i) => `${i + 1}. ${s}`).join('\n') || 'Include relevant data if available'}
-
-UNIQUE ANGLES AVAILABLE:
-${researchData?.synthesis?.uniqueAngles?.slice(0, 3).map((a, i) => `${i + 1}. ${a.angle} - ${a.uniqueness}`).join('\n') || 'Create your own unique angle'}
-
-${researchData?.synthesis?.controversies?.length > 0 ? `
-CONTROVERSIES (use for contrast/credibility):
-${researchData?.synthesis?.controversies.slice(0, 2).map((c, i) => `${i + 1}. ${c}`).join('\n')}
-` : ''}
-
-${researchData?.synthesis?.expertQuotes?.length > 0 ? `
-EXPERT QUOTES (use for authority):
-${researchData?.synthesis?.expertQuotes.slice(0, 2).map((q, i) => `${i + 1}. ${q}`).join('\n')}
-` : ''}
-
-${researchData?.synthesis?.untoldStories?.length > 0 ? `
-UNIQUE STORIES (use for differentiation):
-${researchData?.synthesis?.untoldStories.slice(0, 2).map((s, i) => `${i + 1}. ${s}`).join('\n')}
-` : ''}
-
-${researchData?.synthesis?.evidenceLayers ? `
-EVIDENCE LAYERS (use for credibility):
-• Macro Data: ${researchData?.synthesis?.evidenceLayers?.macroData || 'N/A'}
-• Case Study: ${researchData?.synthesis?.evidenceLayers?.caseStudy || 'N/A'}
-• Personal Touch: ${researchData?.synthesis?.evidenceLayers?.personalTouch || 'N/A'}
-• Expert Validation: ${researchData?.synthesis?.evidenceLayers?.expertValidation || 'N/A'}
-` : ''}
-
-═══════════════════════════════════════════════════════════════════════════════
-🎯 COMPETITIVE DIFFERENTIATION
-═══════════════════════════════════════════════════════════════════════════════
-
-ANGLES ALREADY USED BY COMPETITORS (AVOID THESE):
-${(competitorAnalysis?.anglesUsed || []).slice(0, 5).map(a => `• ${a}`).join('\n') || '• No competitor data available'}
-
-SATURATED ELEMENTS (OVERUSED - AVOID):
-${(competitorAnalysis?.saturatedElements || []).slice(0, 5).map(s => `• ${s}`).join('\n') || '• None identified'}
-
-UNTAPPED OPPORTUNITIES (USE THESE):
-${(competitorAnalysis?.untappedOpportunities || []).slice(0, 5).map(o => `✓ ${o}`).join('\n') || '✓ Create unique content freely'}
-
-${competitorAnalysis?.uniqueAnglesNotUsed?.length > 0 ? `
-UNIQUE ANGLES NOT YET USED (GOLDMINE):
-${competitorAnalysis.uniqueAnglesNotUsed.slice(0, 3).map(a => `✅ ${a}`).join('\n')}
-` : ''}
-
-${competitorAnalysis?.recommendations ? `
-🏆 AI RECOMMENDATIONS (from competitor analysis):
-• Winning Angle: ${competitorAnalysis.recommendations?.winningAngle || 'N/A'}
-• Untapped Audience: ${competitorAnalysis.recommendations?.untappedAudience || 'N/A'}
-• Unique Perspective: ${competitorAnalysis.recommendations?.uniquePerspective || 'N/A'}
-${competitorAnalysis.recommendations?.rareEmotionCombo ? `• Rare Emotion Combo: ${competitorAnalysis.recommendations.rareEmotionCombo.join(' + ')}` : ''}
-` : ''}
-
-═══════════════════════════════════════════════════════════════════════════════
-✅ BEFORE YOU WRITE - CHECK THESE MANDATORY ITEMS:
-═══════════════════════════════════════════════════════════════════════════════
-
-□ Did you include ALL required tags/mentions from rules?
-${(() => {
-  const reqs = parseCampaignRequirements(campaignData);
-  let checks = '';
-  if (reqs.mandatoryMetrics) checks += '□ Did you include at least one specific metric/number?\n';
-  if (reqs.mandatoryUrl) checks += '□ Did you include the required URL?\n';
-  if (reqs.mandatoryScreenshot) checks += '□ Did you include a screenshot?\n';
-  return checks;
-})()}
-□ Does your content align with the mission goal?
-□ Does your content follow the style requirements?
-□ Is your hook natural (not a template)?
-
-═══════════════════════════════════════════════════════════════════════════════
-✍️ NOW CREATE ${tweetCount} TWEET(S)
-═══════════════════════════════════════════════════════════════════════════════
-
-Remember:
-• Start with a STRONG, NATURAL hook (no templates!)
-• Include at least 3 emotions throughout
-• Add physical body feeling
-• Layer your evidence (data + case + personal)
-• End with engaging CTA
-• FOLLOW ALL MISSION RULES EXACTLY
-• AVOID all forbidden words and phrases
-• Be AUTHENTIC - write like a real person, not a brand
-${(() => {
-  const reqs = parseCampaignRequirements(campaignData);
-  if (reqs.mandatoryUrl) {
-    return '• Integrate URL naturally\n';
-  }
-  return '';
-})()}
-Create content that makes readers STOP, FEEL, and ENGAGE.`;
+${(competitorAnalysis?.anglesUsed?.length > 0 || competitorAnalysis?.untappedOpportunities?.length > 0) ? '═══════════════════════════════════════════════════════════════════\n🚫 COMPETITOR AWARENESS:\n═══════════════════════════════════════════════════════════════════\n' + (competitorAnalysis?.anglesUsed || []).slice(0, 3).map(a => '❌ Used: "' + a + '"').join('\n') + '\n' + (competitorAnalysis?.untappedOpportunities || []).slice(0, 3).map(o => '✅ Untapped: "' + o + '"').join('\n') + (competitorAnalysis?.recommendations?.winningAngle ? '\n💡 Suggested: "' + competitorAnalysis.recommendations.winningAngle + '"\n' : '') : ''}${learningSection ? '═══════════════════════════════════════════════════════════════════\n🧠 LEARNING FROM PREVIOUS ATTEMPTS\n═══════════════════════════════════════════════════════════════════\n' + learningSection : ''}
+${campaignData.additionalInfo ? '═══════════════════════════════════════════════════════════════════\n📎 ADDITIONAL INFO:\n═══════════════════════════════════════════════════════════════════\n' + campaignData.additionalInfo + '\n' : ''}
+═══════════════════════════════════════════════════════════════════
+✍️ NOW WRITE ${tweetCount} TWEET(S)
+═══════════════════════════════════════════════════════════════════
+Write content that makes readers STOP scrolling, FEEL something, and ENGAGE.`;
 
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
@@ -3883,25 +4027,21 @@ Create content that makes readers STOP, FEEL, and ENGAGE.`;
       console.log(`   🔄 Regenerating Tweet ${i + 1} with stronger anti-AI instructions...`);
       
       try {
+        const _regenReqs = parseCampaignRequirements(campaignData);
         const antiAiResponse = await callAI([
-          { role: 'system', content: `You are a REAL crypto user writing a tweet. Write EXACTLY like you would text your friend.
+          { role: 'system', content: `You are a REAL crypto user writing a social media post. Write EXACTLY like you would text your friend.
 
 RULES:
-- Do NOT mention any product features, tech terms, or statistics
-- Do NOT sound like an advertisement or promotion
 - Write about ONE specific moment/experience only
 - Use casual, imperfect language (contractions, incomplete sentences, slang)
 - Start with something casual (ngl, tbh, okay so, look, real talk)
 - End with a genuine question
-- Maximum 280 characters` },
-          { role: 'user', content: `Write a casual tweet about ${(campaignData.description || campaignData.missionGoal || 'this crypto thing').substring(0, 100)}.
+- Do NOT sound like an advertisement or promotion` },
+          { role: 'user', content: `Write a casual post about ${(campaignData.description || campaignData.missionGoal || '').substring(0, 200)}.
+${_regenReqs.mandatoryTags.length > 0 ? '\nInclude tags: ' + _regenReqs.mandatoryTags.join(', ') : ''}${_regenReqs.mandatoryHashtags.length > 0 ? '\nInclude hashtags: ' + _regenReqs.mandatoryHashtags.join(', ') : ''}${_regenReqs.mandatoryUrl ? '\nInclude URL: ' + (campaignData.campaignUrl || campaignData.url) : ''}${_regenReqs.proposedAngles.length > 0 ? '\nUse angle: ' + _regenReqs.proposedAngles[Math.floor(Math.random() * _regenReqs.proposedAngles.length)] : ''}
 
-Your tweet should sound like you just experienced something and you're telling a friend about it. NOT like you're promoting it. Be skeptical, be real, be imperfect.
-
-Required: Include @grvt_io somewhere natural.
-
-IMPORTANT: Return ONLY the tweet text. No explanation, no formatting, no JSON. Just the tweet.` }
-        ], { temperature: 0.9, maxTokens: 300, model: 'glm-5-flash', enableThinking: false });
+Be skeptical, be real, be imperfect. Return ONLY the post text.` }
+        ], { temperature: 0.9, maxTokens: 1000, model: 'glm-5', enableThinking: false });
         
         // Extract content - skip any thinking/reasoning text
         let regenerated = antiAiResponse.content.trim();
@@ -6909,26 +7049,26 @@ Return JSON:
  * Generate single content for parallel processing
  * 🆕 BUG #11 FIX: Now receives comprehensionPlan to ensure AI follows campaign rules
  */
-async function generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, index, comprehensionPlan) {
-  const variations = CONFIG.multiContent?.variations || {};
-  const angles = variations.angles || ['personal_story', 'data_driven', 'contrarian', 'insider_perspective', 'case_study'];
-  const emotions = variations.emotions || [['curiosity', 'surprise']];
-  const structures = variations.structures || ['hero_journey', 'problem_solution', 'before_after', 'mystery_reveal', 'case_study'];
-  
-  const selectedAngle = angles[index % angles.length];
-  const selectedEmotion = emotions[index % emotions.length];
-  const selectedStructure = structures[index % structures.length];
-  
-  console.log(`   📝 [${timestamp()}] Generating Content ${index + 1} (${selectedAngle})...`);
+async function generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, index, comprehensionPlan, learningInsights = null) {
+  // 🧠 FIX: Force different persona/structure/emotion per index (was: all identical)
+  // We pre-pick for this index to ensure diversity in parallel batch
+  const forcedPersona = shuffle(CONFIG.personas)[index % CONFIG.personas.length];
+  const forcedStructure = shuffle(CONFIG.narrativeStructures)[index % CONFIG.narrativeStructures.length];
+  const forcedEmotion = shuffle([...CONFIG.emotionCombos.rare, ...CONFIG.emotionCombos.common])[index % 15];
+  const campaignType = detectCampaignType(campaignData);
+  const allAudiences = CONFIG.audienceSegments[campaignType] || CONFIG.audienceSegments.general;
+  const forcedAudience = shuffle(allAudiences)[index % allAudiences.length];
+
+  console.log(`   📝 [${timestamp()}] Generating Content ${index + 1} (${forcedPersona.name} / ${forcedStructure.name} / ${forcedEmotion.emotions.join('+')})...`);
   if (comprehensionPlan) {
-    console.log(`   🧠 Following comprehension plan: ${comprehensionPlan.execution_plan?.substring(0, 60)}...`);
+    console.log(`   🧠 Following comprehension plan: ${(typeof comprehensionPlan.execution_plan === 'string' ? comprehensionPlan.execution_plan : JSON.stringify(comprehensionPlan.execution_plan || '')).substring(0, 60)}...`);
   }
   
   const llm = new MultiProviderLLM(CONFIG);
   
   try {
-    // Pass comprehensionPlan through to generateUniqueContent
-    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1, comprehensionPlan);
+    // Pass forced params + comprehensionPlan + learningInsights through to generateUniqueContent
+    const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1, comprehensionPlan, learningInsights, forcedPersona, forcedStructure, forcedAudience, forcedEmotion);
     
     if (result && result.tweets && result.tweets[0]) {
       let content = result.tweets[0].content;
@@ -7097,10 +7237,25 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   const competitorAnalysis = await deepCompetitorContentAnalysis(llm, submissions, campaignData.title, campaignData);
   console.log('   ✅ Competitor analysis complete');
   
+  // CHECKPOINT SYSTEM
+  const checkpointPath = getCheckpointPath(campaignData.title);
+  let ckpt = loadCheckpoint(checkpointPath);
+  const startFromStage = ckpt ? ckpt._stage : null;
+  console.log(`   ${startFromStage ? '🔄 RESUMING from: ' + startFromStage : '🆕 Starting fresh'}`);
+
   // Multi-query research
-  console.log('\n🔎 Running Multi-Query Deep Research...');
-  const researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
-  console.log('   ✅ Research complete');
+  let researchData;
+  // ── STAGE: Research ──
+  if (ckpt && (ckpt._stage === 'research-done' || ckpt._stage === 'intent-done' || ckpt._stage === 'generate' || ckpt._stage === 'judge' || ckpt._stage === 'complete')) {
+    console.log('   ⏭️ Skipping research (already done)');
+    researchData = ckpt.researchData;
+  } else {
+    console.log('\n🔎 Running Multi-Query Deep Research...');
+    researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
+    console.log('   ✅ Research complete');
+    ckpt = { _stage: 'research-done', researchData, campaignTitle: campaignData.title };
+    saveCheckpoint(checkpointPath, ckpt);
+  }
   
   // DEBUG: Log completion
   console.log('\n📊 STARTING CONTENT GENERATION PHASE...');
@@ -7117,36 +7272,54 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   // STEP 4.5: DEEP CAMPAIGN INTENT ANALYSIS (NEW!)
   // Understand WHAT the campaign truly wants, not just what rules say
   // ═══════════════════════════════════════════════════════════════
-  console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
-  const campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
-  _cachedCampaignIntent = campaignIntent;
+  let campaignIntent;
+  let comprehensionPlan;
+  // ── STAGE: Intent + Comprehension ──
+  if (ckpt && (ckpt._stage === 'intent-done' || ckpt._stage === 'generate' || ckpt._stage === 'judge' || ckpt._stage === 'complete')) {
+    console.log('   ⏭️ Skipping intent/comprehension (already done)');
+    comprehensionPlan = ckpt.comprehensionPlan;
+    campaignIntent = ckpt.campaignIntent;
+    _cachedCampaignIntent = campaignIntent;
+  } else {
+    console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
+    campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
+    _cachedCampaignIntent = campaignIntent;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🆕 BUG #10 FIX: CAMPAIGN COMPREHENSION CHECK - AI reads and plans BEFORE generate
-  // ═══════════════════════════════════════════════════════════════════════════
-  console.log('\n🧠 STEP: Campaign Comprehension Check (AI reads rules BEFORE writing)...');
-  const comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 🆕 BUG #10 FIX: CAMPAIGN COMPREHENSION CHECK - AI reads and plans BEFORE generate
+    // ═══════════════════════════════════════════════════════════════════════════
+    console.log('\n🧠 STEP: Campaign Comprehension Check (AI reads rules BEFORE writing)...');
+    comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
   
-  // Merge deep intent into comprehension plan for downstream use
-  comprehensionPlan._deepIntent = campaignIntent;
-  comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
-  comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
-  comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
-  comprehensionPlan._contentType = campaignIntent.contentType?.primary;
-  comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
-  comprehensionPlan._contentToUse = campaignIntent.contentToUse;
-  comprehensionPlan._trueIntent = campaignIntent.trueIntent;
-  comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
-  
-  console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
-  if (comprehensionPlan.understood) {
-    console.log(`   📋 AI Plan: ${comprehensionPlan.execution_plan?.substring(0, 100)}...`);
-    if (comprehensionPlan.risk_items && comprehensionPlan.risk_items.length > 0) {
-      console.log(`   ⚠️ Risk Items: ${comprehensionPlan.risk_items.join(', ')}`);
+    // Merge deep intent into comprehension plan for downstream use
+    comprehensionPlan._deepIntent = campaignIntent;
+    comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
+    comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
+    comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
+    comprehensionPlan._contentType = campaignIntent.contentType?.primary;
+    comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
+    comprehensionPlan._contentToUse = campaignIntent.contentToUse;
+    comprehensionPlan._trueIntent = campaignIntent.trueIntent;
+    comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
+    
+    console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
+    if (comprehensionPlan.understood) {
+      console.log(`   📋 AI Plan: ${(typeof comprehensionPlan.execution_plan === "string" ? comprehensionPlan.execution_plan : JSON.stringify(comprehensionPlan.execution_plan || "")).substring(0, 100)}...`);
+      if (comprehensionPlan.risk_items && comprehensionPlan.risk_items.length > 0) {
+        console.log(`   ⚠️ Risk Items: ${comprehensionPlan.risk_items.join(', ')}`);
+      }
     }
+
+    ckpt._stage = 'intent-done';
+    ckpt.comprehensionPlan = comprehensionPlan;
+    ckpt.campaignIntent = campaignIntent;
+    saveCheckpoint(checkpointPath, ckpt);
   }
   
   
+  // 🧠 Reset cycle-level tracking for this campaign
+  resetCycleTracking();
+
   // Main loop - keep generating until we get a winner (with safety limit)
   let cycleNumber = 0;
   let totalGenerated = 0;
@@ -7157,18 +7330,57 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   // Track ALL judge results across all cycles (not just last cycle)
   let allCycleJudgeResults = [];
   
+  // 🧠 LEARNING SYSTEM: Track learning insights and content history across cycles
+  let cycleLearningInsights = null;   // Current cycle's learning insights (null for cycle 1)
+  let allContentHistory = [];          // Accumulated content history for dedup
+  
+  // ── STAGE: Resume from judge/complete ──
+  if (startFromStage === 'judge' || startFromStage === 'complete') {
+    cycleNumber = ckpt.cycleNumber || 0;
+    totalGenerated = ckpt.totalGenerated || 0;
+    totalFailed = ckpt.totalFailed || 0;
+    cycleLearningInsights = ckpt.cycleLearningInsights || null;
+    allContentHistory = ckpt.allContentHistory || [];
+    allCycleJudgeResults = ckpt.allCycleJudgeResults || [];
+    console.log(`   📂 Resumed: cycle=${cycleNumber}, generated=${totalGenerated}, failed=${totalFailed}`);
+    if (startFromStage === 'complete') {
+      console.log('   ✅ Workflow already completed in previous run!');
+      return ckpt.winnerResult;
+    }
+  }
+  
+  // 🧠 Load previous learning log (cross-session learning)
+  const previousLearningLog = loadLearningLog(CONFIG.outputDir);
+  if (previousLearningLog.length > 0) {
+    console.log('\n   🧠 ═══════════════════════════════════════════════════════════════');
+    console.log('   🧠 LEARNING SYSTEM: Loaded previous learning data');
+    console.log(`   🧠 Found ${previousLearningLog.length} past learning entries`);
+    // Show most relevant patterns from past sessions
+    const recentEntries = previousLearningLog.slice(-3);
+    for (const entry of recentEntries) {
+      console.log(`   🧠 ── ${entry.campaign || 'Unknown'} (${entry.totalFailed} failed, best: ${entry.bestScore}/105)`);
+    }
+    console.log('   🧠 ═══════════════════════════════════════════════════════════════');
+  }
+  
   while (!judgingState.hasWinner() && cycleNumber < maxCycles) {
     cycleNumber++;
     
     console.log(`\n${'═'.repeat(60)}`);
     console.log(`🔄 CYCLE ${cycleNumber}`);
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
+    if (cycleLearningInsights) {
+      console.log(`   🧠 Learning: ${cycleLearningInsights.totalFailed} previous failures, best score ${cycleLearningInsights.bestScore}/105`);
+    }
     console.log(`${'═'.repeat(60)}`);
     
     // BUG #37 FIX: Stagger content generation to avoid rate limit race condition
     // Instead of firing all 3 simultaneously (causes all to hit rate limit),
     // stagger them with 2-second delays so they don't all compete for tokens
     console.log('\n📝 Generating 3 contents with staggered start (AI follows comprehension plan)...');
+    if (cycleLearningInsights) {
+      console.log(`   🧠 AI will LEARN from ${cycleLearningInsights.totalFailed} previous failures`);
+    }
     const generateTasks = [];
     for (let i = 0; i < contentsPerCycle; i++) {
       // Wrap each task with a staggered delay
@@ -7177,7 +7389,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
           console.log(`   ⏳ Stagger delay ${idx}: waiting 2s before Content ${idx + 1}...`);
           await delay(2000);
         }
-        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan);
+        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan, cycleLearningInsights);
       })(i);
       generateTasks.push(task);
     }
@@ -7251,8 +7463,54 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     }
     
     console.log(`\n   📊 Cycle ${cycleNumber} complete: All ${validContents.length} contents failed`);
-    console.log('   🔄 Generating new contents...');
     
+    // 🧠 LEARNING SYSTEM: Analyze failures and build insights for next cycle
+    console.log('\n   🧠 ═══════════════════════════════════════════════════════════════');
+    console.log('   🧠 LEARNING SYSTEM: Analyzing failures from this cycle...');
+    cycleLearningInsights = analyzeFailures(allCycleJudgeResults, cycleNumber, allContentHistory);
+    allContentHistory = cycleLearningInsights.contentHistory;
+    
+    // Display learning insights
+    if (cycleLearningInsights.totalFailed > 0) {
+      console.log(`   🧠 Total failures analyzed: ${cycleLearningInsights.totalFailed}`);
+      
+      if (Object.keys(cycleLearningInsights.failurePatterns).length > 0) {
+        console.log('   🧠 Failure patterns:');
+        for (const [stage, count] of Object.entries(cycleLearningInsights.failurePatterns).sort((a, b) => b[1] - a[1])) {
+          console.log(`   🧠   • ${stage}: ${count}x`);
+        }
+      }
+      
+      if (cycleLearningInsights.nearMiss) {
+        console.log(`   🧠 ⭐ Near-miss found! Score: ${cycleLearningInsights.nearMiss.score}/105 (failed at: ${cycleLearningInsights.nearMiss.failedAt})`);
+      }
+      
+      if (cycleLearningInsights.strategyHints.length > 0) {
+        console.log('   🧠 Strategy hints for next cycle:');
+        for (const hint of cycleLearningInsights.strategyHints) {
+          console.log(`   🧠   ${hint}`);
+        }
+      }
+      
+      // Save learning log to disk
+      saveLearningLog(campaignData.title, cycleLearningInsights, CONFIG.outputDir);
+    }
+    console.log('   🧠 ═══════════════════════════════════════════════════════════════');
+    
+    console.log('   🔄 Generating new contents WITH LEARNED INSIGHTS...');
+    
+    // ── CHECKPOINT: Save after each cycle (with learning insights) ──
+    if (ckpt) {
+      ckpt._stage = 'judge';
+      ckpt.cycleNumber = cycleNumber;
+      ckpt.totalGenerated = totalGenerated;
+      ckpt.totalFailed = totalFailed;
+      ckpt.cycleLearningInsights = cycleLearningInsights;
+      ckpt.allContentHistory = allContentHistory;
+      ckpt.allCycleJudgeResults = allCycleJudgeResults;
+      saveCheckpoint(checkpointPath, ckpt);
+    }
+
     // Wait before next cycle
     await delay(CONFIG.delays?.betweenPasses || 3000);
     
@@ -7262,9 +7520,23 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     }
   }
   
+  // ── CHECKPOINT: Handle max cycles reached ──
   if (!judgingState.hasWinner() && cycleNumber >= maxCycles) {
     console.log(`\n   ⚠️ MAX CYCLE LIMIT (${maxCycles}) REACHED. Stopping to prevent infinite loop.`);
     console.log('   💡 Increase maxCycles or check your judge thresholds if all contents are failing.');
+    // 🧠 Save final learning log even on max cycle
+    if (cycleLearningInsights) {
+      saveLearningLog(campaignData.title, cycleLearningInsights, CONFIG.outputDir);
+    }
+  }
+  
+  // 🧠 LEARNING SYSTEM: Save final learning summary when winner found
+  if (judgingState.hasWinner() && cycleLearningInsights) {
+    console.log('\n   🧠 ═══════════════════════════════════════════════════════════════');
+    console.log('   🧠 LEARNING SUMMARY:');
+    console.log(`   🧠 Total attempts before success: ${totalGenerated} (failed: ${totalFailed})`);
+    console.log(`   🧠 Cycles needed: ${cycleNumber}`);
+    console.log('   🧠 ═══════════════════════════════════════════════════════════════');
   }
   
   // Output winner
@@ -7469,7 +7741,14 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   console.log('\n💬 Generating 20 engagement Q&A to boost replies...');
   const qaList = await generateEngagementQA(winner.content, campaignData, researchData);
   await displayAndSaveEngagementQA(qaList, campaignData, winner.content);
-  
+
+  // ── CHECKPOINT: Save final winner result ──
+  if (ckpt) {
+    ckpt._stage = 'complete';
+    ckpt.winnerResult = { content: winner.content, score: winner.totalScore, scores: winner.scores, cycle: winner.cycleNumber, stats: { totalTime: totalDuration, totalCycles: cycleNumber, totalGenerated, totalFailed } };
+    saveCheckpoint(checkpointPath, ckpt);
+  }
+
   return {
     content: winner.content,
     score: winner.totalScore,
@@ -7798,6 +8077,39 @@ function loadCampaignFromFile(filePath) {
   }
 }
 
+// ============================================================================
+// CHECKPOINT SYSTEM - Survive process kills across runs
+// ============================================================================
+const CHECKPOINT_FILE = process.env.CHECKPOINT_FILE || null;
+
+function getCheckpointPath(campaignTitle) {
+  if (!campaignTitle) return null;
+  const safe = campaignTitle.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+  return CHECKPOINT_FILE || path.join(CONFIG.outputDir, `.checkpoint-${safe}.json`);
+}
+
+function loadCheckpoint(filePath) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) return null;
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    console.log(`   📂 Checkpoint loaded: ${filePath} (${data._stage || 'unknown'} stage)`);
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function saveCheckpoint(filePath, data) {
+  try {
+    if (!filePath) return;
+    data._updatedAt = new Date().toISOString();
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    console.log(`   💾 Checkpoint saved: ${filePath} [${data._stage}]`);
+  } catch(e) {
+    console.log(`   ⚠️ Could not save checkpoint: ${e.message}`);
+  }
+}
+
 /**
  * runManualWorkflow - Same as runFirstPassWorkflow but loads campaign from JSON file.
  * Everything else (competitor fetch, research, deep intent, generation, judging) works identically.
@@ -7865,35 +8177,64 @@ async function runManualWorkflow(jsonFilePath) {
     competitorAnalysis = { competitorContent: [], analysis: 'No address provided' };
   }
   
+  // CHECKPOINT SYSTEM
+  const checkpointPath = getCheckpointPath(campaignData.title);
+  let ckpt = loadCheckpoint(checkpointPath);
+  const startFromStage = ckpt ? ckpt._stage : null;
+  console.log(`   ${startFromStage ? '🔄 RESUMING from: ' + startFromStage : '🆕 Starting fresh'}`);
+
   // RESEARCH (same as normal)
-  console.log('\n🔎 Running Multi-Query Deep Research...');
+  let researchData;
   const llm = new MultiProviderLLM(CONFIG);
-  const researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
-  console.log('   ✅ Research complete');
+  // ── STAGE: Research ──
+  if (ckpt && (ckpt._stage === 'research-done' || ckpt._stage === 'intent-done' || ckpt._stage === 'generate' || ckpt._stage === 'judge' || ckpt._stage === 'complete')) {
+    console.log('   ⏭️ Skipping research (already done)');
+    researchData = ckpt.researchData;
+  } else {
+    console.log('\n🔎 Running Multi-Query Deep Research...');
+    researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
+    console.log('   ✅ Research complete');
+    ckpt = { _stage: 'research-done', researchData, campaignTitle: campaignData.title };
+    saveCheckpoint(checkpointPath, ckpt);
+  }
   console.log('\n📊 STARTING CONTENT GENERATION PHASE...');
   console.log(`   Competitor Analysis: ${competitorAnalysis ? 'OK' : 'NULL'}`);
   console.log(`   Research Data: ${researchData ? 'OK' : 'NULL'}`);
   
-  // DEEP CAMPAIGN INTENT (same as normal)
-  console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
-  const campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
-  _cachedCampaignIntent = campaignIntent;
-  
-  // CAMPAIGN COMPREHENSION (same as normal)
-  console.log('\n🧠 STEP: Campaign Comprehension Check...');
-  const comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
-  comprehensionPlan._deepIntent = campaignIntent;
-  comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
-  comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
-  comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
-  comprehensionPlan._contentType = campaignIntent.contentType?.primary;
-  comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
-  comprehensionPlan._contentToUse = campaignIntent.contentToUse;
-  comprehensionPlan._trueIntent = campaignIntent.trueIntent;
-  comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
-  console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
-  if (comprehensionPlan.understood) {
-    console.log(`   📋 AI Plan: ${comprehensionPlan.execution_plan?.substring(0, 100)}...`);
+  // DEEP CAMPAIGN INTENT + COMPREHENSION (same as normal)
+  let campaignIntent;
+  let comprehensionPlan;
+  // ── STAGE: Intent + Comprehension ──
+  if (ckpt && (ckpt._stage === 'intent-done' || ckpt._stage === 'generate' || ckpt._stage === 'judge' || ckpt._stage === 'complete')) {
+    console.log('   ⏭️ Skipping intent/comprehension (already done)');
+    comprehensionPlan = ckpt.comprehensionPlan;
+    campaignIntent = ckpt.campaignIntent;
+    _cachedCampaignIntent = campaignIntent;
+  } else {
+    console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
+    campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
+    _cachedCampaignIntent = campaignIntent;
+    
+    console.log('\n🧠 STEP: Campaign Comprehension Check...');
+    comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
+    comprehensionPlan._deepIntent = campaignIntent;
+    comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
+    comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
+    comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
+    comprehensionPlan._contentType = campaignIntent.contentType?.primary;
+    comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
+    comprehensionPlan._contentToUse = campaignIntent.contentToUse;
+    comprehensionPlan._trueIntent = campaignIntent.trueIntent;
+    comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
+    console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
+    if (comprehensionPlan.understood) {
+      console.log(`   📋 AI Plan: ${(typeof comprehensionPlan.execution_plan === "string" ? comprehensionPlan.execution_plan : JSON.stringify(comprehensionPlan.execution_plan || "")).substring(0, 100)}...`);
+    }
+
+    ckpt._stage = 'intent-done';
+    ckpt.comprehensionPlan = comprehensionPlan;
+    ckpt.campaignIntent = campaignIntent;
+    saveCheckpoint(checkpointPath, ckpt);
   }
   
   // MAIN LOOP: Generate → Judge → Fail Fast (identical to normal mode)
@@ -7903,9 +8244,39 @@ async function runManualWorkflow(jsonFilePath) {
   const contentsPerCycle = 3;
   const maxCycles = 10;
   let allCycleJudgeResults = [];
+  let cycleLearningInsights = null;
+  let allContentHistory = [];
   
-  while (!judgingState.hasWinner() && cycleNumber < maxCycles) {
-    cycleNumber++;
+  // ═══════════════════════════════════════════════════════════════
+  // CHECKPOINT RESUME LOGIC - ONE STEP PER RUN
+  // Each run does exactly ONE step based on checkpoint stage:
+  //   research-done → intent + comprehension
+  //   intent-done  → generate contents only
+  //   generate     → judge contents only
+  //   judge        → generate contents for next cycle only
+  //   complete     → return cached winner
+  // ═══════════════════════════════════════════════════════════════
+  if (startFromStage === 'complete') {
+    console.log('   ✅ Workflow already completed in previous run!');
+    return ckpt.winnerResult;
+  }
+  
+  // If resuming from 'generate' or 'judge', restore state
+  if (startFromStage === 'judge' || startFromStage === 'generate') {
+    cycleNumber = ckpt.cycleNumber || 0;
+    totalGenerated = ckpt.totalGenerated || 0;
+    totalFailed = ckpt.totalFailed || 0;
+    cycleLearningInsights = ckpt.cycleLearningInsights || null;
+    allContentHistory = ckpt.allContentHistory || [];
+    allCycleJudgeResults = ckpt.allCycleJudgeResults || [];
+    console.log(`   📂 Resumed state: cycle=${cycleNumber}, generated=${totalGenerated}, failed=${totalFailed}`);
+  }
+  
+  // ── STEP A: Generate contents (when stage is 'intent-done' or 'judge') ──
+  if (startFromStage === 'intent-done' || startFromStage === 'judge') {
+    // Need to generate new contents
+    if (startFromStage === 'judge') cycleNumber++; // Increment for new cycle
+    
     console.log(`\n${'═'.repeat(60)}`);
     console.log(`🔄 CYCLE ${cycleNumber}`);
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
@@ -7916,7 +8287,94 @@ async function runManualWorkflow(jsonFilePath) {
     for (let i = 0; i < contentsPerCycle; i++) {
       const task = (async (idx) => {
         if (idx > 0) { console.log(`   ⏳ Stagger delay ${idx}: waiting 2s...`); await delay(2000); }
-        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan);
+        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan, cycleLearningInsights);
+      })(i);
+      generateTasks.push(task);
+    }
+    const generateResults = await Promise.all(generateTasks);
+    const validContents = generateResults.filter(r => r.success);
+    totalGenerated += validContents.length;
+    console.log(`   ✅ Generated ${validContents.length}/${contentsPerCycle} contents`);
+    
+    // Save and EXIT - let next run handle judging
+    if (ckpt) {
+      ckpt._stage = 'generate';
+      ckpt.cycleNumber = cycleNumber;
+      ckpt.totalGenerated = totalGenerated;
+      ckpt.totalFailed = totalFailed;
+      ckpt._pendingContents = validContents.map(r => ({ content: r.content, index: r.index }));
+      ckpt.cycleLearningInsights = cycleLearningInsights;
+      ckpt.allContentHistory = allContentHistory;
+      ckpt.allCycleJudgeResults = allCycleJudgeResults;
+      saveCheckpoint(checkpointPath, ckpt);
+      console.log('   📂 Saved checkpoint at generate stage. Next run will judge these contents.');
+    }
+    // Don't continue to judging in this run - exit here
+    // The output section below will show "no winner" which is expected
+  }
+  else if (startFromStage === 'generate' && ckpt._pendingContents && ckpt._pendingContents.length > 0) {
+    // ── STEP B: Judge contents (when stage is 'generate' with pending contents) ──
+    const pendingContents = ckpt._pendingContents;
+    console.log(`\n   📂 Resumed with ${pendingContents.length} pending contents, judging...`);
+    
+    console.log('\n⚖️ Judging contents...');
+    const judgePromises = pendingContents.map((result) => {
+      return Promise.race([
+        judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber, judgingState)
+          .catch(err => { console.log(`   ⚠️ Judge error: ${err.message}`); return { content: result.content, passed: false, failedAt: 'error' }; }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Judge timeout')), 300000))
+      ]).catch(err => ({ content: result.content, passed: false, failedAt: 'timeout' }));
+    });
+    const judgeResults = await Promise.all(judgePromises);
+    allCycleJudgeResults.push(...judgeResults.filter(r => !r.skipped));
+    const failedThisCycle = judgeResults.filter(r => {
+      const v = r.status === 'fulfilled' ? r.value : r;
+      return !v.skipped && !v.passed;
+    }).length;
+    totalFailed += failedThisCycle;
+    
+    for (const result of judgeResults) {
+      const v = result.status === 'fulfilled' ? result.value : result;
+      if (v.skipped) continue;
+      if (v.passed) { judgingState.setWinner(result.status === 'fulfilled' ? result : result.value); break; }
+    }
+    
+    // Save and check for winner
+    if (ckpt) {
+      ckpt._stage = 'judge';
+      ckpt.cycleNumber = cycleNumber;
+      ckpt.totalGenerated = totalGenerated;
+      ckpt.totalFailed = totalFailed;
+      ckpt.cycleLearningInsights = cycleLearningInsights;
+      ckpt.allContentHistory = allContentHistory;
+      ckpt.allCycleJudgeResults = allCycleJudgeResults;
+      ckpt._pendingContents = [];
+      saveCheckpoint(checkpointPath, ckpt);
+    }
+    
+    if (judgingState.hasWinner()) {
+      console.log('   🎉 Winner found after judging!');
+    } else {
+      console.log(`   📊 Cycle ${cycleNumber}: All contents failed (${totalFailed} total failures)`);
+      // Don't start next cycle here - next run will handle it
+    }
+  }
+  else {
+    // FRESH RUN - no checkpoint
+    // This is the normal while loop for non-resumed runs
+    while (!judgingState.hasWinner() && cycleNumber < maxCycles) {
+      cycleNumber++;
+      console.log(`\n${'═'.repeat(60)}`);
+      console.log(`🔄 CYCLE ${cycleNumber}`);
+      console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
+      console.log(`${'═'.repeat(60)}`);
+      
+    console.log('\n📝 Generating 3 contents with staggered start...');
+    const generateTasks = [];
+    for (let i = 0; i < contentsPerCycle; i++) {
+      const task = (async (idx) => {
+        if (idx > 0) { console.log(`   ⏳ Stagger delay ${idx}: waiting 2s...`); await delay(2000); }
+        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan, cycleLearningInsights);
       })(i);
       generateTasks.push(task);
     }
@@ -7925,6 +8383,19 @@ async function runManualWorkflow(jsonFilePath) {
     totalGenerated += validContents.length;
     if (validContents.length === 0) { console.log('   ⚠️ No contents generated, retrying...'); await delay(1000); continue; }
     console.log(`   ✅ Generated ${validContents.length}/${contentsPerCycle} contents`);
+    
+    // ── CHECKPOINT: Save after generation (before judging) ──
+    if (ckpt) {
+      ckpt._stage = 'generate';
+      ckpt.cycleNumber = cycleNumber;
+      ckpt.totalGenerated = totalGenerated;
+      ckpt.totalFailed = totalFailed;
+      ckpt._pendingContents = validContents.map(r => ({ content: r.content, index: r.index }));
+      ckpt.cycleLearningInsights = cycleLearningInsights;
+      ckpt.allContentHistory = allContentHistory;
+      ckpt.allCycleJudgeResults = allCycleJudgeResults;
+      saveCheckpoint(checkpointPath, ckpt);
+    }
     
     console.log('\n⚖️ Judging contents (TRUE parallel with fail-fast)...');
     const judgePromises = validContents.map((result) => {
@@ -7940,6 +8411,18 @@ async function runManualWorkflow(jsonFilePath) {
       if (result.skipped) continue;
       if (result.passed) { judgingState.setWinner(result); break; }
     }
+
+    // ── CHECKPOINT: Save after each cycle ──
+    if (ckpt) {
+      ckpt._stage = 'judge';
+      ckpt.cycleNumber = cycleNumber;
+      ckpt.totalGenerated = totalGenerated;
+      ckpt.totalFailed = totalFailed;
+      ckpt.cycleLearningInsights = cycleLearningInsights;
+      ckpt.allContentHistory = allContentHistory;
+      ckpt.allCycleJudgeResults = allCycleJudgeResults;
+      saveCheckpoint(checkpointPath, ckpt);
+    }
   }
   
   // OUTPUT (same as normal mode)
@@ -7953,6 +8436,13 @@ async function runManualWorkflow(jsonFilePath) {
     return null;
   }
   
+  // ── CHECKPOINT: Save final winner result ──
+  if (ckpt) {
+    ckpt._stage = 'complete';
+    ckpt.winnerResult = { content: winner.content, score: winner.totalScore, scores: winner.scores, cycle: winner.cycleNumber, stats: { totalTime: totalDuration, totalCycles: cycleNumber, totalGenerated, totalFailed } };
+    saveCheckpoint(checkpointPath, ckpt);
+  }
+
   // Display winner
   console.log('\n');
   console.log('╔════════════════════════════════════════════════════╗');
