@@ -1,0 +1,1207 @@
+{
+  "generated_at": "2026-03-30",
+  "campaign": "MergeProof",
+  "total_submissions": 347,
+  "top_20": [
+    {
+      "rank": 1,
+      "username": "eric0xbt",
+      "score": 3446.948796894146,
+      "tweet_id": "2037471271194149101",
+      "text": "I'd would say code reviews used to work when things moved slower, but now it\u2019s a different story eniterly. With vibe coding and AI pushing out pull requests nonstop, verification is becoming the real bottleneck here, not writing code. Most reviews end up rushed, unpaid, and\u2026 pic.twitter.com/byZkJyOCGz - eric.eth (@eric0xbt) March 27, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 56.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 97.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 70.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 179579.00000000003,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 65689.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet presents a clear and unique perspective on the challenges of modern code review processes, particularly in the context of 'vibe coding' and AI-driven development. It effectively highlights the shift from traditional review models to MergeProof's staking and incentive system, emphasizing th",
+      "eng_analysis": "The tweet effectively grabs attention with a provocative statement about the limitations of traditional code reviews in the current fast-paced coding environment. The use of 'vibe coding' and 'AI pushing out pull requests nonstop' resonates with the developer community and sets the stage for introdu",
+      "url": "https://x.com/eric0xbt/status/2037471271194149101"
+    },
+    {
+      "rank": 2,
+      "username": "gurllikeher",
+      "score": 3341.7392426905462,
+      "tweet_id": "2036817208664297629",
+      "text": "Code review is thankless work. Vibe coding made it worse,more PRs,less trust. https://t.co/Ga7bxU036K fixes this. You stake money on your code. Reviewers earn rewards for finding bugs. If your code is solid, you get your stake back. This turns review from a favor into a game. pic.twitter.com/0pTryJDQLC - Abigael (@GurlLikeHer) March 25, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 26.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 150.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 95.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 211802.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 80330.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 4.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet frames the problem clearly (code review is \u201cthankless,\u201d vibe coding increases PR volume and reduces trust) and explains the mechanism (stake money on code, reviewers earn rewards for finding bugs, stake returned if solid). However, the core idea and phrasing strongly overlap with common Me",
+      "eng_analysis": "The thread effectively addresses a high-friction pain point in the developer community: the fatigue of code reviews in the era of AI-generated 'vibe coding.' The hook is strong, using a controversial and relatable opening statement. It clearly explains the 'Skin in the Game' mechanism which provides",
+      "url": "https://x.com/gurllikeher/status/2036817208664297629"
+    },
+    {
+      "rank": 3,
+      "username": "victor_ephraim7",
+      "score": 3319.3484390668673,
+      "tweet_id": "2037527476407083321",
+      "text": "Code review has a scaling problem. We\u2019ve made it easier than ever to write code, especially with AI and vibe coding. But review is still mostly manual, unpaid, and dependent on someone paying attention at the right time. That gap is starting to show. MergeProof introduces a\u2026 pic.twitter.com/FEOH569ayf - \u20bfVIC (@Victor_Ephraim7) March 27, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 4.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 264.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 38.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 776741.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 63728.00000000001,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 3.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The provided tweet demonstrates a strong command of the subject matter and effectively communicates the value proposition of MergeProof. Here's the breakdown across the scoring criteria: \n\n1. **Unique Perspective**: The tweet presents a fresh angle by framing code review as a scaling issue exacerbat",
+      "eng_analysis": "The tweet effectively grabs attention by highlighting a significant issue in the current code review process, stating that it has a 'scaling problem.' The introduction of MergeProof and its innovative model of staking value behind pull requests and incentivizing reviewers is clearly explained. The c",
+      "url": "https://x.com/victor_ephraim7/status/2037527476407083321"
+    },
+    {
+      "rank": 4,
+      "username": "web3brayn",
+      "score": 3240.428364978732,
+      "tweet_id": "2037871300438344015",
+      "text": "nobody talks about what a PR approval actually means it is not \"I checked this\" it is \"I am comfortable moving on\" those are not the same thing but we treat them like they are and the whole system runs on that gap you skim you trust the pipeline you click approve and the\u2026 - Brayn\ud83d\udd36 (@web3Brayn) March 28, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 27.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 170.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 11.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 9010.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 30555.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet offers a fresh perspective on the issue of code review and the challenges posed by 'vibe coding'. It presents a clear and well-reasoned argument for why MergeProof is necessary, highlighting the limitations of traditional code review systems and the benefits of introducing economic alignme",
+      "eng_analysis": "The tweet effectively drives audience engagement due to its well-structured content, clear explanation of the problem it solves, and the innovative solution it presents through MergeProof. The opening hook is effective as it questions a common practice (PR approval) and sets up a narrative that reso",
+      "url": "https://x.com/web3brayn/status/2037871300438344015"
+    },
+    {
+      "rank": 5,
+      "username": "calyn_27",
+      "score": 3235.760949399719,
+      "tweet_id": "2037227959338094935",
+      "text": "Okay I need to talk about code review because something is genuinely off and I don't think enough people are seeing the bigger picture Here's a thread on why MergeProof might be the most clever solution i've seen.\ud83e\uddf5 pic.twitter.com/NH5sZTD6Id - Paschaline_ (@Calyn_27) March 26, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 35.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 142.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 15.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 4183.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 30373.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This thread demonstrates moderate originality with some authentic voice elements but falls short of exceptional uniqueness. \n\nStrengths: The opening hook ('something is genuinely off') creates conversational urgency. The 'vibes' framing for PR reviews is relatable and shows personal understanding of",
+      "eng_analysis": "The thread uses a compelling 'problem-first' hook that addresses a relatable pain point for developers: the 'vibe-based' nature of modern code reviews. By framing the current state of engineering as flawed due to AI-generated code and reviewer fatigue, it builds a logical bridge to the MergeProof so",
+      "url": "https://x.com/calyn_27/status/2037227959338094935"
+    },
+    {
+      "rank": 6,
+      "username": "mdlabibbiswas6",
+      "score": 3185.5107112898413,
+      "tweet_id": "2035937302741139805",
+      "text": "Code review has always been treated as a responsibility, not an incentive. That worked when teams were small, but it feels outdated now. With AI-driven development and vibe coding, writing code is fast, almost effortless. The real problem is verifying it. Reviewers are\u2026 pic.twitter.com/eMl7aEyN4T - \ud835\ude47\ud835\ude56\ud835\ude57\ud835\ude5e\ud835\ude57 (@mdlabibbiswas6) March 23, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 70.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 274.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 32.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 178000.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 57656.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 3.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 3.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "Unique Perspective:\nThe tweet closely mirrors the framing used in the similar tweets: code review as a fragile, outdated system in the age of AI and vibe coding, with MergeProof introducing staking and incentives. It slightly reframes things by emphasizing \u201cresponsibility, not an incentive\u201d and the ",
+      "eng_analysis": "This tweet demonstrates strong engagement potential across multiple dimensions. Hook Effectiveness (4/5): Opens with a relatable insight about code review being a 'responsibility, not an incentive' that immediately resonates with developers. The transition to AI-driven development and 'vibe coding' ",
+      "url": "https://x.com/mdlabibbiswas6/status/2035937302741139805"
+    },
+    {
+      "rank": 7,
+      "username": "dloveress",
+      "score": 3168.235066788881,
+      "tweet_id": "2035263806398484612",
+      "text": "There is more AI generated code being pushed to repositories right now than at any point in history. The review system handling it was designed for a different era. When anyone can generate hundreds of lines of code in minutes, the question stops being can we build this and\u2026 pic.twitter.com/RQtJQiCT0A - Loveress (@dloveress) March 21, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 31.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 180.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 16.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 7096.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 30389.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet demonstrates a high level of originality by moving beyond the generic 'vibe coding' talking points to explore the psychological and structural flaws of traditional code review, specifically the lack of penalties for shallow reviews versus rewards for thorough ones. While it addresses the s",
+      "eng_analysis": "The tweet demonstrates exceptional hook effectiveness by addressing a timely and high-stakes problem: the flood of AI-generated code and the failure of legacy review systems. It successfully avoids the 'press release' trap by maintaining an analytical, thought-provoking tone that aligns with the dev",
+      "url": "https://x.com/dloveress/status/2035263806398484612"
+    },
+    {
+      "rank": 8,
+      "username": "bennyharyor",
+      "score": 3160.99110660327,
+      "tweet_id": "2037871631062778081",
+      "text": "we say code review matters then we approve PRs in three minutes and go back to Slack not because we are lazy because nothing is at stake the approval costs nothing being wrong costs nothing reviews are not a verdict they are a formality with a checkmark i have been in\u2026 - Ben (@Bennyharyor) March 28, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 22.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 119.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 11.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 8965.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 20645.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates strong originality across multiple dimensions. The opening hook ('we say code review matters / then we approve PRs in three minutes and go back to Slack') immediately establishes a fresh, honest perspective that differs significantly from the similar tweets provided. While si",
+      "eng_analysis": "The tweet effectively drives audience engagement by starting with a hook that resonates with developers, 'we say code review matters...', followed by a thought-provoking analysis of the current state of code reviews. The content is well-structured, easily digestible, and uses formatting elements eff",
+      "url": "https://x.com/bennyharyor/status/2037871631062778081"
+    },
+    {
+      "rank": 9,
+      "username": "celinaalice68",
+      "score": 3134.781807862884,
+      "tweet_id": "2037129310318780520",
+      "text": "Most people are looking at MergeProof like a dev tool. I think that\u2019s the wrong lens. What\u2019s actually happening here is the financialization of code quality. For years, \u201cI\u2019m confident this code is safe\u201d was just a sentence in a PR description. No cost if it was wrong. No\u2026 - Celina Alice (@CelinaAlice68) March 26, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 18.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 25.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 18.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 38473.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 29220.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet presents a distinctive and authentic analysis of MergeProof, framing it not merely as a dev tool but as the 'financialization of code quality.' This core concept is a fresh and powerful angle not explicitly stated in the similar tweets, which focus more generically on incentives, scaling, ",
+      "eng_analysis": "1. Hook Effectiveness:\nThe opening line \"Most people are looking at MergeProof like a dev tool. I think that\u2019s the wrong lens.\" is a strong hook for a technical audience. It challenges an assumption and signals a contrarian take, which tends to perform well on X. The phrase \"financialization of code",
+      "url": "https://x.com/celinaalice68/status/2037129310318780520"
+    },
+    {
+      "rank": 10,
+      "username": "sammyonchainhq",
+      "score": 3128.5947281984313,
+      "tweet_id": "2037830268740849999",
+      "text": "Code reviews have quietly become one of the weakest links in modern software development. Not because engineers do not care, but because the system around reviews has not evolved with how code is produced today. With vibe coding and AI tools generating pull requests at a\u2026 pic.twitter.com/vLXgUls05x - SammyV2 (@SammyOnChainHQ) March 28, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 26.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 80.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 21.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 38553.00000000001,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 15233.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates moderate originality but falls short of exceptional uniqueness when compared to the similar tweets provided. \n\nStrengths: The opening hook ('Code reviews have quietly become one of the weakest links') is strong and immediately establishes the problem. The tweet uses concrete ",
+      "eng_analysis": "The tweet effectively addresses a relevant problem in software development, offering a unique solution with MergeProof. The content is well-structured and provides clear value by explaining the issue and the proposed innovation. However, the lengthy text may reduce digestibility, and the CTA is indi",
+      "url": "https://x.com/sammyonchainhq/status/2037830268740849999"
+    },
+    {
+      "rank": 11,
+      "username": "guynextdooooor",
+      "score": 3124.7619134963443,
+      "tweet_id": "2035140165870789100",
+      "text": "Code review is breaking, just slowly enough that most teams tolerate it. Every month, millions of pull requests hit GitHub. Reviews are supposed to be the safety net before code ships, but in practice they are often rushed, delayed or treated as a formality. AI has made this\u2026 https://t.co/oVaSFnv3Ax pic.twitter.com/htpHzPIbZw - Theguynextdoor (@guynextdooooor) March 20, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 69.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 157.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 14.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 5236.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 27454.999999999996,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates moderate originality with some genuinely fresh elements mixed with standard campaign messaging. The opening line 'Code review is breaking, just slowly enough that most teams tolerate it' is a standout phrase that offers a unique observation about institutional inertia - this ",
+      "eng_analysis": "The tweet effectively addresses a high-friction pain point in the developer community: the decline of code quality due to 'vibe coding' and AI-generated bloat. The hook is punchy and identifies a systemic problem that most developers implicitly feel. By framing MergeProof as 'skin in the game' for c",
+      "url": "https://x.com/guynextdooooor/status/2035140165870789100"
+    },
+    {
+      "rank": 12,
+      "username": "janu14383724581",
+      "score": 3095.45474617682,
+      "tweet_id": "2036711955071660072",
+      "text": "Most code doesn\u2019t break because people don\u2019t care. It breaks because no one is truly incentivized to care enough. I\u2019ve seen pull requests get approved in minutes, not because they were perfect, but because the reviewer had nothing at stake. No reward for catching issues, no\u2026 pic.twitter.com/KzEF3qaSGe - J\u00c5\u00d1\u00db (@Janu14383724581) March 25, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 83.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 106.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 44.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 70536.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 10384.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 3.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates moderate originality with some authentic elements but also shares significant structural and thematic overlap with the provided similar tweets.\n\nStrengths:\n- Opens with a genuinely insightful observation about incentive misalignment rather than generic problem statements\n- Th",
+      "eng_analysis": "The tweet features a strong, contrarian hook that identifies a relatable pain point in software engineering\u2014the lack of incentives in code reviews. It effectively utilizes the 'vibe coding' trend to create urgency and explains the MergeProof value proposition through a logical economic lens rather t",
+      "url": "https://x.com/janu14383724581/status/2036711955071660072"
+    },
+    {
+      "rank": 13,
+      "username": "sheetlyxbt",
+      "score": 3049.260032649965,
+      "tweet_id": "2037381343055855679",
+      "text": "Most code reviews today run on a quiet assumption: someone will care enough to look closely. In reality, that rarely holds at scale. I\u2019ve personally seen PRs get approved just to unblock releases, not because they were fully understood. No one wants to slow things down, so\u2026 pic.twitter.com/NMNSGy1Dfd - Sheetly (@SheetlyXbt) March 27, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 20.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 142.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 38.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 35211.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 10413.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 4.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates strong originality across multiple dimensions. The opening hook ('Most code reviews today run on a quiet assumption: someone will care enough to look closely') is distinct from the similar tweets provided, which use more conventional openings about broken systems or speed vs ",
+      "eng_analysis": "Hook Effectiveness:\nThe opening line \"Most code reviews today run on a quiet assumption: someone will care enough to look closely\" is strong and opinionated. It frames a shared pain point for engineers and maintainers, and the follow up \"In reality, that rarely holds at scale\" deepens the tension. T",
+      "url": "https://x.com/sheetlyxbt/status/2037381343055855679"
+    },
+    {
+      "rank": 14,
+      "username": "_queenmother_1",
+      "score": 3035.11033037581,
+      "tweet_id": "2037623667270599046",
+      "text": "so i have been thinking less about how fast code is being written and more about how little attention each change actually gets. AI has made it easy to ship a lot of things because you open a PR, things look fine on the surface, it gets approved, and everyone moves on. But\u2026 pic.twitter.com/6ViZcl3sXr - WEB3 GODDESS (@_QueenMother_1) March 27, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 8.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 116.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 12.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 24478.999999999996,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 48083.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 4.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet presents a reflective and nuanced take on the growing disconnect between the speed of code production\u2014fueled by AI and 'vibe coding'\u2014and the deteriorating depth of code review. It stands out by focusing on accountability and psychological ownership rather than just tooling efficiency. The ",
+      "eng_analysis": "This tweet demonstrates strong engagement potential across multiple dimensions. **Hook Effectiveness (4/5)**: Opens with a relatable observation about the shift from code speed to code attention, immediately resonating with developers experiencing this tension. The conversational 'so i have been thi",
+      "url": "https://x.com/_queenmother_1/status/2037623667270599046"
+    },
+    {
+      "rank": 15,
+      "username": "oowopeju8992",
+      "score": 3003.58447299218,
+      "tweet_id": "2034866285620629986",
+      "text": "Code review has always depended on something fragile which is attention. You submit a PR and hope someone reads it carefully enough to catch what matters. That model worked when code was slower to produce and teams were smaller. It starts to break when output scales, With AI and\u2026 pic.twitter.com/rpQ8Tyw774 - Mide(evm/acc) (@OOwopeju8992) March 20, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 16.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 69.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 32.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 205279.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 17677.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 2.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet presents a strong and unique perspective on the code review problem, framing it as a fragile system reliant on attention and goodwill that breaks at scale. It introduces the concept of 'vibe coding' and the imbalance between free code production and costly verification. The personal voice ",
+      "eng_analysis": "1. Hook Effectiveness:\nThe opening frames a familiar pain point for developers: code review depending on fragile attention. It immediately positions the post around a systemic problem, not a product pitch, which is strong for its target audience. The follow up line about PRs and hoping someone reads",
+      "url": "https://x.com/oowopeju8992/status/2034866285620629986"
+    },
+    {
+      "rank": 16,
+      "username": "cartoonist_mc1",
+      "score": 2999.397053209581,
+      "tweet_id": "2036955263752606132",
+      "text": "MergeProof: What If Bad Code Actually Cost You Something? Imagine you're hiring a contractor to renovate your kitchen. They show up, do the work, hand you the bill and six months later, the pipes burst. By then, fixing it costs three times what it would have if someone had just\u2026 pic.twitter.com/BqGh8yA1JC - \u0112l Ch\u0100P\u00f8 (@CARTOONIST_MC1) March 25, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 66.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 87.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 45.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 127039.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 90427.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 2.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet demonstrates a high degree of originality by using a kitchen renovation analogy to explain the technical debt and 'pipes bursting' in software development, which is a fresh angle compared to the more literal 'vibe coding' explanations in the similar tweets provided. While it covers the man",
+      "eng_analysis": "The tweet demonstrates high engagement potential through a strong narrative hook that uses a relatable real-world analogy (kitchen renovation) to explain a technical problem. It effectively addresses current pain points in the tech industry, such as 'vibe coding' and the influx of AI-generated PRs, ",
+      "url": "https://x.com/cartoonist_mc1/status/2036955263752606132"
+    },
+    {
+      "rank": 17,
+      "username": "mishabicha",
+      "score": 2988.265102461709,
+      "tweet_id": "2037932821923364939",
+      "text": "We had a PR with multiple approvals that still shipped a bug. Not because it was complex, just no one took real ownership, which happens more now as vibe coding keeps increasing PR volume. https://t.co/EvDecCdipp lets devs stake on code and reviewers challenge it, so catching. - lo (@mishabicha) March 28, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 0.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 0.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 9.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 386453.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 85265.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet provides a clear explanation of MergeProof's value proposition, highlighting the problem of superficial code reviews in the context of 'vibe coding.' It uses a personal anecdote ('We had a PR with multiple approvals that still shipped a bug') to establish authenticity, which aligns with th",
+      "eng_analysis": "The tweet effectively uses a relatable pain point\u2014shipping bugs despite multiple approvals\u2014to hook the developer audience. By introducing the concept of 'vibe coding' and the resulting increase in PR volume, it establishes a timely cultural context. The explanation of MergeProof is concise, focusing",
+      "url": "https://x.com/mishabicha/status/2037932821923364939"
+    },
+    {
+      "rank": 18,
+      "username": "0xbao_",
+      "score": 2981.294596600921,
+      "tweet_id": "2037887848318419312",
+      "text": "A friend pushed a hotfix late at night, got two quick approvals, and everyone moved on like usual. Next morning it broke a critical flow, and no one could even say what they actually reviewed. That\u2019s the part people ignore. Reviews look active, but there\u2019s no real\u2026 - 0xBao (\u5929\u5b9d) \u2726 (@0xBao_) March 28, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 0.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 0.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 7.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 395151.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 86581.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 5.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 5.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The tweet offers a fresh perspective on the issue of code reviews and the limitations of current systems, particularly with the rise of 'vibe coding'. The author shares a personal experience and insight into the problem, making the voice feel genuine. The language is natural and conversational, avoi",
+      "eng_analysis": "The tweet effectively uses a relatable narrative (the late-night hotfix failure) to hook the developer audience by highlighting a common pain point in modern software engineering. It successfully introduces the concept of 'vibe coding'\u2014a trending term in the developer community\u2014to explain why tradit",
+      "url": "https://x.com/0xbao_/status/2037887848318419312"
+    },
+    {
+      "rank": 19,
+      "username": "baizemin34",
+      "score": 2968.349794908726,
+      "tweet_id": "2035654587034579186",
+      "text": "Most pull requests today run on vibes and goodwill. Someone drops code, and we hope a busy maintainer or random contributor takes time to review it properly. Sometimes they do. Most times, it is rushed or skipped. Now add AI and \u201cvibe coding\u201d into the mix, and the amount of code\u2026 pic.twitter.com/3odu3Kv171 - \u2022\ud835\udd71\ud835\udd91\ud835\udd86\ud835\udd92\ud835\udd8a\ud835\udd98\u2022\u262f\ufe0e (@BaiZemin34) March 22, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 1.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 41.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 187.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 17.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 3578.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 16517.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 4.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "The post clearly follows the same conceptual structure as the similar tweets: problem of goodwill based code review, pressure from vibe coding and AI, introduction of MergeProof with staking on PRs, reviewers rewarded for finding issues, and the framing of this as a needed alignment mechanism in the",
+      "eng_analysis": "The tweet features a strong hook that identifies a relatable pain point for developers: the 'vibes and goodwill' nature of modern PRs. It effectively leverages the current 'vibe coding' trend to establish urgency and relevance. The content structure is clean, using short paragraphs to explain the st",
+      "url": "https://x.com/baizemin34/status/2035654587034579186"
+    },
+    {
+      "rank": 20,
+      "username": "wendy_wendyu",
+      "score": 2965.8634272809923,
+      "tweet_id": "2035752073095159859",
+      "text": "There is a quiet assumption baked into most engineering teams: if enough eyes look at a pull request, the code must be good. But \u201clooking\u201d is not the same as \u201cexamining.\u201d And most review systems never really distinguish between the two. In practice, reviews compete with\u2026 pic.twitter.com/cm2TDukcUm - Weendy Nosequee (@Wendy_WendyU) March 22, 2026",
+      "scores": {
+        "Originality and Authenticity": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Retweets": {
+          "score": 10.0,
+          "max": 0.0
+        },
+        "Likes": {
+          "score": 26.0,
+          "max": 0.0
+        },
+        "Replies": {
+          "score": 23.0,
+          "max": 0.0
+        },
+        "Followers of Repliers": {
+          "score": 250526.0,
+          "max": 0.0
+        },
+        "Impressions": {
+          "score": 30102.0,
+          "max": 0.0
+        },
+        "Content Alignment": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Information Accuracy": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Campaign Compliance": {
+          "score": 2.0,
+          "max": 2.0
+        },
+        "Engagement Potential": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Technical Quality": {
+          "score": 4.0,
+          "max": 5.0
+        },
+        "Reply Quality": {
+          "score": 3.0,
+          "max": 5.0
+        }
+      },
+      "orig_analysis": "This tweet demonstrates exceptional originality across multiple dimensions. \n\nUnique Perspective: The opening framing about 'quiet assumptions' in engineering teams is a fresh angle that immediately distinguishes this from the similar tweets. Rather than starting with the problem statement directly,",
+      "eng_analysis": "Hook Effectiveness: The opening challenges a common but rarely articulated assumption in engineering teams: more eyes on a pull request means better code. This is a strong intellectual hook for developers, tech leads, and engineering managers. The contrast between \u201clooking\u201d and \u201cexamining\u201d sharpens ",
+      "url": "https://x.com/wendy_wendyu/status/2035752073095159859"
+    }
+  ]
+}

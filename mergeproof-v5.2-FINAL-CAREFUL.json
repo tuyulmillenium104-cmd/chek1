@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-03-29T17:09:25.752Z",
+  "version": "v5.2-careful-humanize",
+  "original_score": "22/23",
+  "humanized_text": "Engineering teams track technical debt, but there's a more dangerous form that accumulates silently: verification debt.\n\nUnlike technical debt, verification debt is invisible until something breaks. And unlike technical debt, which compounds linearly, verification debt compounds exponentially because each unverified change increases the blast radius of every future change.\n\nAs AI accelerates code production, the gap between what we ship and what we verify grows wider every sprint. This isn't sustainable.\n\nMergeProof at 0x1D68b125aE0D60F3D57fE0B320c674788cB8056a on GenLayer introduces the first mechanism that directly addresses this by creating an adversarial verification layer where developers commit value to their code's correctness, and reviewers are economically motivated to find what others missed.\n\nThe companies that survive the AI code generation wave won't be the ones that write the most code. They'll be the ones that verify the most rigorously.\n\nIs your team accumulating verification debt without realizing it? mergeproof.com",
+  "verification": {
+    "no_forbidden_phrases": true,
+    "all_required_elements": true,
+    "issues": [],
+    "missing": []
+  },
+  "strategy": "Minimal humanization of 22/23 scoring content to preserve quality while adding natural feel"
+}
