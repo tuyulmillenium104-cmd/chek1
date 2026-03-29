@@ -123,8 +123,8 @@ try {
 
 // HTTP Direct AI Call - No SDK!
 // Model tier system:
-//   - 'glm-4-flash': fastest, used for simple/preliminary tasks (anti-AI regen fallback)
-//   - 'glm-5-flash': balanced, used for research/competitor/Q&A (with thinking + search)
+//   - 'glm-4-flash': fastest, used for simple/preliminary tasks
+//   - 'glm-5-flash': balanced, used for research/competitor/Q&A + anti-AI regen (with thinking + search)
 //   - 'glm-5':       top tier, used for ALL content generation + judging + comprehension
 // All models route to glm-4.6 on the gateway with automatic thinking (reasoning_content)
 function callAIdirect(messages, maxTokens = 2000, temperature = 0.7, options = {}) {
@@ -3901,7 +3901,7 @@ Your tweet should sound like you just experienced something and you're telling a
 Required: Include @grvt_io somewhere natural.
 
 IMPORTANT: Return ONLY the tweet text. No explanation, no formatting, no JSON. Just the tweet.` }
-        ], { temperature: 0.9, maxTokens: 300, model: 'glm-4-flash', enableThinking: false });
+        ], { temperature: 0.9, maxTokens: 300, model: 'glm-5-flash', enableThinking: false });
         
         // Extract content - skip any thinking/reasoning text
         let regenerated = antiAiResponse.content.trim();
