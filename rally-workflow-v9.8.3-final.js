@@ -264,114 +264,6 @@ async function callAI(messages, options = {}) {
   throw lastError;
 }
 
-// Web Search via HTTP Direct - REAL web search (bukan AI simulation)
-// Dengan retry dan token rotation
-async function webSearchSmart(query, num = 10) {
-  console.log(`   🔍 Web Search (Real): "${query.substring(0, 50)}..."`);
-  
-  const maxRetries = 5;
-  
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    // Get token for request - ROTATE on each attempt
-    let tokenData = TOKENS[currentTokenIndex];
-    if (tokenData === null && (!CFG || !CFG.token)) {
-      currentTokenIndex = 1;
-      tokenData = TOKENS[currentTokenIndex];
-    }
-    
-    // Skip null token
-    if (!tokenData) {
-      currentTokenIndex = (currentTokenIndex + 1) % TOKENS.length;
-      if (currentTokenIndex === 0) currentTokenIndex = 1;
-      continue;
-    }
-    
-    // Prepare auth headers
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer Z.ai',
-      'X-Z-AI-From': 'Z',
-      'X-Token': tokenData.token,
-      'X-User-Id': tokenData.userId
-    };
-    if (tokenData.chatId) headers['X-Chat-Id'] = tokenData.chatId;
-    
-    // Get gateway - rotate on each attempt
-    const [host, port] = GATEWAY.hosts[GATEWAY.currentIndex].split(':');
-    GATEWAY.currentIndex = (GATEWAY.currentIndex + 1) % GATEWAY.hosts.length;
-    
-    const body = JSON.stringify({
-      function_name: 'web_search',
-      arguments: { query, num }
-    });
-    
-    try {
-      const result = await new Promise((resolve, reject) => {
-        const req = http.request({
-          hostname: host,
-          port: parseInt(port),
-          path: '/v1/functions/invoke',
-          method: 'POST',
-          headers
-        }, (res) => {
-          let data = '';
-          res.on('data', chunk => data += chunk);
-          res.on('end', () => {
-            if (res.statusCode === 200) {
-              try {
-                const json = JSON.parse(data);
-                const results = Array.isArray(json) ? json : (json.result || []);
-                resolve({ success: true, results });
-              } catch (e) {
-                resolve({ success: false, error: e.message });
-              }
-            } else if (res.statusCode === 429) {
-              resolve({ success: false, error: 'rate_limit', status: 429 });
-            } else {
-              resolve({ success: false, error: `HTTP ${res.statusCode}`, status: res.statusCode });
-            }
-          });
-        });
-        
-        req.on('error', (e) => resolve({ success: false, error: e.message }));
-        req.setTimeout(15000, () => { req.destroy(); resolve({ success: false, error: 'timeout' }); });
-        req.write(body);
-        req.end();
-      });
-      
-      if (result.success) {
-        console.log(`   ✅ Web Search: ${result.results.length} results (token: ${tokenData.label || currentTokenIndex})`);
-        return result.results;
-      }
-      
-      // Handle errors
-      if (result.error === 'rate_limit') {
-        console.log(`   ⚠️ Web search rate limited on ${tokenData.label || currentTokenIndex}, trying next token...`);
-        // Rotate token for next attempt
-        currentTokenIndex = (currentTokenIndex + 1) % TOKENS.length;
-        if (currentTokenIndex === 0) currentTokenIndex = 1;
-        await new Promise(r => setTimeout(r, 500));
-        continue;
-      } else if (result.error === 'timeout') {
-        console.log(`   ⚠️ Web search timeout, retrying...`);
-        continue;
-      } else {
-        console.log(`   ⚠️ Web search error: ${result.error}`);
-        // Try next token
-        currentTokenIndex = (currentTokenIndex + 1) % TOKENS.length;
-        if (currentTokenIndex === 0) currentTokenIndex = 1;
-        continue;
-      }
-      
-    } catch (e) {
-      console.log(`   ⚠️ Web search exception: ${e.message}`);
-    }
-  }
-  
-  console.log(`   ⚠️ Web search failed after ${maxRetries} attempts`);
-  return [];
-}
-
 // SDK compatibility aliases (for existing code)
 let ZAI = null;
 let SDK_AVAILABLE = false; // Always false - we use HTTP Direct
@@ -1594,7 +1486,7 @@ class MultiProviderLLM {
 
   async chat(messages, options = {}) {
     const result = await callAI(messages, options);
-    console.log(`   ✅ Response received (${result.provider}, token: ${result.tokenUsed || 'auto'})`);
+    try { console.log(`   ✅ Response received (${result.provider}, token: ${result.tokenUsed || 'auto'})`); } catch (e) { /* EPIPE safe */ }
     
     return {
       content: result.content || '',
@@ -1606,14 +1498,14 @@ class MultiProviderLLM {
   }
   
   async blindJudge(systemPrompt, userPrompt, judgeId, options = {}) {
-    console.log(`\n   🔒 TRUE BLIND JUDGE ${judgeId} - Fresh Context`);
+    try { console.log(`\n   🔒 TRUE BLIND JUDGE ${judgeId} - Fresh Context`); } catch (e) { /* EPIPE safe */ }
 
     const result = await callAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
     ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Judge ${judgeId} success! (model: glm-5 + search)`);
+    try { console.log(`   ✅ Judge ${judgeId} success! (model: glm-5 + search)`); } catch (e) { /* EPIPE safe */ }
 
     return {
       content: result.content || '',
@@ -1624,14 +1516,14 @@ class MultiProviderLLM {
   }
   
   async contextAwareJudge(systemPrompt, userPrompt, judgeId) {
-    console.log(`\n   📋 CONTEXT-AWARE JUDGE ${judgeId} - With Campaign Info`);
+    try { console.log(`\n   📋 CONTEXT-AWARE JUDGE ${judgeId} - With Campaign Info`); } catch (e) { /* EPIPE safe */ }
 
     const result = await callAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
     ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Context-Aware Judge ${judgeId} success! (model: glm-5 + search)`);
+    try { console.log(`   ✅ Context-Aware Judge ${judgeId} success! (model: glm-5 + search)`); } catch (e) { /* EPIPE safe */ }
 
     return {
       content: result.content || '',
@@ -1642,7 +1534,7 @@ class MultiProviderLLM {
   }
   
   async factCheckJudge(systemPrompt, userPrompt, judgeId) {
-    console.log(`\n   🔍 FACT-CHECK JUDGE ${judgeId} - Model Built-in Search`);
+    try { console.log(`\n   🔍 FACT-CHECK JUDGE ${judgeId} - Model Built-in Search`); } catch (e) { /* EPIPE safe */ }
 
     // Model glm-5 dengan enable_search: true sudah otomatis melakukan web search
     // Tidak perlu webSearchSmart terpisah — model akan search sendiri saat dibutuhkan
@@ -1651,7 +1543,7 @@ class MultiProviderLLM {
       { role: 'user', content: userPrompt }
     ], { temperature: 0.2, maxTokens: 3000, model: 'glm-5', enableSearch: true });
     
-    console.log(`   ✅ Fact-Check Judge ${judgeId} success! (model: glm-5 + built-in search)`);
+    try { console.log(`   ✅ Fact-Check Judge ${judgeId} success! (model: glm-5 + built-in search)`); } catch (e) { /* EPIPE safe */ }
 
     return {
       content: result.content || '',
@@ -2300,6 +2192,132 @@ function detectForbiddenPunctuation(content) {
       .replace(/\u2026/g, '...'); // Replace ellipsis
   }
   
+  return result;
+}
+
+// ============================================================================
+// BUG #34 FIX: Auto-sanitize content (smart quotes → straight quotes, em dashes → hyphens)
+// ============================================================================
+/**
+ * sanitizeContent - Auto-fixes AI-indicator punctuation before judging.
+ * Returns sanitized content string. If no changes needed, returns original.
+ */
+function sanitizeContent(content) {
+  if (!content || typeof content !== 'string') return content;
+  
+  let sanitized = content;
+  let changes = [];
+  
+  // Smart double quotes → straight quotes
+  const smartDouble = ['\u201c', '\u201d', '\u201e', '\u201f']; // " " „ ‟
+  smartDouble.forEach(char => {
+    if (sanitized.includes(char)) {
+      sanitized = sanitized.replace(new RegExp(char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '"');
+      changes.push('smart double quotes');
+    }
+  });
+  
+  // Smart single quotes → straight quotes
+  const smartSingle = ['\u2018', '\u2019']; // ' '
+  smartSingle.forEach(char => {
+    if (sanitized.includes(char)) {
+      sanitized = sanitized.replace(new RegExp(char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), "'");
+      changes.push('smart single quotes');
+    }
+  });
+  
+  // Em dashes → hyphen
+  ['\u2014', '\u2013', '\u2015'].forEach(char => { // — – ―
+    if (sanitized.includes(char)) {
+      sanitized = sanitized.replace(new RegExp(char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '-');
+      changes.push('em dashes');
+    }
+  });
+  
+  // Ellipsis char → three dots
+  if (sanitized.includes('\u2026')) {
+    sanitized = sanitized.replace(/\u2026/g, '...');
+    changes.push('ellipsis');
+  }
+  
+  if (changes.length > 0) {
+    console.log(`   📝 Auto-sanitized: ${changes.join(', ')}`);
+  }
+  
+  return sanitized;
+}
+
+// ============================================================================
+// BUG #35 FIX: Metric Type Relevance Validator
+// Checks if content uses the CORRECT type of metrics for the campaign's intent
+// ============================================================================
+/**
+ * validateMetricTypeRelevance - Post-generation validation that catches metric type mismatches.
+ * Example: Campaign wants "growth metrics" but content cites TVL/Volume (liquidity) → REJECT
+ * 
+ * @param {string} content - The generated content
+ * @param {object} deepIntent - The deep campaign intent analysis result
+ * @returns {{ valid: boolean, issues: string[], wrongMetricsFound: string[] }}
+ */
+function validateMetricTypeRelevance(content, deepIntent) {
+  const result = { valid: true, issues: [], wrongMetricsFound: [] };
+  
+  if (!deepIntent || !deepIntent.metricClassification) return result;
+  
+  const { campaignMetricType, wrongMetricsToAvoid, correctMetricsToUse } = deepIntent.metricClassification;
+  
+  // If no specific metric type or no wrong metrics defined, skip validation
+  if (!campaignMetricType || !wrongMetricsToAvoid || wrongMetricsToAvoid.length === 0) return result;
+  
+  const contentLower = content.toLowerCase();
+  
+  // Check for LIQUIDITY metrics being used as wrong type
+  const liquidityPatterns = [
+    { pattern: /\$?\d+\s*(m|b|t)\+?\s*tvl/i, label: 'TVL figure' },
+    { pattern: /\$?\d+\s*(b|t)\+?\s*(cumulative\s+)?volume/i, label: 'Volume figure' },
+    { pattern: /\$?\d+\s*(b|t)\+?\s*(trading\s+)?volume/i, label: 'Trading volume figure' },
+    { pattern: /tvl\s*(of|is|at|reached|hit)\s*/i, label: 'TVL reference' },
+    { pattern: /(\d+)\s*(b|t)\+?\s*(in\s+)?(cumulative\s+)?(perp|perpetual)?\s*volume/i, label: 'Cumulative volume' },
+  ];
+  
+  // Check for wrong metric labels being used with wrong data
+  const metricLabelMismatches = [
+    { pattern: /retention\s+(stats?|metrics?|data|figures?)/i, wrongWith: ['tvl', 'volume', 'liquidity', '$100m', '$200b'], label: 'retention stats with liquidity data' },
+    { pattern: /growth\s+(metrics?|data|figures?|stats?)/i, wrongWith: ['tvl', 'volume', '$200b'], label: 'growth metrics with liquidity data' },
+    { pattern: /engagement\s+(metrics?|data|figures?|stats?)/i, wrongWith: ['tvl', 'volume', '$200b', '$100m'], label: 'engagement metrics with liquidity data' },
+  ];
+  
+  // Check wrong metrics to avoid
+  wrongMetricsToAvoid.forEach(wrongMetric => {
+    const wrongLower = wrongMetric.toLowerCase();
+    // Check if content mentions both the wrong metric concept AND actual numbers related to it
+    const hasMetricLabel = contentLower.includes(wrongLower) || 
+      wrongLower.split(/\s+/).some(w => w.length > 3 && contentLower.includes(w));
+    
+    if (hasMetricLabel) {
+      result.wrongMetricsFound.push(wrongMetric);
+    }
+  });
+  
+  // Check liquidity patterns when campaign wants non-liquidity metrics
+  if (campaignMetricType !== 'LIQUIDITY') {
+    liquidityPatterns.forEach(({ pattern, label }) => {
+      if (pattern.test(content)) {
+        // Check if the content is labeling this as the campaign's wanted metric type
+        metricLabelMismatches.forEach(({ pattern: labelPattern, wrongWith, label: mismatchLabel }) => {
+          if (labelPattern.test(content)) {
+            const hasWrongData = wrongWith.some(w => contentLower.includes(w));
+            if (hasWrongData) {
+              result.issues.push(`Content uses ${mismatchLabel} — ${label} is LIQUIDITY metric, not ${campaignMetricType}`);
+              result.wrongMetricsFound.push(label);
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  result.valid = result.issues.length === 0;
   return result;
 }
 
@@ -5389,6 +5407,17 @@ ${(deepIntent.metricClassification.correctMetricsToUse || []).map(m => '- ✓ ' 
 ` : ''}
 
 Use web search results to verify claims. Cross-check against knowledge base data.
+
+════════════════════════════════════════════════════════════════
+🚨🚨🚨 ADDITIONAL CHECK: METRIC TYPE RELEVANCE 🚨🚨🚨
+════════════════════════════════════════════════════════════════
+Beyond factual accuracy, you MUST check if the METRIC TYPE is correct:
+- If content says "retention stats" but cites TVL/Volume → these are LIQUIDITY metrics, NOT retention → PENALTY
+- If content says "growth metrics" but cites TVL/Volume → these are LIQUIDITY metrics, NOT growth → PENALTY
+- Using the RIGHT metric TYPE is more important than having impressive numbers
+- Example: "11% earning rate" is EARNING metric, "$200B volume" is LIQUIDITY metric
+- If the content mislabels metric types → claimAccuracy must be reduced by at least 2 points
+
 Return JSON with scores and verification results.`;
 }
 
@@ -6140,6 +6169,28 @@ async function judgeContentFailFast(content, campaignData, competitorContents, c
   // Get deep intent from module cache (set by main workflow)
   const deepIntent = _cachedCampaignIntent || null;
   
+  // ═══════════════════════════════════════════════════════════════
+  // BUG #34 FIX: Sanitize content before judging (smart quotes, em dashes)
+  // ═══════════════════════════════════════════════════════════════
+  content = sanitizeContent(content);
+  results.content = content;
+  
+  // ═══════════════════════════════════════════════════════════════
+  // BUG #35 FIX: Metric Type Relevance Check before judging
+  // ═══════════════════════════════════════════════════════════════
+  const metricTypeCheck = validateMetricTypeRelevance(content, deepIntent);
+  if (!metricTypeCheck.valid) {
+    console.log('\n   ❌ METRIC TYPE REJECT: Content uses wrong metric type for campaign');
+    metricTypeCheck.issues.forEach(issue => console.log(`      ❌ ${issue}`));
+    results.passed = false;
+    results.failedAt = 'Metric Type Check';
+    results.scores.requirementsValidation = { 
+      score: 0, max: 20, passed: false, 
+      missingElements: metricTypeCheck.issues 
+    };
+    return results;
+  }
+  
   // AUTO-SAVE: Save content immediately after generation (before judging)
   try {
     const tempPath = `${CONFIG.outputDir}/content-${cycleNumber}-${contentIndex + 1}-${Date.now()}.txt`;
@@ -6881,11 +6932,39 @@ async function generateSingleContentForParallel(campaignData, competitorAnalysis
     const result = await generateUniqueContent(llm, campaignData, competitorAnalysis, researchData, 1, comprehensionPlan);
     
     if (result && result.tweets && result.tweets[0]) {
-      const content = result.tweets[0].content;
+      let content = result.tweets[0].content;
       
-      // ═══════════════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
+      // BUG #34 FIX: Auto-sanitize content (smart quotes, em dashes, ellipsis)
+      // ═══════════════════════════════════════════════════════════════
+      const sanitizedContent = sanitizeContent(content);
+      if (sanitizedContent !== content) {
+        content = sanitizedContent;
+      }
+      
+      // ═══════════════════════════════════════════════════════════════
+      // BUG #35 FIX: Metric Type Relevance Check (BEFORE mission compliance)
+      // Rejects content that uses WRONG metric types (e.g., TVL when retention is requested)
+      // ═══════════════════════════════════════════════════════════════
+      const metricTypeCheck = validateMetricTypeRelevance(content, _cachedCampaignIntent);
+      if (!metricTypeCheck.valid) {
+        console.log(`   ⚠️ Content ${index + 1} FAILED Metric Type Check:`);
+        metricTypeCheck.issues.forEach(issue => console.log(`      ❌ ${issue}`));
+        
+        try {
+          const savePath = `${CONFIG.outputDir}/content-${index + 1}-${Date.now()}-FAILED-METRIC.txt`;
+          fs.writeFileSync(savePath, content + '\n\n--- METRIC TYPE ISSUES ---\n' + metricTypeCheck.issues.join('\n'));
+          console.log(`   💾 Saved (wrong metric type): ${savePath}`);
+        } catch (e) {
+          console.log(`   ⚠️ Could not save failed content: ${e.message}`);
+        }
+        
+        return { index, content, success: false, complianceIssues: metricTypeCheck.issues };
+      }
+      
+      // ═══════════════════════════════════════════════════════════════
       // 🚨 MISSION COMPLIANCE CHECK - Verify all requirements are met
-      // ═══════════════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
       const compliance = validateMissionCompliance(content, campaignData);
       
       if (!compliance.valid) {
@@ -7087,11 +7166,21 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
     console.log(`${'═'.repeat(60)}`);
     
-    // Generate 3 contents in parallel (with comprehension plan passed through)
-    console.log('\n📝 Generating 3 contents in parallel (AI follows comprehension plan)...');
+    // BUG #37 FIX: Stagger content generation to avoid rate limit race condition
+    // Instead of firing all 3 simultaneously (causes all to hit rate limit),
+    // stagger them with 2-second delays so they don't all compete for tokens
+    console.log('\n📝 Generating 3 contents with staggered start (AI follows comprehension plan)...');
     const generateTasks = [];
     for (let i = 0; i < contentsPerCycle; i++) {
-      generateTasks.push(generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, i, comprehensionPlan));
+      // Wrap each task with a staggered delay
+      const task = (async (idx) => {
+        if (idx > 0) {
+          console.log(`   ⏳ Stagger delay ${idx}: waiting 2s before Content ${idx + 1}...`);
+          await delay(2000);
+        }
+        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan);
+      })(i);
+      generateTasks.push(task);
     }
     const generateResults = await Promise.all(generateTasks);
     
@@ -7665,6 +7754,244 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
+// ============================================================================
+// MANUAL CAMPAIGN LOADER - Load campaign from JSON file instead of API
+// Usage: node rally-workflow.js campaigns/grvt-m2.json
+// ============================================================================
+
+/**
+ * loadCampaignFromFile - Reads campaign data from a JSON file.
+ * Returns the same format as fetchCampaignData() so the rest of the workflow works identically.
+ */
+function loadCampaignFromFile(filePath) {
+  console.log(`\n📂 Loading campaign from: ${filePath}`);
+  const resolvedPath = path.resolve(__dirname, filePath);
+  if (!fs.existsSync(resolvedPath)) {
+    console.log(`   ❌ File not found: ${resolvedPath}`);
+    return null;
+  }
+  try {
+    const raw = fs.readFileSync(resolvedPath, 'utf8');
+    const data = JSON.parse(raw);
+    console.log('   ✅ Campaign JSON parsed successfully');
+    console.log(`   📋 Title: ${data.title || 'Unknown'}`);
+    console.log(`   🎯 Mission: ${data.missionTitle || 'Default'}`);
+    console.log(`   📍 Address: ${data.intelligentContractAddress || 'None (competitor fetch skipped)'}`);
+    return {
+      title: data.title || 'Unknown Campaign',
+      description: data.description || data.missionGoal || data.goal || '',
+      missionGoal: data.missionGoal || data.description || null,
+      missionTitle: data.missionTitle || null,
+      missionNumber: data.missionNumber || null,
+      style: data.style || 'Standard',
+      rules: data.rules || 'Standard rules',
+      knowledgeBase: data.knowledgeBase || data.knowledge_base || '',
+      additionalInfo: data.additionalInfo || data.adminNotice || '',
+      characterLimit: data.characterLimit || data.character_limit || null,
+      contentType: data.contentType || data.content_type || 'tweet',
+      projectHandle: data.projectHandle || data.handle || null,
+      campaignUrl: data.campaignUrl || data.url || null,
+      intelligentContractAddress: data.intelligentContractAddress || null
+    };
+  } catch (e) {
+    console.log(`   ❌ Failed to parse JSON: ${e.message}`);
+    return null;
+  }
+}
+
+/**
+ * runManualWorkflow - Same as runFirstPassWorkflow but loads campaign from JSON file.
+ * Everything else (competitor fetch, research, deep intent, generation, judging) works identically.
+ */
+async function runManualWorkflow(jsonFilePath) {
+  console.log('\n');
+  console.log('╔════════════════════════════════════════════════════╗');
+  console.log('║    RALLY WORKFLOW V9.8.3-FINAL - MANUAL MODE         ║');
+  console.log('╠════════════════════════════════════════════════════╣');
+  console.log('║  📂 Campaign data loaded from JSON file              ║');
+  console.log('║  📊 Competitor/leaderboard still fetched from API    ║');
+  console.log('║  🧠 Deep intent, generation, judges all NORMAL       ║');
+  console.log('╚════════════════════════════════════════════════════╝');
+  
+  await preflightCheck();
+  judgingState.reset();
+  const totalStartTime = Date.now();
+  
+  // LOAD FROM JSON (not Rally API)
+  const campaignData = loadCampaignFromFile(jsonFilePath);
+  if (!campaignData) { console.log('   ❌ Failed to load campaign'); return null; }
+  if (campaignData.intelligentContractAddress) {
+    console.log(`\n📍 Address: ${campaignData.intelligentContractAddress}`);
+  }
+  
+  // THRESHOLDS (same as normal)
+  console.log('\n📊 HIGH STANDARDS THRESHOLDS:');
+  console.log(`   Judge 1 (Gate Master):  ${THRESHOLDS.JUDGE1.pass}/${THRESHOLDS.JUDGE1.max} (${THRESHOLDS.JUDGE1.percent}) - SEMPURNA!`);
+  console.log(`   Judge 2 (Evidence):      ${THRESHOLDS.JUDGE2.pass}/${THRESHOLDS.JUDGE2.max} (${THRESHOLDS.JUDGE2.percent}) - Fleksibel`);
+  console.log(`   Judge 3 (Quality):       ${THRESHOLDS.JUDGE3.pass}/${THRESHOLDS.JUDGE3.max} (${THRESHOLDS.JUDGE3.percent})`);
+  console.log(`   Total Required:          ${THRESHOLDS.TOTAL.pass}/${THRESHOLDS.TOTAL.max} (${THRESHOLDS.TOTAL.percent})`);
+  
+  // REQUIREMENTS DISPLAY
+  const campaignRequirements = displayCampaignRequirements(campaignData);
+  
+  console.log('\n📋 FULL CAMPAIGN INFO:');
+  console.log('─'.repeat(60));
+  console.log(`   📝 DESCRIPTION: ${(campaignData.description || 'N/A').substring(0, 100)}...`);
+  console.log(`   🎨 STYLE: ${(campaignData.style || 'N/A').substring(0, 100)}...`);
+  console.log(`   📜 RULES: ${(campaignData.rules || 'N/A').substring(0, 150)}...`);
+  console.log(`   📚 KNOWLEDGE BASE: ${(campaignData.knowledgeBase || 'N/A').substring(0, 100)}...`);
+  console.log(`   📎 ADDITIONAL INFO: ${(campaignData.additionalInfo || 'N/A').substring(0, 100)}...`);
+  console.log('─'.repeat(60));
+  
+  // FETCH COMPETITOR (still from Rally API if address provided)
+  let competitorAnalysis = null;
+  let competitorContents = [];
+  if (campaignData.intelligentContractAddress) {
+    console.log('\n📥 Fetching competitor submissions...');
+    try {
+      const submissions = await fetchLeaderboard(campaignData.intelligentContractAddress);
+      console.log(`   📊 Found ${submissions?.length || 0} submissions`);
+      console.log('\n🔍 Running Deep Competitor Analysis...');
+      const llm = new MultiProviderLLM(CONFIG);
+      competitorAnalysis = await deepCompetitorContentAnalysis(llm, submissions, campaignData.title, campaignData);
+      console.log('   ✅ Competitor analysis complete');
+      competitorContents = (competitorAnalysis?.competitorContent || []).map(c => typeof c === 'string' ? c : c.content || '');
+      console.log(`   Competitor Contents: ${competitorContents.length} items`);
+    } catch (e) {
+      console.log(`   ⚠️ Competitor fetch failed: ${e.message} — continuing without competitor data`);
+      competitorAnalysis = { competitorContent: [], analysis: 'No competitor data' };
+    }
+  } else {
+    console.log('\n⚠️ No campaign address — skipping competitor fetch');
+    competitorAnalysis = { competitorContent: [], analysis: 'No address provided' };
+  }
+  
+  // RESEARCH (same as normal)
+  console.log('\n🔎 Running Multi-Query Deep Research...');
+  const llm = new MultiProviderLLM(CONFIG);
+  const researchData = await multiQueryDeepResearch(llm, campaignData.title, campaignData);
+  console.log('   ✅ Research complete');
+  console.log('\n📊 STARTING CONTENT GENERATION PHASE...');
+  console.log(`   Competitor Analysis: ${competitorAnalysis ? 'OK' : 'NULL'}`);
+  console.log(`   Research Data: ${researchData ? 'OK' : 'NULL'}`);
+  
+  // DEEP CAMPAIGN INTENT (same as normal)
+  console.log('\n   🧠 STEP 4.5: Deep Campaign Intent Analysis...');
+  const campaignIntent = await deepCampaignIntentAnalyzer(llm, campaignData, campaignRequirements);
+  _cachedCampaignIntent = campaignIntent;
+  
+  // CAMPAIGN COMPREHENSION (same as normal)
+  console.log('\n🧠 STEP: Campaign Comprehension Check...');
+  const comprehensionPlan = await campaignComprehensionCheck(llm, campaignData, competitorAnalysis, researchData, campaignRequirements);
+  comprehensionPlan._deepIntent = campaignIntent;
+  comprehensionPlan._wrongMetrics = campaignIntent.metricClassification?.wrongMetricsToAvoid || [];
+  comprehensionPlan._correctMetrics = campaignIntent.metricClassification?.correctMetricsToUse || [];
+  comprehensionPlan._metricType = campaignIntent.metricClassification?.campaignMetricType;
+  comprehensionPlan._contentType = campaignIntent.contentType?.primary;
+  comprehensionPlan._contentToAvoid = campaignIntent.contentToAvoid;
+  comprehensionPlan._contentToUse = campaignIntent.contentToUse;
+  comprehensionPlan._trueIntent = campaignIntent.trueIntent;
+  comprehensionPlan._criticalWarnings = campaignIntent.criticalWarnings || [];
+  console.log(`   ✅ AI Campaign Comprehension: ${comprehensionPlan.understood ? 'PASS' : 'NEEDS ATTENTION'}`);
+  if (comprehensionPlan.understood) {
+    console.log(`   📋 AI Plan: ${comprehensionPlan.execution_plan?.substring(0, 100)}...`);
+  }
+  
+  // MAIN LOOP: Generate → Judge → Fail Fast (identical to normal mode)
+  let cycleNumber = 0;
+  let totalGenerated = 0;
+  let totalFailed = 0;
+  const contentsPerCycle = 3;
+  const maxCycles = 10;
+  let allCycleJudgeResults = [];
+  
+  while (!judgingState.hasWinner() && cycleNumber < maxCycles) {
+    cycleNumber++;
+    console.log(`\n${'═'.repeat(60)}`);
+    console.log(`🔄 CYCLE ${cycleNumber}`);
+    console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
+    console.log(`${'═'.repeat(60)}`);
+    
+    console.log('\n📝 Generating 3 contents with staggered start...');
+    const generateTasks = [];
+    for (let i = 0; i < contentsPerCycle; i++) {
+      const task = (async (idx) => {
+        if (idx > 0) { console.log(`   ⏳ Stagger delay ${idx}: waiting 2s...`); await delay(2000); }
+        return generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, idx, comprehensionPlan);
+      })(i);
+      generateTasks.push(task);
+    }
+    const generateResults = await Promise.all(generateTasks);
+    const validContents = generateResults.filter(r => r.success);
+    totalGenerated += validContents.length;
+    if (validContents.length === 0) { console.log('   ⚠️ No contents generated, retrying...'); await delay(1000); continue; }
+    console.log(`   ✅ Generated ${validContents.length}/${contentsPerCycle} contents`);
+    
+    console.log('\n⚖️ Judging contents (TRUE parallel with fail-fast)...');
+    const judgePromises = validContents.map((result) => {
+      return Promise.race([
+        judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber, judgingState)
+          .catch(err => { console.log(`   ⚠️ Judge error: ${err.message}`); return { content: result.content, passed: false, failedAt: 'error' }; }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Judge timeout')), 300000))
+      ]).catch(err => ({ content: result.content, passed: false, failedAt: 'timeout' }));
+    });
+    const judgeResults = await Promise.all(judgePromises);
+    allCycleJudgeResults.push(...judgeResults.filter(r => !r.skipped));
+    for (const result of judgeResults) {
+      if (result.skipped) continue;
+      if (result.passed) { judgingState.setWinner(result); break; }
+    }
+  }
+  
+  // OUTPUT (same as normal mode)
+  const totalDuration = Date.now() - totalStartTime;
+  const winner = judgingState.getWinner();
+  if (!winner) {
+    console.log('\n\n❌ NO WINNER after all cycles');
+    console.log(`   📊 Total Generated: ${totalGenerated} | ❌ Failed: ${totalFailed} | ⏱️ ${totalDuration / 1000}s`);
+    const intPath = `${CONFIG.outputDir}/intermediate-results-manual-${Date.now()}.json`;
+    try { fs.writeFileSync(intPath, JSON.stringify(allCycleJudgeResults, null, 2)); } catch (e) {}
+    return null;
+  }
+  
+  // Display winner
+  console.log('\n');
+  console.log('╔════════════════════════════════════════════════════╗');
+  console.log('║                    🎉 WINNER FOUND! 🎉                    ║');
+  console.log('╠════════════════════════════════════════════════════╣');
+  console.log(`║  ⏱️  Total Time: ${totalDuration / 1000}s`);
+  console.log(`║  🔄 Cycles: ${cycleNumber}`);
+  console.log(`║  📊 Generated: ${totalGenerated} contents`);
+  console.log(`║  ❌ Failed: ${totalFailed} contents`);
+  console.log('╠════════════════════════════════════════════════════╣');
+  console.log(`║  Score: ${winner.totalScore}/105 | Cycle: ${winner.cycleNumber}`);
+  console.log('╠════════════════════════════════════════════════════╣');
+  winner.content.split('\n').forEach(line => console.log(`║  ${line}`));
+  console.log('╚════════════════════════════════════════════════════╝');
+  
+  const winnerHeader = [
+    `═══════════════════════════════════════════════════════════`,
+    `🏆 WINNER CONTENT (Manual Mode - JSON input)`,
+    `═══════════════════════════════════════════════════════════`,
+    `📌 Campaign: ${campaignData.title}`,
+    `🎯 Mission: ${campaignData.missionTitle || 'Default'}`,
+    `📍 Address: ${campaignData.intelligentContractAddress || 'N/A'}`,
+    `📊 Score: ${winner.totalScore}/105`,
+    `🔄 Cycle: ${winner.cycleNumber} | Duration: ${(totalDuration / 1000).toFixed(1)}s`,
+    `⏰ Generated: ${new Date().toISOString()}`,
+    `═══════════════════════════════════════════════════════════`,
+    ``
+  ].join('\n');
+  fs.writeFileSync(`${CONFIG.outputDir}/winner-content.txt`, `${winnerHeader}\n${winner.content}`);
+  console.log(`💾 Winner saved: ${CONFIG.outputDir}/winner-content.txt`);
+  
+  console.log('\n💬 Generating 20 engagement Q&A...');
+  const qaList = await generateEngagementQA(winner.content, campaignData, researchData);
+  await displayAndSaveEngagementQA(qaList, campaignData, winner.content);
+  
+  return { content: winner.content, score: winner.totalScore, scores: winner.scores, cycle: winner.cycleNumber, stats: { totalTime: totalDuration, totalCycles: cycleNumber, totalGenerated, totalFailed } };
+}
+
 async function main() {
   const campaignArg = process.argv[2] || 'list';
   const missionArg = process.argv[3] ? parseInt(process.argv[3]) : null;
@@ -7673,6 +8000,39 @@ async function main() {
   if (campaignArg.toLowerCase() === 'list') {
     await listCampaigns(30);
     process.exit(0);
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // MANUAL MODE: Detect JSON file input
+  // Usage: node rally-workflow.js campaigns/grvt-m2.json
+  // ═══════════════════════════════════════════════════════════════
+  if (campaignArg.endsWith('.json')) {
+    console.log('\n📌 MODE: MANUAL (JSON file input)');
+    console.log(`   File: ${campaignArg}`);
+    console.log('   Everything else runs normally (competitor fetch, research, judges)');
+    
+    try {
+      const result = await runManualWorkflow(campaignArg);
+      
+      if (result) {
+        console.log('\n\n📝 FINAL OUTPUT:');
+        console.log('─'.repeat(60));
+        console.log(result.content);
+        console.log('─'.repeat(60));
+        console.log(`\n✅ Score: ${result.score}/105`);
+        console.log(`   🎯 Mission: ${result.mission || 'Default'}`);
+        console.log(`   Cycles: ${result.stats.totalCycles}`);
+        console.log(`   Duration: ${(result.stats.totalTime / 1000).toFixed(1)}s`);
+        process.exit(0);
+      } else {
+        console.log('\n❌ No content passed all judges!');
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('\n❌ Manual workflow failed:', error.message);
+      console.error(error.stack);
+      process.exit(1);
+    }
   }
   
   // Handle "missions" command to list missions for a campaign

@@ -1,0 +1,15 @@
+{
+  "title": "Campaign Title Here",
+  "missionTitle": "Mission Name Here (or null)",
+  "missionNumber": 1,
+  "description": "Campaign description / mission goal...",
+  "style": "Style requirements...",
+  "rules": "* Rule 1\n* Rule 2\n* Rule 3",
+  "knowledgeBase": "Knowledge base / info about the product/project...",
+  "additionalInfo": "Additional info, boost requirements, etc (or null)",
+  "characterLimit": 280,
+  "contentType": "tweet",
+  "projectHandle": "@handle",
+  "intelligentContractAddress": "0xContractAddressHere (for competitor fetch, or null to skip)",
+  "campaignUrl": "https://app.rally.fun/campaign/0x..."
+}
