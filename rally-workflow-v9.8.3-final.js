@@ -123,10 +123,9 @@ try {
 
 // HTTP Direct AI Call - No SDK!
 // Model tier system:
-//   - 'glm-4-flash': fastest, used for simple/preliminary tasks
-//   - 'glm-5-flash': balanced, used for content generation (with thinking + search)
-//   - 'glm-4-plus':  strong, used for complex judging (with thinking + search)
-//   - 'glm-5':       top tier, used for critical tasks (comprehension, fact-check)
+//   - 'glm-4-flash': fastest, used for simple/preliminary tasks (anti-AI regen fallback)
+//   - 'glm-5-flash': balanced, used for research/competitor/Q&A (with thinking + search)
+//   - 'glm-5':       top tier, used for ALL content generation + judging + comprehension
 // All models route to glm-4.6 on the gateway with automatic thinking (reasoning_content)
 function callAIdirect(messages, maxTokens = 2000, temperature = 0.7, options = {}) {
   return new Promise((resolve, reject) => {
@@ -2645,7 +2644,7 @@ Return JSON:
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.9, maxTokens: 2000, model: 'glm-5-flash', enableSearch: true });
+  ], { temperature: 0.9, maxTokens: 2000, model: 'glm-5', enableSearch: true });
   
   const result = safeJsonParse(response.content);
   
@@ -3792,7 +3791,7 @@ Create content that makes readers STOP, FEEL, and ENGAGE.`;
   const response = await llm.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
-  ], { temperature: 0.8, maxTokens: 4000, model: 'glm-5-flash', enableSearch: true });
+  ], { temperature: 0.8, maxTokens: 4000, model: 'glm-5', enableSearch: true });
   
   const result = safeJsonParse(response.content);
   
