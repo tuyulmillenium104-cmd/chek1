@@ -750,6 +750,7 @@ const CONFIG = {
       'entire week', 'frictionless', 'acceptable originality',
       'similar_tweets', 'bank stack', 'version control for disagreements'
     ],
+    // Template phrases — also FATAL if detected by Rally AI judges
     templatePhrases: [
       'unpopular opinion:', 'hot take:', 'thread alert:', 'breaking:',
       'this is your sign', 'psa:', 'reminder that', 'quick thread:',
@@ -764,6 +765,23 @@ const CONFIG = {
       phrases: ['picture this', 'lets dive in', 'in this thread', 'key takeaways', 'heres the thing', 'imagine a world', 'it goes without saying', 'at the end of the day', 'on the other hand', 'in conclusion']
     },
     weakOpenings: ['the ', 'a ', 'an ', 'this is', 'there are', 'there is', 'i think', 'in the', 'today ', 'so ', 'well ', 'basically', 'honestly ', 'actually ', 'first ', 'let me', 'here is', 'here are']
+  },
+  
+  /**
+   * Check for Rally banned phrases in content.
+   * Returns { clean: boolean, found: string[] } 
+   */
+  checkRallyBannedPhrases(content) {
+    const contentLower = content.toLowerCase();
+    const allBanned = [
+      ...(this.hardRequirements.rallyBannedPhrases || []),
+      ...(this.hardRequirements.templatePhrases || []),
+      ...(this.hardRequirements.bannedWords || []),
+      ...(this.hardRequirements.aiPatterns?.words || []),
+      ...(this.hardRequirements.aiPatterns?.phrases || [])
+    ];
+    const found = allBanned.filter(p => contentLower.includes(p.toLowerCase()));
+    return { clean: found.length === 0, found };
   },
   
   wajibElements: {
@@ -2416,6 +2434,43 @@ function sanitizeContent(content) {
     changes.push('ellipsis');
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // CRITICAL FIX: Rally Banned Phrases Detection & Auto-Replace
+  // These phrases are FATAL — CC gate will DISQUALIFY if detected
+  // ═══════════════════════════════════════════════════════════════
+  const rallyBanned = CONFIG.hardRequirements.rallyBannedPhrases || [];
+  rallyBanned.forEach(phrase => {
+    if (sanitized.toLowerCase().includes(phrase.toLowerCase())) {
+      // Replace with generic alternative
+      const replacements = {
+        'vibe coding': 'AI-assisted coding',
+        'skin in the game': 'real stake',
+        'intelligent contracts': 'smart contracts',
+        'trust layer': 'verification layer',
+        'agent era': 'AI agent period',
+        'agentic era': 'autonomous AI period',
+        'structural shift': 'fundamental change',
+        'capital efficiency': 'capital optimization',
+        'how did I miss this': 'this caught my attention',
+        'losing my mind': 'blown away',
+        'how are we all sleeping on this': 'why is no one talking about this',
+        "don't miss out": 'worth paying attention',
+        'designed for creators that desire': 'built for creators who want',
+        'transforming ideas into something sustainable': 'turning ideas into lasting projects',
+        'entire week': 'whole week',
+        'frictionless': 'seamless',
+        'acceptable originality': 'genuine originality',
+        'bank stack': 'token holdings',
+        'version control for disagreements': 'PR review protocol'
+      };
+      const replacement = replacements[phrase.toLowerCase()] || '[removed]';
+      // Case-insensitive replace
+      const regex = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      sanitized = sanitized.replace(regex, replacement);
+      changes.push('RALLY-BANNED: "' + phrase + '" → "' + replacement + '"');
+    }
+  });
+  
   if (changes.length > 0) {
     console.log(`   📝 Auto-sanitized: ${changes.join(', ')}`);
   }
@@ -4032,6 +4087,13 @@ ${_reqs.proposedAngles.length > 0 ? '\n🎯 CHOOSE ONE angle — your content MU
 🚫 PROHIBITED (content WILL be rejected if it includes these):
 ═══════════════════════════════════════════════════════════════════
 ${_reqs.prohibitedUrl ? '❌ NO URL/LINK allowed\n' : ''}${_reqs.prohibitedHashtags.length > 0 ? '❌ NO HASHTAGS allowed\n' : ''}${_reqs.prohibitedTags.length > 0 ? '❌ Do NOT tag: ' + _reqs.prohibitedTags.join(', ') + '\n' : ''}${_reqs.prohibitedKeywords.length > 0 ? '❌ Do NOT mention: ' + _reqs.prohibitedKeywords.join(', ') + '\n' : ''}${(campaignData.disallowedContent || campaignData.disallowed_content || '') ? '❌ Disallowed content: ' + (campaignData.disallowedContent || campaignData.disallowed_content) + '\n' : ''}
+🚨 RALLY BANNED PHRASES (FATAL — will cause IMMEDIATE DISQUALIFICATION by Rally AI):
+${CONFIG.hardRequirements.rallyBannedPhrases.map(p => '   ❌ "' + p + '"').join('\n')}
+🚨 BANNED TEMPLATE PHRASES (will cause low originality score):
+${CONFIG.hardRequirements.templatePhrases.slice(0, 10).map(p => '   ❌ "' + p + '"').join('\n')}
+🚨 AI-DETECTABLE WORDS (will cause "sounds like AI" penalty):
+${CONFIG.hardRequirements.aiPatterns.words.slice(0, 10).map(w => '   ❌ "' + w + '"').join('\n')}
+⚠️ IF YOU USE ANY OF THE ABOVE PHRASES, YOUR CONTENT WILL BE REJECTED AUTOMATICALLY.
 ═══════════════════════════════════════════════════════════════════
 📖 KEY FACTS (weave these into your story naturally — don't paste them):
 ═══════════════════════════════════════════════════════════════════
@@ -4574,6 +4636,28 @@ function validateCampaignRequirements(content, campaignData) {
     foundElements: [],
     requirements: requirements
   };
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CHECK 0: RALLY BANNED PHRASES (FATAL — causes CC gate DISQUALIFICATION)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const rallyBanned = CONFIG.hardRequirements.rallyBannedPhrases || [];
+  const templateBanned = CONFIG.hardRequirements.templatePhrases || [];
+  const allBannedPhrases = [...rallyBanned, ...templateBanned];
+  const foundBanned = allBannedPhrases.filter(p => contentLower.includes(p.toLowerCase()));
+  if (foundBanned.length > 0) {
+    validation.checks.rallyBannedPhrases = {
+      required: [],
+      found: foundBanned,
+      passed: false
+    };
+    foundBanned.forEach(p => {
+      validation.missingElements.push('RALLY-BANNED: "' + p + '"');
+    });
+    validation.passed = false;
+    console.log('   🚫 RALLY BANNED PHRASES FOUND: ' + foundBanned.join(', '));
+  } else {
+    validation.checks.rallyBannedPhrases = { passed: true, found: [] };
+  }
   
   // ═══════════════════════════════════════════════════════════════════════════
   // CHECK 1: MANDATORY @TAGS (only if explicitly required)
@@ -7882,7 +7966,7 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
   console.log('   └─────────────────────────────────────────────────────────────┘');
   
   try {
-    const cpEstimate = estimateRallyCP(results.scores, 0.5); // 50% engagement estimate
+    const cpEstimate = estimateRallyCP(winner.scores, 0.5); // 50% engagement estimate
     console.log(`   📊 Estimated Rally Campaign Points: ${cpEstimate.cp}`);
     console.log(`   📐 Gate Multiplier (M_gate): ${cpEstimate.mGate} (g* = ${cpEstimate.gStar})`);
     console.log(`   🚦 Gate Pass: ${cpEstimate.gatePass ? '✅ YES' : '❌ NO — DISQUALIFIED'}`);
