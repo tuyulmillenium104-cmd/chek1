@@ -72,6 +72,26 @@ const fs = require('fs');
 const path = require('path');
 
 // ============================================================================
+// GLOBAL ERROR HANDLERS - Prevent silent crashes
+// ============================================================================
+process.on('uncaughtException', (err) => {
+  console.error('\n❌ UNCAUGHT EXCEPTION:', err.message);
+  console.error(err.stack);
+  // Try to save crash info
+  try {
+    fs.appendFileSync('/home/z/my-project/download/.crash.log',
+      `[${new Date().toISOString()}] UNCAUGHT: ${err.message}\n${err.stack}\n\n`);
+  } catch (e) { /* ignore */ }
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('\n❌ UNHANDLED REJECTION:', reason);
+  try {
+    fs.appendFileSync('/home/z/my-project/download/.crash.log',
+      `[${new Date().toISOString()}] REJECTION: ${reason}\n\n`);
+  } catch (e) { /* ignore */ }
+});
+
+// ============================================================================
 // CONSISTENT THRESHOLDS - Single Source of Truth
 // ============================================================================
 // Module-level cache for deep campaign intent (shared between content generation and judging)
@@ -295,6 +315,36 @@ function delay(ms) {
 
 function timestamp() {
   return new Date().toISOString().split('T')[1].split('.')[0];
+}
+
+// ============================================================================
+// CHECKPOINT SYSTEM - Save/Load progress across runs
+// ============================================================================
+// NOTE: CHECKPOINT_DIR initialized after CONFIG is defined (see below)
+let CHECKPOINT_DIR;
+
+function getCheckpointPath(campaignTitle) {
+  CHECKPOINT_DIR = CHECKPOINT_DIR || path.join(CONFIG.outputDir, '.checkpoints');
+  if (!fs.existsSync(CHECKPOINT_DIR)) fs.mkdirSync(CHECKPOINT_DIR, { recursive: true });
+  const safe = campaignTitle.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 60);
+  return path.join(CHECKPOINT_DIR, `${safe}.json`);
+}
+
+function loadCheckpoint(checkpointPath) {
+  try {
+    if (fs.existsSync(checkpointPath)) {
+      return JSON.parse(fs.readFileSync(checkpointPath, 'utf8'));
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function saveCheckpoint(checkpointPath, data) {
+  try {
+    const dir = path.dirname(checkpointPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(checkpointPath, JSON.stringify(data, null, 2));
+  } catch (e) { /* ignore */ }
 }
 
 // Import Python NLP Client (Optional)
@@ -575,7 +625,8 @@ const CONFIG = {
   
   // v9.8.1: Increased delays to prevent rate limits
   delays: {
-    betweenJudges: 2000,        // 2 seconds between judges (optimized for checkpoint runs)
+    betweenJudges: 5000,        // 5 seconds between judges (FIXED: was 2s, caused rate limit cascade)
+    betweenContents: 8000,      // 8 seconds between judging different contents (NEW)
     betweenPasses: 10000,       // 10 seconds between passes
     beforeRevision: 8000,       // 8 seconds before revision
     beforeTieBreaker: 10000,    // 10 seconds before tie breaker
@@ -7441,19 +7492,34 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     // BUG #37 FIX: Stagger content generation to avoid rate limit race condition
     // Instead of firing all 3 simultaneously (causes all to hit rate limit),
     // stagger them with 2-second delays so they don't all compete for tokens
-    console.log('\n📝 Generating 3 contents with staggered start (AI follows comprehension plan)...');
-    const generateTasks = [];
+    // FIXED: Generate contents SEQUENTIALLY (not parallel) to avoid rate limit cascade
+    // 3 parallel AI calls each doing 3+ sub-calls was causing process crashes
+    console.log('\n📝 Generating contents sequentially (rate-limit safe)...');
+    const generateResults = [];
     for (let i = 0; i < contentsPerCycle; i++) {
-      // Wrap each task with a staggered delay
-      const task = (async (idx) => {
-        if (idx > 0) {
-          console.log(`   ⏳ Stagger delay ${idx}: waiting 2s before Content ${idx + 1}...`);
-          await delay(2000);
+      // Check if already have a winner from previous generation
+      if (judgingState.hasWinner()) break;
+      
+      console.log(`\n   📝 [${timestamp()}] Starting Content ${i + 1}/${contentsPerCycle}...`);
+      try {
+        const result = await generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, i, comprehensionPlan, cycleLearningInsights);
+        generateResults.push(result);
+        if (result.success) {
+          console.log(`   ✅ Content ${i + 1} generated successfully`);
+        } else {
+          console.log(`   ⚠️ Content ${i + 1} failed: ${result.complianceIssues?.join(', ') || 'generation error'}`);
         }
-      })(i);
-      generateTasks.push(task);
+      } catch (err) {
+        console.log(`   ❌ Content ${i + 1} error: ${err.message}`);
+        generateResults.push({ index: i, content: null, success: false });
+      }
+      
+      // Delay between content generation to avoid rate limit
+      if (i < contentsPerCycle - 1 && !judgingState.hasWinner()) {
+        console.log(`   ⏳ Waiting ${CONFIG.delays.betweenContentGen / 1000}s before next content...`);
+        await delay(CONFIG.delays.betweenContentGen);
+      }
     }
-    const generateResults = await Promise.all(generateTasks);
     
     // Check if we have contents
     const validContents = generateResults.filter(r => r.success);
@@ -7467,48 +7533,61 @@ async function runFirstPassWorkflow(campaignInput, missionNumber = null) {
     
     console.log(`   ✅ Generated ${validContents.length}/${contentsPerCycle} contents`);
     
-    // Judge each content in parallel with TRUE FAIL FAST
-    console.log('\n⚖️ Judging contents (TRUE parallel with fail-fast)...');
+    // FIXED: Judge contents SEQUENTIALLY (not parallel) to avoid rate limit cascade
+    // 3 contents x 7 AI calls each = 21 concurrent calls was crashing the gateway
+    console.log('\n⚖️ Judging contents (SEQUENTIAL with fail-fast)...');
     
-    // FIXED: Add timeout and better error handling for judging
-    const judgePromises = validContents.map((result, idx) => {
-      // Wrap with timeout and error handling
-      return Promise.race([
-        judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber, judgingState)
-          .catch(err => {
-            console.log(`   ⚠️ Judge error for content ${result.index + 1}: ${err.message}`);
-            return { content: result.content, passed: false, failedAt: 'error', error: err.message };
-          }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Judge timeout')), 300000) // 5 min timeout per content
-        )
-      ]).catch(err => {
+    const judgeResults = [];
+    for (const result of validContents) {
+      // Check if already have a winner before judging next content
+      if (judgingState.hasWinner() || judgingState.isAborted()) {
+        console.log(`   ⏭️ Skipping remaining content (winner already found or aborted)`);
+        break;
+      }
+      
+      try {
+        const judgeResult = await Promise.race([
+          judgeContentFailFast(result.content, campaignData, competitorContents, result.index, cycleNumber, judgingState),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Judge timeout')), 300000))
+        ]).catch(err => {
+          console.log(`   ⚠️ Judge error for content ${result.index + 1}: ${err.message}`);
+          return { content: result.content, passed: false, failedAt: 'error', error: err.message };
+        });
+        
+        judgeResults.push(judgeResult);
+        
+        // TRUE FAIL FAST: stop immediately if this content passed
+        if (judgeResult.passed && !judgeResult.skipped) {
+          console.log(`   🏆 Content ${result.index + 1} PASSED all judges! Stopping early.`);
+          break;
+        }
+        
+        // Delay between judging different contents to avoid rate limit
+        if (validContents.indexOf(result) < validContents.length - 1) {
+          console.log(`   ⏳ Waiting ${CONFIG.delays.betweenContents / 1000}s before next content judgment...`);
+          await delay(CONFIG.delays.betweenContents);
+        }
+      } catch (err) {
         console.log(`   ⚠️ Judge timeout for content ${result.index + 1}`);
-        return { content: result.content, passed: false, failedAt: 'timeout' };
-      });
-    });
-    
-    // TRUE FAIL FAST: Use Promise.race pattern - check for winner after each judge step
-    // Instead of waiting for ALL to complete, we use a racing mechanism
-    const judgeResults = await Promise.allSettled(judgePromises);
+        judgeResults.push({ content: result.content, passed: false, failedAt: 'timeout' });
+      }
+    }
     allCycleJudgeResults.push(...judgeResults);
     
     // Count failures and save intermediate results
     const failedThisCycle = judgeResults.filter(r => 
-      r.status === 'fulfilled' && !r.value.passed && !r.value.skipped
+      !r.passed && !r.skipped
     ).length;
     totalFailed += failedThisCycle;
     
     // FIXED: Save all passing results to intermediate file
-    const passingResults = judgeResults.filter(r => 
-      r.status === 'fulfilled' && r.value.passed
-    );
+    const passingResults = judgeResults.filter(r => r.passed);
     if (passingResults.length > 0) {
       const intermediatePath = `${CONFIG.outputDir}/intermediate-results-cycle${cycleNumber}.json`;
       try {
         fs.writeFileSync(intermediatePath, JSON.stringify(passingResults.map(r => ({
-          content: r.value.content,
-          score: r.value.totalScore,
+          content: r.content,
+          score: r.totalScore,
           cycle: cycleNumber
         })), null, 2));
         console.log(`   💾 Intermediate results saved: ${intermediatePath}`);
@@ -8382,15 +8461,21 @@ async function runManualWorkflow(jsonFilePath) {
     console.log(`   📊 Stats: ${totalGenerated} generated, ${totalFailed} failed`);
     console.log(`${'═'.repeat(60)}`);
     
-    console.log('\n📝 Generating 3 contents with staggered start...');
+    console.log('\n📝 Generating contents sequentially (rate-limit safe)...');
     const generateTasks = [];
     for (let i = 0; i < contentsPerCycle; i++) {
-      const task = (async (idx) => {
-        if (idx > 0) { console.log(`   ⏳ Stagger delay ${idx}: waiting 2s...`); await delay(2000); }
-      })(i);
-      generateTasks.push(task);
+      if (judgingState.hasWinner()) break;
+      console.log(`\n   📝 [${timestamp()}] Starting Content ${i + 1}/${contentsPerCycle}...`);
+      try {
+        const result = await generateSingleContentForParallel(campaignData, competitorAnalysis, researchData, i, null, null);
+        generateTasks.push(result);
+      } catch (err) {
+        console.log(`   ❌ Content ${i + 1} error: ${err.message}`);
+        generateTasks.push({ index: i, content: null, success: false });
+      }
+      if (i < contentsPerCycle - 1) await delay(CONFIG.delays.betweenContentGen);
     }
-    const generateResults = await Promise.all(generateTasks);
+    const generateResults = generateTasks;
     const validContents = generateResults.filter(r => r.success);
     totalGenerated += validContents.length;
     if (validContents.length === 0) { console.log('   ⚠️ No contents generated, retrying...'); await delay(1000); continue; }
