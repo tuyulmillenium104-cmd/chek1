@@ -1,0 +1,16 @@
+{
+  "name": "download",
+  "version": "1.0.0",
+  "description": "Here are all the generated files.",
+  "main": "rally-hybrid-v10.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "openai": "^6.33.0"
+  }
+}
