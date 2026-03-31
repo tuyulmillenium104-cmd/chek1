@@ -129,16 +129,17 @@ export async function runPipeline(job: CampaignJob): Promise<PipelineResult> {
   try {
     // ── CONTEXT PREPARATION ──────────────────────────────────────────
     const { campaignData, mission, leaderboardData } = job;
-    const { mentions, hashtags } = extractRequiredElements(campaignData.rules);
+    const rawRules = Array.isArray(campaignData.rules) ? campaignData.rules : typeof campaignData.rules === 'string' ? campaignData.rules.split('\n').filter((r: string) => r.trim()) : [];
+    const { mentions, hashtags } = extractRequiredElements(rawRules);
 
     const campaignContext = {
       campaignTitle: campaignData.title,
       campaignGoal: campaignData.goal,
       campaignStyle: campaignData.style,
-      campaignRules: campaignData.rules,
+      campaignRules: rawRules,
       missionTitle: mission?.title || '',
       missionDescription: mission?.description || '',
-      missionRules: mission?.rules || [],
+      missionRules: Array.isArray(mission?.rules) ? mission.rules : [],
       knowledgeBase: campaignData.knowledgeBase,
       contentType: mission?.contentType || 'tweet',
       characterLimit: mission?.characterLimit,
@@ -163,12 +164,13 @@ export async function runPipeline(job: CampaignJob): Promise<PipelineResult> {
     pwParts.push('Style: ' + campaignData.style);
     pwParts.push('');
     pwParts.push('RULES:');
-    pwParts.push(campaignData.rules.join('\n'));
+    pwParts.push(Array.isArray(campaignData.rules) ? campaignData.rules.join('\n') : String(campaignData.rules || ''));
     pwParts.push('');
     if (mission) {
       pwParts.push('MISSION: ' + mission.title);
       pwParts.push('Description: ' + mission.description);
-      pwParts.push('Mission Rules: ' + (mission.rules || []).join('\n'));
+      const mRules = mission.rules;
+      pwParts.push('Mission Rules: ' + (Array.isArray(mRules) ? mRules.join('\n') : String(mRules || 'None')));
     } else {
       pwParts.push('No specific mission');
     }

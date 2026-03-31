@@ -116,22 +116,39 @@ export async function callAI(options: AICallOptions): Promise<AICallResult> {
   }
   messages.push({ role: 'user', content: options.userPrompt });
 
-  const result = await zai.chat.completions.create({
-    messages,
-    model: modelId,
-    max_tokens: options.maxTokens || 4000,
-    temperature: options.temperature ?? 0.7,
-  });
+  // Retry logic: up to 3 attempts with exponential backoff
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const result = await zai.chat.completions.create({
+        messages,
+        model: modelId,
+        max_tokens: options.maxTokens || 4000,
+        temperature: options.temperature ?? 0.7,
+      });
 
-  return {
-    content: result.choices?.[0]?.message?.content || '',
-    model: result.model || modelId,
-    tokens: {
-      prompt: result.usage?.prompt_tokens || 0,
-      completion: result.usage?.completion_tokens || 0,
-      total: result.usage?.total_tokens || 0,
-    },
-  };
+      return {
+        content: result.choices?.[0]?.message?.content || '',
+        model: result.model || modelId,
+        tokens: {
+          prompt: result.usage?.prompt_tokens || 0,
+          completion: result.usage?.completion_tokens || 0,
+          total: result.usage?.total_tokens || 0,
+        },
+      };
+    } catch (error: any) {
+      lastError = error;
+      const msg = error?.message || String(error);
+      if (msg.includes('429') || msg.includes('500') || msg.includes('502') || msg.includes('503')) {
+        const backoff = Math.min(3000 * Math.pow(2, attempt), 15000);
+        console.log('[AI] Rate limited on ' + modelId + ' attempt ' + (attempt + 1) + ', retry in ' + backoff + 'ms');
+        await new Promise(resolve => setTimeout(resolve, backoff));
+        continue;
+      }
+      break;
+    }
+  }
+  throw lastError || new Error('AI call failed after retries');
 }
 
 // ─── JUDGE PROMPTS ────────────────────────────────────────────────────────
