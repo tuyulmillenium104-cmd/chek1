@@ -12,7 +12,8 @@ import {
   Search, Trophy, ChevronRight, ChevronLeft, Loader2,
   Copy, Check, RotateCcw, Zap, Users, Target,
   BookOpen, Clock, ArrowRight, Sparkles, AlertCircle,
-  FileText, Brain, Scale, Calculator
+  FileText, Brain, Scale, Calculator,
+  Shield, ShieldCheck, ShieldX, TrendingUp
 } from 'lucide-react';
 
 // ── Types ──
@@ -59,6 +60,7 @@ interface Leaderboard {
 }
 
 interface RallyResult {
+  // OLD fields (backward compat)
   success: boolean;
   status: string;
   phase?: string;
@@ -76,6 +78,33 @@ interface RallyResult {
   timings?: any;
   error?: string;
   jobId?: string;
+  // NEW fields (Rally-style)
+  judges?: {
+    optimist?: { gates?: any; quality?: any; engagement?: any; strengths?: string[]; weaknesses?: string[]; gateReasons?: any; qualityReasons?: any };
+    analyst?: { gates?: any; quality?: any; engagement?: any; strengths?: string[]; weaknesses?: string[]; gateReasons?: any; qualityReasons?: any };
+    critic?: { gates?: any; quality?: any; engagement?: any; strengths?: string[]; weaknesses?: string[]; gateReasons?: any; qualityReasons?: any };
+  };
+  consensus?: {
+    gates?: any;
+    quality?: any;
+    engagement?: any;
+    passed?: boolean;
+    disqualifiedReason?: string | null;
+    gateMultiplier?: number;
+    campaignPoints?: number;
+    topPercentile?: { low: number; high: number };
+    distributionShare?: number;
+    consensus?: { overallVariance: number; metricVariances: Record<string, number>; flags: string[]; confidence: 'high' | 'medium' | 'low' };
+  };
+  gateCompliance?: {
+    hasRequiredMentions?: boolean;
+    missingMentions?: string[];
+    hasRequiredHashtags?: boolean;
+    missingHashtags?: string[];
+    withinCharLimit?: boolean;
+    charCount?: number;
+  };
+  verdictReason?: string;
 }
 
 type WizardStep = 'search' | 'detail' | 'generating' | 'results';
@@ -104,6 +133,7 @@ function VerdictBadge({ verdict }: { verdict: string }) {
     REVISE: { label: 'REVISE', cls: 'bg-orange-500/90 text-white border-orange-400/50' },
     REJECT: { label: 'REJECT', cls: 'bg-red-500/90 text-white border-red-400/50' },
     REVIEW: { label: 'NEEDS REVIEW', cls: 'bg-amber-500/90 text-white border-amber-400/50' },
+    DISQUALIFIED: { label: 'DISQUALIFIED', cls: 'bg-gray-800/90 text-white border-gray-600/50' },
   };
   const v = variants[verdict] || { label: verdict || 'N/A', cls: 'bg-muted text-muted-foreground border-border' };
   return <span className={`${v.cls} px-3 py-1 rounded-full text-xs font-bold border`}>{v.label}</span>;
@@ -114,9 +144,8 @@ const PHASE_CONFIG: Record<string, { icon: React.ReactNode; label: string }> = {
   starting: { icon: <Zap className="w-4 h-4" />, label: 'Memulai pipeline...' },
   phase0: { icon: <Brain className="w-4 h-4" />, label: 'Phase 0: PreWriting Agent...' },
   phase1: { icon: <FileText className="w-4 h-4" />, label: 'Phase 1: Generator Agent...' },
-  phase1_check: { icon: <Target className="w-4 h-4" />, label: 'Phase 1: Self-Correction...' },
-  phase2: { icon: <Scale className="w-4 h-4" />, label: 'Phase 2: Dual Judges (paralel)...' },
-  phase3: { icon: <Calculator className="w-4 h-4" />, label: 'Phase 3: Reconciliation...' },
+  phase2: { icon: <Scale className="w-4 h-4" />, label: 'Phase 2: 3 AI Judges (paralel)...' },
+  phase3: { icon: <Calculator className="w-4 h-4" />, label: 'Phase 3: Consensus + Scoring...' },
   saving: { icon: <FileText className="w-4 h-4" />, label: 'Menyimpan hasil...' },
   completed: { icon: <Sparkles className="w-4 h-4" />, label: 'Selesai!' },
 };
@@ -677,7 +706,7 @@ export default function Home() {
                 {/* Pipeline Phases */}
                 <div className="space-y-2 max-w-md mx-auto">
                   {Object.entries(PHASE_CONFIG).map(([key, config]) => {
-                    const phaseOrder = ['queued', 'starting', 'phase0', 'phase1', 'phase1_check', 'phase2', 'phase3', 'saving', 'completed'];
+                    const phaseOrder = ['queued', 'starting', 'phase0', 'phase1', 'phase2', 'phase3', 'saving', 'completed'];
                     const currentIdx = phaseOrder.indexOf(currentPhase);
                     const thisIdx = phaseOrder.indexOf(key);
                     const isDone = thisIdx < currentIdx;
@@ -729,234 +758,632 @@ export default function Home() {
         )}
 
         {/* ═══════ STEP 4: Results ═══════ */}
-        {step === 'results' && result && (
-          <div className="space-y-4">
-            {/* Score Card */}
-            <Card className="border-2 border-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Final Score</p>
-                    <p className="text-5xl font-black tabular-nums">
-                      {result.finalScore}<span className="text-xl text-muted-foreground font-normal">/100</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {selectedCampaign?.title} — {selectedCampaign?.missions?.[selectedMissionIndex]?.title}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-start sm:items-end gap-2">
-                    <VerdictBadge verdict={result.verdict || ''} />
-                    {result.gap !== undefined && (
-                      <Badge variant={result.gap > 25 ? 'destructive' : 'secondary'} className="text-xs">
-                        Gap: {result.gap} ({result.severity})
-                      </Badge>
+        {step === 'results' && result && (() => {
+          const isRallyFormat = !!(result.judges?.analyst || result.consensus?.gates);
+
+          if (isRallyFormat) {
+            // ─── RALLY-STYLE RESULTS ───
+            const c = result.consensus!;
+            const cp = c.campaignPoints ?? 0;
+            const gm = c.gateMultiplier ?? 0;
+            const tp = c.topPercentile;
+            const conf = c.consensus?.confidence || 'low';
+            const gates = c.gates || {};
+            const quality = c.quality || {};
+            const engagement = c.engagement || {};
+
+            const confidenceConfig: Record<string, { label: string; cls: string }> = {
+              high: { label: 'HIGH', cls: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
+              medium: { label: 'MEDIUM', cls: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' },
+              low: { label: 'LOW', cls: 'bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30' },
+            };
+            const confCfg = confidenceConfig[conf] || confidenceConfig.low;
+
+            return (
+              <div className="space-y-4">
+                {/* ── 1. Score Header Card ── */}
+                <Card className="border-2 border-primary/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Campaign Points</p>
+                        <p className="text-5xl font-black tabular-nums">
+                          {cp.toFixed(3)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {selectedCampaign?.title} — {selectedCampaign?.missions?.[selectedMissionIndex]?.title}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end gap-2">
+                        <VerdictBadge verdict={result.verdict || ''} />
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold border bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30 tabular-nums">
+                          {gm.toFixed(2)}x
+                        </span>
+                        {tp && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold border bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-500/30 tabular-nums">
+                            TOP {tp.low}–{tp.high}%
+                          </span>
+                        )}
+                        <span className={`${confCfg.cls} px-2.5 py-0.5 rounded-full text-xs font-bold border`}>
+                          Confidence: {confCfg.label}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Timing */}
+                    {result.timings && (
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
+                        <span>Phase 0: <b className="tabular-nums">{(result.timings as any).phase0 || '-'}</b></span>
+                        <span>Phase 1: <b className="tabular-nums">{(result.timings as any).phase1 || '-'}</b></span>
+                        <span>Phase 2: <b className="tabular-nums">{(result.timings as any).phase2 || '-'}</b></span>
+                        <span>Phase 3: <b className="tabular-nums">{(result.timings as any).phase3 || '-'}</b></span>
+                        <span className="font-semibold">Total: <b className="tabular-nums">{(result.timings as any).total || '-'}</b></span>
+                      </div>
+                    )}
+
+                    {result.verdictReason && (
+                      <div className="bg-muted/40 rounded-lg p-3 text-xs text-muted-foreground">
+                        <span className="font-medium">Alasan:</span> {result.verdictReason}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* ── 2. Gate Status Section ── */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-blue-500" />
+                      Gate Compliance
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-3">
+                      {([
+                        { key: 'contentAlignment', label: 'Content Alignment' },
+                        { key: 'informationAccuracy', label: 'Information Accuracy' },
+                        { key: 'campaignCompliance', label: 'Campaign Compliance' },
+                        { key: 'originalityAuthenticity', label: 'Originality' },
+                      ] as const).map(g => {
+                        const score = gates[g.key] ?? 0;
+                        const passed = score >= 1;
+                        return (
+                          <div key={g.key} className={`rounded-lg border p-3 ${passed ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              {passed ? (
+                                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                              ) : (
+                                <ShieldX className="w-4 h-4 text-red-500 shrink-0" />
+                              )}
+                              <span className="text-xs font-medium truncate">{g.label}</span>
+                            </div>
+                            <p className={`text-lg font-bold tabular-nums ${passed ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                              {passed ? 'PASS' : 'FAIL'} <span className="text-xs font-normal text-muted-foreground">({score}/2)</span>
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Gate Compliance Details */}
+                    {result.gateCompliance && (
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                        {result.gateCompliance.hasRequiredMentions !== undefined && (
+                          <Badge variant={result.gateCompliance.hasRequiredMentions ? 'default' : 'destructive'} className="text-[10px]">
+                            Mentions: {result.gateCompliance.hasRequiredMentions ? 'OK' : `Missing ${result.gateCompliance.missingMentions?.join(', ')}`}
+                          </Badge>
+                        )}
+                        {result.gateCompliance.hasRequiredHashtags !== undefined && (
+                          <Badge variant={result.gateCompliance.hasRequiredHashtags ? 'default' : 'destructive'} className="text-[10px]">
+                            Hashtags: {result.gateCompliance.hasRequiredHashtags ? 'OK' : `Missing ${result.gateCompliance.missingHashtags?.join(', ')}`}
+                          </Badge>
+                        )}
+                        {result.gateCompliance.charCount !== undefined && (
+                          <Badge variant={result.gateCompliance.withinCharLimit ? 'secondary' : 'destructive'} className="text-[10px] tabular-nums">
+                            Characters: {result.gateCompliance.charCount}
+                            {result.gateCompliance.withinCharLimit !== undefined && (
+                              <span> ({result.gateCompliance.withinCharLimit ? 'OK' : 'OVER'})</span>
+                            )}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* ── 3. Quality Metrics ── */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-blue-500" />
+                      Quality Metrics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <ScoreBar label="Engagement Potential" score={quality.engagementPotential || 0} max={5} />
+                      <ScoreBar label="Technical Quality" score={quality.technicalQuality || 0} max={5} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ── 4. Engagement Projection ── */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Engagement Projection</CardTitle>
+                    <CardDescription className="text-xs">Proyeksi interaksi konten</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-muted/40 rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold tabular-nums">{engagement.retweets || 0}</p>
+                        <p className="text-[10px] text-muted-foreground">Retweets</p>
+                      </div>
+                      <div className="bg-muted/40 rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold tabular-nums">{engagement.likes || 0}</p>
+                        <p className="text-[10px] text-muted-foreground">Likes</p>
+                      </div>
+                      <div className="bg-muted/40 rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold tabular-nums">{engagement.replies || 0}</p>
+                        <p className="text-[10px] text-muted-foreground">Replies</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ── 5. Generated Content ── */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-base">Konten yang Dihasilkan</CardTitle>
+                        <CardDescription className="text-xs mt-0.5">Copy dan paste langsung ke Rally</CardDescription>
+                      </div>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={copyContent}>
+                        {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                        {copied ? 'Tersalin!' : 'Salin'}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="max-h-80">
+                      <div className="bg-muted/40 rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap pr-4">
+                        {result.content}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+
+                {/* ── 6. Three Judge Cards ── */}
+                <div className="space-y-4">
+                  {/* Judge Optimist */}
+                  {result.judges?.optimist && (
+                    <Card className="border-l-4 border-l-emerald-500">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm text-emerald-700 dark:text-emerald-400">Judge Optimist</CardTitle>
+                          <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-600">GPT-4o</Badge>
+                        </div>
+                        <CardDescription className="text-[10px]">Mencari KEKUATAN konten</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-4 gap-2">
+                          {([
+                            { key: 'contentAlignment', label: 'Content' },
+                            { key: 'informationAccuracy', label: 'Accuracy' },
+                            { key: 'campaignCompliance', label: 'Compliance' },
+                            { key: 'originalityAuthenticity', label: 'Originality' },
+                          ] as const).map(g => (
+                            <div key={g.key} className="text-center">
+                              <p className="text-lg font-bold tabular-nums">{result.judges!.optimist!.gates?.[g.key] ?? 0}<span className="text-[10px] text-muted-foreground font-normal">/2</span></p>
+                              <p className="text-[10px] text-muted-foreground">{g.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <ScoreBar label="Engagement" score={result.judges.optimist.quality?.engagementPotential || 0} max={5} color="bg-emerald-500" />
+                          <ScoreBar label="Technical" score={result.judges.optimist.quality?.technicalQuality || 0} max={5} color="bg-emerald-500" />
+                        </div>
+                        {result.judges.optimist.strengths && result.judges.optimist.strengths.length > 0 && (
+                          <div className="pt-2 border-t border-emerald-500/10">
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Strengths:</p>
+                            {result.judges.optimist.strengths.map((s: string, i: number) => (
+                              <p key={i} className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">✓ {s}</p>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Judge Analyst */}
+                  {result.judges?.analyst && (
+                    <Card className="border-l-4 border-l-blue-500">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm text-blue-700 dark:text-blue-400">Judge Analyst</CardTitle>
+                          <Badge variant="outline" className="text-[10px] border-blue-500/30 text-blue-600">Gemini Pro</Badge>
+                        </div>
+                        <CardDescription className="text-[10px]">Penilaian NETRAL dan BERBASIS FAKTA</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-4 gap-2">
+                          {([
+                            { key: 'contentAlignment', label: 'Content' },
+                            { key: 'informationAccuracy', label: 'Accuracy' },
+                            { key: 'campaignCompliance', label: 'Compliance' },
+                            { key: 'originalityAuthenticity', label: 'Originality' },
+                          ] as const).map(g => (
+                            <div key={g.key} className="text-center">
+                              <p className="text-lg font-bold tabular-nums">{result.judges!.analyst!.gates?.[g.key] ?? 0}<span className="text-[10px] text-muted-foreground font-normal">/2</span></p>
+                              <p className="text-[10px] text-muted-foreground">{g.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <ScoreBar label="Engagement" score={result.judges.analyst.quality?.engagementPotential || 0} max={5} color="bg-blue-500" />
+                          <ScoreBar label="Technical" score={result.judges.analyst.quality?.technicalQuality || 0} max={5} color="bg-blue-500" />
+                        </div>
+                        {result.judges.analyst.strengths && result.judges.analyst.strengths.length > 0 && (
+                          <div className="pt-2 border-t border-blue-500/10">
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Notes:</p>
+                            {result.judges.analyst.strengths.map((s: string, i: number) => (
+                              <p key={i} className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">• {s}</p>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Judge Critic */}
+                  {result.judges?.critic && (
+                    <Card className="border-l-4 border-l-orange-500">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm text-orange-700 dark:text-orange-400">Judge Critic</CardTitle>
+                          <Badge variant="outline" className="text-[10px] border-orange-500/30 text-orange-600">Claude</Badge>
+                        </div>
+                        <CardDescription className="text-[10px]">Mencari KELEMAHAN, standar TERTINGGI</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-4 gap-2">
+                          {([
+                            { key: 'contentAlignment', label: 'Content' },
+                            { key: 'informationAccuracy', label: 'Accuracy' },
+                            { key: 'campaignCompliance', label: 'Compliance' },
+                            { key: 'originalityAuthenticity', label: 'Originality' },
+                          ] as const).map(g => (
+                            <div key={g.key} className="text-center">
+                              <p className="text-lg font-bold tabular-nums">{result.judges!.critic!.gates?.[g.key] ?? 0}<span className="text-[10px] text-muted-foreground font-normal">/2</span></p>
+                              <p className="text-[10px] text-muted-foreground">{g.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <ScoreBar label="Engagement" score={result.judges.critic.quality?.engagementPotential || 0} max={5} color="bg-orange-500" />
+                          <ScoreBar label="Technical" score={result.judges.critic.quality?.technicalQuality || 0} max={5} color="bg-orange-500" />
+                        </div>
+                        {result.judges.critic.weaknesses && result.judges.critic.weaknesses.length > 0 && (
+                          <div className="pt-2 border-t border-orange-500/10">
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Weaknesses:</p>
+                            {result.judges.critic.weaknesses.map((w: string, i: number) => (
+                              <p key={i} className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">✗ {w}</p>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* ── 7. Consensus Card ── */}
+                {result.consensus?.consensus && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Scale className="w-4 h-4 text-blue-500" />
+                        Consensus Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="bg-muted/40 rounded-lg p-3 text-center">
+                          <p className="text-lg font-bold tabular-nums">{result.consensus.consensus.overallVariance.toFixed(2)}</p>
+                          <p className="text-[10px] text-muted-foreground">Overall Variance</p>
+                        </div>
+                        <div className="bg-muted/40 rounded-lg p-3 text-center">
+                          <p className={`text-lg font-bold tabular-nums ${result.consensus.consensus.flags.length === 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {result.consensus.consensus.flags.length}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">Flags</p>
+                        </div>
+                        <div className={`rounded-lg p-3 text-center ${confCfg.cls.replace('border', 'border')}`}>
+                          <p className="text-lg font-bold">{confCfg.label}</p>
+                          <p className="text-[10px] text-muted-foreground">Confidence</p>
+                        </div>
+                      </div>
+                      {result.consensus.consensus.flags.length > 0 && (
+                        <div>
+                          <p className="text-[10px] font-medium text-muted-foreground mb-1">Flags:</p>
+                          <div className="space-y-1">
+                            {result.consensus.consensus.flags.map((flag: string, i: number) => (
+                              <p key={i} className="text-xs text-amber-700 dark:text-amber-400">⚠ {flag}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {result.consensus.disqualifiedReason && (
+                        <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3 text-xs text-red-700 dark:text-red-400">
+                          Disqualified: {result.consensus.disqualifiedReason}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* ── 8. Writing Brief Card ── */}
+                {result.brief && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-1.5">
+                        <Brain className="w-4 h-4 text-blue-500" />
+                        Writing Brief (Phase 0)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-xs text-muted-foreground">Perspective:</span><p className="mt-0.5">{result.brief.perspective}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Persona:</span><p className="mt-0.5">{result.brief.persona}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Tone:</span><p className="mt-0.5">{result.brief.tone}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Unique Angle:</span><p className="mt-0.5">{result.brief.uniqueAngle}</p></div>
+                      </div>
+                      {result.brief.keyInsights?.length > 0 && (
+                        <div className="mt-3">
+                          <span className="text-xs text-muted-foreground">Key Insights:</span>
+                          <ul className="mt-1 space-y-0.5">
+                            {result.brief.keyInsights.map((k: string, i: number) => (
+                              <li key={i} className="text-xs list-disc list-inside text-muted-foreground">{k}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* ── 10. Actions ── */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <Button onClick={handleGenerateAgain} variant="outline" className="flex-1 gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Generate Ulang
+                  </Button>
+                  <Button onClick={handleBackToSearch} variant="outline" className="flex-1 gap-2">
+                    <Search className="w-4 h-4" />
+                    Campaign Lain
+                  </Button>
+                </div>
+              </div>
+            );
+          } else {
+            // ─── OLD-STYLE RESULTS (FALLBACK) ───
+            return (
+              <div className="space-y-4">
+                {/* Score Card */}
+                <Card className="border-2 border-primary/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Final Score</p>
+                        <p className="text-5xl font-black tabular-nums">
+                          {result.finalScore}<span className="text-xl text-muted-foreground font-normal">/100</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {selectedCampaign?.title} — {selectedCampaign?.missions?.[selectedMissionIndex]?.title}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end gap-2">
+                        <VerdictBadge verdict={result.verdict || ''} />
+                        {result.gap !== undefined && (
+                          <Badge variant={result.gap > 25 ? 'destructive' : 'secondary'} className="text-xs">
+                            Gap: {result.gap} ({result.severity})
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Dimension Scores */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <ScoreBar label="Perspective & Depth" score={result.dimensions?.perspective || 0} />
+                      <ScoreBar label="Creativity & Originality" score={result.dimensions?.creativity || 0} />
+                      <ScoreBar label="Engagement & Impact" score={result.dimensions?.engagement || 0} />
+                      <ScoreBar label="Relevance & Alignment" score={result.dimensions?.relevance || 0} />
+                      <ScoreBar label="Technical Quality" score={result.dimensions?.technical || 0} />
+                      <ScoreBar label="Anti-AI Compliance" score={result.dimensions?.antiAi || 0} color="bg-teal-500" />
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Timing */}
+                    {result.timings && (
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <span>Phase 0: <b className="tabular-nums">{result.timings.phase0 || '-'}</b></span>
+                        <span>Phase 1: <b className="tabular-nums">{result.timings.phase1 || '-'}</b></span>
+                        <span>Phase 2: <b className="tabular-nums">{result.timings.phase2 || '-'}</b></span>
+                        <span className="font-semibold">Total: <b className="tabular-nums">{result.timings.total || '-'}</b></span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Content + Judges Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Generated Content */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-base">Konten yang Dihasilkan</CardTitle>
+                          <CardDescription className="text-xs mt-0.5">Copy dan paste langsung ke Rally</CardDescription>
+                        </div>
+                        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={copyContent}>
+                          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                          {copied ? 'Tersalin!' : 'Salin'}
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="max-h-80">
+                        <div className="bg-muted/40 rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap pr-4">
+                          {result.content}
+                        </div>
+                      </ScrollArea>
+                      {result.antiAiScan && (
+                        <div className="mt-3 flex items-center gap-2">
+                          <Badge variant={result.antiAiScan.passed ? 'default' : 'destructive'} className="text-xs">
+                            Anti-AI: {result.antiAiScan.score}/100
+                          </Badge>
+                          {result.antiAiScan.issues?.length > 0 && (
+                            <span className="text-xs text-muted-foreground">{result.antiAiScan.issues.length} issues</span>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Judge Cards */}
+                  <div className="space-y-4">
+                    {/* Optimist */}
+                    {result.optimist && (
+                      <Card className="border-l-4 border-l-emerald-500">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm text-emerald-700 dark:text-emerald-400">Judge Optimist</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                                {result.optimist.weightedScore}
+                              </span>
+                              <VerdictBadge verdict={result.optimist.verdict || 'N/A'} />
+                            </div>
+                          </div>
+                          <CardDescription className="text-[10px]">Mencari KEKUATAN konten</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <ScoreBar label="Perspective & Depth" score={result.optimist.perspective_depth || 0} color="bg-emerald-500" />
+                          <ScoreBar label="Creativity" score={result.optimist.creativity_originality || 0} color="bg-emerald-500" />
+                          <ScoreBar label="Engagement" score={result.optimist.engagement_impact || 0} color="bg-emerald-500" />
+                          {result.optimist.strengths?.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-emerald-500/10">
+                              <p className="text-[10px] font-medium text-muted-foreground mb-1">Strengths:</p>
+                              {result.optimist.strengths.map((s: string, i: number) => (
+                                <p key={i} className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">✓ {s}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Critic */}
+                    {result.critic && (
+                      <Card className="border-l-4 border-l-orange-500">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm text-orange-700 dark:text-orange-400">Judge Critic</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-bold tabular-nums text-orange-600 dark:text-orange-400">
+                                {result.critic.weightedScore}
+                              </span>
+                              <VerdictBadge verdict={result.critic.verdict || 'N/A'} />
+                            </div>
+                          </div>
+                          <CardDescription className="text-[10px]">Mencari KELEMAHAN konten</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <ScoreBar label="Relevance" score={result.critic.relevance_alignment || 0} color="bg-orange-500" />
+                          <ScoreBar label="Technical" score={result.critic.technical_quality || 0} color="bg-orange-500" />
+                          <ScoreBar label="Anti-AI" score={result.critic.anti_ai_compliance || 0} color="bg-orange-500" />
+                          {result.critic.weaknesses?.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-orange-500/10">
+                              <p className="text-[10px] font-medium text-muted-foreground mb-1">Weaknesses:</p>
+                              {result.critic.weaknesses.map((w: string, i: number) => (
+                                <p key={i} className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">✗ {w}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
                     )}
                   </div>
                 </div>
 
-                {/* Dimension Scores */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <ScoreBar label="Perspective & Depth" score={result.dimensions?.perspective || 0} />
-                  <ScoreBar label="Creativity & Originality" score={result.dimensions?.creativity || 0} />
-                  <ScoreBar label="Engagement & Impact" score={result.dimensions?.engagement || 0} />
-                  <ScoreBar label="Relevance & Alignment" score={result.dimensions?.relevance || 0} />
-                  <ScoreBar label="Technical Quality" score={result.dimensions?.technical || 0} />
-                  <ScoreBar label="Anti-AI Compliance" score={result.dimensions?.antiAi || 0} color="bg-teal-500" />
+                {/* Phase 0 Brief */}
+                {result.brief && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-1.5">
+                        <Brain className="w-4 h-4 text-blue-500" />
+                        Writing Brief (Phase 0)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-xs text-muted-foreground">Perspective:</span><p className="mt-0.5">{result.brief.perspective}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Persona:</span><p className="mt-0.5">{result.brief.persona}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Tone:</span><p className="mt-0.5">{result.brief.tone}</p></div>
+                        <div><span className="text-xs text-muted-foreground">Unique Angle:</span><p className="mt-0.5">{result.brief.uniqueAngle}</p></div>
+                      </div>
+                      {result.brief.keyInsights?.length > 0 && (
+                        <div className="mt-3">
+                          <span className="text-xs text-muted-foreground">Key Insights:</span>
+                          <ul className="mt-1 space-y-0.5">
+                            {result.brief.keyInsights.map((k: string, i: number) => (
+                              <li key={i} className="text-xs list-disc list-inside text-muted-foreground">{k}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Self Check */}
+                {result.selfCheck && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Self-Check (Generator Agent)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <ScoreBar label="Relevance" score={result.selfCheck.relevance || 0} />
+                        <ScoreBar label="Depth" score={result.selfCheck.depth || 0} />
+                        <ScoreBar label="Naturalness" score={result.selfCheck.naturalness || 0} color="bg-teal-500" />
+                        <ScoreBar label="Engagement" score={result.selfCheck.engagement || 0} />
+                      </div>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Badge variant={result.selfCheck.passed ? 'default' : 'destructive'} className="text-xs">
+                          Overall: {result.selfCheck.overallScore} ({result.selfCheck.passed ? 'PASSED' : 'FAILED'})
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <Button onClick={handleGenerateAgain} variant="outline" className="flex-1 gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Generate Ulang
+                  </Button>
+                  <Button onClick={handleBackToSearch} variant="outline" className="flex-1 gap-2">
+                    <Search className="w-4 h-4" />
+                    Campaign Lain
+                  </Button>
                 </div>
-
-                <Separator className="my-4" />
-
-                {/* Timing */}
-                {result.timings && (
-                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    <span>Phase 0: <b className="tabular-nums">{result.timings.phase0 || '-'}</b></span>
-                    <span>Phase 1: <b className="tabular-nums">{result.timings.phase1 || '-'}</b></span>
-                    <span>Phase 2: <b className="tabular-nums">{result.timings.phase2 || '-'}</b></span>
-                    <span className="font-semibold">Total: <b className="tabular-nums">{result.timings.total || '-'}</b></span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Content + Judges Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Generated Content */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base">Konten yang Dihasilkan</CardTitle>
-                      <CardDescription className="text-xs mt-0.5">Copy dan paste langsung ke Rally</CardDescription>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 text-xs gap-1.5"
-                      onClick={copyContent}
-                    >
-                      {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                      {copied ? 'Tersalin!' : 'Salin'}
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="max-h-80">
-                    <div className="bg-muted/40 rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap pr-4">
-                      {result.content}
-                    </div>
-                  </ScrollArea>
-                  {result.antiAiScan && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <Badge variant={result.antiAiScan.passed ? 'default' : 'destructive'} className="text-xs">
-                        Anti-AI: {result.antiAiScan.score}/100
-                      </Badge>
-                      {result.antiAiScan.issues?.length > 0 && (
-                        <span className="text-xs text-muted-foreground">{result.antiAiScan.issues.length} issues</span>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Judge Cards */}
-              <div className="space-y-4">
-                {/* Optimist */}
-                {result.optimist && (
-                  <Card className="border-l-4 border-l-emerald-500">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm text-emerald-700 dark:text-emerald-400">Judge Optimist</CardTitle>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                            {result.optimist.weightedScore}
-                          </span>
-                          <VerdictBadge verdict={result.optimist.verdict || 'N/A'} />
-                        </div>
-                      </div>
-                      <CardDescription className="text-[10px]">Mencari KEKUATAN konten</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <ScoreBar label="Perspective & Depth" score={result.optimist.perspective_depth || 0} color="bg-emerald-500" />
-                      <ScoreBar label="Creativity" score={result.optimist.creativity_originality || 0} color="bg-emerald-500" />
-                      <ScoreBar label="Engagement" score={result.optimist.engagement_impact || 0} color="bg-emerald-500" />
-                      {result.optimist.strengths?.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-emerald-500/10">
-                          <p className="text-[10px] font-medium text-muted-foreground mb-1">Strengths:</p>
-                          {result.optimist.strengths.map((s: string, i: number) => (
-                            <p key={i} className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">✓ {s}</p>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Critic */}
-                {result.critic && (
-                  <Card className="border-l-4 border-l-orange-500">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm text-orange-700 dark:text-orange-400">Judge Critic</CardTitle>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl font-bold tabular-nums text-orange-600 dark:text-orange-400">
-                            {result.critic.weightedScore}
-                          </span>
-                          <VerdictBadge verdict={result.critic.verdict || 'N/A'} />
-                        </div>
-                      </div>
-                      <CardDescription className="text-[10px]">Mencari KELEMAHAN konten</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <ScoreBar label="Relevance" score={result.critic.relevance_alignment || 0} color="bg-orange-500" />
-                      <ScoreBar label="Technical" score={result.critic.technical_quality || 0} color="bg-orange-500" />
-                      <ScoreBar label="Anti-AI" score={result.critic.anti_ai_compliance || 0} color="bg-orange-500" />
-                      {result.critic.weaknesses?.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-orange-500/10">
-                          <p className="text-[10px] font-medium text-muted-foreground mb-1">Weaknesses:</p>
-                          {result.critic.weaknesses.map((w: string, i: number) => (
-                            <p key={i} className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">✗ {w}</p>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
-            </div>
-
-            {/* Phase 0 Brief */}
-            {result.brief && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-1.5">
-                    <Brain className="w-4 h-4 text-blue-500" />
-                    Writing Brief (Phase 0)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div><span className="text-xs text-muted-foreground">Perspective:</span><p className="mt-0.5">{result.brief.perspective}</p></div>
-                    <div><span className="text-xs text-muted-foreground">Persona:</span><p className="mt-0.5">{result.brief.persona}</p></div>
-                    <div><span className="text-xs text-muted-foreground">Tone:</span><p className="mt-0.5">{result.brief.tone}</p></div>
-                    <div><span className="text-xs text-muted-foreground">Unique Angle:</span><p className="mt-0.5">{result.brief.uniqueAngle}</p></div>
-                  </div>
-                  {result.brief.keyInsights?.length > 0 && (
-                    <div className="mt-3">
-                      <span className="text-xs text-muted-foreground">Key Insights:</span>
-                      <ul className="mt-1 space-y-0.5">
-                        {result.brief.keyInsights.map((k: string, i: number) => (
-                          <li key={i} className="text-xs list-disc list-inside text-muted-foreground">{k}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Self Check */}
-            {result.selfCheck && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Self-Check (Generator Agent)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <ScoreBar label="Relevance" score={result.selfCheck.relevance || 0} />
-                    <ScoreBar label="Depth" score={result.selfCheck.depth || 0} />
-                    <ScoreBar label="Naturalness" score={result.selfCheck.naturalness || 0} color="bg-teal-500" />
-                    <ScoreBar label="Engagement" score={result.selfCheck.engagement || 0} />
-                  </div>
-                  <div className="mt-3 flex items-center gap-2">
-                    <Badge variant={result.selfCheck.passed ? 'default' : 'destructive'} className="text-xs">
-                      Overall: {result.selfCheck.overallScore} ({result.selfCheck.passed ? 'PASSED' : 'FAILED'})
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <Button
-                onClick={handleGenerateAgain}
-                variant="outline"
-                className="flex-1 gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Generate Ulang
-              </Button>
-              <Button
-                onClick={handleBackToSearch}
-                variant="outline"
-                className="flex-1 gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Campaign Lain
-              </Button>
-            </div>
-          </div>
-        )}
+            );
+          }
+        })()}
       </main>
     </div>
   );
