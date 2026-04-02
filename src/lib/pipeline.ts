@@ -86,7 +86,7 @@ function buildCampaignSummary(campaignData: Record<string, unknown>): Record<str
 const CONFIG = {
   variationsPerCycle: 4,    // 4 variations — more diversity, better chance of hitting quality gate in 1 cycle
   maxCycles: 2,             // 2 cycles — cycle 2 uses adaptive feedback from cycle 1 failures
-  minQualityPct: 25,        // 25% to pass (forgiving — let the best content through, judges decide final quality)
+  minQualityPct: 35,        // 35% to pass (7.35/21 — Above Average, not too strict but filters truly bad content)
   failFastCycle: 2,         // Only fail fast after cycle 2
   // ═══ OPTIMIZED: 2-judge system (no critic) ═══
   // Critic judge times out 50% of the time (45s wasted each). Removing it:
