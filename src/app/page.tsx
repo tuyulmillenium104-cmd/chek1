@@ -258,23 +258,14 @@ const QUICK_HINTS = [
 // ─── Simulated Pipeline Stages ─────────────────────────────────────
 
 const PIPELINE_STAGES = [
-  { label: 'Analyzing campaign brief + detecting campaign type...', duration: 1200 },
-  { label: '🔍 Scanning competitors — searching web for rival content...', duration: 3000 },
-  { label: '🧠 Analyzing competitor patterns (angles, hooks, tones)...', duration: 2500 },
-  { label: '🎯 Building differentiation strategy — finding gaps to exploit...', duration: 2000 },
-  { label: '📊 Fetching REAL Rally submissions for calibration...', duration: 1500 },
-  { label: '📖 Building pre-writing perspective (5 internal questions)...', duration: 1500 },
-  { label: '🧬 Extracting verified facts from Knowledge Base...', duration: 800 },
-  { label: 'Generating 5 content variations (Cycle 1) — BEAT MODE + human artifacts...', duration: 5000 },
-  { label: '🎭 Random non-linear structure + 3 human artifacts per variant...', duration: 1500 },
-  { label: 'Running 3-stage judge: Optimist -> Analyst -> Critic...', duration: 8000 },
-  { label: 'Scoring 7 Rally content categories (max 21.0 points)...', duration: 800 },
-  { label: '🔎 G4 Originality scan + X-Factor viral detection...', duration: 800 },
-  { label: 'Quality threshold check...', duration: 600 },
-  { label: '🛡️ Similarity check: ensuring content is NOT like competitors...', duration: 1500 },
-  { label: '🧪 Anti-AI detection (40+ red flags)...', duration: 1000 },
-  { label: 'Anti-fabrication check: verifying claims...', duration: 800 },
-  { label: 'Finalizing result...', duration: 800 },
+  { label: '⚡ Instant campaign analysis (no AI call)...', duration: 800 },
+  { label: '📊 Fetching Rally submissions for calibration...', duration: 1200 },
+  { label: 'Generating 4 content variations in parallel...', duration: 4000 },
+  { label: '⚡ CASCADE: Judging best variant first (early exit)...', duration: 5000 },
+  { label: 'Scoring 7 Rally content categories (max 21.0)...', duration: 600 },
+  { label: '🔍 Competitive analysis (deferred — no bucket contention)...', duration: 1500 },
+  { label: '🔎 G4 Originality + X-Factor detection...', duration: 500 },
+  { label: 'Quality threshold + finalization...', duration: 500 },
 ] as const;
 
 // ─── Helper: shorten address ───────────────────────────────────────
@@ -446,37 +437,26 @@ export default function RallyDashboard() {
     }
   }, []);
 
-  // ─── Generate Content ──────────────────────────────────────────
+  // ─── Generate Content (Background Job + Polling) ─────────────────
+  // Solves 502 Bad Gateway: pipeline runs in background, no long-lived connections.
+  // 1. POST /api/rally/generate → returns jobId instantly (< 1s)
+  // 2. Poll GET /api/rally/generate/status?jobId=xxx every 2s for progress
 
   const handleGenerate = useCallback(async (campaign: CampaignDetail) => {
     setGenerating(true);
     setView({ type: 'generating', campaign });
     setLogs([]);
-    setPipelineStageIndex(-1);
+    setPipelineStageIndex(0);
     logIdRef.current = 0;
 
-    addLog(`Pipeline started for campaign: "${campaign.title}"`, 'system');
+    addLog(`Starting pipeline for campaign: "${campaign.title}"...`, 'system');
     if (campaign.missionTitle) {
       addLog(`Mission: ${campaign.missionTitle}`, 'info');
     }
-    addLog(`Fetching campaign data from Rally.fun API...`, 'info');
-
-    // Start simulated pipeline stages
-    let stageIdx = 0;
-    const runStage = () => {
-      if (stageIdx >= PIPELINE_STAGES.length) return;
-      const stage = PIPELINE_STAGES[stageIdx];
-      setPipelineStageIndex(stageIdx);
-      addLog(stage.label, 'info');
-      stageIdx++;
-      if (stageIdx < PIPELINE_STAGES.length) {
-        setTimeout(runStage, stage.duration);
-      }
-    };
-    setTimeout(runStage, 600);
 
     try {
-      const res = await fetch('/api/rally/process-next', {
+      // Step 1: Start pipeline — returns jobId instantly
+      const startRes = await fetch('/api/rally/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -486,130 +466,157 @@ export default function RallyDashboard() {
         }),
       });
 
-      const data = await res.json();
+      const startData = await startRes.json();
+      if (!startData.success || !startData.jobId) {
+        throw new Error(startData.error || 'Failed to start pipeline');
+      }
 
-      if (data.success) {
-        const jobStatus = data.job?.status || 'success';
-        const elapsed = data.job ? ((data.job.processingTime || 0) / 1000).toFixed(1) : '?';
+      const jobId = startData.jobId;
+      addLog('Pipeline started on server (polling for progress)...', 'info');
 
-        if (jobStatus === 'success') {
-          addLog(`Pipeline completed successfully in ${elapsed}s`, 'success');
-        } else if (jobStatus === 'partial') {
-          addLog(`Pipeline completed with partial results in ${elapsed}s (timeout or cycle limit)`, 'warning');
-          if (data.job?.error) {
-            addLog(`Note: ${data.job.error}`, 'warning');
-          }
-        } else {
-          addLog(`Pipeline failed in ${elapsed}s`, 'error');
-          if (data.job?.error) {
-            addLog(`Error: ${data.job.error}`, 'error');
-          }
+      // Step 2: Poll for progress every 2 seconds
+      let lastProgressIndex = -1;
+      let pollCount = 0;
+      const maxPolls = 600; // 10 minutes max (600 * 2s)
+
+      const poll = async (): Promise<boolean> => {
+        const statusRes = await fetch(`/api/rally/generate/status?jobId=${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (!statusData.success) {
+          addLog(`Status check failed: ${statusData.error}`, 'error');
+          return false;
         }
 
-        if (data.job?.bestScoring) {
-          addLog(
-            `Best result: Grade ${data.job.bestScoring.overallGrade} -- Score ${data.job.bestScoring.contentQualityScore.toFixed(2)} / 21.0 (${data.job.bestScoring.contentQualityPct.toFixed(1)}%)`,
-            'success'
-          );
-          if (data.job.bestScoring.estimatedPosition) {
-            addLog(`Estimated Rally Position: ${data.job.bestScoring.estimatedPosition}`, 'success');
-          }
+        // Emit new progress entries (only new ones since last poll)
+        const progress = statusData.progress || [];
+        for (let i = lastProgressIndex + 1; i < progress.length; i++) {
+          addLog(progress[i].message, progress[i].type || 'info');
+          setPipelineStageIndex((prev) => prev + 1);
+        }
+        lastProgressIndex = progress.length - 1;
+
+        // Check if completed
+        if (statusData.status === 'completed' || statusData.status === 'failed') {
+          return true; // Done — handle result in main flow
         }
 
-        // Competitive analysis logs
-        if (data.job?.competitorBeatScore !== undefined) {
-          const beatPct = data.job.competitorBeatScore;
-          if (beatPct > 0) {
-            addLog(`🏆 Beat competitors by ${beatPct}%! (Our score vs competitor avg)`, 'success');
-          } else if (beatPct > -20) {
-            addLog(`📊 Competitive score: ${beatPct}% (close to competitor average)`, 'warning');
-          } else {
-            addLog(`⚠️ Below competitor average by ${Math.abs(beatPct)}%`, 'warning');
-          }
+        pollCount++;
+        if (pollCount >= maxPolls) {
+          addLog('Pipeline taking too long (10+ minutes). Please try again.', 'error');
+          return true;
         }
 
-        // Stats log
-        if (data.job) {
-          addLog(`Stats: ${data.job.totalVariationsGenerated || 0} variations, ${data.job.totalCycles || 0} cycles, ${data.job.totalAIcalls || 0} AI calls`, 'info');
-        }
+        return false; // Still running
+      };
 
-        // Only show result view if we have content
-        if (data.job?.bestContent) {
-          // Transition to result view
-          setPipelineStageIndex(PIPELINE_STAGES.length);
-          setGenerating(false);
+      // Poll loop
+      let done = false;
+      while (!done) {
+        await new Promise((r) => setTimeout(r, 2000));
+        done = await poll();
+      }
 
-          setView({
-            type: 'result',
-            campaign,
-            content: data.job?.bestContent || 'No content generated.',
-            score: {
-              overallGrade: data.job?.bestScoring?.overallGrade || '?',
-              contentQualityScore: data.job?.bestScoring?.contentQualityScore || 0,
-              contentQualityPct: data.job?.bestScoring?.contentQualityPct || 0,
-              estimatedPosition: data.job?.bestScoring?.estimatedPosition || '?',
-              passesThreshold: data.job?.bestScoring?.passesThreshold ?? false,
-              categories: data.job?.bestScoring?.categories || [],
-              g4Detection: data.job?.bestScoring?.g4Detection || null,
-              xFactors: data.job?.bestScoring?.xFactors || null,
-              categoryAnalysis: data.job?.bestScoring?.categoryAnalysis,
-              cycles: data.job?.totalCycles || 1,
-              variations: data.job?.totalVariationsGenerated || 1,
-              aiCalls: data.job?.totalAIcalls || 1,
-              time: data.job?.processingTime || 0,
-              competitorBeatScore: data.job?.competitorBeatScore,
-              competitorAvgScore: data.job?.competitiveAnalysis?.patterns?.averageEstimatedScore ?? data.job?.competitiveAnalysis?.patterns?.averageEstimatedCP,
-              competitorTopScore: data.job?.competitiveAnalysis?.patterns?.topScore ?? data.job?.competitiveAnalysis?.patterns?.topCP,
-              targetScore: data.job?.competitiveAnalysis?.differentiation?.targetScore ?? data.job?.competitiveAnalysis?.differentiation?.targetCP,
-              groundTruth: data.job?.groundTruth,
-            },
-          });
-        } else {
-          // No content — show error state with retry option
-          addLog(`No content generated. ${data.job?.error || 'All candidates failed quality threshold.'}`, 'error');
-          setPipelineStageIndex(PIPELINE_STAGES.length);
-          setGenerating(false);
-          // Show the result view with error info so user can see logs + retry
-          setView({
-            type: 'result',
-            campaign,
-            content: '',
-            score: {
-              overallGrade: '?',
-              contentQualityScore: 0,
-              contentQualityPct: 0,
-              estimatedPosition: 'N/A',
-              passesThreshold: false,
-              categories: [],
-              g4Detection: null,
-              xFactors: null,
-              cycles: data.job?.totalCycles || 0,
-              variations: data.job?.totalVariationsGenerated || 0,
-              aiCalls: data.job?.totalAIcalls || 0,
-              time: data.job?.processingTime || 0,
-            },
-            _noContent: true,
-          });
-        }
-      } else {
-        addLog(`Pipeline failed: ${data.error || data.message}`, 'error');
+      // Step 3: Get final result
+      const finalRes = await fetch(`/api/rally/generate/status?jobId=${jobId}`);
+      const finalData = await finalRes.json();
+
+      if (!finalData.success || !finalData.result) {
+        addLog(`Pipeline failed: ${finalData.error || 'No result returned'}`, 'error');
         setPipelineStageIndex(PIPELINE_STAGES.length);
         setGenerating(false);
+        setTimeout(fetchStatus, 1000);
+        return;
+      }
+
+      const result = finalData.result;
+      const jobStatus = result.status || 'success';
+
+      if (jobStatus === 'success') {
+        addLog(`Pipeline completed successfully in ${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s`, 'success');
+      } else if (jobStatus === 'partial') {
+        addLog(`Pipeline completed with partial results (${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s)`, 'warning');
+        if (result.error) addLog(`Note: ${result.error}`, 'warning');
+      } else {
+        addLog(`Pipeline failed (${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s)`, 'error');
+        if (result.error) addLog(`Error: ${result.error}`, 'error');
+      }
+
+      if (result.bestScoring) {
+        addLog(
+          `Best result: Grade ${result.bestScoring.overallGrade} — Score ${result.bestScoring.contentQualityScore.toFixed(2)} / 21.0 (${result.bestScoring.contentQualityPct.toFixed(1)}%)`,
+          'success'
+        );
+        if (result.bestScoring.estimatedPosition) {
+          addLog(`Estimated Rally Position: ${result.bestScoring.estimatedPosition}`, 'success');
+        }
+      }
+
+      if (result.competitorBeatScore !== undefined) {
+        const beatPct = result.competitorBeatScore;
+        if (beatPct > 0) addLog(`🏆 Beat competitors by ${beatPct}%! (Our score vs competitor avg)`, 'success');
+        else if (beatPct > -20) addLog(`📊 Competitive score: ${beatPct}% (close to competitor average)`, 'warning');
+        else addLog(`⚠️ Below competitor average by ${Math.abs(beatPct)}%`, 'warning');
+      }
+
+      addLog(`Stats: ${result.totalVariationsGenerated || 0} variations, ${result.totalCycles || 0} cycles, ${result.totalAIcalls || 0} AI calls`, 'info');
+
+      // Show result view
+      if (result.bestContent) {
+        setPipelineStageIndex(PIPELINE_STAGES.length);
+        setGenerating(false);
+        setView({
+          type: 'result',
+          campaign,
+          content: result.bestContent,
+          score: {
+            overallGrade: result.bestScoring?.overallGrade || '?',
+            contentQualityScore: result.bestScoring?.contentQualityScore || 0,
+            contentQualityPct: result.bestScoring?.contentQualityPct || 0,
+            estimatedPosition: result.bestScoring?.estimatedPosition || '?',
+            passesThreshold: result.bestScoring?.passesThreshold ?? false,
+            categories: result.bestScoring?.categories || [],
+            g4Detection: result.bestScoring?.g4Detection || null,
+            xFactors: result.bestScoring?.xFactors || null,
+            categoryAnalysis: result.bestScoring?.categoryAnalysis,
+            cycles: result.totalCycles || 1,
+            variations: result.totalVariationsGenerated || 1,
+            aiCalls: result.totalAIcalls || 1,
+            time: result.processingTime || 0,
+            competitorBeatScore: result.competitorBeatScore,
+            competitorAvgScore: result.competitiveAnalysis?.patterns?.averageEstimatedScore,
+            competitorTopScore: result.competitiveAnalysis?.patterns?.topScore,
+            targetScore: result.competitiveAnalysis?.differentiation?.targetScore,
+            groundTruth: result.groundTruth,
+          },
+        });
+      } else {
+        addLog(`No content generated. ${result.error || 'All candidates failed quality threshold.'}`, 'error');
+        setPipelineStageIndex(PIPELINE_STAGES.length);
+        setGenerating(false);
+        setView({
+          type: 'result',
+          campaign,
+          content: '',
+          score: {
+            overallGrade: '?', contentQualityScore: 0, contentQualityPct: 0,
+            estimatedPosition: 'N/A', passesThreshold: false, categories: [],
+            g4Detection: null, xFactors: null,
+            cycles: result.totalCycles || 0,
+            variations: result.totalVariationsGenerated || 0,
+            aiCalls: result.totalAIcalls || 0,
+            time: result.processingTime || 0,
+          },
+          _noContent: true,
+        });
       }
 
       setTimeout(fetchStatus, 1000);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Network error';
-      // Detect gateway timeout (HTML instead of JSON)
-      const isGatewayTimeout = errorMsg.includes('is not valid JSON') || errorMsg.includes('Unexpected token');
-      if (isGatewayTimeout) {
-        addLog('Pipeline took too long — gateway timeout (server needs more time)', 'error');
-        addLog('The pipeline may have completed on the server. Try again — rate limit cooldown may be needed.', 'warning');
-      } else {
-        addLog(`Request failed: ${errorMsg}`, 'error');
-      }
-      setPipelineStageIndex(PIPELINE_STAGES.length);
+      addLog(`Request failed: ${errorMsg}`, 'error');
       setGenerating(false);
+      setPipelineStageIndex(PIPELINE_STAGES.length);
     }
   }, [addLog, fetchStatus]);
 
@@ -722,7 +729,7 @@ export default function RallyDashboard() {
                 </div>
                 <div>
                   <h1 className="text-lg font-bold tracking-tight md:text-xl">
-                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v5</span>
+                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6 <span className="text-orange-500">⚡</span></span>
                   </h1>
                   <p className="text-[11px] text-muted-foreground hidden sm:block">
                     Rally-aligned scoring — 7 content categories, max 21.0 points

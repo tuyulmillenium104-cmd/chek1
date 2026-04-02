@@ -340,6 +340,7 @@ export interface ComplianceResult {
     name: string;
     passed: boolean;
     message: string;
+    isHardCheck?: boolean;
   }[];
 }
 
@@ -350,54 +351,72 @@ export function checkCompliance(
   const checks: ComplianceResult['checks'] = [];
   const lower = content.toLowerCase();
 
-  // Check 1: Content not empty
+  // ═══ SOFT COMPLIANCE (v7): Only truly critical violations block candidates.
+  // AI patterns, template phrases, and AI-sounding words are SOFT warnings —
+  // the AI judges should decide quality, not a regex-based filter.
+  // Previous version blocked ALL content before judging could run.
+  // ═══
+
+  // HARD CHECKS: These WILL block a candidate
+
+  // Check 1: Content not empty (minimum 30 chars — tweets can be short)
   checks.push({
     name: 'Content Not Empty',
-    passed: content.trim().length > 50,
-    message: content.trim().length > 50 ? 'OK' : 'Content too short (< 50 chars)',
+    passed: content.trim().length > 30,
+    message: content.trim().length > 30 ? 'OK' : 'Content too short (< 30 chars)',
+    isHardCheck: true,
   });
 
-  // Check 2: No banned words
+  // Check 2: No banned financial/legal words (these get you banned on Rally)
   const bannedFound = BANNED_WORDS.filter((w) => lower.includes(w.toLowerCase()));
   checks.push({
     name: 'No Banned Words',
     passed: bannedFound.length === 0,
     message: bannedFound.length === 0 ? 'OK' : `Found: ${bannedFound.join(', ')}`,
+    isHardCheck: true,
   });
 
-  // Check 3: No Rally banned phrases
+  // Check 3: No Rally banned phrases (known overused spam on Rally)
   const rallyFound = RALLY_BANNED_PHRASES.filter((p) => lower.includes(p.toLowerCase()));
   checks.push({
     name: 'No Rally Banned Phrases',
     passed: rallyFound.length === 0,
     message: rallyFound.length === 0 ? 'OK' : `Found: ${rallyFound.join(', ')}`,
+    isHardCheck: true,
   });
 
-  // Check 4: No template phrases
+  // Check 4: Reasonable length (30-5000 chars)
+  checks.push({
+    name: 'Reasonable Length',
+    passed: content.length >= 30 && content.length <= 5000,
+    message: `Length: ${content.length} chars`,
+    isHardCheck: true,
+  });
+
+  // SOFT CHECKS: These are informational — do NOT block candidates
+
+  // Check 5: Template phrases (soft warning — judges will penalize)
   const templateFound = TEMPLATE_PHRASES.filter((p) => lower.includes(p.toLowerCase()));
   checks.push({
     name: 'No Template Phrases',
     passed: templateFound.length === 0,
-    message: templateFound.length === 0 ? 'OK' : `Found: ${templateFound.join(', ')}`,
+    message: templateFound.length === 0 ? 'OK' : `Soft warning: ${templateFound.join(', ')}`,
+    isHardCheck: false,
   });
 
-  // Check 5: Not too AI-sounding
+  // Check 6: AI patterns (soft warning — judges handle this)
   const aiResult = detectAIPatterns(content);
   checks.push({
-    name: 'AI Score < 30',
-    passed: aiResult.aiScore < 30,
-    message: `AI Score: ${aiResult.aiScore}/100`,
+    name: 'AI Score',
+    passed: aiResult.aiScore < 50,
+    message: `AI Score: ${aiResult.aiScore}/100 (soft warning — judges decide)`,
+    isHardCheck: false,
   });
 
-  // Check 6: Reasonable length (50-5000 chars)
-  checks.push({
-    name: 'Reasonable Length',
-    passed: content.length >= 50 && content.length <= 5000,
-    message: `Length: ${content.length} chars`,
-  });
-
+  // Only HARD checks can fail compliance
+  const hardChecks = checks.filter((c) => c.isHardCheck);
   return {
-    passed: checks.every((c) => c.passed),
+    passed: hardChecks.every((c) => c.passed),
     checks,
   };
 }
@@ -809,9 +828,10 @@ export async function generateContent(
   // With thinking ON, glm-4-plus consumes all tokens for reasoning,
   // leaving the content field empty. Quality comes from the detailed prompt
   // (human artifacts, counter-arguments, pre-writing perspective), NOT from thinking.
+  // OPTIMIZED: 2500 tokens (tweets are 200-500 chars, 2500 is plenty — faster response)
   const response = await client.chat(messages, {
     temperature: 0.85,
-    maxTokens: 4000,
+    maxTokens: 2500,
     enableThinking: false,
   });
 
@@ -822,7 +842,7 @@ export async function generateContent(
     console.warn(`[AI] Content empty (${content.length} chars). Retrying with higher temperature...`);
     const retryResponse = await client.chat(messages, {
       temperature: 0.95,
-      maxTokens: 4000,
+      maxTokens: 2500,
       enableThinking: false,
     });
     content = retryResponse.content.trim();
@@ -915,11 +935,11 @@ export async function judgeContent(
     critic: 0.3,     // Strict, deterministic — harsh evaluation
   };
 
-  // CRITICAL: Judges output JSON. glm-4.6 with thinking ON puts JSON in reasoning_content.
-  // We MUST use enableThinking: false for judges so JSON goes to content field.
+  // OPTIMIZED: 2000 tokens for both judges — enough for full JSON scores + feedback
+  const judgeTokenBudget = 2000;
   const response = await client.chat(messages, {
     temperature: temperatureMap[judgeType],
-    maxTokens: 2000,
+    maxTokens: judgeTokenBudget,
     enableThinking: false, // Judges MUST output JSON to content, not reasoning
     ...(judgeToken ? { forceTokenIndex: getTokenIndex(judgeToken) } : {}),
   });

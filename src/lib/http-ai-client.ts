@@ -134,7 +134,7 @@ const GATEWAY_HOSTS = ['172.25.136.193:8080', '172.25.136.210:8080'];
 const IP_RATE_LIMIT = 10;       // 10 requests per window per bucket
 const IP_RATE_WINDOW = 600000;  // 10 minutes in ms
 const DEFAULT_TIMEOUT = 45000; // 45s HTTP timeout (thinking OFF calls complete in <15s, 45s is generous)
-const MAX_WAIT_PER_SLOT = 10000; // Max 10s wait for a rate limit slot
+const MAX_WAIT_PER_SLOT = 5000; // Max 5s wait for a rate limit slot
 
 // ─── DirectAIClient ──────────────────────────────────────────────────
 
@@ -341,7 +341,7 @@ export class DirectAIClient {
     while (this.requestTimes.length > 0 && now - this.requestTimes[0] > 1000) {
       this.requestTimes.shift();
     }
-    if (this.requestTimes.length >= 3) {
+    if (this.requestTimes.length >= 5) {
       const waitMs = 1000 - (now - this.requestTimes[0]) + 50; // 50ms buffer
       if (waitMs > 0) {
         await new Promise(r => setTimeout(r, waitMs));

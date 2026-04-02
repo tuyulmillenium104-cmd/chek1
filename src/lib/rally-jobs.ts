@@ -136,11 +136,19 @@ export async function saveResult(jobId: string, result: JobResult): Promise<void
   const resultFile = path.join(RESULTS_DIR, `${jobId}.json`);
   await fs.writeFile(resultFile, JSON.stringify(result, null, 2));
 
-  // Update database
+  // Update database (upsert — direct mode jobs don't exist in DB yet)
   try {
-    await db.rallyJob.update({
+    await db.rallyJob.upsert({
       where: { id: jobId },
-      data: {
+      create: {
+        id: jobId,
+        campaignName: result.campaignName,
+        campaignData: '{}',
+        status: result.status === 'success' ? 'completed' : 'failed',
+        result: JSON.stringify(result),
+        score: result.bestScoring?.contentQualityScore ?? null,
+      },
+      update: {
         status: result.status === 'success' ? 'completed' : 'failed',
         result: JSON.stringify(result),
         score: result.bestScoring?.contentQualityScore ?? null,

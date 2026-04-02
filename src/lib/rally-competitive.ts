@@ -182,7 +182,7 @@ function buildSearchQueries(campaignData: Record<string, unknown>): string[] {
   }
 
   // Deduplicate and limit — fewer queries = faster
-  return [...new Set(queries)].slice(0, 3);
+  return [...new Set(queries)].slice(0, 2);
 }
 
 /**
@@ -394,7 +394,7 @@ export async function runCompetitiveAnalysis(
   console.log(`[Competitive] Found ${uniqueResults.length} unique results from search`);
 
   // Step 4: Read top results for full content (limit to 3 to manage time)
-  const topResults = uniqueResults.slice(0, 3);
+  const topResults = uniqueResults.slice(0, 2);
   const readPromises = topResults.map(async (r) => {
     // Prefer X/Twitter URLs, or read any result with a meaningful snippet
     const isTwitter = r.url.includes('x.com') || r.url.includes('twitter.com');
