@@ -1,0 +1,152 @@
+{
+  "last_updated": "2026-04-10T13:00:00.000Z",
+  "campaign_address": "0xc48e4f38EEee8D088eCd6271878ba57887729356",
+  "campaign_title": "The Future of Advertising is Here",
+  "total_submissions_fetched": 93,
+  "total_submissions_total": 100,
+  "score_distribution": {
+    "count": 93,
+    "min": 8.0,
+    "max": 18.0,
+    "avg": 15.22,
+    "score_18": 6,
+    "score_17": 16,
+    "score_16_plus": 52,
+    "score_below_16": 41
+  },
+  "category_averages": {
+    "Originality and Authenticity": {"avg": 1.39, "max": 2.0, "full_rate": "~69%"},
+    "Content Alignment": {"avg": 1.87, "max": 2.0, "full_rate": "~94%"},
+    "Information Accuracy": {"avg": 1.88, "max": 2.0, "full_rate": "~94%"},
+    "Campaign Compliance": {"avg": 1.81, "max": 2.0, "full_rate": "~91%"},
+    "Engagement Potential": {"avg": 3.76, "max": 5.0, "full_rate": "~22%"},
+    "Technical Quality": {"avg": 4.51, "max": 5.0, "full_rate": "~76%"}
+  },
+  "top_performers_18": [
+    {"username": "marmalova", "score": 18, "tweet_id": "2038989974053761153"},
+    {"username": "baiyijiuba", "score": 18, "tweet_id": null},
+    {"username": "ekinoks_26", "score": 18, "tweet_id": null},
+    {"username": "elliederler2", "score": 18, "tweet_id": null},
+    {"username": "alver1301", "score": 18, "tweet_id": null},
+    {"username": "cat20win", "score": 18, "tweet_id": null}
+  ],
+  "near_perfect_17_analysis": {
+    "total": 16,
+    "weakness_breakdown": {
+      "lost_originality_O1": 4,
+      "lost_engagement_E4": 12
+    }
+  },
+  "key_findings": {
+    "hardest_dimension": "Originality (avg 1.39/2, same as previous campaign)",
+    "quality_differentiator": "Engagement Potential (75% of 17/18 lost E:4/5)",
+    "strongest_dimension": "Technical Quality (avg 4.51/5)",
+    "competition_level": "LOWER than previous campaign (6 perfect vs 15 before)",
+    "total_perfect_scorers": 6,
+    "submission_growth_rate": "~3 new in 12 hours (slow)"
+  },
+  "cross_campaign_comparison": {
+    "previous_campaign": "Rally Owns the Narrative (0xd6174...)",
+    "prev_avg": 15.97,
+    "current_avg": 15.22,
+    "avg_change": -0.75,
+    "prev_perfect_scorers": 15,
+    "current_perfect_scorers": 6,
+    "conclusion": "Easier competition, fewer perfect scorers, same weak dimensions"
+  },
+  "monitor_checks": [
+    {
+      "timestamp": "2026-04-10T13:00:00.000Z",
+      "check_number": 1,
+      "submissions_total": 100,
+      "submissions_fetched": 93,
+      "avg_true_quality": 15.22,
+      "perfect_scorers": 6,
+      "near_perfect": 16,
+      "angle_overlap_with_our_content": "NONE (no content built yet)",
+      "rework_needed": false,
+      "action_required": "BUILD URGENT - mission not_built, deadline ~40 hours",
+      "reason": "No content to compare. Landscape tracked. 6/100 at 18/18 achievable. Originality + Engagement Potential remain hardest dims (same as prev campaign). BUILD should leverage knowledge from previous campaign."
+    }
+  ],
+  "inherited_patterns_from_prev_campaign": {
+    "note": "Patterns from 'Rally Owns the Narrative' still relevant - same creator, similar rules, same scoring. Merged from rally_pattern_cache_new.json (2026-04-09).",
+    "campaign": "Rally Owns the Narrative",
+    "contract_address": "0xd6174FCf9a69837846860CCaC6394D3E6645CC22",
+    "total_submissions_analyzed": 200,
+    "category_max_rates": {
+      "originality_2of2_pct": 30,
+      "alignment_2of2_pct": 99,
+      "accuracy_2of2_pct": 98,
+      "compliance_2of2_pct": 96,
+      "engagement_5of5_pct": 17,
+      "technical_5of5_pct": 62
+    },
+    "top_performers": [
+      {"username": "karyn_web3", "score": 18, "notes": "Conceptual pitch, paradigm shift framing, signal vs surface metrics"},
+      {"username": "1israel_real", "score": 18, "notes": "Philosophical contrast noise vs systems, reframed technical points"},
+      {"username": "jokee_web3", "score": 18, "notes": "Contrarian hook challenging follower size assumption, bullet structure"},
+      {"username": "bryanhuston01", "score": 18, "notes": "Challenged attention=followers assumption, personal insight"},
+      {"username": "0xlongdc", "score": 18, "notes": "Framed Rally as infrastructure not platform, conceptual take"}
+    ],
+    "top_hooks": [
+      "everyone's focused on the wrong thing about Rally",
+      "people still think web3 marketing is about follower size",
+      "Most people chase noise. A few position for systems that quietly rewrite the rules."
+    ],
+    "overused_phrases": [
+      {"phrase": "AI scoring", "pct": 94, "note": "Mandatory topic but find unique framing"},
+      {"phrase": "being early", "pct": 77, "note": "Cliche - AVOID or reframe radically"},
+      {"phrase": "on-chain", "pct": 89, "note": "Overused but factual"},
+      {"phrase": "Rally Points", "pct": 86, "note": "Important detail, include but don't center"},
+      {"phrase": "quality over follower", "pct": 72, "note": "OVERUSED - find different angle"},
+      {"phrase": "stablecoin", "pct": 67, "note": "Important but common"},
+      {"phrase": "Web3 marketing", "pct": 68, "note": "Expected but generic"},
+      {"phrase": "influencer marketing", "pct": 28, "note": "Moderate use, OK if reframed"},
+      {"phrase": "no gatekeeper", "pct": 16, "note": "Low use, can still use"}
+    ],
+    "overused_angles": [
+      "being early matters",
+      "game changer",
+      "quality over quantity",
+      "AI scoring means quality wins",
+      "don't sleep on this",
+      "the rules have changed"
+    ],
+    "winning_patterns": [
+      "Contrarian/philosophical hooks that challenge assumptions",
+      "Frame Rally as 'infrastructure' not 'platform'",
+      "Reframe technical points into narrative/conceptual framing",
+      "Personal voice with distinct perspective, not corporate tone",
+      "Challenge status quo of web3 marketing measurement",
+      "Stream-of-consciousness or self-doubt elements for authenticity"
+    ],
+    "unique_gaps": [
+      "On-chain escrow mechanism",
+      "GenLayer intelligent contracts specifics",
+      "Trustless payment pipeline vs traditional agency model",
+      "KOL pricing disruption"
+    ],
+    "common_failures": [
+      "70% get Originality 1/2 - AI-sounding language, template structure",
+      "83% get Engagement 4/5 or less - generic hooks, weak CTAs",
+      "Most use same angles: quality>followers, being early, AI scoring"
+    ],
+    "best_practices": [
+      "Start with bold, contrarian or philosophical statement",
+      "Explain ONE concrete mechanism deeply",
+      "Use personal voice with genuine conviction",
+      "Strategic line breaks, no numbered lists",
+      "Tag @RallyOnChain naturally in body",
+      "End with implicit CTA or provocative question",
+      "1300-1700 chars optimal length",
+      "Paragraph CV > 0.30 for natural feel"
+    ],
+    "calibration": {
+      "avg_total": 15.79,
+      "top_percentile_threshold": 17.5,
+      "perfect_score_count": 11,
+      "competition_level": "HIGH - 30% get max Originality, 17% get max Engagement"
+    }
+  }
+}

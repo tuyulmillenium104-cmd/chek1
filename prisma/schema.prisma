@@ -30,3 +30,64 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model PipelineRun {
+  id            String   @id @default(cuid())
+  status        String   @default("completed")
+  bestScore     Float?
+  verdict       String?
+  variations    Int
+  feedbackLoops Int      @default(0)
+  pipelineTime  Float?
+  bestAngle     String?
+  bestContent   String?
+  requestParams String?
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+}
+
+model RallyCampaign {
+  id                String   @id @default(cuid())
+  title             String
+  contractAddress   String?
+  campaignUrl       String?
+  creator           String?
+  xUsername         String?
+  rewardPool        String?
+  startDate         String?
+  endDate           String?
+  status            String   @default("active")
+  description       String?
+  source            String   @default("manual")
+  dataJson          String?
+  isActive          Boolean  @default(true)
+  missionsJson      String?
+  knowledgeBase     String?
+  proposedAnglesJson String?
+  rulesJson         String?
+  style             String?
+  goal              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model RallyCronJob {
+  id              String   @id @default(cuid())
+  name            String
+  campaignId      String
+  campaignTitle   String
+  campaignAddress String
+  mode            String   @default("BUILD")
+  scheduleKind    String   @default("fixed_rate")
+  scheduleExpr    String
+  timezone        String   @default("Asia/Jakarta")
+  status          String   @default("active")
+  systemJobId     String?
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  runCount        Int      @default(0)
+  lastError       String?
+  payload         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

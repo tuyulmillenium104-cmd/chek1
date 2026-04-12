@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "created": "2026-04-09T00:00:00.000Z",
+  "tasks": [
+    {
+      "id": "task_demo_001",
+      "type": "build",
+      "command": "/rally build",
+      "description": "Generate konten baru untuk campaign aktif",
+      "campaign": "Rally Owns the Narrative",
+      "campaign_url": "https://app.rally.fun/campaign/campaign-1773779015492-yj1fpdmhz",
+      "status": "completed",
+      "priority": "high",
+      "created_at": "2026-04-09T07:00:00.000Z",
+      "started_at": "2026-04-09T07:00:00.000Z",
+      "completed_at": "2026-04-09T07:00:00.000Z",
+      "result": {
+        "score": 18,
+        "variation": "B5",
+        "cycles": 3,
+        "content_preview": "everyone's focused on the wrong thing about Rally.",
+        "content_file": "rally_best_content.txt",
+        "qna_generated": true,
+        "qna_count": 20
+      },
+      "steps_completed": [
+        "Campaign analysis",
+        "Data fetch (200 submissions)",
+        "Deep analysis (8 dimensi)",
+        "Generate 3 variasi (A, B, C)",
+        "Judge panel (5 judges)",
+        "Feedback loop (3 cycles)",
+        "MAX-OUT verification: 6/6 PASS",
+        "Final score: 18/18 (B5)"
+      ],
+      "copyable_content": "everyone's focused on the wrong thing about Rally.\n\n\"AI scoring means quality beats follower count.\" yeah. we get it. but that sentence doesn't capture what's actually interesting about what @RallyOnChain built.\n\nthe real play is the payment pipeline. it's trustless.\n\ngo to app.rally.fun. pick a campaign. write your post. submit it. an AI on GenLayer intelligent contracts scores you on 6 categories. campaign funds sit in on-chain escrow. when your score clears the threshold, the escrow releases USDC to your wallet. on Base. today.\n\nnot next quarter. the intelligent contract just releases the funds when your score clears. no accounting team, no approval chain.\n\nI ran a sponsored tweet through a traditional Web3 campaign last month. took 23 days to get paid. had to DM the project lead twice. they eventually sent ETH from a personal wallet because their \"treasury multisig was having issues.\"\n\nwith Rally the whole thing took a few hours. a few hours.\n\nand the scoring weights are public before you write anything. originality, accuracy, alignment, compliance, engagement, technical quality. six dimensions. no hidden criteria. no black box.\n\nyou know what I can't figure out though? if this works at scale, what happens to KOL pricing? like, if a project can just put funds in escrow and let AI evaluate quality directly, why would they ever pay a 50K retainer to an agency again? genuinely asking because I don't think the KOL market has fully priced this in yet.",
+      "notes": "Campaign expired. Rally actual score: 17/18 (gap -1.0 on Engagement)."
+    }
+  ],
+  "commands_help": {
+    "/rally build": "Generate konten baru untuk campaign aktif",
+    "/rally build [url]": "Generate konten untuk campaign spesifik (paste URL campaign)",
+    "/rally check": "Monitor pattern + staleness check",
+    "/rally status": "Cek status sistem lengkap",
+    "/rally learn": "Input konten kompetitor untuk dipelajari",
+    "/rally calibrate [skor]": "Input skor Rally asli (format: O:2 A:2 Ac:2 C:2 E:4 T:5)",
+    "/rally qna": "Generate Q&A dari konten terbaik",
+    "/rally evolve": "Cek evolution status (PET, RDS, ASM, ACL)",
+    "/rally tasks": "Lihat semua task queue",
+    "/rally cancel [id]": "Batalkan task tertentu"
+  }
+}

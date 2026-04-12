@@ -1,0 +1,14 @@
+{
+  "_type": "rally-self-heal-report",
+  "generatedAt": "2026-04-12T19:16:45.674Z",
+  "source": "self-heal",
+  "systemStatus": "auto-repaired",
+  "dataSnapshot": {
+    "masterLoaded": true,
+    "vaultLoaded": true,
+    "patternsLoaded": true,
+    "activeCampaign": "The Future of Advertising is Here",
+    "totalCampaigns": 0,
+    "totalKnowledgeLessons": 1
+  }
+}
