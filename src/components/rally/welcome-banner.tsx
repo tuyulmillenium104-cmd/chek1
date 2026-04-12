@@ -60,10 +60,11 @@ export function WelcomeBanner({ visible, onDismiss, onNavigate }: WelcomeBannerP
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="relative"
         >
-          <div className="bg-gradient-to-br from-emerald-500/10 via-card/80 to-teal-500/10 backdrop-blur border border-transparent rounded-2xl p-5 md:p-6 overflow-hidden">
-            {/* Decorative gradient orb */}
+          <div className="bg-gradient-to-br from-emerald-500/10 via-card/80 to-teal-500/10 backdrop-blur-xl border border-emerald-500/10 rounded-2xl p-5 md:p-6 overflow-hidden rally-card-glow">
+            {/* Decorative gradient orbs */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
             <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-teal-500/10 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none" />
 
             {/* Close button */}
             <button
@@ -95,7 +96,7 @@ export function WelcomeBanner({ visible, onDismiss, onNavigate }: WelcomeBannerP
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex items-start gap-3 rounded-xl bg-card/50 border border-border/30 p-3 hover:border-emerald-500/20 shine-sweep rally-card-hover transition-all duration-200 cursor-default"
+                  className="flex items-start gap-3 rounded-xl bg-card/50 border border-border/30 p-3 hover:border-emerald-500/20 shine-sweep rally-hover-lift transition-all duration-200 cursor-default"
                 >
                   <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0 feature-icon-glow', feature.bg)}>
                     <feature.icon className={cn('h-4 w-4', feature.color)} />

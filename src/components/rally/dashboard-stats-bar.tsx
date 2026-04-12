@@ -111,7 +111,7 @@ export function DashboardStatsBar({ statsData, loading }: { statsData: StatsBarD
   ]
 
   return (
-    <div className="border-b border-emerald-500/10 shadow-[0_2px_8px_rgba(16,185,129,0.06)] bg-card/50 backdrop-blur-sm glow-emerald relative">
+    <div className="border-b border-emerald-500/10 shadow-[0_2px_8px_rgba(16,185,129,0.06)] bg-gradient-to-r from-card/60 via-card/80 to-card/60 backdrop-blur-md glow-emerald relative rally-card-glow">
       {/* Animated gradient border bottom with enhanced glow */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent stats-bar-glow" />
       <div className="absolute bottom-0 left-1/4 right-1/4 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent stats-bar-glow blur-sm" />

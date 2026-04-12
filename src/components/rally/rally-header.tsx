@@ -85,8 +85,21 @@ export function RallyHeader({
       <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
         {/* Left: Title */}
         <div className="flex items-center gap-2.5 shrink-0 group">
-          <div className="h-8 w-8 rounded-lg bg-emerald-500/15 flex items-center justify-center ring-1 ring-emerald-500/10 group-hover:ring-emerald-500/25 group-hover:bg-emerald-500/20 transition-all duration-300">
-            <Zap className="h-4.5 w-4.5 text-emerald-400" />
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center ring-1 ring-emerald-500/15 group-hover:ring-emerald-500/30 group-hover:shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all duration-300">
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#rallyLogoGrad)" stroke="url(#rallyLogoStroke)" strokeWidth="0.5" strokeLinejoin="round"/>
+              <defs>
+                <linearGradient id="rallyLogoGrad" x1="2" y1="2" x2="22" y2="21">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="50%" stopColor="#14b8a6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+                <linearGradient id="rallyLogoStroke" x1="2" y1="2" x2="22" y2="21">
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="100%" stopColor="#22d3ee" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
           <div>
             <h1 className="text-sm md:text-base font-bold tracking-tight relative">
