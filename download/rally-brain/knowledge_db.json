@@ -1,0 +1,28 @@
+{
+  "version": "2.0",
+  "created": "2026-04-14T00:00:00+08:00",
+  "last_updated": null,
+  "patterns": {
+    "claim_specificity": [],
+    "rally_mention_depth": [],
+    "engagement_hook": [],
+    "tone_style_match": [],
+    "structure_optimal": [],
+    "compliance_traps": [],
+    "originality_markers": []
+  },
+  "scoring_model": {
+    "calibration_log": [],
+    "avg_prediction_diff": null,
+    "total_calibrations": 0
+  },
+  "campaign_memories": {},
+  "cycle_log": [],
+  "stats": {
+    "total_patterns": 0,
+    "total_submissions_analyzed": 0,
+    "total_campaigns": 0,
+    "total_cycles": 0,
+    "total_content_generated": 0
+  }
+}
