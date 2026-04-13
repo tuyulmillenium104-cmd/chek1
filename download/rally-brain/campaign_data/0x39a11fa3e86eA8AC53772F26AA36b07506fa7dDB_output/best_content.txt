@@ -1,19 +1,14 @@
-Most people chase the next moonshot token. The real game is building systems where your capital compounds through influence.
+The veDEX model isn't just another DeFi buzzword—it's a fundamental shift in how liquidity gets distributed. Most DEXs throw rewards blindly at liquidity providers. MarbMarket flips this script by letting the community decide where value flows.
 
-MarbMarket is about to launch the first veDEX on MegaETH. No presale. No VCs. Just pure community-driven governance.
+Here's how it works: lock MARB tokens → gain veTokens → vote weekly on which LP pools get MARB emissions. Projects wanting votes offer bribes → creating a self-sustaining flywheel where incentives flow back to lockers.
 
-Here's how it works: You lock MARB tokens, get veTokens with voting power. The longer you lock, the more influence you have. Each week, veHolders vote on which LP pools get MARB emissions.
+What makes MarbMarket different? First veDEX on MegaETH with a fair launch—no presale, no VC backing. The ve(3,3) model means longer locks = more influence + more rewards. Community-driven voting replaces top-down decisions.
 
-Projects want those votes? They pay bribes directly to veToken holders. This creates a flywheel: more locks → more votes → more bribes → higher rewards for lockers.
+Why should you care? Because this is how DeFi moves beyond yield farming toward sustainable, community-owned infrastructure. The power shifts from protocols to the people actually providing liquidity.
 
-It's ve(3,3) in action - your capital doesn't just earn yield, it earns governance power that attracts more yield.
+MarbMarket's launch is quietly rewriting the rules for how value gets allocated in DeFi. Systems that compound over time beat temporary hype every time.
 
-This isn't just another DEX. It's a shift from "provide liquidity, get rewards" to "provide liquidity, vote on rewards, and capture protocol value."
+Check out the first veDEX on MegaETH:
+x.com/Marb_market
 
-Fair launch means early adopters get asymmetric upside as the ecosystem grows. No seed rounds, no private allocations - just you, your capital, and your votes.
-
-The veDEX model rewrites the rules of yield farming. Your capital compounds through governance, not just fees.
-
-Check out the launch: x.com/Marb_market
-
-@RallyOnChain what's the most innovative use of governance you've seen in DeFi?
+@RallyOnChain What's the most overlooked aspect of ve(3,3) models in your experience?
