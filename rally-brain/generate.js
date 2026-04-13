@@ -1,10 +1,13 @@
 /**
- * Rally Brain Generate Runner v2.0
- * Runs the full generate loop: 3 variations × 5 loops → best ≥16 → output
- * Uses z-ai-web-dev-sdk for AI generation, built-in rules for evaluation
+ * Rally Brain Generate Runner v3.0
+ * CONNECTED PIPELINE: LEARN (from Rally data) → GENERATE → OUTPUT
+ * Loads: 200+ scored submissions, pattern cache, knowledge vault, anti-AI checklist
+ * Philosophy: "Rally minta 1, kita beri 2" — exceed quality expectations
  */
 
 const ZAI = require('z-ai-web-dev-sdk').default;
+const fs = require('fs');
+const path = require('path');
 
 // ============ CAMPAIGN CONTEXT ============
 const CAMPAIGN = {
@@ -92,6 +95,102 @@ const MISSION_REQUIREMENTS = [
   "Single post or 2-4 post thread",
   "BONUS: explain MARB flywheel or ve(3,3) creatively"
 ];
+
+// ============ LEARN PHASE — Load Rally Data ============
+const DATA_DIR = '/home/z/my-project/upload/rally_logs_extracted';
+
+function loadJson(filename) {
+  try {
+    const fp = path.join(DATA_DIR, filename);
+    if (!fs.existsSync(fp)) return null;
+    return JSON.parse(fs.readFileSync(fp, 'utf-8'));
+  } catch { return null; }
+}
+
+function extractLearnedKnowledge() {
+  console.log('\n=== PHASE 0: LEARNING FROM RALLY DATA ===');
+  
+  const patternCache = loadJson('rally_pattern_cache.json');
+  const knowledgeVault = loadJson('rally_knowledge_vault.json');
+  const submissions = loadJson('rally_submissions_cache.json');
+  const submissionsNew = loadJson('rally_submissions_cache_new.json');
+  
+  const learned = { patterns: [], techniques: [], antiAI: [], scoreData: null, topHooks: [], overused: [], failures: [], bestPractices: [] };
+  
+  // Pattern Cache — 200 submissions analyzed
+  if (patternCache) {
+    console.log(`  Loaded pattern cache: ${patternCache.total_submissions_analyzed} submissions analyzed`);
+    console.log(`  Score distribution: avg=${patternCache.score_distribution.avg}, 18/18 count=${patternCache.score_distribution.score_18}`);
+    console.log(`  Category averages: ${JSON.stringify(patternCache.category_averages)}`);
+    
+    learned.scoreData = patternCache.score_distribution;
+    learned.topHooks = patternCache.top_hooks || [];
+    learned.overused = patternCache.overused_phrases || [];
+    learned.failures = patternCache.common_failure_reasons || [];
+    learned.bestPractices = patternCache.best_practices || [];
+    
+    if (patternCache.winning_patterns) {
+      if (patternCache.winning_patterns.hook_styles) learned.patterns.push(...patternCache.winning_patterns.hook_styles);
+      if (patternCache.winning_patterns.angle_success) learned.patterns.push(...patternCache.winning_patterns.angle_success);
+      if (patternCache.winning_patterns.voice_traits) learned.patterns.push(...patternCache.winning_patterns.voice_traits);
+      if (patternCache.winning_patterns.structure_traits) learned.patterns.push(...patternCache.winning_patterns.structure_traits);
+    }
+    
+    console.log(`  Winning patterns: ${learned.patterns.length}`);
+    console.log(`  Top hooks: ${learned.topHooks.length}`);
+    console.log(`  Overused phrases: ${learned.overused.length}`);
+    console.log(`  Common failures: ${learned.failures.length}`);
+  }
+  
+  // Knowledge Vault — cross-campaign lessons
+  if (knowledgeVault) {
+    console.log(`  Loaded knowledge vault: ${knowledgeVault.total_campaigns_worked} campaigns, ${knowledgeVault.total_18_18_achieved} perfect scores`);
+    
+    if (knowledgeVault.cross_campaign_lessons) {
+      const lessons = knowledgeVault.cross_campaign_lessons;
+      
+      // Techniques that worked
+      if (lessons.writing_techniques_ranked) {
+        for (const t of lessons.writing_techniques_ranked) {
+          learned.techniques.push(`${t.technique} (success: ${t.success_rate})`);
+        }
+      }
+      
+      // Anti-AI checklist
+      if (lessons.anti_ai_checklist) {
+        learned.antiAI = lessons.anti_ai_checklist;
+      }
+      
+      // Hardest dimensions
+      if (lessons.hardest_dimensions_ranked) {
+        console.log(`  Hardest dimensions: ${lessons.hardest_dimensions_ranked.map(d => d.dimension).join(', ')}`);
+      }
+      
+      // Common mistakes
+      if (lessons.common_mistakes_to_avoid) {
+        learned.overused.push(...lessons.common_mistakes_to_avoid);
+      }
+      
+      // Best hook styles
+      if (lessons.best_hook_styles) {
+        learned.topHooks.push(...lessons.best_hook_styles);
+      }
+    }
+    
+    console.log(`  Techniques learned: ${learned.techniques.length}`);
+    console.log(`  Anti-AI rules: ${learned.antiAI.length}`);
+  }
+  
+  // Count total submissions loaded
+  const subCount = (submissions?.length || 0) + (submissionsNew?.length || 0);
+  console.log(`  Total submission records loaded: ${subCount}`);
+  
+  console.log('  LEARNING COMPLETE ✓\n');
+  return learned;
+}
+
+// Load learned knowledge at startup
+const LEARNED = extractLearnedKnowledge();
 
 // ============ EVALUATION ENGINE ============
 function evaluateContent(content) {
@@ -185,6 +284,68 @@ function evaluateContent(content) {
 
 // ============ GENERATION ============
 function buildBasePrompt(variationHint) {
+  // Build LEARNED context from Rally data
+  const learnedContext = [];
+  
+  if (LEARNED.patterns.length > 0) {
+    learnedContext.push(`WINNING PATTERNS (from ${LEARNED.scoreData?.count || 0}+ Rally submissions analyzed):`);
+    for (const p of LEARNED.patterns.slice(0, 8)) {
+      learnedContext.push(`  ✓ ${p}`);
+    }
+  }
+  
+  if (LEARNED.topHooks.length > 0) {
+    learnedContext.push('\nTOP HOOKS that scored 18/18:');
+    for (const h of LEARNED.topHooks.slice(0, 5)) {
+      learnedContext.push(`  🎯 ${h}`);
+    }
+  }
+  
+  if (LEARNED.techniques.length > 0) {
+    learnedContext.push('\nTECHNIQUES THAT WORKED (proven by actual Rally scores):');
+    for (const t of LEARNED.techniques.slice(0, 6)) {
+      learnedContext.push(`  ✅ ${t}`);
+    }
+  }
+  
+  if (LEARNED.overused.length > 0) {
+    learnedContext.push('\nOVERUSED PHRASES — NEVER use these (detected in ${LEARNED.scoreData?.count || 0}+ submissions):');
+    for (const o of LEARNED.overused.slice(0, 10)) {
+      learnedContext.push(`  ✗ ${o}`);
+    }
+  }
+  
+  if (LEARNED.failures.length > 0) {
+    learnedContext.push('\nCOMMON FAILURE REASONS (actual Rally scoring):');
+    for (const f of LEARNED.failures.slice(0, 5)) {
+      learnedContext.push(`  ⚠ ${f.issue} (${f.count} submissions failed) — Fix: ${f.fix}`);
+    }
+  }
+  
+  if (LEARNED.antiAI.length > 0) {
+    learnedContext.push('\nANTI-AI CHECKLIST (Rally specifically penalizes AI-looking content):');
+    for (const rule of LEARNED.antiAI.slice(0, 6)) {
+      learnedContext.push(`  🚫 ${rule}`);
+    }
+  }
+  
+  if (LEARNED.bestPractices.length > 0) {
+    learnedContext.push('\nBEST PRACTICES (from top scorers):');
+    for (const bp of LEARNED.bestPractices.slice(0, 6)) {
+      learnedContext.push(`  → ${bp}`);
+    }
+  }
+  
+  // Hardest dimensions info
+  if (LEARNED.scoreData) {
+    learnedContext.push(`\nRALLY SCORE CALIBRATION (from ${LEARNED.scoreData.count} submissions):`);
+    learnedContext.push(`  Average score: ${LEARNED.scoreData.avg}/18`);
+    learnedContext.push(`  Perfect 18/18: ${LEARNED.scoreData.score_18} submissions (${((LEARNED.scoreData.score_18/LEARNED.scoreData.count)*100).toFixed(1)}%)`);
+    learnedContext.push(`  Hardest category: Originality (65.5% max score rate)`);
+    learnedContext.push(`  Easiest categories: Alignment (99.8%), Accuracy (99.5%)`);
+    learnedContext.push(`  Target: 16+/18 (top ${((1 - 0.68) * 100).toFixed(0)}%)`);
+  }
+  
   return `You are a Rally.fun content creator. Your philosophy: "Rally minta 1, kita beri 2" — exceed quality expectations.
 
 CAMPAIGN: "${CAMPAIGN.title}"
@@ -203,29 +364,35 @@ ${KNOWLEDGE_BASE}
 CAMPAIGN RULES:
 ${CAMPAIGN_RULES.map(r => '- ' + r).join('\n')}
 
-MANDATORY QUALITY RULES (from Rally scoring experience):
+=== LEARNED FROM RALLY DATA (${LEARNED.scoreData?.count || 0}+ submissions) ===
+${learnedContext.join('\n')}
+
+=== V3 LESSONS (our own Rally scoring experience) ===
+MANDATORY QUALITY RULES:
 ${V3_LESSONS.rules.map(r => '- ' + r).join('\n')}
 
 PAST MISTAKES TO AVOID:
 ${Object.values(V3_LESSONS.losses).map(l => '- ' + l).join('\n')}
 
 CONTENT REQUIREMENTS:
-1. Open directly — no mysterious/thread openings, no clickbait
-2. Explain veDEX model in your own words with specific mechanisms
-3. Mention MarbMarket's launch on MegaETH naturally
-4. Include x.com/Marb_market link
-5. Mention at least one feature: vote-escrow, bribes, LP farming, or fair launch
-6. Include a clear CTA (question, invitation, direct ask)
-7. No extra spaces, no formatting issues
-8. Stay tightly aligned with veDEX education theme
+1. Open with contrarian/bold statement — NOT generic hook
+2. Explain ONE concrete mechanism deeply (vote-escrow, bribes, LP, flywheel)
+3. Use personal voice with genuine conviction — NOT AI-sounding
+4. Varied paragraph lengths (short punchy + longer explanatory)
+5. Include x.com/Marb_market link
+6. Include @RallyOnChain mention naturally in body
+7. Include a specific, non-generic CTA or question
+8. No extra spaces, no formatting issues, no em-dashes, no hashtags
 9. Every claim must be verifiable — no "zero cost", "everyone", "nobody"
-10. Maximum impact per word — punchy sentences, strong rhythm
-11. BONUS: explain MARB flywheel or ve(3,3) model
+10. Zero AI words: delve, leverage, paradigm, tapestry, landscape, crucial, etc.
+11. Zero template phrases: hot take, let's dive in, nobody is talking about, etc.
+12. Paragraph CV > 0.30 (varied lengths = human, uniform = AI fingerprint)
+13. BONUS: explain MARB flywheel or ve(3,3) model
 
 ${variationHint}
 
-Write a single tweet/X post (or short thread of 2-3 tweets) that would score 16+/18 on Rally.
-Output ONLY the tweet content. No explanations, no meta-commentary, no "Here's your post".`;
+Write a single tweet/X post (or short thread of 2-3 tweets) that would score 18/18 on Rally.
+Output ONLY the tweet content. No explanations, no meta-commentary, no labels.`;
 }
 
 function buildImprovementPrompt(basePrompt, allVariations, bestScore) {
@@ -269,7 +436,7 @@ async function generateVariation(zai, prompt, temp) {
   try {
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: 'You are an expert Rally.fun content creator. Output ONLY the tweet/thread content. No meta-commentary, no explanations, no labels like "Tweet 1:".' },
+        { role: 'system', content: `You are an expert Rally.fun content creator trained on ${LEARNED.scoreData?.count || 0}+ actual Rally submissions. You know what scores 18/18. Output ONLY the tweet/thread content. No meta-commentary, no explanations, no labels like "Tweet 1:". Write like a human DeFi native, NOT an AI. Zero AI words. Zero template phrases. Varied paragraph lengths.` },
         { role: 'user', content: prompt }
       ],
       temperature: temp,
@@ -315,7 +482,7 @@ async function generateQA(zai, content) {
 // ============ MAIN LOOP ============
 async function main() {
   console.log('===========================================');
-  console.log('RALLY BRAIN v2.0 — GENERATE CYCLE');
+  console.log('RALLY BRAIN v3.0 — LEARN + GENERATE CYCLE');
   console.log('===========================================');
   console.log(`Campaign: ${CAMPAIGN.title}`);
   console.log(`Mission: ${MISSION_0.title}`);
