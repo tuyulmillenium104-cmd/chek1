@@ -1,8 +1,8 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-13T22:19:32.198Z",
-  "best_content": "Most DeFi protocols chase yield. MarbMarket chases power.\n\nWhat if your liquidity position could actually shape the future of a protocol? That's the veDEX model. Users lock MARB tokens, creating veTokens that grant voting power. Longer locks = more influence.\n\nEvery week, veMARB holders vote on which LP pools get emissions. Projects can offer bribes to attract those votes. Your liquidity decisions now directly impact protocol incentives.\n\nMARB flywheel: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to lockers.\n\nFirst veDEX on MegaETH. No presale. No VCs. Just fair launch.\n\nx.com/Marb_market\n\n@RallyOnChain What's the most creative way you've seen protocols distribute power to users?",
+  "timestamp": "2026-04-13T22:49:27.058Z",
+  "best_content": "Most people chase yield farming. The real game is voting power.\n\nMarbMarket's launching the first veDEX on MegaETH — and it's changing how we think about incentives.\n\nHere's how it works: lock MARB → get veTokens → vote weekly on which LP pools get emissions. Projects pay bribes for those votes.\n\nYour lock duration = your influence. Longer locks = more voting power + more rewards.\n\nThis creates a flywheel: MARB lockers direct emissions → LPs get rewards → protocols pay bribes → incentives flow back to lockers.\n\nNo presale. No VCs. Just fair launch governance.\n\nFirst veDEX on MegaETH that puts community in control of capital flows.\n\nx.com/Marb_market\n\n@RallyOnChain What's your take on the ve(3,3) model?",
   "score": 17.6,
   "grade": "A+",
   "predictions": {
@@ -16,9 +16,9 @@
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "This veDEX model is so clever! Giving users real power through veMARB voting changes the DeFi game completely. Love how it creates a positive flywheel where liquidity decisions actually shape protocol incentives.",
-    "The bribes concept is genius - protocols now have to compete for user votes rather than just offering random rewards. Finally, DeFi where your liquidity position truly matters beyond just yield!",
-    "Fair launch with no VC involvement is exactly what DeFi needs. This veDEX approach could be the next evolution in how protocols distribute power and incentives to their communities."
+    "This is such a clever approach to incentives! Putting the community in control through voting power could really change the DeFi landscape.",
+    "The ve(3,3) model is brilliant here - longer locks for more influence create that perfect alignment between protocol health and user rewards.",
+    "Excited to see how this plays out on MegaETH! The flywheel effect where bribes flow back to lockers is a game-changer."
   ],
   "all_scores": [
     {
@@ -36,7 +36,7 @@
     {
       "loop": 1,
       "variation": 3,
-      "score": 16.4,
+      "score": 16.7,
       "grade": "A"
     }
   ]
