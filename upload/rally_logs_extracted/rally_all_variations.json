@@ -1,0 +1,60 @@
+{
+  "cycle_1": {
+    "timestamp": "2026-04-09T07:00:00.000Z",
+    "campaign": "Rally Owns the Narrative",
+    "mission": "Explain the Rally Beta",
+    "variations": {
+      "A": {
+        "angle": "GenLayer Verifiable AI - WHERE AI scoring happens",
+        "style": "Free Write",
+        "text": "spent the weekend digging into how Rally actually works under the hood and the part that got me isn't the AI scoring. it's WHERE the AI scoring happens.\n\nmost AI evaluation runs on some server you can't inspect. you submit, a black box gives you a score, and you just trust it.\n\nRally doesn't do that. the AI evaluation runs on GenLayer intelligent contracts. which means the scoring logic is executed on-chain and verifiable. campaign funds are locked in escrow. the contract evaluates your content. the math is public.\n\nwhen @RallyOnChain says a creator with 500 followers can outscore someone with 50K, that's not a slogan. the scoring weights are visible. originality, alignment, accuracy, compliance, engagement, technical quality. six categories you can read before writing a single word.\n\nI submitted a few posts last week and the scoring genuinely surprised me. my best one wasn't the longest or the most technical. it was the one where I actually explained something specific about how the protocol works instead of just hyping it.\n\nwhich makes sense. a system built to reward substance over surface will prove it in the output.\n\ntraditional influencer marketing can't replicate this. there's no way to verify that a KOL's post actually aligned with the brief. no way to prove the content was original. no mechanism to ensure accuracy. the whole industry runs on vibes and screenshots.\n\nRally turns marketing into something measurable and the beta is live right now. actual USDC on Base. not points. not \"future tokens.\" stablecoins already moving to creators who wrote genuine posts.\n\nif you've submitted anything on Rally I'm genuinely curious what your scoring experience looked like",
+        "char_count": 1695,
+        "word_count": 275,
+        "verification": {
+          "em_dashes": 0,
+          "smart_quotes": 0,
+          "hashtags": 0,
+          "ai_words": 0,
+          "template_phrases": 0,
+          "starts_with_mention": false,
+          "has_rally_mention": true,
+          "paragraph_cv": 0.338
+        }
+      },
+      "B": {
+        "angle": "On-chain Escrow - campaign funds in smart contract",
+        "style": "Free Write",
+        "text": "ok so something clicked for me about Rally that I haven't seen anyone mention.\n\nthe campaign funds sit in on-chain escrow. not in a project wallet where someone picks who gets paid. not in an agency account where half the budget vanishes before creators see a dime. actual smart contract escrow on Base.\n\nso when @RallyOnChain says AI scores your content and rewards go straight to you, that's not marketing talk. GenLayer intelligent contracts evaluate your submission, calculate the score, and escrow releases payment automatically. no approval chain. no \"we'll process it next month.\" zero middlemen.\n\nthe AI looks at six dimensions. originality, accuracy, alignment, compliance, engagement potential, technical quality. all visible to you before you even start writing. you know exactly what you're being graded on.\n\nI've been submitting for a few days and the part that still gets me is the payment. USDC. stablecoins. showing up in my wallet after AI verification. not a promise of future value. actual dollars that settled on-chain.\n\ncompare that to what we have now. brand pays agency 10K. agency pays KOL 3K. KOL posts something their intern wrote. nobody verifies if the content was accurate. nobody checks if it aligned with the brief. nobody can even track whether it drove results. the entire influencer industry is built on handshakes and vanity metrics in a space that was literally invented to eliminate middlemen.\n\nRally makes every step of that pipeline verifiable. budget in. content scored by AI on GenLayer. rewards distributed automatically. public ledger.\n\nthe beta is live. creators are earning. and if you still think web3 marketing needs agencies and KOL networks to function, I'd genuinely like to hear your reasoning.",
+        "char_count": 1745,
+        "word_count": 279,
+        "verification": {
+          "em_dashes": 0,
+          "smart_quotes": 0,
+          "hashtags": 0,
+          "ai_words": 0,
+          "template_phrases": 0,
+          "starts_with_mention": false,
+          "has_rally_mention": true,
+          "paragraph_cv": 0.446
+        }
+      },
+      "C": {
+        "angle": "Trustless Payment Pipeline - disruption to agency model",
+        "style": "Free Write",
+        "text": "I need to talk about something that's been bothering me about how people describe Rally.\n\nevery take I see says the same thing: \"AI scoring means quality beats follower count.\" that's correct. also completely misses what's actually interesting here.\n\nthe real shift isn't that an AI can read tweets. it's that the entire payment pipeline just became trustless.\n\nright now a Web3 project wants marketing. they find KOLs. negotiate rates. send payment. cross their fingers and hope the content is decent. there is literally no enforcement mechanism beyond reputation.\n\nRally's model puts campaign funds into on-chain escrow via GenLayer intelligent contracts. the AI evaluates every submission against the brief. scores are transparent across six dimensions: originality, alignment, accuracy, compliance, engagement, and technical quality. payments release automatically to creators who meet the bar. no invoicing. no 90-day terms. no \"we'll let you know.\"\n\n@RallyOnChain built something that solves the actual problem with influencer marketing. it's not that content quality is hard to measure. it's that nobody had a trustless way to measure it AND pay for it in the same transaction.\n\nI submitted my first post last week explaining how the escrow mechanism works. scored well. USDC hit my wallet the same day. I've done sponsored content before and the difference is jarring. usually you wait weeks. sometimes you chase payments. here the contract just... does it.\n\nthe beta's live on Base right now. real USDC. real scoring. and if you're a creator who's tired of getting underpaid while agencies take 60% margins, this is worth your attention.",
+        "char_count": 1646,
+        "word_count": 257,
+        "verification": {
+          "em_dashes": 0,
+          "smart_quotes": 0,
+          "hashtags": 0,
+          "ai_words": 0,
+          "template_phrases": 0,
+          "starts_with_mention": false,
+          "has_rally_mention": true,
+          "paragraph_cv": 0.407
+        }
+      }
+    }
+  }
+}
