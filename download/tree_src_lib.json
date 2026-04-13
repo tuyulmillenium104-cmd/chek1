@@ -1,0 +1,19 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\">{\n  \"sha\": \"29fe5b50cb1f9100c5cd04ed0561f00b7baa1078\",\n  \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/29fe5b50cb1f9100c5cd04ed0561f00b7baa1078\",\n  \"tree\": [\n    {\n      \"path\": \"db.ts\",\n      \"mode\": \"100644\",\n      \"type\": \"blob\",\n      \"sha\": \"7dfb80c4c07e35547d16aa4a3f91d75b43c5494c\",\n      \"size\": 299,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/7dfb80c4c07e35547d16aa4a3f91d75b43c5494c\"\n    },\n    {\n      \"path\": \"rally-data.ts\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"e1f8ccf7c27df90514955b38b8b2b8c96f921ef2\",\n      \"size\": 9157,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/e1f8ccf7c27df90514955b38b8b2b8c96f921ef2\"\n    },\n    {\n      \"path\": \"utils.ts\",\n      \"mode\": \"100644\",\n      \"type\": \"blob\",\n      \"sha\": \"bd0c391ddd1088e9067844c48835bf4abcd61783\",\n      \"size\": 166,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/bd0c391ddd1088e9067844c48835bf4abcd61783\"\n    }\n  ],\n  \"truncated\": false\n}\n</pre></body></html>",
+    "publishedTime": "Thu, 02 Apr 2026 07:28:50 GMT",
+    "title": "",
+    "url": "https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/29fe5b50cb1f9100c5cd04ed0561f00b7baa1078",
+    "usage": {
+      "tokens": 494
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 494
+    }
+  },
+  "status": 20000
+}

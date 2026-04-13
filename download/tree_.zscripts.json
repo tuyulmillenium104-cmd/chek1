@@ -1,0 +1,19 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\">{\n  \"sha\": \"fc47194715159e1b88f9243b30d003c39e7b4653\",\n  \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/fc47194715159e1b88f9243b30d003c39e7b4653\",\n  \"tree\": [\n    {\n      \"path\": \"build.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"f661c7fc3b00244eba1fce63f950e7e823188361\",\n      \"size\": 3589,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/f661c7fc3b00244eba1fce63f950e7e823188361\"\n    },\n    {\n      \"path\": \"dev.pid\",\n      \"mode\": \"100644\",\n      \"type\": \"blob\",\n      \"sha\": \"a08796291d187aa971a663383bd23c0a9dd0c847\",\n      \"size\": 4,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/a08796291d187aa971a663383bd23c0a9dd0c847\"\n    },\n    {\n      \"path\": \"dev.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"87057933c0ffeb08b244949bcd5a4a115c515f63\",\n      \"size\": 4168,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/87057933c0ffeb08b244949bcd5a4a115c515f63\"\n    },\n    {\n      \"path\": \"mini-services-build.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"1e3d39de3c3c852ff6fdee5339b7b85540f02a81\",\n      \"size\": 2365,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/1e3d39de3c3c852ff6fdee5339b7b85540f02a81\"\n    },\n    {\n      \"path\": \"mini-services-install.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"91ff56bf3e5c6e48b056eb7bbe1786934b771370\",\n      \"size\": 1951,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/91ff56bf3e5c6e48b056eb7bbe1786934b771370\"\n    },\n    {\n      \"path\": \"mini-services-start.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"e0af64d42467a7529a5cffc0d2dae00b995133bd\",\n      \"size\": 3326,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/e0af64d42467a7529a5cffc0d2dae00b995133bd\"\n    },\n    {\n      \"path\": \"start.sh\",\n      \"mode\": \"100755\",\n      \"type\": \"blob\",\n      \"sha\": \"33a2984e1fbd0aedd7a82a2031081da126a43d74\",\n      \"size\": 3892,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/33a2984e1fbd0aedd7a82a2031081da126a43d74\"\n    }\n  ],\n  \"truncated\": false\n}\n</pre></body></html>",
+    "publishedTime": "Thu, 02 Apr 2026 07:28:50 GMT",
+    "title": "",
+    "url": "https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/fc47194715159e1b88f9243b30d003c39e7b4653",
+    "usage": {
+      "tokens": 939
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 939
+    }
+  },
+  "status": 20000
+}

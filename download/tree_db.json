@@ -1,0 +1,19 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\">{\n  \"sha\": \"62c2d939e2ab6ff5b4b3db8ab5fc9bd93af19d5c\",\n  \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/62c2d939e2ab6ff5b4b3db8ab5fc9bd93af19d5c\",\n  \"tree\": [\n    {\n      \"path\": \"custom.db\",\n      \"mode\": \"100644\",\n      \"type\": \"blob\",\n      \"sha\": \"2d9266a11df327a5036fcfcb265012aa69262046\",\n      \"size\": 126976,\n      \"url\": \"https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/blobs/2d9266a11df327a5036fcfcb265012aa69262046\"\n    }\n  ],\n  \"truncated\": false\n}\n</pre></body></html>",
+    "publishedTime": "Thu, 02 Apr 2026 07:28:50 GMT",
+    "title": "",
+    "url": "https://api.github.com/repos/tuyulmillenium104-cmd/chek1/git/trees/62c2d939e2ab6ff5b4b3db8ab5fc9bd93af19d5c",
+    "usage": {
+      "tokens": 257
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 257
+    }
+  },
+  "status": 20000
+}
