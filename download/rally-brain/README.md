@@ -1,146 +1,129 @@
-# Rally Brain v2.0
+# Rally Brain v2.0 — Level 2 Content Generation System
 
-> Autonomous Rally.fun content creation with continuous learning.
-
-## Philosophy
-
-**Rally asks for level 1. We deliver level 2.**
-
-Every requirement from Rally is not just met but exceeded:
-- Meet: "Mention @RallyOnChain" → Exceed: "Mention with concrete verifiable mechanism"
-- Meet: "Hot-take style" → Exceed: "Hot-take that also delivers value"
-- Meet: "No AI detection" → Exceed: "Unique angle 0% of competitors use"
-
-## How It Works
-
-```
-Every cycle (connected pipeline):
-
-  LEARN → Extract patterns from Rally submissions
-    ↓
-  KNOWLEDGE → Update pattern database
-    ↓
-  GENERATE → Create content using learned patterns
-    ↓
-  PREDICT → Score prediction based on knowledge
-    ↓
-  OUTPUT → Best content + Q&A + prediction
-
-  Each cycle = smarter than the last.
-```
+> **Philosophy**: "Rally minta 1, kita beri 2" — exceed Rally's quality expectations, not quantity.
 
 ## Architecture
 
 ```
-rally-brain/
-├── rally_brain/
-│   ├── __init__.py       # Package
-│   ├── api.py            # Rally.fun API client
-│   ├── knowledge.py      # Knowledge base (persistent JSON)
-│   ├── patterns.py       # Pattern extractor from Rally analysis
-│   ├── predictor.py      # Score predictor
-│   └── engine.py         # Main orchestrator + CLI
-├── knowledge_db.json     # Knowledge storage (auto-created)
-├── requirements.txt      # Dependencies
-└── README.md
+/cron (link) set 30m
+         │
+         ▼
+    ┌─────────────────────────────────┐
+    │     CONNECTED PIPELINE          │
+    │                                 │
+    │  1. LEARN  ← Rally API         │
+    │     ├─ Fetch submissions        │
+    │     ├─ Extract patterns         │
+    │     │   ├─ Surface (format)     │
+    │     │   ├─ Structural (CTA etc) │
+    │     │   └─ Semantic (WHY)       │
+    │     └─ Update knowledge_db      │
+    │                                 │
+    │  2. GENERATE → Content          │
+    │     ├─ Loop (max 5x):          │
+    │     │   ├─ 3 variations         │
+    │     │   ├─ Score each           │
+    │     │   ├─ Best >= 16? → keep   │
+    │     │   └─ If not → improve     │
+    │     └─ Best of ALL variations   │
+    │                                 │
+    │  3. OUTPUT                      │
+    │     ├─ best_content.txt         │
+    │     ├─ qa.json (3 comments)     │
+    │     └─ prediction.json          │
+    │                                 │
+    │  4. LEARN from new cycle        │
+    │     └─ → back to step 1         │
+    └─────────────────────────────────┘
 ```
 
-## Install
+## Files
 
-```bash
-pip install -r requirements.txt
+| File | Purpose |
+|------|---------|
+| `engine.py` | Core: PatternExtractor, ScorePredictor, ContentGenerator, RallyBrainEngine |
+| `cron_learner.py` | Fetch Rally API data, extract patterns, update knowledge |
+| `cron_generator.py` | Generate loop, evaluate quality, output best content + Q&A |
+| `cron.py` | Command interface: parse `/cron (link) set 30m`, manage jobs |
+| `knowledge_db.json` | Persistent knowledge: patterns, scoring model, campaign memories |
+| `campaign_data/` | Per-campaign storage: submissions, outputs, predictions |
+
+## Key Concepts
+
+### 3-Level Pattern Extraction
+1. **Surface** — Format rules (spacing, compliance, technical)
+2. **Structural** — Engagement patterns (CTA, hooks, mentions)
+3. **Semantic** — WHY things fail (exaggeration risk, vagueness, alignment gaps)
+
+### Score Prediction
+- 6 categories: Originality (2), Alignment (2), Accuracy (2), Compliance (2), Engagement (5), Technical (5)
+- Max: 18/18
+- Threshold: 16/18 (Level 2 quality)
+- Self-calibrating from actual Rally scores
+
+### Generate Loop
 ```
+Loop 1: Generate 3 → Evaluate → Best score: 14.5 → Below 16
+Loop 2: Generate 3 (improved prompt) → Evaluate → Best: 15.8 → Below 16
+Loop 3: Generate 3 → Evaluate → Best: 16.5 → ✅ STOP
+Output: Best of all 9 variations (could be from any loop)
+```
+
+### v3 Lessons (Built-in)
+From actual Rally scoring of our first submission (14/18 vs predicted 17.5):
+- ❌ "Zero cost" = exaggeration → Accuracy -1
+- ❌ "Figured it out" = vague → Accuracy -0.5
+- ❌ Mysterious opening → Compliance -1
+- ❌ Extra whitespace → Technical -1
+- ❌ No CTA → Engagement -0.5
 
 ## Usage
 
-### Learn from submissions
+### As Module (Next.js API Route)
+```python
+from rally_brain.cron import handle_cron_command, execute_cycle
 
-```bash
-# Learn from all active campaigns
-python -m rally_brain learn --all
+# Parse command
+result = await handle_cron_command("/cron https://rally.fun/campaigns/abc123 set 30m")
 
-# Learn from specific campaign
-python -m rally_brain learn --campaign-url https://app.rally.fun/campaign/xxx
+# Execute one cycle
+result = await execute_cycle("https://rally.fun/campaigns/abc123")
 ```
 
-### Predict score
-
+### Standalone
 ```bash
-python -m rally_brain predict --content "Your tweet text here" --style "HIGH (banger)"
-```
+# Run one full cycle (learn + generate) for a campaign
+python cron_generator.py https://rally.fun/campaigns/abc123
 
-### Calibrate with actual score
+# Run learning only
+python cron_learner.py https://rally.fun/campaigns/abc123
 
-```bash
-python -m rally_brain calibrate --predicted 16.5 --actual 14
-```
-
-### Check system status
-
-```bash
-python -m rally_brain status
-```
-
-### Get creation context
-
-```bash
-python -m rally_brain context --campaign campaign_id
+# Test cron command parsing
+python cron.py "/cron https://rally.fun/campaigns/abc123 set 30m"
+python cron.py "/cron list"
 ```
 
 ## Cron Integration
 
-### Start cron for a campaign (30 min interval)
+The cron scheduler supports:
+- `/cron <link> set <interval>` — Start job (15m, 30m, 1h, 2h)
+- `/cron <link> stop` — Stop specific job
+- `/cron list` — Show all active jobs and stats
+- `/cron status` — Engine knowledge stats
+
+Each cycle: LEARN (from Rally API) → GENERATE (with learned patterns) → OUTPUT (best content + Q&A)
+
+## Data Flow
 
 ```
-/cron https://app.rally.fun/campaign/xxx set 30m
+Rally API → cron_learner.py → engine.py (PatternExtractor)
+                                      ↓
+                              knowledge_db.json (updated)
+                                      ↓
+cron_generator.py → engine.py (ContentGenerator + ScorePredictor)
+                                      ↓
+                              campaign_data/{id}_output/
+                              ├─ best_content.txt
+                              ├─ qa.json
+                              └─ prediction.json
 ```
-
-Every 30 minutes, the system runs:
-1. **Learn** — Fetch new submissions, extract patterns, update knowledge
-2. **Generate** — Create content using latest knowledge
-3. **Predict** — Score the content
-4. **Output** — Save best content + Q&A + prediction
-
-### Stop cron
-
-```
-/cron stop
-```
-
-## Pattern Categories
-
-The system extracts 7 categories of patterns:
-
-| Category | What It Learns | Example |
-|---|---|---|
-| `claim_specificity` | What claims get Accuracy 2/2 vs 1/2 | "absolute claims drop Accuracy" |
-| `rally_mention_depth` | How to mention Rally for Alignment 2/2 | "vague mention = -0.5 Alignment" |
-| `engagement_hook` | What endings get Engagement 5/5 | "specific question > generic question" |
-| `tone_style_match` | Which tones work for which styles | "banger + explanatory = mismatch" |
-| `structure_optimal` | Content structure patterns | "uniform sentences = Technical drop" |
-| `compliance_traps` | What causes Compliance failure | "extra space = -0.5 Technical" |
-| `originality_markers` | What triggers AI detection | "template phrases = Originality drop" |
-
-## Prediction vs Scoring
-
-```
-v11.7 (old):  5 judges × 6 categories = opinions
-Rally Brain:  Data-driven prediction from 500+ analyzed submissions
-
-Every calibration (actual score from Rally) improves prediction accuracy.
-```
-
-## Knowledge Growth
-
-```
-Cycle 1:   50 patterns   → Prediction accuracy: ~3.5 points diff
-Cycle 10:  150 patterns  → Prediction accuracy: ~1.5 points diff
-Cycle 30:  300 patterns  → Prediction accuracy: ~0.5 points diff
-Cycle 50+: 400+ patterns → Prediction accuracy: ~0.3 points diff
-```
-
-No ceiling. Keeps improving as long as data flows in.
-
-## License
-
-MIT
