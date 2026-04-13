@@ -1,14 +1,13 @@
-The veDEX model isn't just another DeFi buzzword—it's a fundamental shift in how liquidity gets distributed. Most DEXs throw rewards blindly at liquidity providers. MarbMarket flips this script by letting the community decide where value flows.
+Most DeFi protocols chase yield. MarbMarket chases power.
 
-Here's how it works: lock MARB tokens → gain veTokens → vote weekly on which LP pools get MARB emissions. Projects wanting votes offer bribes → creating a self-sustaining flywheel where incentives flow back to lockers.
+What if your liquidity position could actually shape the future of a protocol? That's the veDEX model. Users lock MARB tokens, creating veTokens that grant voting power. Longer locks = more influence.
 
-What makes MarbMarket different? First veDEX on MegaETH with a fair launch—no presale, no VC backing. The ve(3,3) model means longer locks = more influence + more rewards. Community-driven voting replaces top-down decisions.
+Every week, veMARB holders vote on which LP pools get emissions. Projects can offer bribes to attract those votes. Your liquidity decisions now directly impact protocol incentives.
 
-Why should you care? Because this is how DeFi moves beyond yield farming toward sustainable, community-owned infrastructure. The power shifts from protocols to the people actually providing liquidity.
+MARB flywheel: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to lockers.
 
-MarbMarket's launch is quietly rewriting the rules for how value gets allocated in DeFi. Systems that compound over time beat temporary hype every time.
+First veDEX on MegaETH. No presale. No VCs. Just fair launch.
 
-Check out the first veDEX on MegaETH:
 x.com/Marb_market
 
-@RallyOnChain What's the most overlooked aspect of ve(3,3) models in your experience?
+@RallyOnChain What's the most creative way you've seen protocols distribute power to users?
