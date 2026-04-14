@@ -399,6 +399,18 @@ function saveCycleLearning(bestEver, allVariations) {
     };
   }
 
+  // Ensure patterns.semantic structure exists (defensive fix)
+  if (!kdb.patterns.semantic) {
+    kdb.patterns.semantic = {
+      claim_specificity: { description: 'Concrete verifiable claims score higher', level: 'high', learned_rules: [] },
+      tone_style_match: { description: 'Tone must match campaign context', level: 'high', learned_rules: [] },
+      engagement_hook: { description: 'Opening hooks + CTA for engagement', level: 'high', learned_rules: [] },
+      rally_mention: { description: 'Natural contextual mention with concrete mechanism', level: 'high', learned_rules: [] },
+      exaggeration_risk: { description: 'Absolute claims risk Accuracy deductions', level: 'critical', learned_rules: [] },
+      cross_category_tradeoff: { description: 'Balance categories', level: 'medium', learned_rules: [] }
+    };
+  }
+
   // 1. Extract AI words from best content
   const aiWordsFound = extractAIWordsFromContent(bestEver.content);
   const hook = bestEver.content.split('\n')[0].trim();
@@ -479,9 +491,11 @@ function saveCycleLearning(bestEver, allVariations) {
       .map(c => ({ cat: c, pct: (kdb.category_trends[c].avg / maxScoresMap[c]) * 100 }));
     catPcts.sort((a, b) => a.pct - b.pct);
     const weakest = catPcts.slice(0, 2);
-    kdb.patterns.semantic.engagement_hook.learned_rules = weakest.map(w =>
-      `Focus on ${w.cat}: avg ${kdb.category_trends[w.cat].avg}/${maxScoresMap[w.cat]} (${w.pct.toFixed(0)}%)`
-    );
+    if (kdb.patterns.semantic.engagement_hook) {
+      kdb.patterns.semantic.engagement_hook.learned_rules = weakest.map(w =>
+        `Focus on ${w.cat}: avg ${kdb.category_trends[w.cat].avg}/${maxScoresMap[w.cat]} (${w.pct.toFixed(0)}%)`
+      );
+    }
   }
 
   // 9. Calibration log
