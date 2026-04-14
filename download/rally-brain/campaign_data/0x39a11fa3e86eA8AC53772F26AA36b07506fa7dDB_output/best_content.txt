@@ -1,11 +1,13 @@
-MarbMarket is dropping the first veDEX on MegaETH. No presale. No VCs. Just fair launch.
+Most people chase noise. A few position for systems that quietly rewrite the rules.
 
-A veDEX lets you lock MARB tokens for voting power. Longer locks = more influence + more rewards. Projects pay bribes to get votes. Simple.
+MarbMarket just became that system for MegaETH. The first veDEX on a chain that's actually building.
 
-The MARB flywheel works like this. Lockers direct emissions to LPs. Protocols pay bribes for votes. Rewards flow back to lockers. It compounds.
+Think ve(3,3) but with real LP incentives. You lock MARB. You get voting power. Longer locks = more influence. Projects pay bribes for your votes. That's the flywheel.
 
-First veDEX on MegaETH. Community-driven. LP farming, voting, bribing at launch.
+No VCs. No presale. Just a fair launch that puts power back in hands of the people locking.
 
-Check them out: x.com/Marb_market
+LP farming meets governance. That's MarbMarket. It's simple. It's clean. It works.
 
-What ve(3,3) model do you think will work best on MegaETH? @RallyOnChain
+x.com/Marb_market
+
+@RallyOnChain ever seen a protocol that rewards you for making the right choices? Not just for providing liquidity. For thinking ahead?
