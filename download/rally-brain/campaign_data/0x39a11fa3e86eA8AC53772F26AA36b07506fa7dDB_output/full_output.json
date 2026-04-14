@@ -1,43 +1,43 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T05:19:35.720Z",
-  "best_content": "Most DeFi platforms talk about governance. MarbMarket builds a system where your vote actually pays.\n\nveDEX isn't just a buzzword—it's a mechanism where locking MARB gives you real influence. Longer locks = more voting power + more rewards. No presale, no VCs—just community power.\n\nHere's the kicker: projects compete for your votes by offering bribes. Your vote isn't just symbolic; it's income.\n\nMARB flywheel works like this: Lockers direct emissions → LPs get rewards → Protocols pay for votes → Incentives flow back to you.\n\nFirst veDEX on MegaETH. Fair launch. Real economics.\n\nx.com/Marb_market\n\nWhat's your take on ve(3,3) models? @RallyOnChain",
-  "score": 17.2,
-  "grade": "A+",
+  "timestamp": "2026-04-14T05:49:43.642Z",
+  "best_content": "The DeFi world's obsessed with TVL. Meanwhile, the real shift happens in how we distribute power. MarbMarket's launching MegaETH's first veDEX, and it's not just another DEX—it's a governance revolution.\n\nveDEX isn't just a buzzword. It's a system where locking MARB tokens gives you actual decision-making power over where liquidity rewards flow. No more VC-controlled allocation. No more centralized decisions. Just pure, community-driven governance.\n\nThe magic? ve(3,3) model. Longer locks = more influence + more rewards. Projects pay bribes for votes, creating a flywheel that benefits everyone: MARB lockers, LP providers, and the protocols themselves. It's self-sustaining, transparent, and fair.\n\nFirst veDEX on MegaETH with a true fair launch—no presales, no VCs, just code and community. That's the quiet revolution happening right now.\n\nCurious how this changes the game? x.com/Marb_market has all the details. @RallyOnChain this is the kind of infrastructure that compounds over time, not just a flash in the pan.",
+  "score": 16.4,
+  "grade": "A",
   "predictions": {
     "originality": 1.7999999999999998,
     "alignment": 2,
-    "accuracy": 2,
+    "accuracy": 1.5,
     "compliance": 1.8,
-    "engagement": 4.6,
+    "engagement": 4.3,
     "technical": 5
   },
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "The incentive structure here looks brilliant - finally getting rewarded for governance participation! The flywheel effect seems incredibly well thought out.",
-    "Love how this actually puts real power back in the hands of users rather than just being another governance token on paper. The community-first approach is exactly what DeFi needs.",
-    "This ve(3,3) model seems like a game changer - protocols essentially paying users for their vote creates a sustainable economic loop that benefits everyone involved."
+    "This is exactly what DeFi needs - shifting focus from just TVL to real community power. The ve(3,3) model sounds like a game-changer for fair governance.",
+    "Love the emphasis on actual decision-making power for token holders rather than centralized control. This could set a new standard for DEX governance.",
+    "Fair launch with no VC involvement is the way forward! The self-sustaining flywheel model seems like it could create real long-term value for everyone involved."
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 1,
-      "score": 17.2,
-      "grade": "A+"
+      "score": 15.9,
+      "grade": "B+"
     },
     {
       "loop": 1,
       "variation": 2,
-      "score": 17.2,
-      "grade": "A+"
+      "score": 16.4,
+      "grade": "A"
     },
     {
       "loop": 1,
       "variation": 3,
-      "score": 15.4,
-      "grade": "B+"
+      "score": 16.4,
+      "grade": "A"
     }
   ]
 }
