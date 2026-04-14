@@ -280,6 +280,51 @@ function extractLearnedKnowledge() {
     console.log(`  Anti-AI rules: ${learned.antiAI.length}`);
   }
 
+  // Load cycle history from knowledge_db.json (CLOSED-LOOP LEARNING)
+  const kdb = loadKnowledgeDB();
+  if (kdb && kdb.cycle_history && kdb.cycle_history.length > 0) {
+    const hist = kdb.cycle_history;
+    console.log(`  Cycle history loaded: ${hist.length} past cycles`);
+    console.log(`  Best score ever: ${kdb.stats?.best_score_achieved || 'N/A'}/23`);
+    console.log(`  Average score: ${kdb.stats?.avg_score || 'N/A'}/23`);
+
+    // Feed cycle-learned data into the prompt
+    learned.cycleHistory = hist;
+    learned.cycleStats = kdb.stats;
+    learned.aiWordFrequency = kdb.ai_word_frequency || {};
+    learned.categoryTrends = kdb.category_trends || {};
+
+    // Extract top winning hooks from our OWN cycles (most recent + highest scoring)
+    const ownWinners = hist.filter(c => c.score >= 20).sort((a, b) => b.score - a.score);
+    if (ownWinners.length > 0) {
+      learned.ownTopHooks = ownWinners.slice(0, 5).map(c => c.best_hook);
+      console.log(`  Own winning hooks: ${learned.ownTopHooks.length}`);
+    }
+
+    // Identify persistent AI words from our cycles
+    const persistentAI = Object.entries(kdb.ai_word_frequency || {})
+      .filter(([_, count]) => count >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .map(([word, count]) => `${word} (${count}x)`);
+    if (persistentAI.length > 0) {
+      learned.persistentAIWords = persistentAI;
+      console.log(`  Persistent AI words (our cycles): ${persistentAI.join(', ')}`);
+    }
+
+    // Weakest categories
+    if (kdb.category_trends) {
+      const maxMap = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
+      const catPcts = Object.entries(kdb.category_trends)
+        .filter(([_, v]) => v.count >= 2)
+        .map(([cat, v]) => ({ cat, pct: (v.avg / maxMap[cat]) * 100, avg: v.avg }))
+        .sort((a, b) => a.pct - b.pct);
+      learned.weakestCategories = catPcts.slice(0, 2);
+      if (learned.weakestCategories.length > 0) {
+        console.log(`  Weakest categories: ${learned.weakestCategories.map(w => `${w.cat} (${w.pct.toFixed(0)}%)`).join(', ')}`);
+      }
+    }
+  }
+
   const subCount = (submissions?.length || 0) + (submissionsNew?.length || 0);
   console.log(`  Total submission records loaded: ${subCount}`);
 
@@ -288,6 +333,171 @@ function extractLearnedKnowledge() {
 }
 
 const LEARNED = extractLearnedKnowledge();
+
+// ============ CLOSED-LOOP LEARNING (knowledge_db.json) ============
+const KDB_PATH = '/home/z/my-project/download/rally-brain/knowledge_db.json';
+const MAX_CYCLE_HISTORY = 50; // Keep last 50 cycles
+
+function loadKnowledgeDB() {
+  try {
+    if (!fs.existsSync(KDB_PATH)) return null;
+    return JSON.parse(fs.readFileSync(KDB_PATH, 'utf-8'));
+  } catch { return null; }
+}
+
+function saveKnowledgeDB(kdb) {
+  try {
+    fs.writeFileSync(KDB_PATH, JSON.stringify(kdb, null, 2));
+  } catch (e) {
+    console.error(`  [LEARNING] Failed to save knowledge_db.json: ${e.message}`);
+  }
+}
+
+function extractAIWordsFromContent(content) {
+  const lower = content.toLowerCase();
+  const found = [];
+  for (const w of ALL_AI_WORDS) {
+    if (lower.includes(w)) found.push(w);
+  }
+  return found;
+}
+
+function detectRepetition(content, history) {
+  // Check if content is too similar to recent best (n-gram overlap)
+  if (!history || history.length < 2) return false;
+  const recent = history.slice(-5).map(h => h.best_hook || '').filter(Boolean);
+  const words = new Set(content.toLowerCase().split(/\s+/));
+  for (const prev of recent) {
+    const prevWords = new Set(prev.toLowerCase().split(/\s+/));
+    const overlap = [...words].filter(w => prevWords.has(w)).length;
+    const similarity = overlap / Math.max(words.size, prevWords.size);
+    if (similarity > 0.7) return true;
+  }
+  return false;
+}
+
+function saveCycleLearning(bestEver, allVariations) {
+  console.log('\n=== PHASE 5: SAVING CYCLE LEARNING ===');
+  let kdb = loadKnowledgeDB();
+  const now = new Date().toISOString();
+
+  // Init/migrate structure
+  if (!kdb || !kdb.version || kdb.version === '2.0.0') {
+    const oldKdb = kdb || {};
+    kdb = {
+      version: '3.0.0',
+      last_updated: null,
+      stats: { total_cycles: 0, total_patterns: oldKdb.stats?.total_patterns || 0, best_score_achieved: 0, avg_score: 0, last_learned: null },
+      cycle_history: [],
+      ai_word_frequency: {},
+      winning_hooks: [],
+      category_trends: {},
+      patterns: oldKdb.patterns || {},
+      scoring_model: oldKdb.scoring_model || { calibration_log: [], category_weights: { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5 }, max_scores: { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5 }, prediction_accuracy: { total_predictions: 0, correct_predictions: 0, avg_diff: 0.0 } },
+      campaign_memories: oldKdb.campaign_memories || {},
+      v3_lessons: oldKdb.v3_lessons || {}
+    };
+  }
+
+  // 1. Extract AI words from best content
+  const aiWordsFound = extractAIWordsFromContent(bestEver.content);
+  const hook = bestEver.content.split('\n')[0].trim();
+  const scores = bestEver.consensus?.scores || {};
+  const isRepetition = detectRepetition(bestEver.content, kdb.cycle_history);
+
+  // 2. Build cycle record
+  const cycleRecord = {
+    timestamp: now,
+    score: bestEver.score,
+    grade: bestEver.grade,
+    scores: { ...scores },
+    g4_bonus: bestEver.g4?.bonus || 0,
+    loops_used: bestEver.loop || 0,
+    variations_tested: allVariations.length,
+    ai_words_found: aiWordsFound,
+    best_hook: hook,
+    is_repetition: isRepetition,
+    content_preview: bestEver.content.substring(0, 100) + '...'
+  };
+
+  // 3. Update cycle history (keep last MAX)
+  kdb.cycle_history.push(cycleRecord);
+  if (kdb.cycle_history.length > MAX_CYCLE_HISTORY) {
+    kdb.cycle_history = kdb.cycle_history.slice(-MAX_CYCLE_HISTORY);
+  }
+
+  // 4. Update AI word frequency
+  for (const w of aiWordsFound) {
+    kdb.ai_word_frequency[w] = (kdb.ai_word_frequency[w] || 0) + 1;
+  }
+
+  // 5. Update winning hooks (score >= 20)
+  if (bestEver.score >= 20) {
+    // Avoid duplicate hooks
+    const existingHooks = new Set(kdb.winning_hooks.map(h => h.hook));
+    if (!existingHooks.has(hook)) {
+      kdb.winning_hooks.push({ hook, score: bestEver.score, timestamp: now });
+      if (kdb.winning_hooks.length > 20) kdb.winning_hooks = kdb.winning_hooks.slice(-20);
+    }
+  }
+
+  // 6. Update category trends (running average)
+  const categories = ['originality', 'alignment', 'accuracy', 'compliance', 'engagement', 'technical', 'reply_quality'];
+  for (const cat of categories) {
+    if (scores[cat] !== undefined) {
+      if (!kdb.category_trends[cat]) kdb.category_trends[cat] = { total: 0, count: 0, avg: 0, last5: [] };
+      kdb.category_trends[cat].total += scores[cat];
+      kdb.category_trends[cat].count += 1;
+      kdb.category_trends[cat].avg = Math.round((kdb.category_trends[cat].total / kdb.category_trends[cat].count) * 100) / 100;
+      kdb.category_trends[cat].last5.push(scores[cat]);
+      if (kdb.category_trends[cat].last5.length > 5) kdb.category_trends[cat].last5.shift();
+    }
+  }
+
+  // 7. Update stats
+  const allScores = kdb.cycle_history.map(c => c.score);
+  kdb.stats.total_cycles = kdb.cycle_history.length;
+  kdb.stats.best_score_achieved = Math.max(...allScores);
+  kdb.stats.avg_score = Math.round((allScores.reduce((a, b) => a + b, 0) / allScores.length) * 10) / 10;
+  kdb.stats.last_learned = now;
+  kdb.last_updated = now;
+
+  // 8. Build learned rules from cycle data
+  if (kdb.cycle_history.length >= 3) {
+    // Identify persistent AI words (appeared in 3+ cycles)
+    const persistentAI = Object.entries(kdb.ai_word_frequency)
+      .filter(([_, count]) => count >= 3)
+      .map(([word, count]) => `${word} (appeared ${count}x - the LLM keeps generating this, be extra careful)`);
+    if (persistentAI.length > 0) {
+      kdb.patterns.semantic.claim_specificity.learned_rules = [...new Set(persistentAI)].slice(0, 10);
+    }
+
+    // Identify weakest categories
+    const maxScoresMap = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
+    const catPcts = categories
+      .filter(c => kdb.category_trends[c])
+      .map(c => ({ cat: c, pct: (kdb.category_trends[c].avg / maxScoresMap[c]) * 100 }));
+    catPcts.sort((a, b) => a.pct - b.pct);
+    const weakest = catPcts.slice(0, 2);
+    kdb.patterns.semantic.engagement_hook.learned_rules = weakest.map(w =>
+      `Focus on ${w.cat}: avg ${kdb.category_trends[w.cat].avg}/${maxScoresMap[w.cat]} (${w.pct.toFixed(0)}%)`
+    );
+  }
+
+  // 9. Calibration log
+  kdb.scoring_model.calibration_log.push({ timestamp: now, predicted: bestEver.score, grade: bestEver.grade });
+  if (kdb.scoring_model.calibration_log.length > 100) kdb.scoring_model.calibration_log = kdb.scoring_model.calibration_log.slice(-100);
+
+  // Save
+  saveKnowledgeDB(kdb);
+  console.log(`  Cycle saved: score=${bestEver.score}, grade=${bestEver.grade}, total_cycles=${kdb.stats.total_cycles}`);
+  console.log(`  Best ever: ${kdb.stats.best_score_achieved}/23, Avg: ${kdb.stats.avg_score}/23`);
+  if (aiWordsFound.length > 0) console.log(`  AI words found: ${aiWordsFound.join(', ')}`);
+  if (isRepetition) console.log(`  WARNING: Content too similar to recent cycles!`);
+  console.log(`  LEARNING SAVED\n`);
+
+  return kdb;
+}
 
 // ============ PRE-WRITING PERSPECTIVE BUILDER ============
 function buildPreWritingContext() {
@@ -625,6 +835,33 @@ function buildBasePrompt(variationHint) {
   if (LEARNED.antiAI.length > 0) {
     learnedContext.push('\nANTI-AI RULES:');
     for (const rule of LEARNED.antiAI.slice(0, 6)) learnedContext.push(`  NO: ${rule}`);
+  }
+
+  // === CYCLE-SPECIFIC LEARNED CONTEXT (from our own cycles) ===
+  if (LEARNED.cycleHistory && LEARNED.cycleHistory.length > 0) {
+    learnedContext.push(`\n=== OUR PAST CYCLES (${LEARNED.cycleHistory.length} cycles, avg=${LEARNED.cycleStats?.avg_score}/23) ===`);
+
+    if (LEARNED.ownTopHooks && LEARNED.ownTopHooks.length > 0) {
+      learnedContext.push('OUR BEST HOOKS (scored 20+):');
+      for (const h of LEARNED.ownTopHooks.slice(0, 4)) learnedContext.push(`  >> ${h}`);
+    }
+
+    if (LEARNED.persistentAIWords && LEARNED.persistentAIWords.length > 0) {
+      learnedContext.push('\nAI WORDS THAT KEEP LEAKING (extra attention needed):');
+      for (const w of LEARNED.persistentAIWords.slice(0, 5)) learnedContext.push(`  BANNED: ${w}`);
+    }
+
+    if (LEARNED.weakestCategories && LEARNED.weakestCategories.length > 0) {
+      learnedContext.push('\nWEAKEST CATEGORIES (focus improvement here):');
+      for (const w of LEARNED.weakestCategories) learnedContext.push(`  FIX: ${w.cat} (avg ${w.avg}/${w.cat === 'engagement' || w.cat === 'technical' || w.cat === 'reply_quality' ? 5 : 2}, ${w.pct.toFixed(0)}% fill)`);
+    }
+
+    // Detect repetition warning
+    const recentHooks = LEARNED.cycleHistory.slice(-5).map(c => c.best_hook || '').filter(Boolean);
+    if (recentHooks.length >= 3) {
+      learnedContext.push('\nDO NOT repeat these recent hooks (vary your approach):');
+      for (const h of recentHooks.slice(-3)) learnedContext.push(`  AVOID: ${h.substring(0, 60)}`);
+    }
   }
 
   return `You are a Rally.fun content creator. Write like a human DeFi native, NOT an AI.
@@ -1067,6 +1304,9 @@ async function main() {
       console.log(`  ${cat}: ${score}/${maxScores[cat]}`);
     }
   }
+
+  // === PHASE 5: SAVE CYCLE LEARNING ===
+  saveCycleLearning(bestEver, allVariations);
 
   // Save output
   const outputDir = '/home/z/my-project/download/rally-brain/campaign_data/0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB_output';

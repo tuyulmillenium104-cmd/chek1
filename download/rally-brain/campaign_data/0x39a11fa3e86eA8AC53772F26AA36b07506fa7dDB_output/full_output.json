@@ -3,10 +3,10 @@
   "evaluation_method": "5 LLM Judges + Minority Override + G4 Originality Detection",
   "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T13:20:18.948Z",
-  "best_content": "Been seeing these veDEX models pop up everywhere lately. Solidly, Aerodrome, now MarbMarket on MegaETH. Most people just see the hype. I see a different play.\n\nA veDEX isn't just another DEX. It's a governance machine. Lock MARB, get voting power. Longer lock = more influence + more rewards. Projects pay bribes for votes, creating this insane incentive loop that flows back to lockers. That's the ve(3,3) model in action.\n\nWhat makes MarbMarket different? Fair launch. No presale. No VCs. Just the community deciding where value flows. First veDEX on MegaETH. @RallyOnChain infrastructure that compounds over time.\n\nWonder how the early locker distribution will play out once bribes start hitting the system. Anyone else thinking about the long-term governance active here? x.com/Marb_market",
-  "score": 21.6,
-  "grade": "S",
+  "timestamp": "2026-04-14T14:02:46.884Z",
+  "best_content": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.\n\nveDEX isn't just another AMM. It's about locking MARB to get voting power. Longer locks = more influence. Projects pay bribes to attract votes. You vote weekly on where emissions go. Your lock duration actually matters. That's the ve(3,3) model in action.\n\nThe loop is wild: MARB lockers direct emissions to LPs. LPs get rewards. Protocols pay bribes for votes. Incentives flow back to lockers. It's a self-reinforcing cycle that rewards actual participation, not just early money.\n\n@RallyOnChain is tracking this closely. MarbMarket's launch feels different. Not because it's \"groundbreaking\" but because it's actually fair. x.com/Marb_market\n\nWhat happens when the community controls the incentives instead of VCs?",
+  "score": 20.9,
+  "grade": "A+",
   "predictions": {
     "originality": 2,
     "alignment": 2,
@@ -14,11 +14,11 @@
     "compliance": 1.8,
     "engagement": 4.1,
     "technical": 4.7,
-    "reply_quality": 5
+    "reply_quality": 4.3
   },
   "g4_bonus": 0.4,
   "g4_reasons": [
-    "High sentence variety (CV=0.68)",
+    "High sentence variety (CV=0.54)",
     "Natural contractions",
     "Zero AI words (clean)",
     "Mixed sentence lengths"
@@ -26,12 +26,12 @@
   "minority_flags": [],
   "hard_fails": [],
   "valid_judges": 0,
-  "total_variations": 4,
-  "loops_used": 4,
+  "total_variations": 5,
+  "loops_used": 5,
   "qa_comments": [
-    "Love how you're breaking down the ve(3,3) model beyond the hype. Fair launch on MegaETH seems like the right move for community governance.",
-    "The bribes-for-votes dynamic is fascinating - creates that incentive loop you mentioned. Excited to see how early lockers benefit as this plays out.",
-    "First veDEX on MegaETH with no VC backing? That's refreshing. Curious to watch how the governance distribution unfolds once bribes start flowing."
+    "Finally a launch that isn't rigged for insiders from day one.",
+    "This ve(3,3) model on MegaETH is going to be massive for real yield.",
+    "Love seeing the community actually have a say in where the emissions go."
   ],
   "all_scores": [
     {
@@ -44,6 +44,22 @@
     },
     {
       "loop": 2,
+      "variation": 1,
+      "score": 20.9,
+      "grade": "A+",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 3,
+      "variation": 3,
+      "score": 20.4,
+      "grade": "A+",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 4,
       "variation": 3,
       "score": 20.1,
       "grade": "A+",
@@ -51,18 +67,10 @@
       "hardFails": []
     },
     {
-      "loop": 3,
-      "variation": 2,
-      "score": 20.9,
+      "loop": 5,
+      "variation": 1,
+      "score": 20.4,
       "grade": "A+",
-      "minorityFlags": [],
-      "hardFails": []
-    },
-    {
-      "loop": 4,
-      "variation": 2,
-      "score": 21.6,
-      "grade": "S",
       "minorityFlags": [],
       "hardFails": []
     }

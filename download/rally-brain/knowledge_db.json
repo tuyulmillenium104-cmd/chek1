@@ -1,76 +1,149 @@
 {
-  "version": "2.0.0",
-  "last_updated": null,
+  "version": "3.0.0",
+  "last_updated": "2026-04-14T14:02:46.886Z",
   "stats": {
+    "total_cycles": 2,
     "total_patterns": 0,
-    "total_campaigns_analyzed": 0,
-    "total_submissions_analyzed": 0,
-    "avg_prediction_diff": 0.0,
-    "last_learned": null,
-    "best_score_achieved": 0
+    "best_score_achieved": 20.9,
+    "avg_score": 20.9,
+    "last_learned": "2026-04-14T14:02:46.886Z"
   },
-  "patterns": {
-    "surface": {
-      "format_rules": [],
-      "forbidden_words": [],
-      "forbidden_phrases": [],
-      "required_elements": [],
-      "max_min_lengths": {}
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-14T13:59:26.533Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behind the scenes. MarbMarket is different. No presale. No VC backing. First veDEX on MegaETH. That's real fair.",
+      "is_repetition": false,
+      "content_preview": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behi..."
     },
-    "structural": {
-      "optimal_openings": [],
-      "optimal_closings": [],
-      "mention_placement_rules": [],
-      "cta_patterns": [],
-      "paragraph_structure": []
+    {
+      "timestamp": "2026-04-14T14:02:46.886Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
+      "is_repetition": false,
+      "content_preview": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then ..."
+    }
+  ],
+  "ai_word_frequency": {},
+  "winning_hooks": [
+    {
+      "hook": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behind the scenes. MarbMarket is different. No presale. No VC backing. First veDEX on MegaETH. That's real fair.",
+      "score": 20.9,
+      "timestamp": "2026-04-14T13:59:26.533Z"
     },
-    "semantic": {
-      "claim_specificity": {
-        "description": "Concrete verifiable claims score higher than vague/absolute statements",
-        "level": "high",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      },
-      "tone_style_match": {
-        "description": "Content tone must match campaign's industry/context expectations",
-        "level": "high",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      },
-      "engagement_hook": {
-        "description": "Opening must hook attention AND content must include CTA for engagement score",
-        "level": "high",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      },
-      "rally_mention": {
-        "description": "@RallyOnChain mention must be natural, contextual, with concrete mechanism not vague praise",
-        "level": "high",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      },
-      "exaggeration_risk": {
-        "description": "Absolute/exaggerated claims ('zero cost', 'everyone', 'nobody') risk Accuracy deductions",
-        "level": "critical",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      },
-      "cross_category_tradeoff": {
-        "description": "Optimizing one category can hurt another — balance is key",
-        "level": "medium",
-        "examples_good": [],
-        "examples_bad": [],
-        "learned_rules": []
-      }
+    {
+      "hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
+      "score": 20.9,
+      "timestamp": "2026-04-14T14:02:46.886Z"
+    }
+  ],
+  "category_trends": {
+    "originality": {
+      "total": 4,
+      "count": 2,
+      "avg": 2,
+      "last5": [
+        2,
+        2
+      ]
+    },
+    "alignment": {
+      "total": 4,
+      "count": 2,
+      "avg": 2,
+      "last5": [
+        2,
+        2
+      ]
+    },
+    "accuracy": {
+      "total": 4,
+      "count": 2,
+      "avg": 2,
+      "last5": [
+        2,
+        2
+      ]
+    },
+    "compliance": {
+      "total": 3.6,
+      "count": 2,
+      "avg": 1.8,
+      "last5": [
+        1.8,
+        1.8
+      ]
+    },
+    "engagement": {
+      "total": 8.2,
+      "count": 2,
+      "avg": 4.1,
+      "last5": [
+        4.1,
+        4.1
+      ]
+    },
+    "technical": {
+      "total": 9.4,
+      "count": 2,
+      "avg": 4.7,
+      "last5": [
+        4.7,
+        4.7
+      ]
+    },
+    "reply_quality": {
+      "total": 8.6,
+      "count": 2,
+      "avg": 4.3,
+      "last5": [
+        4.3,
+        4.3
+      ]
     }
   },
+  "patterns": {},
   "scoring_model": {
-    "calibration_log": [],
+    "calibration_log": [
+      {
+        "timestamp": "2026-04-14T13:59:26.533Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-14T14:02:46.886Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      }
+    ],
     "category_weights": {
       "originality": 2,
       "alignment": 2,
@@ -78,37 +151,8 @@
       "compliance": 2,
       "engagement": 5,
       "technical": 5
-    },
-    "max_scores": {
-      "originality": 2,
-      "alignment": 2,
-      "accuracy": 2,
-      "compliance": 2,
-      "engagement": 5,
-      "technical": 5
-    },
-    "prediction_accuracy": {
-      "total_predictions": 0,
-      "correct_predictions": 0,
-      "avg_diff": 0.0
     }
   },
   "campaign_memories": {},
-  "v3_lessons": {
-    "source": "Rally actual scoring of v3 content (14/18 predicted 17.5)",
-    "losses": {
-      "accuracy_minus_1": "Exaggerated claim 'zero cost' — AI creation is cheap but not zero cost. Use precise language.",
-      "accuracy_minus_05": "Vague phrase 'figured it out' — no concrete mechanism explained. Be specific about what/how.",
-      "compliance_minus_1_mysterious_thread": "Mysterious thread opening ('Even this tweet is dead...') flagged as violation.",
-      "compliance_minus_1_extra_space": "Extra whitespace before @RallyOnChain mention — programmatic issue.",
-      "engagement_minus_05": "No CTA (call to action) included — direct ask improves engagement score."
-    },
-    "generalized_rules": [
-      "Never use absolute/exaggerated language unless factually verifiable",
-      "Always include concrete mechanisms, not vague references",
-      "Opening must be directly relevant, not mysterious or clickbait",
-      "Check formatting: no extra spaces, no trailing whitespace, no empty lines before mentions",
-      "Always include a CTA (question, invitation, direct ask) for engagement points"
-    ]
-  }
+  "v3_lessons": {}
 }
