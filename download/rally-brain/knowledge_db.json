@@ -1,12 +1,12 @@
 {
   "version": "3.0.0",
-  "last_updated": "2026-04-14T15:23:19.482Z",
+  "last_updated": "2026-04-14T15:49:31.082Z",
   "stats": {
-    "total_cycles": 3,
+    "total_cycles": 6,
     "total_patterns": 0,
     "best_score_achieved": 21.5,
-    "avg_score": 21.1,
-    "last_learned": "2026-04-14T15:23:19.482Z"
+    "avg_score": 18.2,
+    "last_learned": "2026-04-14T15:49:31.082Z"
   },
   "cycle_history": [
     {
@@ -71,6 +71,69 @@
       "best_hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
       "is_repetition": false,
       "content_preview": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veToken..."
+    },
+    {
+      "timestamp": "2026-04-14T15:35:45.287Z",
+      "score": 15.5,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes are changing DeFi governance in ways nobody sees coming yet.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes..."
+    },
+    {
+      "timestamp": "2026-04-14T15:40:28.451Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actually matters.",
+      "is_repetition": false,
+      "content_preview": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actual..."
+    },
+    {
+      "timestamp": "2026-04-14T15:49:31.082Z",
+      "score": 14.2,
+      "grade": "B",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 2,
+      "variations_tested": 3,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity ..."
     }
   ],
   "ai_word_frequency": {},
@@ -93,73 +156,87 @@
   ],
   "category_trends": {
     "originality": {
-      "total": 6,
-      "count": 3,
-      "avg": 2,
+      "total": 9.600000000000001,
+      "count": 6,
+      "avg": 1.6,
       "last5": [
         2,
         2,
-        2
+        1.25,
+        1.15,
+        1.2000000000000002
       ]
     },
     "alignment": {
-      "total": 6,
-      "count": 3,
+      "total": 12,
+      "count": 6,
       "avg": 2,
       "last5": [
+        2,
+        2,
         2,
         2,
         2
       ]
     },
     "accuracy": {
-      "total": 6,
-      "count": 3,
-      "avg": 2,
+      "total": 9.1,
+      "count": 6,
+      "avg": 1.52,
       "last5": [
         2,
         2,
-        2
+        0.7,
+        1.2,
+        1.2
       ]
     },
     "compliance": {
-      "total": 5.6,
-      "count": 3,
-      "avg": 1.87,
+      "total": 11.6,
+      "count": 6,
+      "avg": 1.93,
       "last5": [
         1.8,
-        1.8,
+        2,
+        2,
+        2,
         2
       ]
     },
     "engagement": {
-      "total": 12.7,
-      "count": 3,
-      "avg": 4.23,
+      "total": 22.5,
+      "count": 6,
+      "avg": 3.75,
       "last5": [
         4.1,
-        4.1,
-        4.5
+        4.5,
+        3.5,
+        3.5,
+        2.8
       ]
     },
     "technical": {
-      "total": 13.9,
-      "count": 3,
-      "avg": 4.63,
+      "total": 24.4,
+      "count": 6,
+      "avg": 4.07,
       "last5": [
         4.7,
-        4.7,
-        4.5
+        4.5,
+        3.5,
+        3.5,
+        3.5
       ]
     },
     "reply_quality": {
-      "total": 13.1,
-      "count": 3,
-      "avg": 4.37,
+      "total": 19.6,
+      "count": 6,
+      "avg": 3.27,
       "last5": [
         4.3,
-        4.3,
-        4.5
+        4.5,
+        2.5,
+        2.5,
+        1.5
       ]
     }
   },
@@ -179,8 +256,8 @@
         "description": "Opening hooks + CTA for engagement",
         "level": "high",
         "learned_rules": [
-          "Focus on engagement: avg 4.23/5 (85%)",
-          "Focus on reply_quality: avg 4.37/5 (87%)"
+          "Focus on reply_quality: avg 3.27/5 (65%)",
+          "Focus on engagement: avg 3.75/5 (75%)"
         ]
       },
       "rally_mention": {
@@ -216,6 +293,21 @@
         "timestamp": "2026-04-14T15:23:19.482Z",
         "predicted": 21.5,
         "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-14T15:35:45.287Z",
+        "predicted": 15.5,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T15:40:28.451Z",
+        "predicted": 15.9,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T15:49:31.082Z",
+        "predicted": 14.2,
+        "grade": "B"
       }
     ],
     "category_weights": {
