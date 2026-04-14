@@ -1,11 +1,11 @@
-Been thinking about how most DEXs just throw rewards at liquidity and hope for the best. Then I saw MarbMarket's approach. It flips the script by letting token holders actually decide where value flows. That's huge.
+MarbMarket is dropping the first veDEX on MegaETH. No presale. No VCs. Just a fair launch inspired by Solidly/Aerodrome.
 
-First veDEX on MegaETH. No presale. No VCs. Just pure community governance. Lock MARB, get voting power, direct emissions to the pools you want. Projects can even bribe for votes. transparently.
+A veDEX isn't your average DEX. Here's how it works: you lock MARB tokens to get veTokens. The longer you lock, the more voting power you have. Every week, veMARB holders vote on which LP pools get rewarded with emissions.
 
-The incentive loop is brilliant. MARB lockers direct emissions. LPs earn rewards. Protocols pay bribes. Value flows back to lockers. It's not just farming. It's building a system that compounds over time.
+Projects can pay "bribes" to attract votes. This creates a wild incentive loop where liquidity providers get rewards, protocols pay for votes, and MARB lockers collect the benefits. It's a self-sustaining system.
 
-MarbMarket is quietly changing how we think about DeFi governance. Power to the people who actually care, not just wallets dumping bags.
+MegaETH needed this. Fair launches matter. Community governance matters. LP farming with actual decentralization matters. @RallyOnChain
 
-Check them out: x.com/Marb_market
+The ve(3,3) model is what makes this different. It's not just about locking tokens. It's about creating a system where early adopters aren't punished for participating. Longer locks = more influence + more rewards. No hype, just mechanics.
 
-What other ve(3,3) models have you seen that actually work? @RallyOnChain
+Check out x.com/Marb_market for the full breakdown. How many veDEX models do you think we'll see before the end of Q2?
