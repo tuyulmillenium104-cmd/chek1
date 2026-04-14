@@ -1,9 +1,11 @@
-The DeFi world's obsessed with TVL. Meanwhile, the real shift happens in how we distribute power. MarbMarket's launching MegaETH's first veDEX, and it's not just another DEX—it's a governance revolution.
+Most people chase the next 100x token. I'm watching how value gets captured in the protocol layer.
 
-veDEX isn't just a buzzword. It's a system where locking MARB tokens gives you actual decision-making power over where liquidity rewards flow. No more VC-controlled allocation. No more centralized decisions. Just pure, community-driven governance.
+MarbMarket is about to drop the first veDEX on MegaETH. No presale. No VCs. Just a fair launch with real skin in the game.
 
-The magic? ve(3,3) model. Longer locks = more influence + more rewards. Projects pay bribes for votes, creating a flywheel that benefits everyone: MARB lockers, LP providers, and the protocols themselves. It's self-sustaining, transparent, and fair.
+Here's the game: Lock MARB → get veTokens → vote on where emissions go → projects pay bribes for your vote → rewards flow back to you. It's a self-reinforcing loop where the more you stake, the more you control, the more you earn.
 
-First veDEX on MegaETH with a true fair launch—no presales, no VCs, just code and community. That's the quiet revolution happening right now.
+This isn't just another DEX. It's a governance system where your LP position becomes political capital.
 
-Curious how this changes the game? x.com/Marb_market has all the details. @RallyOnChain this is the kind of infrastructure that compounds over time, not just a flash in the pan.
+x.com/Marb_market is where the real action is starting. @RallyOnChain knows what's up.
+
+What other protocols are getting this right?
