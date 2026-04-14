@@ -1,15 +1,15 @@
-Most people chase the latest L1 hype. The quiet revolution happens where community control meets sustainable incentives. That's where MarbMarket changes the game on MegaETH.
+Fair launches aren't just marketing talk—they're the only way to build protocols that actually reward users, not VCs. MarbMarket gets this.
 
-Forget the usual DEX model. MarbMarket is a veDEX - where your MARB locks turn into voting power. Longer locks = more influence. Simple. But the magic happens when protocols pay bribes for your vote.
+First veDEX on MegaETH with no presale, no insiders. Just community power.
 
-This isn't just about trading fees. It's about creating a flywheel where:
-1. MARB lockers direct emissions
-2. LPs get rewards
-3. Protocols pay for votes
-4. Incentives flow back to lockers
+Here's how it works: Lock MARB tokens, get voting weight. Longer lock = more influence. Weekly votes direct where emissions flow. Projects pay bribes for your votes. Decentralized incentives, finally.
 
-First veDEX on MegaETH. No presale. No VCs. Just fair launch mechanics that reward long-term holders.
+This isn't just another DEX. It's a ve(3,3) model where your voting power compounds over time. The longer you stake, the more you shape the protocol—and earn.
 
-x.com/Marb_market
+MARB flywheel: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to you. Self-sustaining, community-controlled.
 
-What's your take on the ve(3,3) model? Does it solve the liquidity mining problem?
+No hype, just mechanics. The future of DEXes isn't about flashy tokens—it's about fair systems that reward actual users.
+
+Check the launch: x.com/Marb_market
+
+@RallyOnChain what's your take on fair launches vs traditional models?

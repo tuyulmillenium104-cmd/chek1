@@ -1,8 +1,8 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T04:19:49.252Z",
-  "best_content": "Most people chase the latest L1 hype. The quiet revolution happens where community control meets sustainable incentives. That's where MarbMarket changes the game on MegaETH.\n\nForget the usual DEX model. MarbMarket is a veDEX - where your MARB locks turn into voting power. Longer locks = more influence. Simple. But the magic happens when protocols pay bribes for your vote.\n\nThis isn't just about trading fees. It's about creating a flywheel where:\n1. MARB lockers direct emissions\n2. LPs get rewards\n3. Protocols pay for votes\n4. Incentives flow back to lockers\n\nFirst veDEX on MegaETH. No presale. No VCs. Just fair launch mechanics that reward long-term holders.\n\nx.com/Marb_market\n\nWhat's your take on the ve(3,3) model? Does it solve the liquidity mining problem?",
+  "timestamp": "2026-04-14T04:49:35.583Z",
+  "best_content": "Fair launches aren't just marketing talk—they're the only way to build protocols that actually reward users, not VCs. MarbMarket gets this.\n\nFirst veDEX on MegaETH with no presale, no insiders. Just community power.\n\nHere's how it works: Lock MARB tokens, get voting weight. Longer lock = more influence. Weekly votes direct where emissions flow. Projects pay bribes for your votes. Decentralized incentives, finally.\n\nThis isn't just another DEX. It's a ve(3,3) model where your voting power compounds over time. The longer you stake, the more you shape the protocol—and earn.\n\nMARB flywheel: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to you. Self-sustaining, community-controlled.\n\nNo hype, just mechanics. The future of DEXes isn't about flashy tokens—it's about fair systems that reward actual users.\n\nCheck the launch: x.com/Marb_market\n\n@RallyOnChain what's your take on fair launches vs traditional models?",
   "score": 17.2,
   "grade": "A+",
   "predictions": {
@@ -16,16 +16,14 @@
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "The ve(3,3) model looks promising for creating sustainable incentives beyond just liquidity mining. Excited to see how this plays out on MegaETH!",
-    "Interesting approach shifting from trading fees to protocol bribes as the main incentive driver. Long-term lockers finally get proper governance power.",
-    "This could be the solution many DEXs need - rewarding actual participation rather than just temporary liquidity. Curious to see how the community responds to no VC involvement."
+    "Love this approach! Fair launches really do create better ecosystems for actual users. The ve(3,3) model looks super interesting. This is exactly what crypto needs - less VC manipulation, more community power. Going to check it out!"
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 1,
-      "score": 17.2,
-      "grade": "A+"
+      "score": 16.7,
+      "grade": "A"
     },
     {
       "loop": 1,
