@@ -1,17 +1,11 @@
-Most DEX launches chase volume. MarbMarket builds power.
+Most people chase the latest memecoin hype. Real DeFi builders are stacking MARB positions before MarbMarket's fair launch on MegaETH.
 
-What if your liquidity could vote? Where longer locks = more influence? That's the veDEX model. First on MegaETH.
+A veDEX isn't just another DEX. It's a community-owned protocol where your MARB locks translate to voting power. Longer locks = more influence + more rewards.
 
-Here's how it works:
-1. Lock MARB → get veTokens (voting power)
-2. Weekly votes decide where emissions go
-3. Projects pay bribes for your vote
-4. Your power compounds the longer you lock
+The magic happens weekly when veHolders decide which LP pools get MARB emissions. Projects pay bribes for votes, creating a flywheel that rewards early lockers.
 
-No presale. No VCs. Just community control.
-
-The MARB flywheel is beautiful: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to you.
+MegaETH needed a proper veDEX. MarbMarket delivers with no presale, no VCs—just pure, fair launch economics.
 
 x.com/Marb_market
 
-@RallyOnChain This is what real DeFi governance looks like. What's the longest you'd lock to control incentives?
+@RallyOnChain what ve(3,3) model are you most excited to see take hold?

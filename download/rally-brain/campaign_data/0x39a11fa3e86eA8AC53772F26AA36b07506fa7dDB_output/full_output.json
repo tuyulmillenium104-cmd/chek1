@@ -1,42 +1,42 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T08:50:04.489Z",
-  "best_content": "Most DEX launches chase volume. MarbMarket builds power.\n\nWhat if your liquidity could vote? Where longer locks = more influence? That's the veDEX model. First on MegaETH.\n\nHere's how it works:\n1. Lock MARB → get veTokens (voting power)\n2. Weekly votes decide where emissions go\n3. Projects pay bribes for your vote\n4. Your power compounds the longer you lock\n\nNo presale. No VCs. Just community control.\n\nThe MARB flywheel is beautiful: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to you.\n\nx.com/Marb_market\n\n@RallyOnChain This is what real DeFi governance looks like. What's the longest you'd lock to control incentives?",
-  "score": 17.4,
+  "timestamp": "2026-04-14T09:19:54.071Z",
+  "best_content": "Most people chase the latest memecoin hype. Real DeFi builders are stacking MARB positions before MarbMarket's fair launch on MegaETH.\n\nA veDEX isn't just another DEX. It's a community-owned protocol where your MARB locks translate to voting power. Longer locks = more influence + more rewards.\n\nThe magic happens weekly when veHolders decide which LP pools get MARB emissions. Projects pay bribes for votes, creating a flywheel that rewards early lockers.\n\nMegaETH needed a proper veDEX. MarbMarket delivers with no presale, no VCs—just pure, fair launch economics.\n\nx.com/Marb_market\n\n@RallyOnChain what ve(3,3) model are you most excited to see take hold?",
+  "score": 17.2,
   "grade": "A+",
   "predictions": {
     "originality": 1.7999999999999998,
-    "alignment": 1.8,
+    "alignment": 2,
     "accuracy": 2,
     "compliance": 1.8,
-    "engagement": 5,
+    "engagement": 4.6,
     "technical": 5
   },
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "This is brilliant! Finally a DEX that puts real power in the hands of the community instead of just chasing volume.",
-    "The veToken model is such a clever way to align incentives and reward long-term commitment.",
-    "Love how this creates a sustainable flywheel where everyone benefits from the ecosystem's growth."
+    "Love the focus on fair launch and community ownership. The veHolders deciding on emissions is such a powerful model!",
+    "This is exactly what DeFi needs - protocols that reward long-term holders rather than just hype chasers. Really excited to see how this plays out on MegaETH.",
+    "The flywheel effect with projects paying bribes for votes sounds brilliant. Gives real power to the community!"
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 1,
-      "score": 16.9,
-      "grade": "A"
-    },
-    {
-      "loop": 1,
-      "variation": 2,
-      "score": 17.4,
+      "score": 17.2,
       "grade": "A+"
     },
     {
       "loop": 1,
+      "variation": 2,
+      "score": 15.9,
+      "grade": "B+"
+    },
+    {
+      "loop": 1,
       "variation": 3,
-      "score": 16.9,
+      "score": 16.4,
       "grade": "A"
     }
   ]
