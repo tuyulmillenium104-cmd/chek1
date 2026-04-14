@@ -1,13 +1,11 @@
-Most DeFi protocols chase hype. MarbMarket built something different: a system where your vote actually matters.
+Most DEXes fight for liquidity. MarbMarket flips the script—letting liquidity providers vote for rewards. First veDEX on MegaETH, no VCs, no presale. Pure community power.
 
-veDEX isn't just another DEX. It's a community-owned liquidity mine where your MARB locks turn into real governance power. Longer locks = more influence + more rewards.
+Here's how it works: lock MARB tokens → gain voting power → weekly votes determine which LP pools get MARB emissions. Projects can "bribe" for votes with extra incentives. Your lock duration = your influence.
 
-The magic? Projects pay bribes for votes. Your voting power attracts rewards that flow back to you. It's a flywheel that rewards early believers.
+The beauty? Longer locks mean more rewards AND more say. ve(3,3) model in action. MARB lockers direct emissions → LPs get rewards → protocols pay bribes → incentives flow back to lockers. Positive feedback loop.
 
-MarbMarket's launching on MegaETH with no presale, no VCs—just fair launch LP farming and weekly voting. First of its kind.
+This isn't just another DEX. It's a governance experiment. Community decides winners. No central authority. Just code, votes, and rewards.
 
-Your locked MARB directs emissions. LPs get rewards. Protocols pay bribes. Incentives cycle back to you.
+Check the launch: x.com/Marb_market
 
-x.com/Marb_market
-
-@RallyOnChain this is what happens when governance aligns incentives—no more centralized control of liquidity.
+@RallyOnChain what veDEX mechanics would you most want to see implemented on your favorite chains?
