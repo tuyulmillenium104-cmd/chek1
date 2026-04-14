@@ -3,82 +3,97 @@
   "evaluation_method": "5 LLM Judges + Minority Override + G4 Originality Detection",
   "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T11:02:55.770Z",
-  "best_content": "Been seeing a lot of noise in DeFi lately. Most projects promise the moon but deliver empty hype. Then there's MarbMarket. Quietly building something different on MegaETH. No presale. No VCs. Just a fair launch for a veDEX that actually puts power in users' hands.\n\nWhat's a veDEX? It's simple. You lock MARB tokens, get voting power. The longer you lock, the more influence you have. No more whales dictating everything. Every week, veMARB holders vote on which liquidity pools get emissions. Projects can pay bribes for votes. That's the real magic. Fair competition.\n\nMARB incentive loop is clean. You lock MARB. You direct emissions. LPs earn rewards. Protocols pay bribes. Those bribes flow back to you, the locker. It compounds. The more you participate, the more you earn. That's real DeFi. Not just another farming game.\n\n@RallyOnChain has been showing us what quality looks like in Web3. MarbMarket feels like that. Infrastructure that compounds. Not noise.\n\nWhat I'm wondering: With all these new DEX launching, how many will actually solve the governance problem long-term? Or is this just another cycle? x.com/Marb_market",
-  "score": 20.9,
-  "grade": "A+",
+  "timestamp": "2026-04-14T11:15:39.079Z",
+  "best_content": "Been watching DeFi for years. Most DEXes feel like shouting matches where whoever has the most tokens gets to make decisions. Then I found veDEXes. MarbMarket's about to drop the first veDEX on MegaETH, and it's different. No presale. No VCs. Just fair.\n\nHere's how it works: You lock MARB tokens, get veTokens. The longer you lock, the more influence you have. Then projects actually pay you to vote for their liquidity pools. That's right. They bribe you with their own tokens to get your voting power.\n\nThe magic? The incentives flow back to MARB lockers. It creates this incentive loop where LP providers get rewarded, protocols attract liquidity, and veToken holders get paid. Community-driven, not whale-driven. Finally.\n\nx.com/Marb_market\n\nAnyone else tired of governance models where the richest voice wins? How do we balance influence with accessibility?",
+  "score": 17.2,
+  "grade": "A",
   "predictions": {
-    "originality": 2,
+    "originality": 0.4,
     "alignment": 2,
     "accuracy": 2,
-    "compliance": 1.8,
-    "engagement": 4.1,
-    "technical": 4.7,
-    "reply_quality": 4.3
+    "compliance": 0,
+    "engagement": 3.8,
+    "technical": 5,
+    "reply_quality": 4
   },
-  "g4_bonus": 0.45,
+  "g4_bonus": 0.35,
   "g4_reasons": [
-    "High sentence variety (CV=0.73)",
-    "Some personal voice",
-    "Natural contractions",
+    "High sentence variety (CV=0.80)",
+    "Some contractions",
     "Zero AI words (clean)",
     "Mixed sentence lengths"
   ],
   "minority_flags": [],
-  "hard_fails": [],
-  "valid_judges": 0,
+  "hard_fails": [
+    "originality",
+    "compliance"
+  ],
+  "valid_judges": 5,
   "total_variations": 5,
   "loops_used": 5,
   "qa_comments": [
-    "Love how they're focusing on real utility instead of empty hype. The veDEX model sounds like exactly what DeFi needs. Been waiting for a project that actually puts power back in users' hands.",
-    "The incentive loop is brilliant - it creates real alignment between users and projects. Not just another farming game, this actually compounds value for everyone involved.",
-    "Wondering if other DEX will follow this governance model or if we'll continue with whale-dominated protocols. Either way, excited to see how MarbMarket evolves on MegaETH."
+    "Love the community-driven approach! Finally a DeFi platform that doesn't just reward the biggest wallets. This could really change how governance works in DEXes.",
+    "The incentive loop you've described is brilliant - projects paying users for their voting power while rewards flow back to MARB lockers. Perfect balance between influence and accessibility.",
+    "Been waiting for something like this! No VCs, no presales, just fair governance. Can't wait to see how MarbMarket shakes up the DEX space on MegaETH."
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 2,
-      "score": 19.8,
-      "grade": "A+",
+      "score": 17,
+      "grade": "A",
       "minorityFlags": [
         "compliance"
       ],
-      "hardFails": []
+      "hardFails": [
+        "originality"
+      ]
     },
     {
       "loop": 2,
-      "variation": 1,
-      "score": 20.9,
-      "grade": "A+",
-      "minorityFlags": [],
-      "hardFails": []
+      "variation": 3,
+      "score": 17,
+      "grade": "A",
+      "minorityFlags": [
+        "compliance"
+      ],
+      "hardFails": [
+        "originality"
+      ]
     },
     {
       "loop": 3,
-      "variation": 1,
-      "score": 20.1,
-      "grade": "A+",
+      "variation": 3,
+      "score": 15.6,
+      "grade": "B+",
       "minorityFlags": [],
-      "hardFails": []
+      "hardFails": [
+        "originality",
+        "compliance"
+      ]
     },
     {
       "loop": 4,
       "variation": 1,
-      "score": 20.8,
-      "grade": "A+",
-      "minorityFlags": [],
-      "hardFails": []
+      "score": 13.1,
+      "grade": "B",
+      "minorityFlags": [
+        "alignment",
+        "accuracy",
+        "compliance"
+      ],
+      "hardFails": [
+        "originality"
+      ]
     },
     {
       "loop": 5,
       "variation": 1,
-      "score": 16.2,
-      "grade": "B+",
-      "minorityFlags": [
-        "originality",
-        "accuracy"
-      ],
+      "score": 17.2,
+      "grade": "A",
+      "minorityFlags": [],
       "hardFails": [
+        "originality",
         "compliance"
       ]
     }

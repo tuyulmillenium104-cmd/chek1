@@ -1,8 +1,13 @@
 /**
- * Rally Brain Generate Runner v5.0
- * SKILL.md v9.5 FULL COMPLIANT
+ * Rally Brain Generate Runner v5.1
+ * SKILL.md v9.5 FULL COMPLIANT + TOKEN ROTATION
  *
- * UPGRADES from v4.0:
+ * UPGRADES from v5.0:
+ *   + Resilient Client with Token Rotation (2 tokens x 300/day = 600 quota)
+ *   + HTTP direct for accurate quota tracking from response headers
+ *   + Auto token switching when rate limited
+ *
+ * FROM v4.0:
  *   + 5 LLM Judge Panel (Harsh Critic, Avg X User, Rally Clone, Contrarian, Fingerprint Detector)
  *   + Minority Override (1 outlier cannot auto-fail gate)
  *   + G4 Originality Detection (programmatic human-like bonus)
@@ -15,7 +20,7 @@
  *           -> G4 BONUS -> STABILITY CHECK -> OUTPUT
  */
 
-const ZAI = require('z-ai-web-dev-sdk').default;
+const { ResilientZAIClient } = require('./zai-resilient.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -418,13 +423,12 @@ async function runJudgePanel(zai, content) {
 
   for (const judge of JUDGE_CONFIGS) {
     try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: judge.system },
-          { role: 'user', content: judgePrompt }
-        ],
+      const completion = await zai.chat([
+        { role: 'system', content: judge.system },
+        { role: 'user', content: judgePrompt }
+      ], {
         temperature: judge.temperature,
-        max_tokens: 300
+        maxTokens: 300
       });
 
       let response = completion.choices?.[0]?.message?.content?.trim() || '';
@@ -453,8 +457,8 @@ async function runJudgePanel(zai, content) {
         break;
       }
     }
-    // Delay between judge calls to avoid rate limit
-    await sleep(2000);
+    // Delay between judge calls (500ms - token rotation handles rate limits)
+    await sleep(500);
   }
 
   return results;
@@ -702,9 +706,8 @@ CRITICAL: Fix ALL the above. Do NOT repeat mistakes. NO dashes. NO AI words. NO 
 
 async function generateVariation(zai, prompt, temp) {
   try {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: `You write tweets like a real person on X. NOT an AI.
+    const completion = await zai.chat([
+      { role: 'system', content: `You write tweets like a real person on X. NOT an AI.
 
 ABSOLUTE RULES:
 - NEVER use em-dash, en-dash, or double-hyphen. Use period or comma.
@@ -714,10 +717,10 @@ ABSOLUTE RULES:
 - Vary sentence lengths. Mix 3-word and 15-word sentences.
 - End with genuine open question.
 - Write from personal experience. Not marketing copy.` },
-        { role: 'user', content: prompt }
-      ],
+      { role: 'user', content: prompt }
+    ], {
       temperature: temp,
-      max_tokens: 800
+      maxTokens: 800
     });
     let content = completion.choices?.[0]?.message?.content?.trim() || '';
     content = content.replace(/^["'`]+|["'`]+$/g, '');
@@ -738,13 +741,12 @@ ABSOLUTE RULES:
 
 async function generateQA(zai, content) {
   try {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: 'Generate exactly 3 short natural engagement comments for this tweet. Each 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words.' },
-        { role: 'user', content: `Based on this tweet, write 3 natural reply comments that would appear on X/Twitter:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
-      ],
+    const completion = await zai.chat([
+      { role: 'system', content: 'Generate exactly 3 short natural engagement comments for this tweet. Each 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words.' },
+      { role: 'user', content: `Based on this tweet, write 3 natural reply comments that would appear on X/Twitter:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
+    ], {
       temperature: 0.9,
-      max_tokens: 300
+      maxTokens: 300
     });
     const text = completion.choices?.[0]?.message?.content?.trim() || '';
     return text.split('\n').map(l => l.replace(/^\d+[\.\-\)]\s*/, '').trim()).filter(l => l.length > 0).slice(0, 3);
@@ -876,16 +878,17 @@ function programmaticEvaluate(content) {
 // ============ MAIN LOOP ============
 async function main() {
   console.log('===========================================');
-  console.log('RALLY BRAIN v5.0 - SKILL.md v9.5 COMPLIANT');
+  console.log('RALLY BRAIN v5.1 - TOKEN ROTATION ENABLED');
   console.log('===========================================');
   console.log(`Campaign: ${CAMPAIGN.title}`);
   console.log(`Mission: ${MISSION_0.title}`);
   console.log(`Target: >= 21/23 (S grade)`);
   console.log(`Scoring: 5 LLM Judges + Minority Override + G4`);
   console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> 5 JUDGES -> CONSENSUS -> G4 -> OUTPUT`);
+  console.log(`LLM Client: Resilient (Token Rotation, HTTP Direct)`);
   console.log('===========================================\n');
 
-  const zai = await ZAI.create();
+  const zai = new ResilientZAIClient();
   const allVariations = [];
   let bestEver = { content: '', score: 0, grade: 'D', consensus: null, g4: null };
   let basePrompt = buildBasePrompt('Approach angle: Educational explainer that breaks down veDEX mechanics clearly.');
@@ -1057,7 +1060,7 @@ async function main() {
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
 
   const output = {
-    version: '5.0',
+    version: '5.1',
     evaluation_method: '5 LLM Judges + Minority Override + G4 Originality Detection',
     campaign: CAMPAIGN.title,
     mission: MISSION_0.title,
@@ -1092,6 +1095,9 @@ async function main() {
   console.log(`Valid Judges: ${bestEver.consensus?.validJudgeCount || 0}/5`);
   console.log(`Variations tested: ${allVariations.length}`);
   console.log(`Loops used: ${loopsUsed}`);
+  const clientStatus = zai.getStatus();
+  console.log(`Token Usage: ${clientStatus.totalRequests} requests, ${clientStatus.totalErrors} errors`);
+  console.log(`Remaining Quota: ${clientStatus.totalRemaining} across ${clientStatus.tokens.length} tokens`);
   if (bestEver.consensus?.minorityFlags?.length > 0) console.log(`Minority Flags: ${bestEver.consensus.minorityFlags.join(', ')}`);
   console.log(`G4 Bonus: ${bestEver.g4?.bonus || 0}`);
   console.log('\n--- BEST CONTENT ---');
@@ -1110,7 +1116,7 @@ async function main() {
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
-    version: '5.0',
+    version: '5.1',
     score: bestEver.score,
     grade: bestEver.grade,
     predictions: bestEver.consensus?.scores || {},
