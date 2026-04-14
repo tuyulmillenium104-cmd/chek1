@@ -1,9 +1,7 @@
-Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.
+Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.
 
-veDEX isn't just another AMM. It's about locking MARB to get voting power. Longer locks = more influence. Projects pay bribes to attract votes. You vote weekly on where emissions go. Your lock duration actually matters. That's the ve(3,3) model in action.
+MarbMarket's launching on MegaETH with no presale, no VCs. Just pure veDEX mechanics. Lock MARB, get voting power, direct emissions to LPs of your choice. Projects pay bribes for votes. It's a self-reinforcing loop that rewards early participants.
 
-The loop is wild: MARB lockers direct emissions to LPs. LPs get rewards. Protocols pay bribes for votes. Incentives flow back to lockers. It's a self-reinforcing cycle that rewards actual participation, not just early money.
+What makes this different from the usual fair launch narrative? It's not just about getting in early. It's about locking early and maintaining that influence. The longer you lock, the more you shape the protocol's direction.
 
-@RallyOnChain is tracking this closely. MarbMarket's launch feels different. Not because it's "groundbreaking" but because it's actually fair. x.com/Marb_market
-
-What happens when the community controls the incentives instead of VCs?
+@RallyOnChain what's your take on the sustainability of the bribe economy? Does it hold up as more protocols join? x.com/Marb_market

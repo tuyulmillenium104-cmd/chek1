@@ -1,12 +1,12 @@
 {
   "version": "3.0.0",
-  "last_updated": "2026-04-14T14:02:46.886Z",
+  "last_updated": "2026-04-14T15:23:19.482Z",
   "stats": {
-    "total_cycles": 2,
+    "total_cycles": 3,
     "total_patterns": 0,
-    "best_score_achieved": 20.9,
-    "avg_score": 20.9,
-    "last_learned": "2026-04-14T14:02:46.886Z"
+    "best_score_achieved": 21.5,
+    "avg_score": 21.1,
+    "last_learned": "2026-04-14T15:23:19.482Z"
   },
   "cycle_history": [
     {
@@ -50,6 +50,27 @@
       "best_hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
       "is_repetition": false,
       "content_preview": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then ..."
+    },
+    {
+      "timestamp": "2026-04-14T15:23:19.482Z",
+      "score": 21.5,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4.5,
+        "technical": 4.5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
+      "is_repetition": false,
+      "content_preview": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veToken..."
     }
   ],
   "ai_word_frequency": {},
@@ -63,74 +84,122 @@
       "hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
       "score": 20.9,
       "timestamp": "2026-04-14T14:02:46.886Z"
+    },
+    {
+      "hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
+      "score": 21.5,
+      "timestamp": "2026-04-14T15:23:19.482Z"
     }
   ],
   "category_trends": {
     "originality": {
-      "total": 4,
-      "count": 2,
+      "total": 6,
+      "count": 3,
       "avg": 2,
       "last5": [
+        2,
         2,
         2
       ]
     },
     "alignment": {
-      "total": 4,
-      "count": 2,
+      "total": 6,
+      "count": 3,
       "avg": 2,
       "last5": [
+        2,
         2,
         2
       ]
     },
     "accuracy": {
-      "total": 4,
-      "count": 2,
+      "total": 6,
+      "count": 3,
       "avg": 2,
       "last5": [
+        2,
         2,
         2
       ]
     },
     "compliance": {
-      "total": 3.6,
-      "count": 2,
-      "avg": 1.8,
+      "total": 5.6,
+      "count": 3,
+      "avg": 1.87,
       "last5": [
         1.8,
-        1.8
+        1.8,
+        2
       ]
     },
     "engagement": {
-      "total": 8.2,
-      "count": 2,
-      "avg": 4.1,
+      "total": 12.7,
+      "count": 3,
+      "avg": 4.23,
       "last5": [
         4.1,
-        4.1
+        4.1,
+        4.5
       ]
     },
     "technical": {
-      "total": 9.4,
-      "count": 2,
-      "avg": 4.7,
+      "total": 13.9,
+      "count": 3,
+      "avg": 4.63,
       "last5": [
         4.7,
-        4.7
+        4.7,
+        4.5
       ]
     },
     "reply_quality": {
-      "total": 8.6,
-      "count": 2,
-      "avg": 4.3,
+      "total": 13.1,
+      "count": 3,
+      "avg": 4.37,
       "last5": [
         4.3,
-        4.3
+        4.3,
+        4.5
       ]
     }
   },
-  "patterns": {},
+  "patterns": {
+    "semantic": {
+      "claim_specificity": {
+        "description": "Concrete verifiable claims score higher",
+        "level": "high",
+        "learned_rules": []
+      },
+      "tone_style_match": {
+        "description": "Tone must match campaign context",
+        "level": "high",
+        "learned_rules": []
+      },
+      "engagement_hook": {
+        "description": "Opening hooks + CTA for engagement",
+        "level": "high",
+        "learned_rules": [
+          "Focus on engagement: avg 4.23/5 (85%)",
+          "Focus on reply_quality: avg 4.37/5 (87%)"
+        ]
+      },
+      "rally_mention": {
+        "description": "Natural contextual mention with concrete mechanism",
+        "level": "high",
+        "learned_rules": []
+      },
+      "exaggeration_risk": {
+        "description": "Absolute claims risk Accuracy deductions",
+        "level": "critical",
+        "learned_rules": []
+      },
+      "cross_category_tradeoff": {
+        "description": "Balance categories",
+        "level": "medium",
+        "learned_rules": []
+      }
+    }
+  },
   "scoring_model": {
     "calibration_log": [
       {
@@ -142,6 +211,11 @@
         "timestamp": "2026-04-14T14:02:46.886Z",
         "predicted": 20.9,
         "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-14T15:23:19.482Z",
+        "predicted": 21.5,
+        "grade": "S"
       }
     ],
     "category_weights": {
