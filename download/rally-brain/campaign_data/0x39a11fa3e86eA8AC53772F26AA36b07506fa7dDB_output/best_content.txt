@@ -1,7 +1,11 @@
-Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.
+Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.
 
-MarbMarket's launching on MegaETH with no presale, no VCs. Just pure veDEX mechanics. Lock MARB, get voting power, direct emissions to LPs of your choice. Projects pay bribes for votes. It's a self-reinforcing loop that rewards early participants.
+MarbMarket is launching the first veDEX on MegaETH. No presale. No VCs. Just a fair launch inspired by Solidly/Aerodrome.
 
-What makes this different from the usual fair launch narrative? It's not just about getting in early. It's about locking early and maintaining that influence. The longer you lock, the more you shape the protocol's direction.
+Here's why it matters: users lock MARB to get voting power. Longer locks = more influence + more rewards. Every week, veMARB holders vote on which LP pools get emissions. Projects can "bribe" for votes. It's wild.
 
-@RallyOnChain what's your take on the sustainability of the bribe economy? Does it hold up as more protocols join? x.com/Marb_market
+The incentive loop is beautiful: MARB lockers direct emissions, LPs get rewards, protocols pay bribes, incentives flow back to lockers. It compounds.
+
+I'm watching how this plays out on MegaETH. @RallyOnChain - what happens when communities directly control where liquidity goes?
+
+x.com/Marb_market

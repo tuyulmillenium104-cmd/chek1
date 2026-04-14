@@ -15,9 +15,10 @@
  *   + Stability Check + Early Accept (prevent over-correction)
  *   + Pre-Writing Perspective Builder
  *
- * PIPELINE: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN ->
- *           -> 5 JUDGE PANEL -> CONSENSUS + MINORITY OVERRIDE ->
+ * PIPELINE: LEARN (with KDB feedback loop) -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN ->
+ *           -> PROGRAMMATIC EVAL -> J3/J5 JUDGE VALIDATION ->
  *           -> G4 BONUS -> STABILITY CHECK -> OUTPUT
+ * BUDGET: 12 calls/cycle (8 gen + 2 QA + 2 judges)
  */
 
 const { ResilientZAIClient } = require('./zai-resilient.js');
@@ -293,6 +294,8 @@ function extractLearnedKnowledge() {
     learned.cycleStats = kdb.stats;
     learned.aiWordFrequency = kdb.ai_word_frequency || {};
     learned.categoryTrends = kdb.category_trends || {};
+    // Expose KDB patterns with learned_rules for the prompt feedback loop
+    learned.kdbPatterns = kdb.patterns ? kdb.patterns.semantic || {} : {};
 
     // Extract top winning hooks from our OWN cycles (most recent + highest scoring)
     const ownWinners = hist.filter(c => c.score >= 20).sort((a, b) => b.score - a.score);
@@ -851,7 +854,7 @@ function buildBasePrompt(variationHint) {
     for (const rule of LEARNED.antiAI.slice(0, 6)) learnedContext.push(`  NO: ${rule}`);
   }
 
-  // === CYCLE-SPECIFIC LEARNED CONTEXT (from our own cycles) ===
+  // === CYCLE-SPECIFIC LEARNED CONTEXT (from our own cycles - CLOSED LOOP) ===
   if (LEARNED.cycleHistory && LEARNED.cycleHistory.length > 0) {
     learnedContext.push(`\n=== OUR PAST CYCLES (${LEARNED.cycleHistory.length} cycles, avg=${LEARNED.cycleStats?.avg_score}/23) ===`);
 
@@ -863,6 +866,16 @@ function buildBasePrompt(variationHint) {
     if (LEARNED.persistentAIWords && LEARNED.persistentAIWords.length > 0) {
       learnedContext.push('\nAI WORDS THAT KEEP LEAKING (extra attention needed):');
       for (const w of LEARNED.persistentAIWords.slice(0, 5)) learnedContext.push(`  BANNED: ${w}`);
+    }
+
+    // CONSUME learned_rules from knowledge_db patterns (the missing feedback loop!)
+    if (LEARNED.kdbPatterns) {
+      for (const [key, pattern] of Object.entries(LEARNED.kdbPatterns)) {
+        if (pattern.learned_rules && pattern.learned_rules.length > 0) {
+          learnedContext.push(`\nLEARNED RULE (${key}, ${pattern.level || 'medium'} priority):`);
+          for (const rule of pattern.learned_rules.slice(0, 3)) learnedContext.push(`  RULE: ${rule}`);
+        }
+      }
     }
 
     if (LEARNED.weakestCategories && LEARNED.weakestCategories.length > 0) {
@@ -994,17 +1007,15 @@ ABSOLUTE RULES:
 }
 
 async function generateQA(zai, content) {
-  // Generate 20 Q&A comments in 4 batches of 5 each
+  // Generate Q&A comments in 2 batches of 5 each (10 real + fallback to 20)
+  // Budget: 2 API calls for QA
   const allComments = [];
   const perspectives = [
     'crypto degen who understands ve(3,3) and vote-escrow models deeply',
-    'DeFi curious user who is just learning about DEXs and yield farming',
-    'skeptical trader who questions if fair launches actually work long term',
-    'MegaETH ecosystem supporter excited about new protocols launching',
-    'yield farmer who cares about bribes, emissions, and LP returns'
+    'skeptical trader who questions if fair launches actually work long term'
   ];
 
-  for (let batch = 0; batch < 4; batch++) {
+  for (let batch = 0; batch < 2; batch++) {
     try {
       const completion = await zai.chat([
         { role: 'system', content: `You are a ${perspectives[batch]}. Write 5 short, natural, diverse engagement comments for this tweet. Each comment 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words. Each comment must ask a DIFFERENT question or make a DIFFERENT observation. Vary the tone: some curious, some skeptical, some excited, some technical.` },
@@ -1021,9 +1032,9 @@ async function generateQA(zai, content) {
           allComments.push(c);
         }
       }
-      console.log(`    Q&A batch ${batch + 1}/4: got ${comments.length} comments (total: ${allComments.length})`);
+      console.log(`    Q&A batch ${batch + 1}/2: got ${comments.length} comments (total: ${allComments.length})`);
     } catch (e) {
-      console.log(`    Q&A batch ${batch + 1}/4 failed: ${e.message}`);
+      console.log(`    Q&A batch ${batch + 1}/2 failed: ${e.message}`);
     }
     await new Promise(r => setTimeout(r, 1000)); // Rate limit gap
   }
@@ -1109,8 +1120,8 @@ function programmaticEvaluate(content) {
   const feedback = [];
   let complianceFail = false;
 
-  // ORIGINALITY
-  let origScore = 1.2;
+  // ORIGINALITY (start from 0, earn points)
+  let origScore = 0;
   const uniqueMarkers = ['ve(3,3)', 'veDEX', 'vote-escrow', 'MARB', 'MegaETH', 'bribes'];
   let uniqueCount = 0;
   for (const m of uniqueMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) uniqueCount++; }
@@ -1138,8 +1149,8 @@ function programmaticEvaluate(content) {
   if (content.toLowerCase().includes('fair launch')) alignScore += 0.2;
   scores.alignment = Math.max(0, Math.min(2, alignScore));
 
-  // ACCURACY
-  let accScore = 1.8;
+  // ACCURACY (start from 1.0, earn/lose)
+  let accScore = 1.0;
   for (const w of ['zero cost', 'everyone', 'nobody', 'always', 'never', 'impossible', 'guaranteed', '100%']) { if (content.toLowerCase().includes(w)) { accScore -= 0.5; feedback.push(`Exaggeration: "${w}"`); } }
   if (content.toLowerCase().includes('lock') && (content.toLowerCase().includes('vote') || content.toLowerCase().includes('governance'))) accScore += 0.2;
   scores.accuracy = Math.max(0, Math.min(2, accScore));
@@ -1153,8 +1164,8 @@ function programmaticEvaluate(content) {
   if (!complianceFail) { for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${p}"`); break; } } }
   scores.compliance = Math.max(0, Math.min(2, compScore));
 
-  // ENGAGEMENT - stricter baseline
-  let engScore = 2.5;
+  // ENGAGEMENT (start lower, earn points)
+  let engScore = 1.5;
   if (/\?/.test(content)) engScore += 1.0; else feedback.push('Missing: CTA question');
   if (content.split('\n')[0].trim().length < 80 && content.split('\n')[0].trim().length > 10) engScore += 0.5;
   if ((content.match(/\./g) || []).length >= 3) engScore += 0.3;
@@ -1162,16 +1173,16 @@ function programmaticEvaluate(content) {
   if (genuineQs.some(q => content.toLowerCase().includes(q))) engScore += 0.7;
   scores.engagement = Math.max(0, Math.min(5, engScore));
 
-  // TECHNICAL - stricter baseline
-  let techScore = 4.0;
+  // TECHNICAL (start lower, earn points)
+  let techScore = 3.0;
   if (/  /.test(content)) techScore -= 0.5;
   if (/[\u201c\u201d\u2018\u2019]/.test(content)) techScore -= 0.3;
   if (content.length > 50 && content.length < 2000) techScore += 0.2;
   if (/\?/.test(content) && content.includes('@RallyOnChain')) techScore += 0.3;
   scores.technical = Math.max(0, Math.min(5, techScore));
 
-  // REPLY QUALITY - stricter baseline
-  let replyScore = 2.0;
+  // REPLY QUALITY (start from 0, earn points)
+  let replyScore = 0;
   const genuineQ = ['what about you', 'what do you think', 'thoughts?', 'agree?', 'have you', 'your take', "what's your", 'how about', 'anyone else'];
   if (genuineQ.some(q => content.toLowerCase().includes(q))) replyScore += 2.0;
   else if (/\?/.test(content)) replyScore += 1.0;
@@ -1186,19 +1197,18 @@ function programmaticEvaluate(content) {
 // ============ MAIN LOOP ============
 async function main() {
   console.log('===========================================');
-  console.log('RALLY BRAIN v5.2 - TOKEN ROTATION + J3/J5 JUDGES + 20 Q&A');
+  console.log('RALLY BRAIN v5.2.1 - BUGDET-OPTIMIZED + HONEST SCORING + CLOSED LOOP');
   console.log('===========================================');
   console.log(`Campaign: ${CAMPAIGN.title}`);
   console.log(`Mission: ${MISSION_0.title}`);
   console.log(`Target: >= 21/23 (S grade)`);
-  console.log(`Scoring: Programmatic + G4 + J3/J5 Judge Validation`);
+  console.log(`Budget: 12 calls max (8 gen + 2 QA + 2 judges)`);
   console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> PROGRAMMATIC EVAL -> J3/J5 JUDGES -> G4 -> OUTPUT`);
-  console.log(`LLM Client: Resilient (Token Rotation, HTTP Direct)`);
   console.log('===========================================\n');
 
-  // Initial cooldown - short wait to avoid rate limit from previous cycle
-  console.log('Waiting 60s for rate limit cooldown from previous cycle...');
-  await new Promise(r => setTimeout(r, 60000));
+  // Short cooldown to avoid rate limit from previous cycle
+  console.log('Waiting 5s for rate limit cooldown...');
+  await new Promise(r => setTimeout(r, 5000));
   console.log('Cooldown complete. Starting generation.\n');
 
   const zai = new ResilientZAIClient();
@@ -1208,7 +1218,7 @@ async function main() {
   let loopsUsed = 0;
 
   const VARIATIONS_PER_LOOP = 2;
-  const MAX_LOOPS = 5;
+  const MAX_LOOPS = 4;
   const THRESHOLD = 21.0; // Higher threshold with better evaluation
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {
@@ -1398,7 +1408,7 @@ async function main() {
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
 
   const output = {
-    version: '5.2',
+    version: '5.2.1',
     evaluation_method: 'Programmatic Evaluator + G4 + J3/J5 Judge Validation',
     campaign: CAMPAIGN.title,
     mission: MISSION_0.title,
@@ -1457,7 +1467,7 @@ async function main() {
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
-    version: '5.2',
+    version: '5.2.1',
     score: bestEver.score,
     grade: bestEver.grade,
     predictions: bestEver.consensus?.scores || {},
