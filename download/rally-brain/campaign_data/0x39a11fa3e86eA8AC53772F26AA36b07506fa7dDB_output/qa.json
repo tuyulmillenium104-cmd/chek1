@@ -1,11 +1,11 @@
 {
   "comments": [
-    "How does the bribe mechanism prevent centralization when projects with deeper pockets could potentially dominate the voting?",
-    "The ve(3,3) model is fascinating - do you think this approach will actually outperform traditional AMMs over time?",
-    "What's the initial emission schedule look like, and how is the initial liquidity being bootstrapped without a presale?",
-    "This feels like the next evolution of DeFi incentives - are there any known risks in this \"direct democracy\" approach to liquidity?",
-    "Curious how MarbMarket handles the potential for governance attacks when veMARB holders could theoretically collude to direct emissions to their own pools.",
-    "How does this compare to veCRV in terms of actual liquidity retention over time? The bribes seem interesting but could lead to centralization by big wallets. What happens if no projects participate in the bribing system? This feels like a potential game-changer for fair launches if it can sustain itself. Wonder how the emissions are calculated and distributed to prevent inflation issues. The voting mechanism seems clever but how do you prevent manipulation from coordinated whale groups?",
+    "What happens if the community consistently votes for pools with low TVL? Doesn't that create a negative feedback loop? The ve(3,3) model looks interesting but how does it prevent vote manipulation from larger holders? Weekly emissions sound great but how does MarbMarket handle potential governance apathy from small token holders? No VC backing is impressive but what's the plan for sustainable revenue when the initial hype dies down?",
+    "What happens when bigger projects start offering bigger bribes? Won't that just concentrate power in the hands of a few wealthy holders?",
+    "Seems interesting but how does this prevent governance attacks where whales could manipulate the vote outcomes for personal gain?",
+    "If there's no presale and it's truly fair, how are the initial tokens distributed to ensure early liquidity?",
+    "This actually sounds like a game-changer - giving real power to the community rather than just paying lip service to decentralization.",
+    "The longer lock periods for more rewards sounds great but doesn't that discourage short-term liquidity providers from participating?",
     "This veDEX model is interesting. How does the bribe mechanism work in practice?",
     "Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?",
     "The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.",
@@ -21,6 +21,6 @@
     "What happens to veMARB voting power as the unlock period approaches? Does it decay linearly?",
     "Compared to Solidly, what improvements has MarbMarket made to the base ve(3,3) model?"
   ],
-  "content": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.\n\nMarbMarket is launching the first veDEX on MegaETH. No presale. No VCs. Just a fair launch inspired by Solidly/Aerodrome.\n\nHere's why it matters: users lock MARB to get voting power. Longer locks = more influence + more rewards. Every week, veMARB holders vote on which LP pools get emissions. Projects can \"bribe\" for votes. It's wild.\n\nThe incentive loop is beautiful: MARB lockers direct emissions, LPs get rewards, protocols pay bribes, incentives flow back to lockers. It compounds.\n\nI'm watching how this plays out on MegaETH. @RallyOnChain - what happens when communities directly control where liquidity goes?\n\nx.com/Marb_market",
-  "timestamp": "2026-04-14T15:49:31.080Z"
+  "content": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.\n\nWhat makes veDEX different? It's simple. You lock MARB tokens to get voting power. Longer lock = more influence + more rewards. Weekly votes decide which LP pools get emissions. Projects pay bribes for votes. That's the MARB incentive loop in action.\n\nMost DEXs just throw rewards at random. MarbMarket lets the community decide where incentives go. Fair launch, no presale. That changes everything for liquidity mining on MegaETH.\n\nx.com/Marb_market\n\nWhat's your take on governance-driven incentive models? Do they actually work better than random emissions? @RallyOnChain",
+  "timestamp": "2026-04-14T16:44:51.501Z"
 }
