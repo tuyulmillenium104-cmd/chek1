@@ -1,14 +1,14 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-13T23:49:31.482Z",
-  "best_content": "Most DEXs ignore the core problem: liquidity doesn't stay where it's needed. veDEX flips this by letting token holders decide where rewards go.\n\nMarbMarket is launching the first veDEX on MegaETH—a fair launch with no presale or VC backing. Here's how it works:\n\nLock MARB tokens → gain veTokens with voting power. Longer locks = more influence + more rewards.\n\nEvery week, veHolders vote on which LP pools get MARB emissions. Projects can offer bribes to attract votes—creating a decentralized incentive system.\n\nThe MARB flywheel works like this: Lockers direct emissions → LPs get rewards → Protocols pay bribes for votes → Incentives flow back to MARB Lockers.\n\nIt's a community-driven model that aligns incentives. No more centralized decisions about where liquidity goes.\n\nCheck out MarbMarket: x.com/Marb_market\n\n@RallyOnChain what veDEX mechanics do you think will have the biggest impact on DeFi?",
-  "score": 17.2,
-  "grade": "A+",
+  "timestamp": "2026-04-14T00:19:30.027Z",
+  "best_content": "Most DeFi builders still chase the same tired model. MarbMarket is building something different: a veDEX where your voting power matters more than your wallet size.\n\nveDEX = Vote-Escrowed DEX. You lock MARB tokens, gain voting power, and decide where emissions flow. Projects can \"bribe\" for votes - creating a self-sustaining incentive system.\n\nMARB flywheel: Lockers → direct emissions → LPs get rewards → protocols pay bribes → incentives flow back to lockers.\n\nFirst veDEX on MegaETH with no presale, no VCs. Fair launch means everyone starts equal.\n\nThe future of DEX governance isn't about token price - it's about who controls the incentives.\n\nCheck them out: x.com/Marb_market\n\n@RallyOnChain what other ve(3,3) models are you watching?",
+  "score": 16.7,
+  "grade": "A",
   "predictions": {
     "originality": 1.7999999999999998,
     "alignment": 2,
-    "accuracy": 2,
+    "accuracy": 1.5,
     "compliance": 1.8,
     "engagement": 4.6,
     "technical": 5
@@ -16,16 +16,16 @@
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "This veDEX model sounds like exactly what DeFi needs - putting the power back in the hands of token holders! Love how it creates a sustainable flywheel that actually solves liquidity issues.",
-    "The bribery concept is genius - turns voting into a market where projects compete for liquidity rewards. Much better than centralized DEX decisions!",
-    "Huge respect for the fair launch with no VC backing. The lock duration affecting voting power and rewards creates perfect alignment for long-term holders."
+    "Love how MarbMarket is flipping the script on traditional DeFi governance by making voting power accessible to all, not just whales. The ve(3,3) model looks really promising!",
+    "The no-presale, fair launch approach is exactly what the space needs - finally a project where everyone starts on equal footing. Excited to see how the emissions play out!",
+    "This veDEX model could be game-changing if it delivers on the self-sustaining incentive system. Watching this space closely!"
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 1,
-      "score": 17.2,
-      "grade": "A+"
+      "score": 16.7,
+      "grade": "A"
     },
     {
       "loop": 1,
@@ -36,7 +36,7 @@
     {
       "loop": 1,
       "variation": 3,
-      "score": 16.7,
+      "score": 16.4,
       "grade": "A"
     }
   ]

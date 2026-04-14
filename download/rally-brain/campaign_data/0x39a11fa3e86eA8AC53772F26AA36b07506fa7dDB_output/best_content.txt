@@ -1,15 +1,13 @@
-Most DEXs ignore the core problem: liquidity doesn't stay where it's needed. veDEX flips this by letting token holders decide where rewards go.
+Most DeFi builders still chase the same tired model. MarbMarket is building something different: a veDEX where your voting power matters more than your wallet size.
 
-MarbMarket is launching the first veDEX on MegaETH—a fair launch with no presale or VC backing. Here's how it works:
+veDEX = Vote-Escrowed DEX. You lock MARB tokens, gain voting power, and decide where emissions flow. Projects can "bribe" for votes - creating a self-sustaining incentive system.
 
-Lock MARB tokens → gain veTokens with voting power. Longer locks = more influence + more rewards.
+MARB flywheel: Lockers → direct emissions → LPs get rewards → protocols pay bribes → incentives flow back to lockers.
 
-Every week, veHolders vote on which LP pools get MARB emissions. Projects can offer bribes to attract votes—creating a decentralized incentive system.
+First veDEX on MegaETH with no presale, no VCs. Fair launch means everyone starts equal.
 
-The MARB flywheel works like this: Lockers direct emissions → LPs get rewards → Protocols pay bribes for votes → Incentives flow back to MARB Lockers.
+The future of DEX governance isn't about token price - it's about who controls the incentives.
 
-It's a community-driven model that aligns incentives. No more centralized decisions about where liquidity goes.
+Check them out: x.com/Marb_market
 
-Check out MarbMarket: x.com/Marb_market
-
-@RallyOnChain what veDEX mechanics do you think will have the biggest impact on DeFi?
+@RallyOnChain what other ve(3,3) models are you watching?
