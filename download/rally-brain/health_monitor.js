@@ -461,12 +461,16 @@ if (require.main === module) {
         for (const f of files) {
           const cid = f.replace('.json', '');
           const summary = getStatusSummary(cid);
-          console.log(`\n  [${cid}] ${summary.emoji} ${summary.system_status}`);
-          console.log(`    Cycles: ${summary.total_cycles} | Best: ${summary.best_score}/23 | Avg: ${summary.avg_score_5 || 'N/A'} | Trend: ${summary.score_trend}`);
+          if (summary.status === 'NO_DATA') {
+            console.log(`\n  [${cid}] NO DATA (not yet run)`);
+          } else {
+            console.log(`\n  [${cid}] ${summary.emoji || ''} ${summary.system_status}`);
+            console.log(`    Cycles: ${summary.total_cycles} | Best: ${summary.best_score}/23 | Avg: ${summary.avg_score_5 || 'N/A'} | Trend: ${summary.score_trend}`);
+          }
         }
         // Also show global
         const globalSummary = getStatusSummary(null);
-        console.log(`\n  [global] ${globalSummary.emoji} ${globalSummary.system_status}`);
+        console.log(`\n  [global] ${globalSummary.emoji || ''} ${globalSummary.system_status}`);
         console.log('');
       } catch {
         console.log('No campaigns found.');
