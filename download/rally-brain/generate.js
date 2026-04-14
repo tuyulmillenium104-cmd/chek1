@@ -1196,9 +1196,9 @@ async function main() {
   console.log(`LLM Client: Resilient (Token Rotation, HTTP Direct)`);
   console.log('===========================================\n');
 
-  // Initial IP cooldown - wait 5 min to avoid rate limit from previous cycle
-  console.log('Waiting 300s for IP rate limit cooldown from previous cycle...');
-  await new Promise(r => setTimeout(r, 300000));
+  // Initial cooldown - short wait to avoid rate limit from previous cycle
+  console.log('Waiting 60s for rate limit cooldown from previous cycle...');
+  await new Promise(r => setTimeout(r, 60000));
   console.log('Cooldown complete. Starting generation.\n');
 
   const zai = new ResilientZAIClient();

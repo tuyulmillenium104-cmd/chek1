@@ -349,7 +349,7 @@ async function runWithRecovery() {
       const result = await new Promise((resolve, reject) => {
         const child = exec(
           'cd /home/z/my-project && node /home/z/my-project/download/rally-brain/generate.js',
-          { timeout: 300000, maxBuffer: 10 * 1024 * 1024 },
+          { timeout: 600000, maxBuffer: 10 * 1024 * 1024 },
           (error, stdout, stderr) => {
             if (error) reject(error);
             else resolve({ stdout, stderr });
