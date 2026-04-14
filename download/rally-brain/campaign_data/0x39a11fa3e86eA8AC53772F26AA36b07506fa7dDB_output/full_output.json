@@ -1,47 +1,86 @@
 {
-  "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
+  "version": "5.0",
+  "evaluation_method": "5 LLM Judges + Minority Override + G4 Originality Detection",
+  "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T10:49:41.285Z",
-  "best_content": "Most people chase noise. A few position for systems that quietly rewrite the rules.\n\nMarbMarket just became that system for MegaETH. The first veDEX on a chain that's actually building.\n\nThink ve(3,3) but with real LP incentives. You lock MARB. You get voting power. Longer locks = more influence. Projects pay bribes for your votes. That's the flywheel.\n\nNo VCs. No presale. Just a fair launch that puts power back in hands of the people locking.\n\nLP farming meets governance. That's MarbMarket. It's simple. It's clean. It works.\n\nx.com/Marb_market\n\n@RallyOnChain ever seen a protocol that rewards you for making the right choices? Not just for providing liquidity. For thinking ahead?",
-  "score": 21.5,
-  "grade": "S",
+  "timestamp": "2026-04-14T11:02:55.770Z",
+  "best_content": "Been seeing a lot of noise in DeFi lately. Most projects promise the moon but deliver empty hype. Then there's MarbMarket. Quietly building something different on MegaETH. No presale. No VCs. Just a fair launch for a veDEX that actually puts power in users' hands.\n\nWhat's a veDEX? It's simple. You lock MARB tokens, get voting power. The longer you lock, the more influence you have. No more whales dictating everything. Every week, veMARB holders vote on which liquidity pools get emissions. Projects can pay bribes for votes. That's the real magic. Fair competition.\n\nMARB incentive loop is clean. You lock MARB. You direct emissions. LPs earn rewards. Protocols pay bribes. Those bribes flow back to you, the locker. It compounds. The more you participate, the more you earn. That's real DeFi. Not just another farming game.\n\n@RallyOnChain has been showing us what quality looks like in Web3. MarbMarket feels like that. Infrastructure that compounds. Not noise.\n\nWhat I'm wondering: With all these new DEX launching, how many will actually solve the governance problem long-term? Or is this just another cycle? x.com/Marb_market",
+  "score": 20.9,
+  "grade": "A+",
   "predictions": {
-    "originality": 1.7999999999999998,
+    "originality": 2,
     "alignment": 2,
     "accuracy": 2,
     "compliance": 1.8,
-    "engagement": 4.6,
-    "technical": 5,
+    "engagement": 4.1,
+    "technical": 4.7,
     "reply_quality": 4.3
   },
-  "total_variations": 3,
-  "loops_used": 1,
+  "g4_bonus": 0.45,
+  "g4_reasons": [
+    "High sentence variety (CV=0.73)",
+    "Some personal voice",
+    "Natural contractions",
+    "Zero AI words (clean)",
+    "Mixed sentence lengths"
+  ],
+  "minority_flags": [],
+  "hard_fails": [],
+  "valid_judges": 0,
+  "total_variations": 5,
+  "loops_used": 5,
   "qa_comments": [
-    "This veDEX model sounds exactly what the ecosystem needs - real incentives for long-term thinkers and LPs.",
-    "Love how they're putting power back in the hands of users with no VCs or presales - finally!",
-    "The combination of liquidity mining and governance rewards is such a clever way to build sustainable protocols."
+    "Love how they're focusing on real utility instead of empty hype. The veDEX model sounds like exactly what DeFi needs. Been waiting for a project that actually puts power back in users' hands.",
+    "The incentive loop is brilliant - it creates real alignment between users and projects. Not just another farming game, this actually compounds value for everyone involved.",
+    "Wondering if other DEX will follow this governance model or if we'll continue with whale-dominated protocols. Either way, excited to see how MarbMarket evolves on MegaETH."
   ],
   "all_scores": [
     {
       "loop": 1,
-      "variation": 1,
-      "score": 21.2,
-      "grade": "S",
-      "complianceFail": false
-    },
-    {
-      "loop": 1,
       "variation": 2,
-      "score": 20.5,
+      "score": 19.8,
       "grade": "A+",
-      "complianceFail": false
+      "minorityFlags": [
+        "compliance"
+      ],
+      "hardFails": []
     },
     {
-      "loop": 1,
-      "variation": 3,
-      "score": 21.5,
-      "grade": "S",
-      "complianceFail": false
+      "loop": 2,
+      "variation": 1,
+      "score": 20.9,
+      "grade": "A+",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 3,
+      "variation": 1,
+      "score": 20.1,
+      "grade": "A+",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 4,
+      "variation": 1,
+      "score": 20.8,
+      "grade": "A+",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 5,
+      "variation": 1,
+      "score": 16.2,
+      "grade": "B+",
+      "minorityFlags": [
+        "originality",
+        "accuracy"
+      ],
+      "hardFails": [
+        "compliance"
+      ]
     }
   ]
 }
