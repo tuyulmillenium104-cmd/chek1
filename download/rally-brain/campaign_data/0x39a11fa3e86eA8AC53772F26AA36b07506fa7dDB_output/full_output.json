@@ -1,45 +1,45 @@
 {
   "campaign": "MarbMarket — The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T10:07:21.716Z",
-  "best_content": "Most DEX launches feel like the same old story. Presales. VCs. Early insiders. MarbMarket is doing something different. No presale. No VCs. Just a fair launch on MegaETH.\n\nveDEX isn't just another buzzword. It's a model where your MARB locks give you real voting power. Longer locks mean more influence over where rewards flow. Projects can bribe for votes, creating a system that benefits everyone.\n\nThe MARB flywheel works like this: Lockers direct emissions, LPs earn rewards, protocols pay for votes, and incentives flow back to lockers. It's a self-sustaining cycle that actually benefits the community.\n\nFair launch means no one gets special treatment. Everyone starts at the same time. That's real decentralization. @RallyOnChain\n\nCheck out x.com/Marb_market to learn more. How many veDEX launches have you seen that actually put community first?",
-  "score": 21.4,
+  "timestamp": "2026-04-14T10:20:45.312Z",
+  "best_content": "MarbMarket is dropping the first veDEX on MegaETH. No presale. No VCs. Just fair launch.\n\nA veDEX lets you lock MARB tokens for voting power. Longer locks = more influence + more rewards. Projects pay bribes to get votes. Simple.\n\nThe MARB flywheel works like this. Lockers direct emissions to LPs. Protocols pay bribes for votes. Rewards flow back to lockers. It compounds.\n\nFirst veDEX on MegaETH. Community-driven. LP farming, voting, bribing at launch.\n\nCheck them out: x.com/Marb_market\n\nWhat ve(3,3) model do you think will work best on MegaETH? @RallyOnChain",
+  "score": 21.5,
   "grade": "S",
   "predictions": {
     "originality": 1.7999999999999998,
     "alignment": 2,
-    "accuracy": 1.5,
+    "accuracy": 2,
     "compliance": 1.8,
-    "engagement": 4.3,
+    "engagement": 4.6,
     "technical": 5,
-    "reply_quality": 5
+    "reply_quality": 4.3
   },
   "total_variations": 3,
   "loops_used": 1,
   "qa_comments": [
-    "This veDEX model sounds refreshing! Finally a launch that actually puts the community first without all the usual preferential treatment.",
-    "The flywheel mechanism looks really well thought out - love how it creates incentives that benefit everyone involved rather than just early insiders.",
-    "Great to see a truly fair launch approach on MegaETH. The veDEX concept could really set a new standard for decentralized exchanges."
+    "This looks like a game-changer for MegaETH! Fair launches with no VCs are exactly what crypto needs more of.",
+    "The ve(3,3) model combined with bribes creates such an elegant incentive system. Can't wait to see how the community drives this forward.",
+    "MARB tokenomics look incredibly well thought out - locking for voting power while generating rewards for everyone is brilliant."
   ],
   "all_scores": [
     {
       "loop": 1,
       "variation": 1,
-      "score": 20.7,
-      "grade": "A+",
-      "complianceFail": false
-    },
-    {
-      "loop": 1,
-      "variation": 2,
-      "score": 21.4,
+      "score": 21.3,
       "grade": "S",
       "complianceFail": false
     },
     {
       "loop": 1,
+      "variation": 2,
+      "score": 20.5,
+      "grade": "A+",
+      "complianceFail": false
+    },
+    {
+      "loop": 1,
       "variation": 3,
-      "score": 21.2,
+      "score": 21.5,
       "grade": "S",
       "complianceFail": false
     }

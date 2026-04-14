@@ -1,9 +1,11 @@
-Most DEX launches feel like the same old story. Presales. VCs. Early insiders. MarbMarket is doing something different. No presale. No VCs. Just a fair launch on MegaETH.
+MarbMarket is dropping the first veDEX on MegaETH. No presale. No VCs. Just fair launch.
 
-veDEX isn't just another buzzword. It's a model where your MARB locks give you real voting power. Longer locks mean more influence over where rewards flow. Projects can bribe for votes, creating a system that benefits everyone.
+A veDEX lets you lock MARB tokens for voting power. Longer locks = more influence + more rewards. Projects pay bribes to get votes. Simple.
 
-The MARB flywheel works like this: Lockers direct emissions, LPs earn rewards, protocols pay for votes, and incentives flow back to lockers. It's a self-sustaining cycle that actually benefits the community.
+The MARB flywheel works like this. Lockers direct emissions to LPs. Protocols pay bribes for votes. Rewards flow back to lockers. It compounds.
 
-Fair launch means no one gets special treatment. Everyone starts at the same time. That's real decentralization. @RallyOnChain
+First veDEX on MegaETH. Community-driven. LP farming, voting, bribing at launch.
 
-Check out x.com/Marb_market to learn more. How many veDEX launches have you seen that actually put community first?
+Check them out: x.com/Marb_market
+
+What ve(3,3) model do you think will work best on MegaETH? @RallyOnChain
