@@ -1,216 +1,6 @@
 {
   "attempts": [
     {
-      "timestamp": "2026-04-14T13:46:42.069Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 4 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T13:46:42.142Z",
-      "action": "exhausted",
-      "status": "failed",
-      "detail": "Error: Command failed: cd /home/z/my-project && node /home/z/my-project/download/rally-brain/generate.js\n/home/z/my-project/download/rally-brain/generate.js:398\n    };\n     ^\n\nSyntaxError: Unexpected token ';'\n    at wrapSafe (node:internal/modules/cjs/loader:1743:18)\n    at Module._compile (node:internal/modules/cjs/loader:1786:20)\n    at Object..js (node:internal/modules/cjs/loader:1943:10)\n    at Module.load (node:internal/modules/cjs/loader:1533:32)\n    at Module._load (node:internal/modules"
-    },
-    {
-      "timestamp": "2026-04-14T13:48:10.790Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T13:48:10.791Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T13:48:20.802Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T13:48:48.534Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T13:48:48.535Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T13:49:08.549Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T13:50:57.209Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T13:50:57.210Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T13:51:27.240Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:21:23.203Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:21:23.204Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:21:33.214Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:22:12.391Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:22:12.391Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:22:32.407Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:22:52.669Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:22:52.669Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:23:21.699Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:23:21.700Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:23:22.695Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:23:31.705Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:23:52.449Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:23:52.449Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:24:32.457Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 4 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:24:48.086Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:24:48.086Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:25:08.103Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:25:54.214Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:25:54.215Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T14:26:24.245Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T14:28:34.498Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T14:28:34.498Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T18:36:35.024Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
       "timestamp": "2026-04-14T18:36:35.025Z",
       "action": "generic_recovery",
       "status": "success",
@@ -299,8 +89,218 @@
       "action": "recovery_attempt",
       "status": "pending",
       "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T18:42:46.758Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T18:42:46.759Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:43:06.775Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T18:43:23.496Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T18:43:23.496Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:43:53.500Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T18:44:10.719Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T18:44:10.719Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:44:50.723Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 4 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T18:45:08.152Z",
+      "action": "exhausted",
+      "status": "failed",
+      "detail": "Error: generate.js exited with code 1"
+    },
+    {
+      "timestamp": "2026-04-14T19:09:11.082Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:09:11.083Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:09:21.093Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:09:39.376Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:09:39.376Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:09:59.396Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:10:17.624Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:10:17.625Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:10:47.658Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:11:05.554Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:11:05.554Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:11:45.557Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 4 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:11:53.434Z",
+      "action": "sigterm",
+      "status": "shutdown",
+      "detail": "Received SIGTERM"
+    },
+    {
+      "timestamp": "2026-04-14T19:12:05.898Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:12:05.899Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:12:15.902Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:12:34.136Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:12:34.136Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:12:54.148Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 2 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:13:12.420Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:13:12.420Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:13:42.428Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
+    },
+    {
+      "timestamp": "2026-04-14T19:14:00.150Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T19:14:00.151Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T19:14:02.283Z",
+      "action": "sigterm",
+      "status": "shutdown",
+      "detail": "Received SIGTERM"
     }
   ],
-  "last_success": "2026-04-14T17:02:44.842Z",
+  "last_success": "2026-04-14T19:33:59.731Z",
   "total_recoveries": 1
 }

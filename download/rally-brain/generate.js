@@ -1122,7 +1122,8 @@ function programmaticEvaluate(content) {
   // ALIGNMENT (from campaign config)
   let alignScore = 0;
   const alignKeywords = COMPLIANCE.project_keywords || [];
-  for (const kw of alignKeywords) { if (lower.includes(kw)) alignScore += 0.3; }
+  const contentLower = content.toLowerCase();
+  for (const kw of alignKeywords) { if (contentLower.includes(kw.toLowerCase())) alignScore += 0.3; }
   scores.alignment = Math.max(0, Math.min(2, alignScore));
 
   // ACCURACY (start from 1.0, earn/lose)
