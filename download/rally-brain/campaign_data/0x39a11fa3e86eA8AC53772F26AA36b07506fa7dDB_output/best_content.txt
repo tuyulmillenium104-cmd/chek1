@@ -1,9 +1,9 @@
-Been watching DeFi for years. Most DEXes feel like shouting matches where whoever has the most tokens gets to make decisions. Then I found veDEXes. MarbMarket's about to drop the first veDEX on MegaETH, and it's different. No presale. No VCs. Just fair.
+Just learned about this new veDEX called MarbMarket launching on MegaETH. It's basically letting users lock tokens to vote on where liquidity rewards go. Projects can bribe for votes. Wild how different this is from traditional DEX models.
 
-Here's how it works: You lock MARB tokens, get veTokens. The longer you lock, the more influence you have. Then projects actually pay you to vote for their liquidity pools. That's right. They bribe you with their own tokens to get your voting power.
+The fair launch aspect stands out - no presale, no VCs. Just pure community governance. Lock longer, get more voting power and rewards. The MARB incentive loop is clever: lockers direct emissions, LPs earn rewards, protocols pay bribes, incentives flow back to lockers.
 
-The magic? The incentives flow back to MARB lockers. It creates this incentive loop where LP providers get rewarded, protocols attract liquidity, and veToken holders get paid. Community-driven, not whale-driven. Finally.
+Curious how the ve(3,3) model will play out in practice. Most protocols just copy-paste incentive structures. This actually feels different.
 
-x.com/Marb_market
+Check it out: x.com/Marb_market
 
-Anyone else tired of governance models where the richest voice wins? How do we balance influence with accessibility?
+@RallyOnChain, what's your take on whether bribe-based models can create sustainable incentive structures long-term?
