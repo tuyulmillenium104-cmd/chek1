@@ -1,24 +1,6 @@
 {
   "attempts": [
     {
-      "timestamp": "2026-04-14T13:46:01.895Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 3 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T13:46:02.032Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
-      "timestamp": "2026-04-14T13:46:02.033Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
       "timestamp": "2026-04-14T13:46:42.069Z",
       "action": "recovery_attempt",
       "status": "pending",
@@ -299,6 +281,24 @@
       "action": "exhausted",
       "status": "failed",
       "detail": "Error: generate.js exited with code 1"
+    },
+    {
+      "timestamp": "2026-04-14T18:42:19.649Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T18:42:19.649Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:42:29.660Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
     }
   ],
   "last_success": "2026-04-14T17:02:44.842Z",
