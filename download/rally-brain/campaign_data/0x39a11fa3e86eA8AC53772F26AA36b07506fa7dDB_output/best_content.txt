@@ -1,15 +1,13 @@
-Fair launches aren't just marketing talk—they're the only way to build protocols that actually reward users, not VCs. MarbMarket gets this.
+Most DeFi platforms talk about governance. MarbMarket builds a system where your vote actually pays.
 
-First veDEX on MegaETH with no presale, no insiders. Just community power.
+veDEX isn't just a buzzword—it's a mechanism where locking MARB gives you real influence. Longer locks = more voting power + more rewards. No presale, no VCs—just community power.
 
-Here's how it works: Lock MARB tokens, get voting weight. Longer lock = more influence. Weekly votes direct where emissions flow. Projects pay bribes for your votes. Decentralized incentives, finally.
+Here's the kicker: projects compete for your votes by offering bribes. Your vote isn't just symbolic; it's income.
 
-This isn't just another DEX. It's a ve(3,3) model where your voting power compounds over time. The longer you stake, the more you shape the protocol—and earn.
+MARB flywheel works like this: Lockers direct emissions → LPs get rewards → Protocols pay for votes → Incentives flow back to you.
 
-MARB flywheel: Lockers direct emissions → LPs get rewards → Protocols pay bribes → Incentives flow back to you. Self-sustaining, community-controlled.
+First veDEX on MegaETH. Fair launch. Real economics.
 
-No hype, just mechanics. The future of DEXes isn't about flashy tokens—it's about fair systems that reward actual users.
+x.com/Marb_market
 
-Check the launch: x.com/Marb_market
-
-@RallyOnChain what's your take on fair launches vs traditional models?
+What's your take on ve(3,3) models? @RallyOnChain
