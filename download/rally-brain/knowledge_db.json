@@ -1,12 +1,12 @@
 {
   "version": "3.0.0",
-  "last_updated": "2026-04-14T15:49:31.082Z",
+  "last_updated": "2026-04-14T16:44:51.503Z",
   "stats": {
-    "total_cycles": 6,
+    "total_cycles": 7,
     "total_patterns": 0,
     "best_score_achieved": 21.5,
-    "avg_score": 18.2,
-    "last_learned": "2026-04-14T15:49:31.082Z"
+    "avg_score": 17.8,
+    "last_learned": "2026-04-14T16:44:51.503Z"
   },
   "cycle_history": [
     {
@@ -134,6 +134,27 @@
       "best_hook": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.",
       "is_repetition": false,
       "content_preview": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity ..."
+    },
+    {
+      "timestamp": "2026-04-14T16:44:51.503Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.",
+      "is_repetition": false,
+      "content_preview": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on..."
     }
   ],
   "ai_word_frequency": {},
@@ -156,20 +177,20 @@
   ],
   "category_trends": {
     "originality": {
-      "total": 9.600000000000001,
-      "count": 6,
-      "avg": 1.6,
+      "total": 10.750000000000002,
+      "count": 7,
+      "avg": 1.54,
       "last5": [
-        2,
         2,
         1.25,
         1.15,
-        1.2000000000000002
+        1.2000000000000002,
+        1.15
       ]
     },
     "alignment": {
-      "total": 12,
-      "count": 6,
+      "total": 14,
+      "count": 7,
       "avg": 2,
       "last5": [
         2,
@@ -180,23 +201,23 @@
       ]
     },
     "accuracy": {
-      "total": 9.1,
-      "count": 6,
-      "avg": 1.52,
+      "total": 10.299999999999999,
+      "count": 7,
+      "avg": 1.47,
       "last5": [
         2,
-        2,
         0.7,
+        1.2,
         1.2,
         1.2
       ]
     },
     "compliance": {
-      "total": 11.6,
-      "count": 6,
-      "avg": 1.93,
+      "total": 13.6,
+      "count": 7,
+      "avg": 1.94,
       "last5": [
-        1.8,
+        2,
         2,
         2,
         2,
@@ -204,39 +225,39 @@
       ]
     },
     "engagement": {
-      "total": 22.5,
-      "count": 6,
-      "avg": 3.75,
+      "total": 26,
+      "count": 7,
+      "avg": 3.71,
       "last5": [
-        4.1,
         4.5,
         3.5,
         3.5,
-        2.8
+        2.8,
+        3.5
       ]
     },
     "technical": {
-      "total": 24.4,
-      "count": 6,
-      "avg": 4.07,
+      "total": 27.9,
+      "count": 7,
+      "avg": 3.99,
       "last5": [
-        4.7,
         4.5,
+        3.5,
         3.5,
         3.5,
         3.5
       ]
     },
     "reply_quality": {
-      "total": 19.6,
-      "count": 6,
-      "avg": 3.27,
+      "total": 22.1,
+      "count": 7,
+      "avg": 3.16,
       "last5": [
-        4.3,
         4.5,
         2.5,
         2.5,
-        1.5
+        1.5,
+        2.5
       ]
     }
   },
@@ -256,8 +277,8 @@
         "description": "Opening hooks + CTA for engagement",
         "level": "high",
         "learned_rules": [
-          "Focus on reply_quality: avg 3.27/5 (65%)",
-          "Focus on engagement: avg 3.75/5 (75%)"
+          "Focus on reply_quality: avg 3.16/5 (63%)",
+          "Focus on accuracy: avg 1.47/2 (74%)"
         ]
       },
       "rally_mention": {
@@ -308,6 +329,11 @@
         "timestamp": "2026-04-14T15:49:31.082Z",
         "predicted": 14.2,
         "grade": "B"
+      },
+      {
+        "timestamp": "2026-04-14T16:44:51.503Z",
+        "predicted": 15.9,
+        "grade": "B+"
       }
     ],
     "category_weights": {
