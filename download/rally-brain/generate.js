@@ -1,7 +1,18 @@
 /**
- * Rally Brain Generate Runner v4.0
- * CONNECTED PIPELINE: LEARN (from Rally data) → SANITIZE → GENERATE → EVALUATE → OUTPUT
- * Updated per SKILL.md v9.5: 23/23 scoring, full banned lists, sanitization, Reply Quality
+ * Rally Brain Generate Runner v5.0
+ * SKILL.md v9.5 FULL COMPLIANT
+ *
+ * UPGRADES from v4.0:
+ *   + 5 LLM Judge Panel (Harsh Critic, Avg X User, Rally Clone, Contrarian, Fingerprint Detector)
+ *   + Minority Override (1 outlier cannot auto-fail gate)
+ *   + G4 Originality Detection (programmatic human-like bonus)
+ *   + AI Word Post-Replacement (flywheel -> incentive loop, etc.)
+ *   + Stability Check + Early Accept (prevent over-correction)
+ *   + Pre-Writing Perspective Builder
+ *
+ * PIPELINE: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN ->
+ *           -> 5 JUDGE PANEL -> CONSENSUS + MINORITY OVERRIDE ->
+ *           -> G4 BONUS -> STABILITY CHECK -> OUTPUT
  */
 
 const ZAI = require('z-ai-web-dev-sdk').default;
@@ -10,7 +21,7 @@ const path = require('path');
 
 // ============ CAMPAIGN CONTEXT ============
 const CAMPAIGN = {
-  title: "MarbMarket — The First veDEX on MegaETH is Launching",
+  title: "MarbMarket - The First veDEX on MegaETH is Launching",
   contractAddress: "0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB",
   campaignId: "campaign-1775000340083-pyw7t815z",
   reward: "2000 USDC",
@@ -29,7 +40,7 @@ const MISSION_0 = {
     "Mention at least one key feature: vote-escrow, bribes, LP farming, or fair launch",
     "Content must be original and written in your own words",
     "Format: single post or short thread of 2-4 posts max",
-    "Bonus: explain MARB flywheel or ve(3,3) model creatively"
+    "Bonus: explain MARB incentive loop or ve(3,3) model creatively"
   ]
 };
 
@@ -43,7 +54,7 @@ MarbMarket is a veDEX (Vote-Escrowed DEX) launching on MegaETH in Q2. First of i
 - veHolders vote weekly on which LP pools get MARB emissions
 - Projects can offer bribes to attract votes, creating decentralized incentive
 
-## MARB Flywheel:
+## MARB Incentive Loop:
 MARB Lockers direct emissions to LPs, LPs get rewards, Protocols pay bribes for votes, Incentives flow back to MARB Lockers.
 
 ## Key Talking Points:
@@ -54,14 +65,14 @@ MARB Lockers direct emissions to LPs, LPs get rewards, Protocols pay bribes for 
 - LP farming, voting, bribing at launch
 `;
 
-// ============ V3 LESSONS (built-in from Rally scoring) ============
+// ============ V3 LESSONS ============
 const V3_LESSONS = {
   losses: {
-    accuracy_exaggeration: "NEVER use absolute/exaggerated language ('zero cost', 'everyone', 'nobody') — use precise, verifiable claims",
-    accuracy_vague: "NEVER use vague phrases ('figured it out') — be specific about what/how",
-    compliance_mysterious: "NEVER use mysterious/thread openings — be direct and clear",
+    accuracy_exaggeration: "NEVER use absolute/exaggerated language ('zero cost', 'everyone', 'nobody') - use precise, verifiable claims",
+    accuracy_vague: "NEVER use vague phrases ('figured it out') - be specific about what/how",
+    compliance_mysterious: "NEVER use mysterious/thread openings - be direct and clear",
     compliance_whitespace: "NO extra whitespace before mentions, no double spaces, no trailing spaces",
-    compliance_dash: "NEVER use em-dash (—), en-dash (–), or double-hyphen (--) — use period or comma instead",
+    compliance_dash: "NEVER use em-dash, en-dash, or double-hyphen - use period or comma instead",
     engagement_no_cta: "ALWAYS include a genuine open question that has NO obvious answer"
   },
   rules: [
@@ -88,58 +99,110 @@ const CAMPAIGN_RULES = [
 
 // ============ BANNED LISTS (from SKILL.md v9.5) ============
 
-// TIER 1 — INSTANT GATE FAIL (Compliance 0)
+// TIER 1 - INSTANT GATE FAIL
 const BANNED_WORDS_21 = ['guaranteed', 'guarantee', '100%', 'risk-free', 'sure thing', 'financial advice', 'investment advice', 'buy now', 'sell now', 'get rich', 'quick money', 'easy money', 'passive income', 'follow me', 'subscribe to my', 'check my profile', 'click here', 'limited time offer', 'act now', 'legally binding', 'court order', 'official ruling'];
 
 const RALLY_BANNED_PHRASES_17 = ['vibe coding', 'skin in the game', 'trust layer', 'agent era', 'agentic era', 'structural shift', 'capital efficiency', 'how did I miss this', 'losing my mind', 'how are we all sleeping on this', "don't miss out", 'designed for creators that desire', 'transforming ideas into something sustainable', 'entire week', 'frictionless', 'acceptable originality'];
 
-// TIER 2 — MUST FIX (score penalty)
+// TIER 2 - MUST FIX (score penalty)
 const AI_WORDS_26 = ['delve', 'leverage', 'realm', 'tapestry', 'paradigm', 'landscape', 'nuance', 'underscores', 'pivotal', 'crucial', 'embark', 'journey', 'explore', 'unlock', 'harness', 'foster', 'utilize', 'elevate', 'streamline', 'empower', 'moreover', 'furthermore', 'consequently', 'nevertheless', 'notably', 'significantly', 'comprehensive'];
 
 const TEMPLATE_PHRASES_21 = ['unpopular opinion:', 'hot take:', 'thread alert:', 'breaking:', 'this is your sign', 'psa:', 'reminder that', 'quick thread:', 'important thread:', 'drop everything', 'stop scrolling', 'hear me out', 'let me explain', 'nobody is talking about', 'story time:', 'in this thread i will', 'key takeaways:', "here's the thing", 'imagine a world where', 'picture this:', "let's dive in", 'at the end of the day', 'it goes without saying'];
 
 const BANNED_STARTERS_8 = ['honestly', 'like, ', 'kind of wild', 'ngl', 'tbh', 'tbf', 'fr fr', 'lowkey'];
 
-// TIER 3 — MINOR penalty
+// TIER 3 - MINOR penalty
 const AI_PATTERN_PHRASES_16 = ['picture this', "let's dive in", 'in this thread', 'key takeaways', "here's the thing", 'imagine a world', 'it goes without saying', 'at the end of the day', 'on the other hand', 'in conclusion', 'at its core', 'the reality is', "it's worth noting", 'make no mistake', 'the bottom line is', "here's what you need to know"];
 
-// Additional AI words to avoid (from content-quality.md)
 const EXTRA_AI_WORDS = ['flywheel', 'ecosystem', 'unpack', 'navigate', 'pioneering', 'seamless', 'robust', 'innovative', 'cutting-edge', 'game-changer', 'revolutionary', 'disrupt', 'transform', 'synergy', 'holistic', 'dynamic', 'bespoke', 'curated', 'impactful', 'resonate', 'propel', 'catalyst', 'unprecedented', 'multifaceted'];
 
-// ============ SANITIZATION ENGINE (from SKILL.md v9.5) ============
+// All AI words combined for replacement
+const ALL_AI_WORDS = [...AI_WORDS_26, ...EXTRA_AI_WORDS];
+
+// ============ AI WORD REPLACEMENT MAP (post-generation fix) ============
+const AI_WORD_REPLACEMENTS = {
+  'flywheel': 'incentive loop',
+  'ecosystem': 'network',
+  'leverage': 'use',
+  'paradigm': 'model',
+  'landscape': 'space',
+  'realm': 'world',
+  'delve': 'look at',
+  'tapestry': 'mix',
+  'nuance': 'detail',
+  'crucial': 'key',
+  'pivotal': 'major',
+  'embark': 'start',
+  'harness': 'use',
+  'foster': 'build',
+  'utilize': 'use',
+  'elevate': 'boost',
+  'streamline': 'simplify',
+  'empower': 'enable',
+  'comprehensive': 'full',
+  'unpack': 'break down',
+  'navigate': 'work through',
+  'pioneering': 'new',
+  'seamless': 'smooth',
+  'robust': 'strong',
+  'innovative': 'fresh',
+  'cutting-edge': 'newest',
+  'game-changer': 'big deal',
+  'revolutionary': 'groundbreaking',
+  'disrupt': 'shake up',
+  'transform': 'change',
+  'synergy': 'combo',
+  'holistic': 'full',
+  'dynamic': 'active',
+  'bespoke': 'custom',
+  'curated': 'picked',
+  'impactful': 'meaningful',
+  'resonate': 'connect',
+  'propel': 'push',
+  'catalyst': 'trigger',
+  'unprecedented': 'never before seen',
+  'multifaceted': 'complex',
+  'realm': 'world',
+  'explore': 'check out',
+  'unlock': 'open up',
+  'journey': 'path',
+};
+
+// ============ SANITIZATION ENGINE ============
 function sanitizeContent(content) {
   let c = content;
-  // 1. Remove em-dash characters (—, \u2014)
   c = c.replace(/\u2014/g, '. ');
-  // 2. Remove en-dash characters (–, \u2013)
   c = c.replace(/\u2013/g, '. ');
-  // 3. Remove double-hyphen used as dash substitute
   c = c.replace(/\s--\s/g, '. ');
   c = c.replace(/^--\s/g, '');
   c = c.replace(/\s--$/g, '');
-  // 4. Replace smart/curly quotes with straight quotes
   c = c.replace(/\u201c/g, '"').replace(/\u201d/g, '"');
   c = c.replace(/\u2018/g, "'").replace(/\u2019/g, "'");
-  // 5. Replace Unicode ellipsis with three dots
   c = c.replace(/\u2026/g, '...');
-  // 6. Remove zero-width characters
   c = c.replace(/[\u200b\u200c\u200d\ufeff]/g, '');
-  // 7. Trim leading/trailing whitespace per line
   c = c.split('\n').map(l => l.trim()).join('\n');
-  // 8. Collapse multiple spaces to single space
   c = c.replace(/  +/g, ' ');
-  // 9. Collapse multiple newlines to max 2
   c = c.replace(/\n{3,}/g, '\n\n');
-  // 10. Strip wrapping quotes
   c = c.replace(/^["'`]+|["'`]+$/g, '');
-  // 11. Remove markdown bold/italic
   c = c.replace(/\*\*/g, '').replace(/__/g, '').replace(/\*/g, '');
-  // 12. Strip curly braces
   c = c.replace(/[{}]/g, '');
   return c;
 }
 
-// ============ LEARN PHASE — Load Rally Data ============
+// ============ AI WORD REPLACEMENT (post-generation) ============
+function replaceAIWords(content) {
+  let c = content;
+  let replaced = [];
+  for (const [word, replacement] of Object.entries(AI_WORD_REPLACEMENTS)) {
+    const regex = new RegExp(`\\b${word}s?\\b`, 'gi');
+    const before = c;
+    c = c.replace(regex, replacement);
+    if (before !== c) replaced.push(word);
+  }
+  return { content: c, replaced };
+}
+
+// ============ LEARN PHASE ============
 const DATA_DIR = '/home/z/my-project/upload/rally_logs_extracted';
 
 function loadJson(filename) {
@@ -215,165 +278,313 @@ function extractLearnedKnowledge() {
   const subCount = (submissions?.length || 0) + (submissionsNew?.length || 0);
   console.log(`  Total submission records loaded: ${subCount}`);
 
-  console.log('  LEARNING COMPLETE ✓\n');
+  console.log('  LEARNING COMPLETE\n');
   return learned;
 }
 
 const LEARNED = extractLearnedKnowledge();
 
-// ============ EVALUATION ENGINE (Updated per SKILL.md v9.5 — 23/23) ============
-function evaluateContent(content) {
-  const scores = { originality: 0, alignment: 0, accuracy: 0, compliance: 0, engagement: 0, technical: 0, reply_quality: 0 };
-  const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
-  const feedback = [];
-  let complianceFail = false;
+// ============ PRE-WRITING PERSPECTIVE BUILDER ============
+function buildPreWritingContext() {
+  // From SKILL.md v9.5: answer 6 internal questions before writing
+  const questions = [
+    `What SPECIFIC moment or experience made me notice this project? (Pick a real scenario)`,
+    `What is the ONE thing about this project that most people overlook?`,
+    `If I were explaining this to a friend who doesn't know DeFi, what would I say first?`,
+    `What genuine uncertainty or question do I still have about this?`,
+    `What makes this different from the 100 other DeFi projects launching weekly?`,
+    `What emotion do I actually feel about this? (Excitement, curiosity, skepticism?)`
+  ];
 
-  // ORIGINALITY (max 2)
-  const uniqueMarkers = ['ve(3,3)', 'veDEX', 'vote-escrow', 'MARB', 'MegaETH', 'bribes'];
-  const genericMarkers = ['crypto is the future', 'DeFi is changing', 'this is huge', 'massive opportunity'];
-  let origScore = 1.2;
-  let uniqueCount = 0;
-  for (const m of uniqueMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) uniqueCount++; }
-  if (uniqueCount >= 3) origScore += 0.6;
-  else if (uniqueCount >= 2) origScore += 0.4;
-  else if (uniqueCount >= 1) origScore += 0.2;
-  for (const m of genericMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) origScore -= 0.2; }
-  // AI words penalty (Tier 2)
-  for (const w of AI_WORDS_26) { if (content.toLowerCase().includes(w.toLowerCase())) { origScore -= 0.3; feedback.push(`AI word: "${w}"`); } }
-  // Extra AI words
-  for (const w of EXTRA_AI_WORDS) { if (content.toLowerCase().includes(w.toLowerCase())) { origScore -= 0.2; feedback.push(`AI word: "${w}"`); } }
-  // Template phrases penalty (Tier 2)
-  for (const p of TEMPLATE_PHRASES_21) { if (content.toLowerCase().includes(p.toLowerCase())) { origScore -= 0.2; feedback.push(`Template phrase: "${p}"`); } }
-  // AI pattern phrases (Tier 3)
-  for (const p of AI_PATTERN_PHRASES_16) { if (content.toLowerCase().includes(p.toLowerCase())) { origScore -= 0.1; } }
-  // Banned starters (Tier 2)
-  const firstLine = content.split('\n')[0].trim().toLowerCase();
-  for (const s of BANNED_STARTERS_8) { if (firstLine.startsWith(s)) { origScore -= 0.3; feedback.push(`Banned starter: "${s}"`); } }
-  // Sentence variety check (CV > 0.30 = human)
+  // We embed the answers as writing guidance rather than actual answers
+  // This shapes the AI's "voice" before it writes
+  return `PRE-WRITING PERSPECTIVE (internal, shape your voice):
+- Write from a SPECIFIC personal moment, not generic observation
+- Focus on the ONE overlooked detail that makes this interesting
+- Explain as if talking to a friend, not writing a report
+- Include a genuine uncertainty or question you still have
+- Highlight what makes this DIFFERENT from generic DeFi launches
+- Let real emotion show (curiosity, mild skepticism, genuine interest)
+- DO NOT write a marketing piece. Write like you're telling a friend something cool you found.`;
+}
+
+// ============ QUICK PRE-SCREEN (programmatic, compliance-only) ============
+function quickScreen(content) {
+  // Fast check: only Tier 1 violations (instant fail)
+  // Returns { pass: boolean, reason: string }
+
+  // Em-dash / en-dash
+  if (/\u2014/.test(content) || /\u2013/.test(content)) return { pass: false, reason: 'EM/EN-DASH detected' };
+  if (/\s--\s/.test(content) || /^--\s/.test(content)) return { pass: false, reason: 'DOUBLE-HYPHEN DASH' };
+
+  // Hashtag
+  if (/#[A-Za-z]/.test(content)) return { pass: false, reason: 'HASHTAG detected' };
+
+  // Tier 1 banned words
+  for (const w of BANNED_WORDS_21) {
+    if (content.toLowerCase().includes(w.toLowerCase())) return { pass: false, reason: `BANNED word: "${w}"` };
+  }
+
+  // Rally banned phrases
+  for (const p of RALLY_BANNED_PHRASES_17) {
+    if (content.toLowerCase().includes(p.toLowerCase())) return { pass: false, reason: `BANNED phrase: "${p}"` };
+  }
+
+  // Minimum requirements
+  if (content.length < 30) return { pass: false, reason: 'Content too short' };
+
+  return { pass: true, reason: 'OK' };
+}
+
+// ============ 5 LLM JUDGE PANEL (SKILL.md v9.5) ============
+const JUDGE_CONFIGS = [
+  {
+    id: 'J1',
+    name: 'Harsh Crypto Critic',
+    temperature: 0.2,
+    system: `You are a harsh crypto critic who has seen thousands of crypto tweets. You are skeptical, demand specificity, and hate generic content. You immediately spot AI-generated text. Score each dimension honestly. Do NOT be generous. If you see any AI fingerprint, penalize heavily.`
+  },
+  {
+    id: 'J2',
+    name: 'Average X User',
+    temperature: 0.7,
+    system: `You are an average X/Twitter user who scrolls crypto content daily. You value clarity, engagement, and authenticity. If something feels AI-generated or generic, you notice immediately and scroll past. Score honestly based on whether you would stop scrolling to read this.`
+  },
+  {
+    id: 'J3',
+    name: 'Rally AI Clone',
+    temperature: 0.4,
+    system: `You are Rally.fun's AI content judge. You evaluate submissions across 7 categories. You strictly check: banned words, AI patterns, template phrases, compliance with campaign rules, formatting issues. You give 0 for compliance if any violation found. You are thorough but fair.`
+  },
+  {
+    id: 'J4',
+    name: 'Contrarian',
+    temperature: 0.9,
+    system: `You are a contrarian judge. When content seems too polished, you question its authenticity. When everyone would give high marks, you look harder for flaws. Be the devil's advocate. If the hook feels manufactured, say so. If the CTA feels forced, penalize it.`
+  },
+  {
+    id: 'J5',
+    name: 'AI Fingerprint Detector',
+    temperature: 0.2,
+    system: `You are an AI fingerprint detector. Your ONLY expertise is detecting AI-generated text. You scan for: AI words (delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic), template phrases (hot take, let's dive in, nobody is talking about, at the end of the day, here's the thing, key takeaways), robotic sentence structure, overly balanced arguments, lack of personal voice. Score ALL categories but be extremely strict on Originality. If you detect ANY AI fingerprint, Originality must be 0 or 1 at most.`
+  }
+];
+
+function buildJudgePrompt(content) {
+  return `Score this Rally.fun campaign submission.
+
+CAMPAIGN: "${CAMPAIGN.title}"
+MISSION: "${MISSION_0.title}"
+REQUIREMENTS: ${MISSION_0.rules.join('; ')}
+
+=== SCORING RUBRIC (23 points max) ===
+
+GATES (0 or 2 only - no half points):
+1. Originality (0 or 2): Zero AI words. Zero template phrases. Unique angle. Personal voice. UNEVEN sentence lengths.
+2. Content Alignment (0 or 2): Matches campaign topic exactly. Uses correct terminology. Covers mission requirements.
+3. Information Accuracy (0 or 2): All claims factually correct from KB. No exaggeration. No vague phrases. Specific and verifiable.
+4. Campaign Compliance (0 or 2): Has @RallyOnChain. Has x.com/Marb_market link. No banned words. No hashtags. No dashes. No starting with @.
+
+QUALITY SCORES (0 to 5):
+5. Engagement Potential (0-5): Hook grabs attention. Genuine CTA/question. Makes reader want to reply. Not generic.
+6. Technical Quality (0-5): Natural grammar. Clean formatting. Proper punctuation. No smart quotes. No markdown artifacts.
+7. Reply Quality (0-5): Ends with genuine open question author cannot answer. Shows vulnerability. Not rhetorical.
+
+COMPLIANCE = 0 IF ANY OF:
+- Banned words: ${BANNED_WORDS_21.slice(0, 10).join(', ')} etc.
+- Rally banned: ${RALLY_BANNED_PHRASES_17.slice(0, 8).join(', ')} etc.
+- AI words: delve, leverage, paradigm, tapestry, flywheel, ecosystem, seamless, robust, innovative, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic, etc.
+- Template phrases: hot take, let's dive in, nobody is talking about, at the end of the day, here's the thing, key takeaways, etc.
+- Hashtag (#anything)
+- Em-dash, en-dash, or double-hyphen
+- Starts with @mention
+- Missing @RallyOnChain or x.com/Marb_market
+
+RESPOND ONLY WITH JSON (no other text):
+{"originality":0,"alignment":0,"accuracy":0,"compliance":0,"engagement":0,"technical":0,"reply_quality":0,"feedback":"one sentence explaining lowest score"}
+
+=== CONTENT TO SCORE ===
+${content}`;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// SEQUENTIAL judge calls with delay to avoid rate limiting
+async function runJudgePanel(zai, content) {
+  const judgePrompt = buildJudgePrompt(content);
+  const results = [];
+
+  for (const judge of JUDGE_CONFIGS) {
+    try {
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'system', content: judge.system },
+          { role: 'user', content: judgePrompt }
+        ],
+        temperature: judge.temperature,
+        max_tokens: 300
+      });
+
+      let response = completion.choices?.[0]?.message?.content?.trim() || '';
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const scores = JSON.parse(jsonMatch[0]);
+        const clamped = {
+          originality: Math.min(2, Math.max(0, Number(scores.originality) || 0)),
+          alignment: Math.min(2, Math.max(0, Number(scores.alignment) || 0)),
+          accuracy: Math.min(2, Math.max(0, Number(scores.accuracy) || 0)),
+          compliance: Math.min(2, Math.max(0, Number(scores.compliance) || 0)),
+          engagement: Math.min(5, Math.max(0, Number(scores.engagement) || 0)),
+          technical: Math.min(5, Math.max(0, Number(scores.technical) || 0)),
+          reply_quality: Math.min(5, Math.max(0, Number(scores.reply_quality) || 0)),
+        };
+        results.push({ ...judge, scores: clamped, feedback: scores.feedback || '', valid: true });
+      } else {
+        results.push({ ...judge, scores: null, feedback: 'Parse failed', valid: false });
+      }
+    } catch (e) {
+      const isRateLimit = e.message?.includes('429');
+      results.push({ ...judge, scores: null, feedback: isRateLimit ? 'Rate limited' : e.message, valid: false, rateLimited: isRateLimit });
+      // If rate limited, stop trying more judges
+      if (isRateLimit) {
+        console.log(`    ${judge.id}: Rate limited, stopping judge panel early`);
+        break;
+      }
+    }
+    // Delay between judge calls to avoid rate limit
+    await sleep(2000);
+  }
+
+  return results;
+}
+
+// ============ CONSENSUS + MINORITY OVERRIDE (SKILL.md v9.5) ============
+function calculateConsensus(judgeResults) {
+  const validJudges = judgeResults.filter(j => j.valid);
+  if (validJudges.length < 2) return null;
+
+  const gateCategories = ['originality', 'alignment', 'accuracy', 'compliance'];
+  const qualityCategories = ['engagement', 'technical', 'reply_quality'];
+
+  const consensus = {
+    scores: {},
+    gates: {},
+    minorityFlags: [],
+    hardFails: [],
+    feedback: [],
+    validJudgeCount: validJudges.length
+  };
+
+  // Gate consensus with Minority Override
+  for (const cat of gateCategories) {
+    const values = validJudges.map(j => j.scores[cat]);
+    const failCount = values.filter(v => v === 0).length;
+    const passCount = values.filter(v => v === 2).length;
+
+    if (failCount >= 2) {
+      // HARD GATE FAIL - 2+ judges agree on fail
+      consensus.gates[cat] = 0;
+      consensus.hardFails.push(cat);
+      consensus.feedback.push(`HARD FAIL: ${cat} (${failCount}/${validJudges.length} judges)`);
+    } else if (failCount === 1) {
+      // MINORITY OVERRIDE - 1 outlier, flagged but not failed
+      consensus.gates[cat] = 1;
+      consensus.minorityFlags.push(cat);
+      consensus.feedback.push(`MINORITY FLAG: ${cat} (1/${validJudges.length} judge dissent, overridden)`);
+    } else {
+      consensus.gates[cat] = Math.min(...values);
+    }
+    consensus.scores[cat] = consensus.gates[cat];
+  }
+
+  // Quality consensus - average of valid judges
+  for (const cat of qualityCategories) {
+    const values = validJudges.map(j => j.scores[cat]);
+    consensus.scores[cat] = Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
+  }
+
+  // Total
+  consensus.total = Math.round(Object.values(consensus.scores).reduce((a, b) => a + b, 0) * 10) / 10;
+  consensus.maxTotal = 23;
+
+  // Grade
+  const t = consensus.total;
+  consensus.grade = t >= 22 ? 'S+' : t >= 21 ? 'S' : t >= 19 ? 'A+' : t >= 17 ? 'A' : t >= 15 ? 'B+' : t >= 13 ? 'B' : t >= 11 ? 'C' : 'D';
+
+  // Collect individual judge feedback
+  for (const j of validJudges) {
+    if (j.feedback) consensus.feedback.push(`${j.id}: ${j.feedback}`);
+  }
+
+  return consensus;
+}
+
+// ============ G4 ORIGINALITY DETECTION (programmatic bonus) ============
+function g4OriginalityCheck(content) {
+  let bonus = 0;
+  const reasons = [];
+
+  const lower = content.toLowerCase();
+
+  // 1. Sentence variety (Coefficient of Variation > 0.30 = human)
   const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
   if (sentences.length >= 3) {
     const lengths = sentences.map(s => s.trim().length);
     const mean = lengths.reduce((a, b) => a + b) / lengths.length;
     const stdDev = Math.sqrt(lengths.reduce((sum, l) => sum + Math.pow(l - mean, 2), 0) / lengths.length);
     const cv = stdDev / mean;
-    if (cv > 0.30) origScore += 0.2;
-    else origScore -= 0.2;
+    if (cv > 0.35) { bonus += 0.15; reasons.push('High sentence variety (CV=' + cv.toFixed(2) + ')'); }
+    else if (cv > 0.25) { bonus += 0.05; reasons.push('Moderate sentence variety'); }
   }
-  scores.originality = Math.max(0, Math.min(2, origScore));
 
-  // ALIGNMENT (max 2)
-  let alignScore = 0;
-  if (content.toLowerCase().includes('vedex') || content.toLowerCase().includes('ve dex')) alignScore += 0.5;
-  if (content.toLowerCase().includes('marbmarket') || content.toLowerCase().includes('marb market')) alignScore += 0.5;
-  if (content.toLowerCase().includes('launch')) alignScore += 0.3;
-  if (content.toLowerCase().includes('megaeth')) alignScore += 0.3;
-  if (content.toLowerCase().includes('vote') || content.toLowerCase().includes('escrow')) alignScore += 0.2;
-  if (content.toLowerCase().includes('fair launch')) alignScore += 0.2;
-  scores.alignment = Math.max(0, Math.min(2, alignScore));
+  // 2. Personal voice markers
+  const personalMarkers = ["i've", "i'm", "i was", 'my ', 'i think', "i can't", 'maybe', 'not sure', 'honestly'];
+  const personalCount = personalMarkers.filter(m => lower.includes(m)).length;
+  if (personalCount >= 2) { bonus += 0.1; reasons.push('Strong personal voice'); }
+  else if (personalCount >= 1) { bonus += 0.05; reasons.push('Some personal voice'); }
 
-  // ACCURACY (max 2)
-  let accScore = 1.8;
-  const absWords = ['zero cost', 'everyone', 'nobody', 'always', 'never', 'impossible', 'guaranteed', '100%'];
-  for (const w of absWords) { if (content.toLowerCase().includes(w)) { accScore -= 0.5; feedback.push(`Exaggeration: "${w}"`); } }
-  const vaguePhrases = ['figured it out', 'something like that', 'kind of works', 'basically'];
-  for (const p of vaguePhrases) { if (content.toLowerCase().includes(p)) { accScore -= 0.3; feedback.push(`Vague: "${p}"`); } }
-  if (content.toLowerCase().includes('lock') && (content.toLowerCase().includes('vote') || content.toLowerCase().includes('governance'))) accScore += 0.2;
-  scores.accuracy = Math.max(0, Math.min(2, accScore));
+  // 3. Contractions (natural human speech)
+  const contractions = ["don't", "can't", "won't", "it's", "that's", "i'm", "they're", "we're", "isn't", "didn't"];
+  const contractionCount = contractions.filter(c => lower.includes(c)).length;
+  if (contractionCount >= 3) { bonus += 0.1; reasons.push('Natural contractions'); }
+  else if (contractionCount >= 1) { bonus += 0.05; reasons.push('Some contractions'); }
 
-  // COMPLIANCE (max 2)
-  let compScore = 1.8;
-  const hasMarbMarket = content.toLowerCase().includes('marbmarket') || content.toLowerCase().includes('marb market');
-  const hasVedex = content.toLowerCase().includes('vedex') || content.toLowerCase().includes('ve dex');
-  const hasLink = content.includes('x.com/Marb_market') || content.includes('t.me/marbmarket');
-  const hasFeature = ['vote-escrow', 'bribes', 'lp farming', 'fair launch', 've(3,3)', 'liquidity pool'].some(f => content.toLowerCase().includes(f));
-  const hasRallyMention = content.includes('@RallyOnChain');
+  // 4. Uncertainty/vulnerability (very human)
+  const uncertainty = ['maybe', 'not sure', 'could be', 'i think', 'might be', "i'm not", 'hard to say'];
+  const hasUncertainty = uncertainty.some(u => lower.includes(u));
+  if (hasUncertainty) { bonus += 0.1; reasons.push('Shows vulnerability/uncertainty'); }
 
-  if (!hasMarbMarket) { compScore -= 0.5; feedback.push('Missing: MarbMarket mention'); }
-  if (!hasVedex) { compScore -= 0.3; feedback.push('Missing: veDEX explanation'); }
-  if (!hasLink) { compScore -= 0.3; feedback.push('Missing: x.com/Marb_market'); }
-  if (!hasFeature) { compScore -= 0.3; feedback.push('Missing: key feature'); }
-  if (!hasRallyMention) { compScore -= 0.3; feedback.push('Missing: @RallyOnChain mention'); }
+  // 5. NO AI words remaining (clean sweep bonus)
+  let aiWordCount = 0;
+  for (const w of ALL_AI_WORDS) { if (lower.includes(w)) aiWordCount++; }
+  if (aiWordCount === 0) { bonus += 0.1; reasons.push('Zero AI words (clean)'); }
+  else { bonus -= aiWordCount * 0.05; reasons.push(`${aiWordCount} AI word(s) remaining`); }
 
-  // TIER 1: Banned words (21) — INSTANT FAIL
-  for (const w of BANNED_WORDS_21) { if (content.toLowerCase().includes(w.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${w}"`); break; } }
-  // TIER 1: Rally banned phrases (17) — INSTANT FAIL
-  if (!complianceFail) {
-    for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED phrase: "${p}"`); break; } }
+  // 6. Short punchy sentences mixed with longer ones
+  const shortSentences = sentences.filter(s => s.trim().split(/\s+/).length <= 5).length;
+  const longSentences = sentences.filter(s => s.trim().split(/\s+/).length >= 12).length;
+  if (shortSentences >= 1 && longSentences >= 1) { bonus += 0.05; reasons.push('Mixed sentence lengths'); }
+
+  return { bonus: Math.round(Math.max(-1, Math.min(0.5, bonus)) * 100) / 100, reasons };
+}
+
+// ============ STABILITY CHECK + EARLY ACCEPT ============
+function stabilityCheck(currentContent, currentScore, bestEver) {
+  // If score drops more than 1.0 from best ever, revert
+  if (bestEver.score > 0 && (bestEver.score - currentScore) >= 1.0) {
+    console.log(`  STABILITY CHECK: Score dropped ${bestEver.score} -> ${currentScore} (diff=${(bestEver.score - currentScore).toFixed(1)}). Reverting to best.`);
+    return { accept: false, reason: 'Score dropped too much, reverting' };
   }
-  // EN-DASH / EM-DASH — Compliance 0
-  if (/\u2014/.test(content) || /\u2013/.test(content)) { compScore = 0; complianceFail = true; feedback.push('EM-DASH/EN-DASH detected!'); }
-  if (/\s--\s/.test(content) || /^--\s/.test(content)) { compScore = 0; complianceFail = true; feedback.push('DOUBLE-HYPHEN DASH detected!'); }
-  // Hashtag — Compliance 0
-  if (/#[A-Za-z]/.test(content)) { compScore = 0; complianceFail = true; feedback.push('HASHTAG detected!'); }
-  // Starts with @mention
-  const strippedFirst = content.split('\n')[0].trim();
-  if (strippedFirst.startsWith('@')) { compScore -= 0.3; feedback.push('Starts with @mention'); }
-  // Smart quotes
-  if (/[\u201c\u201d\u2018\u2019]/.test(content)) { compScore -= 0.3; feedback.push('Smart/curly quotes'); }
-  // Double spaces
-  if (/  /.test(content)) { compScore -= 0.3; feedback.push('Double spaces'); }
-  scores.compliance = Math.max(0, Math.min(2, compScore));
 
-  // ENGAGEMENT (max 5)
-  let engScore = 3.0;
-  const hasCTA = /\?/.test(content) || /what about you/i.test(content) || /what do you think/i.test(content)
-    || /share your/i.test(content) || /thoughts\?/i.test(content) || /agree\?/i.test(content)
-    || /have you/i.test(content) || /try it/i.test(content);
-  const hasHook = content.split('\n')[0].trim().length < 80 && content.split('\n')[0].trim().length > 10;
-  const isPunchy = content.split('\n').some(line => line.trim().length > 0 && line.trim().length < 40);
-  const hasRhythm = (content.match(/\./g) || []).length >= 3;
-
-  if (hasCTA) engScore += 0.8; else { engScore -= 0.5; feedback.push('Missing: CTA (question)'); }
-  if (hasHook) engScore += 0.4;
-  if (isPunchy) engScore += 0.3;
-  if (hasRhythm) engScore += 0.3;
-  if (content.toLowerCase().includes('early') || content.toLowerCase().includes('first')) engScore += 0.2;
-  scores.engagement = Math.max(0, Math.min(5, engScore));
-
-  // TECHNICAL (max 5)
-  let techScore = 4.5;
-  if (!/  /.test(content) && content.trim() === content) techScore += 0.3;
-  if (/  /.test(content)) { techScore -= 0.5; feedback.push('Extra whitespace'); }
-  if (content.length > 50 && content.length < 2000) techScore += 0.2;
-  const lines = content.split('\n').filter(l => l.trim());
-  if (lines.length >= 3 && lines.length <= 15) techScore += 0.2;
-  if (/[\u201c\u201d\u2018\u2019]/.test(content)) { techScore -= 0.5; feedback.push('Smart quotes'); }
-  if (/\u2026/.test(content)) { techScore -= 0.3; feedback.push('Unicode ellipsis'); }
-  if (/[\u200b\u200c\u200d\ufeff]/.test(content)) { techScore -= 0.3; feedback.push('Zero-width chars'); }
-  const techSentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  if (techSentences.length >= 4) {
-    const shortCount = techSentences.filter(s => s.trim().split(/\s+/).length <= 5).length;
-    const longCount = techSentences.filter(s => s.trim().split(/\s+/).length >= 10).length;
-    if (shortCount > 0 && longCount > 0) techScore += 0.2;
+  // Early Accept: if score >= 22/23, accept immediately
+  if (currentScore >= 22.0) {
+    console.log(`  EARLY ACCEPT: Score ${currentScore}/23 >= 22.0 threshold.`);
+    return { accept: true, earlyAccept: true, reason: 'Score met early accept threshold' };
   }
-  scores.technical = Math.max(0, Math.min(5, techScore));
 
-  // REPLY QUALITY (max 5) — NEW per SKILL.md v9.5
-  let replyScore = 3.0;
-  const lastLine = content.split('\n').filter(l => l.trim()).pop() || '';
-  const hasQuestion = /\?/.test(lastLine) || /\?/.test(content);
-  const genuineQ = ['what about you', 'what do you think', 'thoughts?', 'agree?', 'have you', 'your take', "what's your", 'how about', 'anyone else', "can't figure out", 'maybe I', 'most overlooked', 'your experience'];
-  const rhetoricalQ = ['right?', 'correct?', 'make sense?', 'obviously', 'clearly'];
-  let hasGenuineQ = false;
-  for (const q of genuineQ) { if (content.toLowerCase().includes(q)) { hasGenuineQ = true; break; } }
-  let hasRhetoricalQ = false;
-  for (const q of rhetoricalQ) { if (content.toLowerCase().includes(q)) { hasRhetoricalQ = true; break; } }
-  if (hasGenuineQ && !hasRhetoricalQ) replyScore += 1.5;
-  else if (hasQuestion && !hasRhetoricalQ) replyScore += 0.8;
-  else if (hasRhetoricalQ) replyScore -= 0.5;
-  else replyScore -= 1.0;
-  // Vulnerability bonus
-  const vulnerability = ["i can't", 'not sure', 'maybe', 'honestly', 'i might be', 'could be wrong'];
-  for (const v of vulnerability) { if (content.toLowerCase().includes(v)) { replyScore += 0.3; break; } }
-  // @RallyOnChain + question bonus
-  if (content.includes('@RallyOnChain') && hasQuestion) replyScore += 0.5;
-  scores.reply_quality = Math.max(0, Math.min(5, replyScore));
-
-  const total = Object.values(scores).reduce((a, b) => a + b, 0);
-  const maxTotal = 23; // 2+2+2+2+5+5+5
-  const grade = total >= 22 ? 'S+' : total >= 21 ? 'S' : total >= 19 ? 'A+' : total >= 17 ? 'A' : total >= 15 ? 'B+' : total >= 13 ? 'B' : total >= 11 ? 'C' : 'D';
-
-  return { scores, maxScores, total: Math.round(total * 10) / 10, maxTotal, grade, feedback, complianceFail };
+  return { accept: true };
 }
 
 // ============ GENERATION ============
@@ -439,13 +650,15 @@ ${V3_LESSONS.rules.map(r => '- ' + r).join('\n')}
 PAST MISTAKES:
 ${Object.values(V3_LESSONS.losses).map(l => '- ' + l).join('\n')}
 
+${buildPreWritingContext()}
+
 === HARD FORMAT RULES (ZERO TOLERANCE) ===
-1. NO em-dash (---), NO en-dash (--), NO double-hyphen (--) as dash. Use period or comma instead.
+1. NO em-dash, NO en-dash, NO double-hyphen. Use period or comma instead.
 2. NO smart/curly quotes. Use straight quotes only.
 3. NO hashtags (#crypto, #web3, etc).
 4. NO starting with @mention.
 5. NO banned words: guaranteed, 100%, risk-free, buy now, get rich, passive income, etc.
-6. NO Rally banned phrases: vibe coding, skin in the game, trust layer, agent era, frictionless, don't miss out, etc.
+6. NO Rally banned phrases: vibe coding, skin in the game, trust layer, agent era, frictionless, etc.
 7. NO AI words: delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic.
 8. NO template phrases: hot take, let's dive in, nobody is talking about, unpopular opinion, thread alert, picture this, at the end of the day, key takeaways, here's the thing.
 9. Use contractions naturally: don't, can't, won't, I'm, that's.
@@ -458,36 +671,29 @@ ${variationHint}
 
 Write a single tweet/X post (or short thread of 2-3 tweets).
 Output ONLY the tweet content. No explanations, no labels.
-REMEMBER: Use periods and commas instead of dashes. NEVER type --- or -- or --.`;
+REMEMBER: Use periods and commas instead of dashes. NEVER type --- or --.`;
 }
 
-function buildImprovementPrompt(basePrompt, allVariations, bestScore) {
-  const weakCategories = {};
-  for (const v of allVariations) {
-    if (v.evaluation.complianceFail) continue;
-    for (const [cat, score] of Object.entries(v.evaluation.scores)) {
-      if (!weakCategories[cat]) weakCategories[cat] = [];
-      weakCategories[cat].push(score);
-    }
-  }
-
+function buildImprovementPrompt(basePrompt, judgeConsensus, bestScore) {
   const improvements = [];
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
-  for (const [cat, scores] of Object.entries(weakCategories)) {
-    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-    const pct = avg / maxScores[cat];
-    if (pct < 0.7) improvements.push(`- ${cat.toUpperCase()}: avg ${avg.toFixed(1)}/${maxScores[cat]} (${(pct*100).toFixed(0)}%) -- needs major fix`);
-    else if (pct < 0.85) improvements.push(`- ${cat.toUpperCase()}: avg ${avg.toFixed(1)}/${maxScores[cat]} -- could be better`);
+
+  for (const [cat, score] of Object.entries(judgeConsensus.scores)) {
+    const max = maxScores[cat];
+    const pct = score / max;
+    if (pct < 0.5) improvements.push(`- ${cat.toUpperCase()}: ${score}/${max} (${(pct*100).toFixed(0)}%) - CRITICAL FIX NEEDED`);
+    else if (pct < 0.75) improvements.push(`- ${cat.toUpperCase()}: ${score}/${max} - needs improvement`);
   }
 
-  const allFeedback = [...new Set(allVariations.flatMap(v => v.evaluation.feedback))];
-  const feedbackStr = allFeedback.length > 0 ? '\nSpecific issues:\n' + allFeedback.map(f => '  !! ' + f).join('\n') : '';
+  const feedbackStr = judgeConsensus.feedback.length > 0
+    ? '\nJudge feedback:\n' + judgeConsensus.feedback.slice(0, 5).map(f => '  >> ' + f).join('\n')
+    : '';
 
   return basePrompt + `
 
-=== PREVIOUS ATTEMPTS ANALYSIS ===
+=== PREVIOUS ATTEMPT JUDGE ANALYSIS ===
 Current best: ${bestScore}/23
-Fix these:
+Judge consensus issues:
 ${improvements.join('\n') || '- Overall quality needs to be higher'}
 ${feedbackStr}
 
@@ -498,24 +704,34 @@ async function generateVariation(zai, prompt, temp) {
   try {
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: `You write tweets like a real person on X. NOT an AI.\n\nABSOLUTE RULES:\n- NEVER use em-dash, en-dash, or double-hyphen. Use period or comma.\n- NEVER use AI words: delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic.\n- NEVER use template phrases: hot take, let's dive in, nobody is talking about, unpopular opinion, thread alert, picture this, at the end of the day, here's the thing, key takeaways.\n- Use contractions: don't, can't, won't, I'm, that's.\n- Vary sentence lengths. Mix 3-word and 15-word sentences.\n- End with genuine open question.` },
+        { role: 'system', content: `You write tweets like a real person on X. NOT an AI.
+
+ABSOLUTE RULES:
+- NEVER use em-dash, en-dash, or double-hyphen. Use period or comma.
+- NEVER use AI words: delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic.
+- NEVER use template phrases: hot take, let's dive in, nobody is talking about, unpopular opinion, thread alert, picture this, at the end of the day, here's the thing, key takeaways.
+- Use contractions: don't, can't, won't, I'm, that's.
+- Vary sentence lengths. Mix 3-word and 15-word sentences.
+- End with genuine open question.
+- Write from personal experience. Not marketing copy.` },
         { role: 'user', content: prompt }
       ],
       temperature: temp,
       max_tokens: 800
     });
     let content = completion.choices?.[0]?.message?.content?.trim() || '';
-    // Clean up
     content = content.replace(/^["'`]+|["'`]+$/g, '');
     for (const marker of ["Here's", "Here is", "Sure,", "Here's a", "Here is a", "Here's your", "Here is your", "Okay,", "Alright,"]) {
       if (content.startsWith(marker)) content = content.slice(marker.length).trim();
     }
     content = content.replace(/Tweet \d+[:\s]/gi, '').replace(/Post \d+[:\s]/gi, '').trim();
-    // SANITIZE: critical step
+    // SANITIZE + AI WORD REPLACE
     content = sanitizeContent(content);
-    return content;
+    const { content: cleaned, replaced } = replaceAIWords(content);
+    content = cleaned;
+    return { content, replaced };
   } catch (e) {
-    console.error(`Generation failed: ${e.message}`);
+    console.error(`  Generation failed: ${e.message}`);
     return null;
   }
 }
@@ -524,7 +740,7 @@ async function generateQA(zai, content) {
   try {
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: 'Generate exactly 3 short natural engagement comments for this tweet. Each 1-2 sentences. One per line. No numbering. No labels. No dashes.' },
+        { role: 'system', content: 'Generate exactly 3 short natural engagement comments for this tweet. Each 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words.' },
         { role: 'user', content: `Based on this tweet, write 3 natural reply comments that would appear on X/Twitter:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
       ],
       temperature: 0.9,
@@ -541,26 +757,143 @@ async function generateQA(zai, content) {
   }
 }
 
+// ============ QUICK PROGRAMMATIC SCORE (fast pre-screen, no API calls) ============
+function quickProgrammaticScore(content) {
+  let score = 10; // base score
+  const lower = content.toLowerCase();
+  const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
+
+  // Alignment checks
+  if (lower.includes('vedex') || lower.includes('ve dex')) score += 0.5;
+  if (lower.includes('marbmarket') || lower.includes('marb market')) score += 0.5;
+  if (lower.includes('launch')) score += 0.3;
+  if (lower.includes('megaeth')) score += 0.3;
+  if (lower.includes('vote') || lower.includes('escrow')) score += 0.2;
+  if (lower.includes('fair launch')) score += 0.2;
+
+  // Accuracy: penalize exaggeration
+  const absWords = ['everyone', 'nobody', 'always', 'never', 'impossible', 'guaranteed', '100%'];
+  for (const w of absWords) { if (lower.includes(w)) score -= 0.5; }
+
+  // Compliance: check requirements
+  if (!lower.includes('marbmarket') && !lower.includes('marb market')) score -= 0.5;
+  if (!content.includes('@RallyOnChain')) score -= 0.3;
+  if (!content.includes('x.com/Marb_market')) score -= 0.3;
+
+  // Originality: penalize AI words
+  for (const w of ALL_AI_WORDS) { if (lower.includes(w)) score -= 0.15; }
+  for (const p of TEMPLATE_PHRASES_21) { if (lower.includes(p)) score -= 0.2; }
+
+  // Engagement: check for CTA
+  if (/\?/.test(content)) score += 0.8;
+  const firstLine = content.split('\n')[0].trim();
+  if (firstLine.length > 10 && firstLine.length < 80) score += 0.3;
+
+  // Technical: basic checks
+  if (/  /.test(content)) score -= 0.3;
+  if (/[\u201c\u201d\u2018\u2019]/.test(content)) score -= 0.3;
+
+  return Math.round(Math.max(0, Math.min(23, score)) * 10) / 10;
+}
+
+// ============ PROGRAMMATIC EVALUATE (fallback when judges fail) ============
+function programmaticEvaluate(content) {
+  const scores = { originality: 0, alignment: 0, accuracy: 0, compliance: 0, engagement: 0, technical: 0, reply_quality: 0 };
+  const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
+  const feedback = [];
+  let complianceFail = false;
+
+  // ORIGINALITY
+  let origScore = 1.2;
+  const uniqueMarkers = ['ve(3,3)', 'veDEX', 'vote-escrow', 'MARB', 'MegaETH', 'bribes'];
+  let uniqueCount = 0;
+  for (const m of uniqueMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) uniqueCount++; }
+  if (uniqueCount >= 3) origScore += 0.6;
+  else if (uniqueCount >= 2) origScore += 0.4;
+  else if (uniqueCount >= 1) origScore += 0.2;
+  for (const w of AI_WORDS_26) { if (content.toLowerCase().includes(w.toLowerCase())) { origScore -= 0.3; feedback.push(`AI word: "${w}"`); } }
+  for (const w of EXTRA_AI_WORDS) { if (content.toLowerCase().includes(w.toLowerCase())) { origScore -= 0.2; feedback.push(`AI word: "${w}"`); } }
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  if (sentences.length >= 3) {
+    const lengths = sentences.map(s => s.trim().length);
+    const mean = lengths.reduce((a, b) => a + b) / lengths.length;
+    const stdDev = Math.sqrt(lengths.reduce((sum, l) => sum + Math.pow(l - mean, 2), 0) / lengths.length);
+    if (stdDev / mean > 0.30) origScore += 0.2; else origScore -= 0.2;
+  }
+  scores.originality = Math.max(0, Math.min(2, origScore));
+
+  // ALIGNMENT
+  let alignScore = 0;
+  if (content.toLowerCase().includes('vedex') || content.toLowerCase().includes('ve dex')) alignScore += 0.5;
+  if (content.toLowerCase().includes('marbmarket') || content.toLowerCase().includes('marb market')) alignScore += 0.5;
+  if (content.toLowerCase().includes('launch')) alignScore += 0.3;
+  if (content.toLowerCase().includes('megaeth')) alignScore += 0.3;
+  if (content.toLowerCase().includes('vote') || content.toLowerCase().includes('escrow')) alignScore += 0.2;
+  if (content.toLowerCase().includes('fair launch')) alignScore += 0.2;
+  scores.alignment = Math.max(0, Math.min(2, alignScore));
+
+  // ACCURACY
+  let accScore = 1.8;
+  for (const w of ['zero cost', 'everyone', 'nobody', 'always', 'never', 'impossible', 'guaranteed', '100%']) { if (content.toLowerCase().includes(w)) { accScore -= 0.5; feedback.push(`Exaggeration: "${w}"`); } }
+  if (content.toLowerCase().includes('lock') && (content.toLowerCase().includes('vote') || content.toLowerCase().includes('governance'))) accScore += 0.2;
+  scores.accuracy = Math.max(0, Math.min(2, accScore));
+
+  // COMPLIANCE
+  let compScore = 1.8;
+  if (!content.toLowerCase().includes('marbmarket') && !content.toLowerCase().includes('marb market')) { compScore -= 0.5; feedback.push('Missing: MarbMarket'); }
+  if (!content.includes('@RallyOnChain')) { compScore -= 0.3; feedback.push('Missing: @RallyOnChain'); }
+  if (!content.includes('x.com/Marb_market')) { compScore -= 0.3; feedback.push('Missing: link'); }
+  for (const w of BANNED_WORDS_21) { if (content.toLowerCase().includes(w.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${w}"`); break; } }
+  if (!complianceFail) { for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${p}"`); break; } } }
+  scores.compliance = Math.max(0, Math.min(2, compScore));
+
+  // ENGAGEMENT
+  let engScore = 3.0;
+  if (/\?/.test(content)) engScore += 0.8; else feedback.push('Missing: CTA');
+  if (content.split('\n')[0].trim().length < 80 && content.split('\n')[0].trim().length > 10) engScore += 0.4;
+  if ((content.match(/\./g) || []).length >= 3) engScore += 0.3;
+  scores.engagement = Math.max(0, Math.min(5, engScore));
+
+  // TECHNICAL
+  let techScore = 4.5;
+  if (/  /.test(content)) techScore -= 0.5;
+  if (content.length > 50 && content.length < 2000) techScore += 0.2;
+  scores.technical = Math.max(0, Math.min(5, techScore));
+
+  // REPLY QUALITY
+  let replyScore = 3.0;
+  const genuineQ = ['what about you', 'what do you think', 'thoughts?', 'agree?', 'have you', 'your take', "what's your", 'how about', 'anyone else'];
+  if (genuineQ.some(q => content.toLowerCase().includes(q))) replyScore += 1.5;
+  else if (/\?/.test(content)) replyScore += 0.8;
+  else replyScore -= 1.0;
+  if (content.includes('@RallyOnChain') && /\?/.test(content)) replyScore += 0.5;
+  scores.reply_quality = Math.max(0, Math.min(5, replyScore));
+
+  const total = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) * 10) / 10;
+  return { scores, maxScores, total, feedback, complianceFail };
+}
+
 // ============ MAIN LOOP ============
 async function main() {
   console.log('===========================================');
-  console.log('RALLY BRAIN v4.0 — LEARN + SANITIZE + GENERATE');
+  console.log('RALLY BRAIN v5.0 - SKILL.md v9.5 COMPLIANT');
   console.log('===========================================');
   console.log(`Campaign: ${CAMPAIGN.title}`);
   console.log(`Mission: ${MISSION_0.title}`);
-  console.log(`Target: >= 16/23 (Level 2 Quality)`);
-  console.log(`Scoring: 7 categories, max 23/23 per SKILL.md v9.5`);
+  console.log(`Target: >= 21/23 (S grade)`);
+  console.log(`Scoring: 5 LLM Judges + Minority Override + G4`);
+  console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> 5 JUDGES -> CONSENSUS -> G4 -> OUTPUT`);
   console.log('===========================================\n');
 
   const zai = await ZAI.create();
   const allVariations = [];
-  let bestEver = { content: '', score: 0, grade: 'D', evaluation: {} };
+  let bestEver = { content: '', score: 0, grade: 'D', consensus: null, g4: null };
   let basePrompt = buildBasePrompt('Approach angle: Educational explainer that breaks down veDEX mechanics clearly.');
   let loopsUsed = 0;
 
   const VARIATIONS_PER_LOOP = 3;
   const MAX_LOOPS = 5;
-  const THRESHOLD = 16.0;
+  const THRESHOLD = 21.0; // Higher threshold with better evaluation
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {
     loopsUsed = loop;
@@ -576,55 +909,142 @@ async function main() {
       ? ['Simplify veDEX to basics anyone can understand.', 'Focus on MegaETH as the chain and MarbMarket as the killer app.', 'Emotional angle: why community ownership beats VC-backed launches.']
       : ['Most creative angle possible. Teach veDEX like telling a story.', 'Technical breakdown for experienced DeFi users.', 'Combine fair launch + governance + yield in one narrative.'];
 
+    const loopVariations = [];
+
     for (let i = 0; i < VARIATIONS_PER_LOOP; i++) {
       const variationPrompt = buildBasePrompt(angles[i]);
       const temp = 0.75 + (loop - 1) * 0.05 + i * 0.03;
 
       console.log(`  Generating variation ${i + 1} (temp=${temp.toFixed(2)})...`);
-      const content = await generateVariation(zai, variationPrompt, temp);
+      const result = await generateVariation(zai, variationPrompt, temp);
 
-      if (!content || content.length < 30) {
+      if (!result || result.content.length < 30) {
         console.log(`  Variation ${i + 1}: FAILED (empty or too short)`);
         continue;
       }
 
-      const evaluation = evaluateContent(content);
+      const { content, replaced } = result;
+      if (replaced.length > 0) console.log(`  AI words replaced: ${replaced.join(', ')}`);
 
-      // Check for em-dash/en-dash in output
-      if (/\u2014/.test(content) || /\u2013/.test(content) || /\s--\s/.test(content)) {
-        console.log(`  Variation ${i + 1}: REJECTED (contains dash character after sanitization)`);
+      // Quick pre-screen (compliance only)
+      const screen = quickScreen(content);
+      if (!screen.pass) {
+        console.log(`  Variation ${i + 1}: SCREEN FAIL - ${screen.reason}`);
         continue;
       }
 
-      // Skip compliance fails
-      if (evaluation.complianceFail) {
-        console.log(`  Variation ${i + 1}: COMPLIANCE FAIL (${evaluation.feedback.filter(f => f.includes('BANNED') || f.includes('DASH') || f.includes('HASHTAG')).join(', ')})`);
-        allVariations.push({ content, evaluation, loop, variation: i + 1, temperature: temp });
-        continue;
-      }
+      loopVariations.push({ content, loop, variation: i + 1, temperature: temp });
+    }
 
-      console.log(`  Variation ${i + 1}: ${evaluation.total}/23 (${evaluation.grade})`);
-      if (evaluation.feedback.length > 0) {
-        console.log(`    Feedback: ${evaluation.feedback.slice(0, 3).join(', ')}`);
-      }
+    // Run 5 Judge Panel on the TOP 1 variation (saves API calls)
+    let earlyExit = false;
 
-      const variation = { content, evaluation, loop, variation: i + 1, temperature: temp };
-      allVariations.push(variation);
+    if (loopVariations.length > 0) {
+      // Quick programmatic score to find the best candidate
+      const quickScored = loopVariations.map(v => ({
+        ...v,
+        quickScore: quickProgrammaticScore(v.content)
+      }));
+      quickScored.sort((a, b) => b.quickScore - a.quickScore);
 
-      if (evaluation.total > bestEver.score) {
-        bestEver = { content, score: evaluation.total, grade: evaluation.grade, evaluation, loop, variation: i + 1 };
-        console.log(`  * NEW BEST: ${evaluation.total}/23 (${evaluation.grade})`);
+      // Only judge the TOP 1 variation (saves API calls)
+      const topVariation = quickScored[0];
+      console.log(`\n  Top variation by quick-score: #${topVariation.variation} (${topVariation.quickScore}/23)`);
+
+      console.log(`  Running 5 Judge Panel on variation ${topVariation.variation}...`);
+      const judgeResults = await runJudgePanel(zai, topVariation.content);
+      const validCount = judgeResults.filter(j => j.valid).length;
+
+      if (validCount < 2) {
+        console.log(`    Only ${validCount}/5 judges returned valid results.`);
+        // FALLBACK: use programmatic evaluation
+        console.log(`    Falling back to programmatic evaluation...`);
+        const progEval = programmaticEvaluate(topVariation.content);
+        const g4 = g4OriginalityCheck(topVariation.content);
+        const finalScores = { ...progEval.scores };
+        finalScores.originality = Math.min(2, Math.max(0, finalScores.originality + g4.bonus));
+        const total = Math.round(Object.values(finalScores).reduce((a, b) => a + b, 0) * 10) / 10;
+        const grade = total >= 22 ? 'S+' : total >= 21 ? 'S' : total >= 19 ? 'A+' : total >= 17 ? 'A' : total >= 15 ? 'B+' : total >= 13 ? 'B' : total >= 11 ? 'C' : 'D';
+
+        const fallbackConsensus = {
+          scores: finalScores,
+          minorityFlags: [],
+          hardFails: progEval.complianceFail ? ['compliance'] : [],
+          feedback: progEval.feedback,
+          validJudgeCount: 0,
+          total,
+          grade,
+          maxTotal: 23
+        };
+
+        console.log(`  Variation ${topVariation.variation} PROGRAMMATIC FALLBACK: ${total}/23 (${grade})`);
+        if (progEval.feedback.length > 0) console.log(`    Feedback: ${progEval.feedback.slice(0, 3).join(', ')}`);
+
+        const variation = { content: topVariation.content, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature };
+        allVariations.push(variation);
+
+        if (total > bestEver.score) {
+          bestEver = { content: topVariation.content, score: total, grade, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation };
+          console.log(`  * NEW BEST: ${total}/23 (${grade})`);
+        }
+      } else {
+        const consensus = calculateConsensus(judgeResults);
+        if (!consensus) { /* skip */ }
+        else {
+          // G4 Originality Detection bonus
+          const g4 = g4OriginalityCheck(topVariation.content);
+          const g4Bonus = g4.bonus;
+
+          // Apply G4 bonus to originality (cap at 2.0)
+          const finalOriginality = Math.min(2, Math.max(0, consensus.scores.originality + g4Bonus));
+          consensus.scores.originality = Math.round(finalOriginality * 10) / 10;
+
+          // Recalculate total
+          consensus.total = Math.round(Object.values(consensus.scores).reduce((a, b) => a + b, 0) * 10) / 10;
+          const t = consensus.total;
+          consensus.grade = t >= 22 ? 'S+' : t >= 21 ? 'S' : t >= 19 ? 'A+' : t >= 17 ? 'A' : t >= 15 ? 'B+' : t >= 13 ? 'B' : t >= 11 ? 'C' : 'D';
+
+          // Print judge details
+          for (const j of judgeResults) {
+            if (!j.valid) continue;
+            const jTotal = Object.values(j.scores).reduce((a, b) => a + b, 0);
+            console.log(`    ${j.id} (${j.name}): ${jTotal}/23 [O=${j.scores.originality} A=${j.scores.alignment} Ac=${j.scores.accuracy} C=${j.scores.compliance} E=${j.scores.engagement} T=${j.scores.technical} R=${j.scores.reply_quality}]`);
+          }
+
+          console.log(`  Variation ${topVariation.variation} CONSENSUS: ${consensus.total}/23 (${consensus.grade})`);
+          if (consensus.minorityFlags.length > 0) console.log(`    Minority Flags: ${consensus.minorityFlags.join(', ')}`);
+          if (consensus.hardFails.length > 0) console.log(`    Hard Fails: ${consensus.hardFails.join(', ')}`);
+          console.log(`    G4 Bonus: ${g4Bonus >= 0 ? '+' : ''}${g4Bonus} (${g4.reasons.slice(0, 2).join(', ')})`);
+
+          const variation = { content: topVariation.content, consensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature };
+          allVariations.push(variation);
+
+          if (consensus.total > bestEver.score) {
+            bestEver = { content: topVariation.content, score: consensus.total, grade: consensus.grade, consensus, g4, loop: topVariation.loop, variation: topVariation.variation };
+            console.log(`  * NEW BEST: ${consensus.total}/23 (${consensus.grade})`);
+          }
+
+          // Stability Check + Early Accept
+          const stability = stabilityCheck(topVariation.content, consensus.total, bestEver);
+          if (stability.earlyAccept) {
+            console.log(`\n  EARLY ACCEPT triggered!`);
+            earlyExit = true;
+          }
+        }
       }
     }
 
-    console.log(`\n  Loop ${loop} best: ${bestEver.score}/23`);
+    console.log(`\n  Loop ${loop} best: ${bestEver.score}/23 (${bestEver.grade})`);
 
-    if (bestEver.score >= THRESHOLD) {
-      console.log(`\n  THRESHOLD MET! Best: ${bestEver.score}/23 (${bestEver.grade})`);
+    if (earlyExit || bestEver.score >= THRESHOLD) {
+      if (earlyExit) console.log(`\n  EARLY EXIT triggered!`);
+      else console.log(`\n  THRESHOLD MET! Best: ${bestEver.score}/23 (${bestEver.grade})`);
       break;
+    } else if (bestEver.consensus) {
+      console.log(`  Below threshold ${THRESHOLD}. Using judge feedback for improvement...`);
+      basePrompt = buildImprovementPrompt(basePrompt, bestEver.consensus, bestEver.score);
     } else {
-      console.log(`  Below threshold ${THRESHOLD}. Improving...`);
-      basePrompt = buildImprovementPrompt(basePrompt, allVariations, bestEver.score);
+      console.log(`  No valid variations yet. Trying different angles...`);
     }
   }
 
@@ -634,23 +1054,33 @@ async function main() {
   console.log(`Generated ${qaComments.length} engagement comments`);
 
   // ============ OUTPUT ============
+  const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
+
   const output = {
+    version: '5.0',
+    evaluation_method: '5 LLM Judges + Minority Override + G4 Originality Detection',
     campaign: CAMPAIGN.title,
     mission: MISSION_0.title,
     timestamp: new Date().toISOString(),
     best_content: bestEver.content,
     score: bestEver.score,
     grade: bestEver.grade,
-    predictions: bestEver.evaluation.scores,
+    predictions: bestEver.consensus?.scores || {},
+    g4_bonus: bestEver.g4?.bonus || 0,
+    g4_reasons: bestEver.g4?.reasons || [],
+    minority_flags: bestEver.consensus?.minorityFlags || [],
+    hard_fails: bestEver.consensus?.hardFails || [],
+    valid_judges: bestEver.consensus?.validJudgeCount || 0,
     total_variations: allVariations.length,
     loops_used: loopsUsed,
     qa_comments: qaComments,
     all_scores: allVariations.map(v => ({
       loop: v.loop,
       variation: v.variation,
-      score: v.evaluation.total,
-      grade: v.evaluation.grade,
-      complianceFail: v.evaluation.complianceFail || false
+      score: v.consensus?.total || 0,
+      grade: v.consensus?.grade || 'N/A',
+      minorityFlags: v.consensus?.minorityFlags || [],
+      hardFails: v.consensus?.hardFails || []
     }))
   };
 
@@ -658,17 +1088,21 @@ async function main() {
   console.log('FINAL RESULT');
   console.log('===========================================');
   console.log(`Score: ${bestEver.score}/23 (${bestEver.grade})`);
+  console.log(`Evaluation: 5 LLM Judges + Minority Override + G4`);
+  console.log(`Valid Judges: ${bestEver.consensus?.validJudgeCount || 0}/5`);
   console.log(`Variations tested: ${allVariations.length}`);
-  console.log(`Compliance fails: ${allVariations.filter(v => v.evaluation.complianceFail).length}`);
   console.log(`Loops used: ${loopsUsed}`);
+  if (bestEver.consensus?.minorityFlags?.length > 0) console.log(`Minority Flags: ${bestEver.consensus.minorityFlags.join(', ')}`);
+  console.log(`G4 Bonus: ${bestEver.g4?.bonus || 0}`);
   console.log('\n--- BEST CONTENT ---');
   console.log(bestEver.content);
   console.log('\n--- Q&A COMMENTS ---');
   qaComments.forEach((c, i) => console.log(`  ${i + 1}. ${c}`));
   console.log('\n--- SCORE BREAKDOWN ---');
-  for (const [cat, score] of Object.entries(bestEver.evaluation.scores)) {
-    const max = bestEver.evaluation.maxScores[cat];
-    console.log(`  ${cat}: ${score}/${max}`);
+  if (bestEver.consensus?.scores) {
+    for (const [cat, score] of Object.entries(bestEver.consensus.scores)) {
+      console.log(`  ${cat}: ${score}/${maxScores[cat]}`);
+    }
   }
 
   // Save output
@@ -676,9 +1110,13 @@ async function main() {
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
+    version: '5.0',
     score: bestEver.score,
     grade: bestEver.grade,
-    predictions: bestEver.evaluation.scores,
+    predictions: bestEver.consensus?.scores || {},
+    g4_bonus: bestEver.g4?.bonus || 0,
+    minority_flags: bestEver.consensus?.minorityFlags || [],
+    valid_judges: bestEver.consensus?.validJudgeCount || 0,
     total_variations: allVariations.length,
     loops_used: loopsUsed,
     timestamp: output.timestamp,
