@@ -1,9 +1,9 @@
-Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.
+Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.
 
-What makes veDEX different? It's simple. You lock MARB tokens to get voting power. Longer lock = more influence + more rewards. Weekly votes decide which LP pools get emissions. Projects pay bribes for votes. That's the MARB incentive loop in action.
+The ve(3,3) model is simple yet brilliant. Lock MARB, get voting power, direct emissions to the pools you want. Longer locks mean more influence. Projects pay bribes for those votes. The incentives flow back to the lockers. It's a self-reinforcing loop that rewards early believers.
 
-Most DEXs just throw rewards at random. MarbMarket lets the community decide where incentives go. Fair launch, no presale. That changes everything for liquidity mining on MegaETH.
+Fair launch means no one gets special treatment. No insiders. Just users who believe in the system. I've seen too many launches where the deck was stacked from day one. This feels different. @RallyOnChain
 
-x.com/Marb_market
+Check it out yourself. x.com/Marb_market
 
-What's your take on governance-driven incentive models? Do they actually work better than random emissions? @RallyOnChain
+How do we prevent the ve(3,3) model from becoming just another governance capture mechanism over time?

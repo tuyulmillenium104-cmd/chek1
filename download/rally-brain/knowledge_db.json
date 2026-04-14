@@ -1,12 +1,12 @@
 {
   "version": "3.0.0",
-  "last_updated": "2026-04-14T16:44:51.503Z",
+  "last_updated": "2026-04-14T17:02:44.820Z",
   "stats": {
-    "total_cycles": 7,
+    "total_cycles": 8,
     "total_patterns": 0,
     "best_score_achieved": 21.5,
-    "avg_score": 17.8,
-    "last_learned": "2026-04-14T16:44:51.503Z"
+    "avg_score": 17.4,
+    "last_learned": "2026-04-14T17:02:44.820Z"
   },
   "cycle_history": [
     {
@@ -155,6 +155,27 @@
       "best_hook": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.",
       "is_repetition": false,
       "content_preview": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on..."
+    },
+    {
+      "timestamp": "2026-04-14T17:02:44.820Z",
+      "score": 14.3,
+      "grade": "B",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 4,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.",
+      "is_repetition": false,
+      "content_preview": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. ..."
     }
   ],
   "ai_word_frequency": {},
@@ -177,20 +198,20 @@
   ],
   "category_trends": {
     "originality": {
-      "total": 10.750000000000002,
-      "count": 7,
-      "avg": 1.54,
+      "total": 12.000000000000002,
+      "count": 8,
+      "avg": 1.5,
       "last5": [
-        2,
         1.25,
         1.15,
         1.2000000000000002,
-        1.15
+        1.15,
+        1.25
       ]
     },
     "alignment": {
-      "total": 14,
-      "count": 7,
+      "total": 16,
+      "count": 8,
       "avg": 2,
       "last5": [
         2,
@@ -201,21 +222,21 @@
       ]
     },
     "accuracy": {
-      "total": 10.299999999999999,
-      "count": 7,
-      "avg": 1.47,
+      "total": 11.499999999999998,
+      "count": 8,
+      "avg": 1.44,
       "last5": [
-        2,
         0.7,
+        1.2,
         1.2,
         1.2,
         1.2
       ]
     },
     "compliance": {
-      "total": 13.6,
-      "count": 7,
-      "avg": 1.94,
+      "total": 15.6,
+      "count": 8,
+      "avg": 1.95,
       "last5": [
         2,
         2,
@@ -225,23 +246,23 @@
       ]
     },
     "engagement": {
-      "total": 26,
-      "count": 7,
-      "avg": 3.71,
+      "total": 28.8,
+      "count": 8,
+      "avg": 3.6,
       "last5": [
-        4.5,
         3.5,
         3.5,
         2.8,
-        3.5
+        3.5,
+        2.8
       ]
     },
     "technical": {
-      "total": 27.9,
-      "count": 7,
-      "avg": 3.99,
+      "total": 31.4,
+      "count": 8,
+      "avg": 3.93,
       "last5": [
-        4.5,
+        3.5,
         3.5,
         3.5,
         3.5,
@@ -249,15 +270,15 @@
       ]
     },
     "reply_quality": {
-      "total": 22.1,
-      "count": 7,
-      "avg": 3.16,
+      "total": 23.6,
+      "count": 8,
+      "avg": 2.95,
       "last5": [
-        4.5,
         2.5,
         2.5,
         1.5,
-        2.5
+        2.5,
+        1.5
       ]
     }
   },
@@ -277,8 +298,8 @@
         "description": "Opening hooks + CTA for engagement",
         "level": "high",
         "learned_rules": [
-          "Focus on reply_quality: avg 3.16/5 (63%)",
-          "Focus on accuracy: avg 1.47/2 (74%)"
+          "Focus on reply_quality: avg 2.95/5 (59%)",
+          "Focus on accuracy: avg 1.44/2 (72%)"
         ]
       },
       "rally_mention": {
@@ -334,6 +355,11 @@
         "timestamp": "2026-04-14T16:44:51.503Z",
         "predicted": 15.9,
         "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T17:02:44.820Z",
+        "predicted": 14.3,
+        "grade": "B"
       }
     ],
     "category_weights": {

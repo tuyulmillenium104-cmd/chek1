@@ -1,22 +1,22 @@
 {
   "version": "5.2.1",
-  "score": 15.9,
-  "grade": "B+",
+  "score": 14.3,
+  "grade": "B",
   "predictions": {
-    "originality": 1.15,
+    "originality": 1.25,
     "alignment": 2,
     "accuracy": 1.2,
     "compliance": 2,
-    "engagement": 3.5,
+    "engagement": 2.8,
     "technical": 3.5,
-    "reply_quality": 2.5
+    "reply_quality": 1.5
   },
-  "g4_bonus": 0.35,
+  "g4_bonus": 0.45,
   "minority_flags": [],
   "valid_judges": 0,
   "total_variations": 4,
   "loops_used": 4,
-  "timestamp": "2026-04-14T16:44:51.501Z",
+  "timestamp": "2026-04-14T17:02:44.819Z",
   "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters"
 }

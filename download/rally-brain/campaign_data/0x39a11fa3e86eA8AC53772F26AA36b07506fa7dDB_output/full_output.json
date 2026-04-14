@@ -3,22 +3,23 @@
   "evaluation_method": "Programmatic Evaluator + G4 + J3/J5 Judge Validation",
   "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T16:44:51.501Z",
-  "best_content": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.\n\nWhat makes veDEX different? It's simple. You lock MARB tokens to get voting power. Longer lock = more influence + more rewards. Weekly votes decide which LP pools get emissions. Projects pay bribes for votes. That's the MARB incentive loop in action.\n\nMost DEXs just throw rewards at random. MarbMarket lets the community decide where incentives go. Fair launch, no presale. That changes everything for liquidity mining on MegaETH.\n\nx.com/Marb_market\n\nWhat's your take on governance-driven incentive models? Do they actually work better than random emissions? @RallyOnChain",
-  "score": 15.9,
-  "grade": "B+",
+  "timestamp": "2026-04-14T17:02:44.819Z",
+  "best_content": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.\n\nThe ve(3,3) model is simple yet brilliant. Lock MARB, get voting power, direct emissions to the pools you want. Longer locks mean more influence. Projects pay bribes for those votes. The incentives flow back to the lockers. It's a self-reinforcing loop that rewards early believers.\n\nFair launch means no one gets special treatment. No insiders. Just users who believe in the system. I've seen too many launches where the deck was stacked from day one. This feels different. @RallyOnChain\n\nCheck it out yourself. x.com/Marb_market\n\nHow do we prevent the ve(3,3) model from becoming just another governance capture mechanism over time?",
+  "score": 14.3,
+  "grade": "B",
   "predictions": {
-    "originality": 1.15,
+    "originality": 1.25,
     "alignment": 2,
     "accuracy": 1.2,
     "compliance": 2,
-    "engagement": 3.5,
+    "engagement": 2.8,
     "technical": 3.5,
-    "reply_quality": 2.5
+    "reply_quality": 1.5
   },
-  "g4_bonus": 0.35,
+  "g4_bonus": 0.45,
   "g4_reasons": [
-    "High sentence variety (CV=0.48)",
+    "High sentence variety (CV=0.60)",
+    "Strong personal voice",
     "Some contractions",
     "Zero AI words (clean)",
     "Mixed sentence lengths"
@@ -28,27 +29,47 @@
   "valid_judges": 0,
   "total_variations": 4,
   "loops_used": 4,
-  "qa_comments": [
-    "What happens if the community consistently votes for pools with low TVL? Doesn't that create a negative feedback loop? The ve(3,3) model looks interesting but how does it prevent vote manipulation from larger holders? Weekly emissions sound great but how does MarbMarket handle potential governance apathy from small token holders? No VC backing is impressive but what's the plan for sustainable revenue when the initial hype dies down?",
-    "What happens when bigger projects start offering bigger bribes? Won't that just concentrate power in the hands of a few wealthy holders?",
-    "Seems interesting but how does this prevent governance attacks where whales could manipulate the vote outcomes for personal gain?",
-    "If there's no presale and it's truly fair, how are the initial tokens distributed to ensure early liquidity?",
-    "This actually sounds like a game-changer - giving real power to the community rather than just paying lip service to decentralization.",
-    "The longer lock periods for more rewards sounds great but doesn't that discourage short-term liquidity providers from participating?",
-    "This veDEX model is interesting. How does the bribe mechanism work in practice?",
-    "Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?",
-    "The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.",
-    "How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?",
-    "Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?",
-    "MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.",
-    "What is the minimum MARB needed to participate meaningfully in governance?",
-    "Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.",
-    "How will MarbMarket attract initial liquidity without VC backing or incentives pre-launch?",
-    "The fair launch narrative is strong but execution matters more. Any audits announced?",
-    "Curious about the team behind this. Any previous DeFi builds they have shipped?",
-    "Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.",
-    "What happens to veMARB voting power as the unlock period approaches? Does it decay linearly?",
-    "Compared to Solidly, what improvements has MarbMarket made to the base ve(3,3) model?"
+  "qna_pairs": [
+    {
+      "q": "How exactly does the ve(3,3) model work? I've heard of ve(3,3) but don't fully get the mechanics.",
+      "a": "You lock MARB tokens to get veTokens, which give you voting power. Longer locks = more voting power + more rewards. Each week, veHolders vote on which liquidity pools get MARB emissions. Projects can offer bribes to attract votes to their pools."
+    },
+    {
+      "q": "What's the benefit for regular users who don't want to lock their tokens?",
+      "a": "Even if you don't lock MARB, you can still farm in the liquidity pools that veHolders vote to receive emissions. The system rewards long-term lockers while still offering earning opportunities for all participants."
+    },
+    {
+      "q": "How will you handle the initial liquidity when there's no presale or VC backing?",
+      "a": "Fair question. The community launch means liquidity comes from users who believe in the model. We're focusing on attracting projects that want to offer bribes to get their pools emissions, which will naturally draw liquidity providers."
+    },
+    {
+      "q": "What makes MegaETH a good choice for this veDEX compared to other chains?",
+      "a": "MegaETH offers low fees and a growing user base. Being the first veDEX on MegaETH gives us a first-mover advantage in this ecosystem, and the community there seems ready for innovative DEX models."
+    },
+    {
+      "q": "How do you prevent whales from dominating the voting system?",
+      "a": "The ve(3,3) model already encourages longer locks rather than bigger stakes, which distributes power. We'll also monitor voting patterns and may implement reasonable caps on individual voting power if needed to maintain decentralization."
+    },
+    {
+      "q": "How is MarbMarket different from other DEXs that claim to be community-focused?",
+      "a": "MarbMarket is the first veDEX on MegaETH with a true ve(3,3) model. Unlike others, we have no presale or VC backing - just users locking MARB for voting power and directing emissions. It's pure community control from day one."
+    },
+    {
+      "q": "What happens if projects just stop paying bribes? Won't that kill the incentive loop?",
+      "a": "That's a fair concern. The system works best when projects value the liquidity our voters direct. We're starting with strong launch partners committed to the model, and the longer locks give early users more influence to keep incentives flowing."
+    },
+    {
+      "q": "If I lock MARB tokens, how long do they need to stay locked to earn maximum voting power?",
+      "a": "The ve(3,3) model rewards longer locks with more influence. Maximum voting power comes from locking MARB for the full duration, which is 4 years. The longer you lock, the more voting power and rewards you earn."
+    },
+    {
+      "q": "How does a 'fair launch' actually work in practice? What prevents insiders from getting special treatment?",
+      "a": "Our contract was deployed with no owner privileges. The team has no special access or tokens beyond what's available publicly. Everyone starts with equal opportunity to lock MARB and participate in governance from day one."
+    },
+    {
+      "q": "Can you explain the incentive loop again? How does actually money flow from projects back to token holders?",
+      "a": "Projects pay bribes in MARB to veHolders who vote for their pools. These bribes go directly to the locker's wallets. The more emissions a pool gets, the more LPs earn, which attracts more liquidity - all directed by the community through votes."
+    }
   ],
   "all_scores": [
     {
@@ -62,16 +83,16 @@
     {
       "loop": 2,
       "variation": 1,
-      "score": 15.9,
-      "grade": "B+",
+      "score": 13.5,
+      "grade": "B",
       "minorityFlags": [],
       "hardFails": []
     },
     {
       "loop": 3,
-      "variation": 1,
-      "score": 13.1,
-      "grade": "B",
+      "variation": 2,
+      "score": 11.4,
+      "grade": "C",
       "minorityFlags": [],
       "hardFails": [
         "compliance"
@@ -80,7 +101,7 @@
     {
       "loop": 4,
       "variation": 1,
-      "score": 13.6,
+      "score": 14.3,
       "grade": "B",
       "minorityFlags": [],
       "hardFails": []
