@@ -3,22 +3,22 @@
   "evaluation_method": "Programmatic Evaluator + G4 + J3/J5 Judge Validation",
   "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
   "mission": "Explain the veDEX Model & Why MarbMarket Matters",
-  "timestamp": "2026-04-14T17:02:44.819Z",
-  "best_content": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.\n\nThe ve(3,3) model is simple yet brilliant. Lock MARB, get voting power, direct emissions to the pools you want. Longer locks mean more influence. Projects pay bribes for those votes. The incentives flow back to the lockers. It's a self-reinforcing loop that rewards early believers.\n\nFair launch means no one gets special treatment. No insiders. Just users who believe in the system. I've seen too many launches where the deck was stacked from day one. This feels different. @RallyOnChain\n\nCheck it out yourself. x.com/Marb_market\n\nHow do we prevent the ve(3,3) model from becoming just another governance capture mechanism over time?",
-  "score": 14.3,
-  "grade": "B",
+  "timestamp": "2026-04-14T17:37:57.658Z",
+  "best_content": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about locking tokens. It's about creating this self-reinforcing cycle where your vote actually matters. MarbMarket is bringing this to MegaETH with no presale. Just fair launch mechanics. You lock MARB, you get veMARB, you vote on where emissions go. Projects pay bribes for those votes. The incentives flow back to you. It's a beautiful loop.\n\nWhat I find fascinating is how long-term lockers get more influence. Your lock duration directly translates to power. The ve(3,3) model means everyone's incentives are aligned. No VCs. No insiders. Just the community deciding where liquidity goes.\n\nThis changes everything for liquidity mining. Instead of chasing random APYs, you get to vote on sustainable rewards. Protocols have to compete fairly. It's not about who has the biggest marketing budget. It's about who offers real value.\n\nThe real question I'm wrestling with: how do we prevent vote delegation from becoming another form of centralization? @RallyOnChain what's your take on keeping the truly decentralized spirit alive here? x.com/Marb_market",
+  "score": 15.5,
+  "grade": "B+",
   "predictions": {
     "originality": 1.25,
     "alignment": 2,
-    "accuracy": 1.2,
+    "accuracy": 0.7,
     "compliance": 2,
-    "engagement": 2.8,
+    "engagement": 3.5,
     "technical": 3.5,
-    "reply_quality": 1.5
+    "reply_quality": 2.5
   },
   "g4_bonus": 0.45,
   "g4_reasons": [
-    "High sentence variety (CV=0.60)",
+    "High sentence variety (CV=0.59)",
     "Strong personal voice",
     "Some contractions",
     "Zero AI words (clean)",
@@ -31,50 +31,50 @@
   "loops_used": 4,
   "qna_pairs": [
     {
-      "q": "How exactly does the ve(3,3) model work? I've heard of ve(3,3) but don't fully get the mechanics.",
-      "a": "You lock MARB tokens to get veTokens, which give you voting power. Longer locks = more voting power + more rewards. Each week, veHolders vote on which liquidity pools get MARB emissions. Projects can offer bribes to attract votes to their pools."
+      "q": "How does locking MARB tokens work exactly? Like what's the minimum lock period and how do I start?",
+      "a": "You can lock MARB tokens for any duration from 1 week up to 4 years. The longer you lock, the more veMARB voting power you get. Just go to the MarbMarket app when it launches, connect your wallet, and choose how much MARB to lock and for how long."
     },
     {
-      "q": "What's the benefit for regular users who don't want to lock their tokens?",
-      "a": "Even if you don't lock MARB, you can still farm in the liquidity pools that veHolders vote to receive emissions. The system rewards long-term lockers while still offering earning opportunities for all participants."
+      "q": "So projects can literally pay to get their pools chosen? Isn't that just like a regular DEX with a fancy name?",
+      "a": "It's different because the projects are paying YOU directly for your vote, not a centralized entity. The 'bribes' go to the veMARB lockers who vote for that pool. So it's the community deciding where liquidity should go, with protocols competing on value rather than marketing budgets."
     },
     {
-      "q": "How will you handle the initial liquidity when there's no presale or VC backing?",
-      "a": "Fair question. The community launch means liquidity comes from users who believe in the model. We're focusing on attracting projects that want to offer bribes to get their pools emissions, which will naturally draw liquidity providers."
+      "q": "What if someone locks a massive amount of MARB and just dictates where all emissions go? Seems like it could be centralized anyway.",
+      "a": "That's where the ve(3,3) model comes in. While longer locks do give more power, the model is designed to distribute influence over time. Plus, voting happens weekly, so the 'power' can shift based on where different lockers choose to direct emissions."
     },
     {
-      "q": "What makes MegaETH a good choice for this veDEX compared to other chains?",
-      "a": "MegaETH offers low fees and a growing user base. Being the first veDEX on MegaETH gives us a first-mover advantage in this ecosystem, and the community there seems ready for innovative DEX models."
+      "q": "How is this different from other veDEX models like Solidly or Aerodrome? What makes the MegaETH version special?",
+      "a": "MarbMarket is bringing the proven veDEX model to MegaETH for the first time. We're adapting it specifically for the MegaETH ecosystem with its unique characteristics. The core mechanics are similar, but we're focused on building the first truly community-governed DEX on this chain."
     },
     {
-      "q": "How do you prevent whales from dominating the voting system?",
-      "a": "The ve(3,3) model already encourages longer locks rather than bigger stakes, which distributes power. We'll also monitor voting patterns and may implement reasonable caps on individual voting power if needed to maintain decentralization."
+      "q": "When exactly is Q2? Any more specific timeline for the launch?",
+      "a": "We're targeting late Q2 for the main launch. Follow @Marb_market on Twitter for exact dates and updates. We'll be sharing a detailed roadmap soon with all the key milestones leading up to launch."
     },
     {
-      "q": "How is MarbMarket different from other DEXs that claim to be community-focused?",
-      "a": "MarbMarket is the first veDEX on MegaETH with a true ve(3,3) model. Unlike others, we have no presale or VC backing - just users locking MARB for voting power and directing emissions. It's pure community control from day one."
+      "q": "How much MARB do I need to lock to start earning voting power?",
+      "a": "You can start with any amount of MARB! The longer you lock it, the more veMARB you'll earn and influence you'll have. Even small lockers can participate in the governance from day one."
     },
     {
-      "q": "What happens if projects just stop paying bribes? Won't that kill the incentive loop?",
-      "a": "That's a fair concern. The system works best when projects value the liquidity our voters direct. We're starting with strong launch partners committed to the model, and the longer locks give early users more influence to keep incentives flowing."
+      "q": "What happens if I lock MARB but then change my mind? Can I unlock early?",
+      "a": "If you unlock your MARB before the lock period ends, you'll lose a portion of your veMARB. The penalty decreases over time, so we encourage long-term locks to maximize your influence and rewards."
     },
     {
-      "q": "If I lock MARB tokens, how long do they need to stay locked to earn maximum voting power?",
-      "a": "The ve(3,3) model rewards longer locks with more influence. Maximum voting power comes from locking MARB for the full duration, which is 4 years. The longer you lock, the more voting power and rewards you earn."
+      "q": "How is MegaETH different from other chains where veDEX models exist?",
+      "a": "MegaETH has lower fees and faster finality compared to Ethereum, making it more efficient for liquidity mining. We're the first veDEX to bring this model to MegaETH, creating a new ecosystem for fair rewards."
     },
     {
-      "q": "How does a 'fair launch' actually work in practice? What prevents insiders from getting special treatment?",
-      "a": "Our contract was deployed with no owner privileges. The team has no special access or tokens beyond what's available publicly. Everyone starts with equal opportunity to lock MARB and participate in governance from day one."
+      "q": "What prevents a rich project from just 'bribing' the votes with huge rewards?",
+      "a": "While projects can offer bribes, the ve(3,3) model ensures longer-term lockers have more influence. If a project offers unsustainable bribes, the community can vote against them the following week. Long-term value always wins over short-term manipulation."
     },
     {
-      "q": "Can you explain the incentive loop again? How does actually money flow from projects back to token holders?",
-      "a": "Projects pay bribes in MARB to veHolders who vote for their pools. These bribes go directly to the locker's wallets. The more emissions a pool gets, the more LPs earn, which attracts more liquidity - all directed by the community through votes."
+      "q": "How do I actually get MARB tokens before the launch?",
+      "a": "There's no presale! MARB will be fairly distributed through our launch mechanism. Follow @Marb_market on Twitter for the latest announcements on how and when you can get MARB tokens."
     }
   ],
   "all_scores": [
     {
       "loop": 1,
-      "variation": 1,
+      "variation": 2,
       "score": 14.2,
       "grade": "B",
       "minorityFlags": [],
@@ -83,28 +83,28 @@
     {
       "loop": 2,
       "variation": 1,
-      "score": 13.5,
-      "grade": "B",
+      "score": 15.5,
+      "grade": "B+",
       "minorityFlags": [],
       "hardFails": []
     },
     {
       "loop": 3,
       "variation": 2,
-      "score": 11.4,
+      "score": 14.3,
+      "grade": "B",
+      "minorityFlags": [],
+      "hardFails": []
+    },
+    {
+      "loop": 4,
+      "variation": 2,
+      "score": 11.2,
       "grade": "C",
       "minorityFlags": [],
       "hardFails": [
         "compliance"
       ]
-    },
-    {
-      "loop": 4,
-      "variation": 1,
-      "score": 14.3,
-      "grade": "B",
-      "minorityFlags": [],
-      "hardFails": []
     }
   ]
 }
