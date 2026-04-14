@@ -1,40 +1,67 @@
+# Rally Brain Worklog
+
 ---
-Task ID: 1
-Agent: Main Agent
-Task: Create rally-content-creator skill for Rally.fun campaign content generation
+Task ID: 1 (batch - campaign configs + orchestrator)
+Agent: agent-6d8762f7-3185-4d58-b030-20aa02084f4a
+Task: Refactor generate.js for multi-campaign + create campaign configs
 
 Work Log:
-- Analyzed previous session context about GitHub repo (tuyulmillenium104-cmd/chek1, branch rally-command-center-v17)
-- Read rally-data.ts source code for content pipeline logic (analyzeContent, parseBestContent functions)
-- Read rally_main.json and rally_campaigns.json for campaign data structure
-- Reviewed skill-creator SKILL.md for skill creation best practices
-- Created /home/z/my-project/skills/rally-content-creator/ directory structure
-- Created SKILL.md with full 4-step pipeline: Fetch Campaigns → Gather Intelligence → Generate & Score → Present Results
-- Created references/content-quality.md with AI banned words list (40+ words), template phrases, compliance rules, scoring dimensions
-- Created references/rally-platform.md with platform knowledge, ecosystem info, content strategy tips
+- Created campaigns/ directory with 3 JSON configs
+- Modified generate.js to load campaign config from process.argv[2]
+- Changed KDB_PATH to be per-campaign
+- Changed output dir to be per-campaign
+- Replaced hardcoded compliance checks with dynamic COMPLIANCE object
+- All syntax checks passed
 
 Stage Summary:
-- Skill "rally-content-creator" created at /home/z/my-project/skills/rally-content-creator/
-- Pipeline: web-search for campaigns → user picks → generate 5 variations → AI judge scoring (6 dimensions, max 18) → feedback loops (max 2) → self-healing → present report
-- Key features: AI banned words detection, template phrase detection, compliance checking, multi-dimensional scoring
-- Ready for installation and testing
+- generate.js parameterized, backwards compatible
+- 3 configs: marbmarket-m0.json, marbmarket-m1.json, second-campaign.json
+
 ---
-Task ID: 2
-Agent: General-Purpose Agent
-Task: Create run_all.js multi-campaign orchestrator
+Task ID: 2 (run_all.js orchestrator)
+Agent: agent-f83d4fbf-63d1-4417-b8ed-5162a6b6768e
+Task: Create multi-campaign orchestrator
 
 Work Log:
-- Verified project directory at /home/z/my-project/download/rally-brain/
-- Reviewed existing project files (self_heal.js, generate.js, cron.py, etc.)
-- Created /home/z/my-project/download/rally-brain/run_all.js — multi-campaign orchestrator v1.0
-- Appended worklog entry
+- Created run_all.js with sequential campaign execution
+- Added --list and single-campaign modes
+- Added 15s inter-campaign delay
+- Created orchestrator_log.json for persistence
 
 Stage Summary:
-- Created run_all.js at /home/z/my-project/download/rally-brain/run_all.js
-- Orchestrator runs all 3 campaigns (marbmarket-m0, marbmarket-m1, second-campaign) sequentially
-- Supports CLI flags: --list (show campaigns), or pass specific campaign ID to run just one
-- Each campaign delegated to self_heal.js --campaign <id> with 10 min timeout
-- 15 second inter-campaign delay to avoid rate limiting
-- Logs results to campaign_data/orchestrator_log.json (rotates at 100 entries)
-- Exit code 0 if at least 1 campaign succeeds, 1 otherwise
-- Integration point: CRON (45 min) -> run_all.js -> self_heal.js --campaign <id> -> generate.js <id>
+- run_all.js ready, syntax verified
+
+---
+Task ID: 3 (self_heal.js v2.2)
+Agent: agent-8d7383ce-def5-4285-9c8a-d9c5c72f8e0d
+Task: Fix nohup crash + add multi-campaign support
+
+Work Log:
+- Added process.on uncaughtException/unhandledRejection handlers
+- Added setBlocking(true) for stdout/stderr
+- Added --campaign flag parsing
+- Updated exec command to pass campaign ID
+- Version bumped to v2.2
+
+Stage Summary:
+- self_heal.js v2.2 with nohup fix and multi-campaign support
+
+---
+Task ID: 4 (verify + push + cron)
+Agent: main
+Task: Verify, push to GitHub, setup cron
+
+Work Log:
+- All 5 JS files pass syntax check
+- generate.js verified to load campaign config correctly
+- run_all.js --list works
+- Force-added files past .gitignore download/ rule
+- Pushed 2 commits to GitHub main (82c0d74, ec65f3a)
+- Deleted old cron 89260
+- Created new cron 89507 (every 45 min, 3 campaigns)
+- Updated README.md and QUICKSTART.md
+
+Stage Summary:
+- v6.0 multi-campaign fully deployed
+- Cron job 89507 active every 45 minutes
+- GitHub pushed to main branch

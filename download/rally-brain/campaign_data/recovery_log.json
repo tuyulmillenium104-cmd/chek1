@@ -1,24 +1,6 @@
 {
   "attempts": [
     {
-      "timestamp": "2026-04-14T11:30:24.809Z",
-      "action": "generic_recovery",
-      "status": "success",
-      "detail": "Full recovery attempt"
-    },
-    {
-      "timestamp": "2026-04-14T11:30:34.819Z",
-      "action": "recovery_attempt",
-      "status": "pending",
-      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
-    },
-    {
-      "timestamp": "2026-04-14T11:33:47.098Z",
-      "action": "file_fix",
-      "status": "success",
-      "detail": "Ensured all required files/dirs exist"
-    },
-    {
       "timestamp": "2026-04-14T11:33:47.099Z",
       "action": "generic_recovery",
       "status": "success",
@@ -299,6 +281,24 @@
       "action": "generic_recovery",
       "status": "success",
       "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:36:35.024Z",
+      "action": "file_fix",
+      "status": "success",
+      "detail": "Ensured all required files/dirs exist"
+    },
+    {
+      "timestamp": "2026-04-14T18:36:35.025Z",
+      "action": "generic_recovery",
+      "status": "success",
+      "detail": "Full recovery attempt"
+    },
+    {
+      "timestamp": "2026-04-14T18:36:45.036Z",
+      "action": "recovery_attempt",
+      "status": "pending",
+      "detail": "Attempt 1 failed (UNKNOWN_ERROR), retrying..."
     }
   ],
   "last_success": "2026-04-14T17:02:44.842Z",
