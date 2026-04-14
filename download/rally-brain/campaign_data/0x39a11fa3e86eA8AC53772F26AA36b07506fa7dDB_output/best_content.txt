@@ -1,13 +1,15 @@
-Most people chase the latest memecoin pump. The real shift is happening where power returns to liquidity providers—not VCs who got tokens at $0.001.
+Most people chase the latest L1 hype. The quiet revolution happens where community control meets sustainable incentives. That's where MarbMarket changes the game on MegaETH.
 
-MarbMarket is building the first veDEX on MegaETH. No presale. No VC backing. Just a fair launch where your MARB locks actually matter.
+Forget the usual DEX model. MarbMarket is a veDEX - where your MARB locks turn into voting power. Longer locks = more influence. Simple. But the magic happens when protocols pay bribes for your vote.
 
-Here's how it works: you lock MARB → get veTokens → weekly votes decide which LP pools get emissions. Projects pay bribes for those votes → rewards flow back to you.
+This isn't just about trading fees. It's about creating a flywheel where:
+1. MARB lockers direct emissions
+2. LPs get rewards
+3. Protocols pay for votes
+4. Incentives flow back to lockers
 
-This is the ve(3,3) model in action. Longer locks = more influence + more rewards. The community decides where value flows, not some centralized team.
+First veDEX on MegaETH. No presale. No VCs. Just fair launch mechanics that reward long-term holders.
 
-MegaETH needed this. A DEX where liquidity providers hold power, not just yield chasers. MarbMarket delivers that.
+x.com/Marb_market
 
-Check it out before launch: x.com/Marb_market
-
-@RallyOnChain what's your take on ve(3,3) models replacing traditional AMMs?
+What's your take on the ve(3,3) model? Does it solve the liquidity mining problem?
