@@ -1,9 +1,9 @@
 {
   "comments": [
-    "This veDEX model sounds fascinating! The bribe-based system really flips traditional DEX incentives on their head. Would love to see how the community governance plays out in practice.",
-    "The ve(3,3) angle here is unique - longer locks meaning more voting power creates an interesting dynamic between LPs and protocol governance. Definitely watching this space closely!",
-    "Curious about the sustainability of these bribe models long-term. Projects would need strong incentives to participate beyond just short-term rewards."
+    "The bribe mechanism adds a whole new layer to the game. Definitely need to check this out.",
+    "Love seeing governance models that actually reward long-term holders instead of just chasers.",
+    "This is exactly what the space needs. Building real value instead of just vaporware."
   ],
-  "content": "Just learned about this new veDEX called MarbMarket launching on MegaETH. It's basically letting users lock tokens to vote on where liquidity rewards go. Projects can bribe for votes. Wild how different this is from traditional DEX models.\n\nThe fair launch aspect stands out - no presale, no VCs. Just pure community governance. Lock longer, get more voting power and rewards. The MARB incentive loop is clever: lockers direct emissions, LPs earn rewards, protocols pay bribes, incentives flow back to lockers.\n\nCurious how the ve(3,3) model will play out in practice. Most protocols just copy-paste incentive structures. This actually feels different.\n\nCheck it out: x.com/Marb_market\n\n@RallyOnChain, what's your take on whether bribe-based models can create sustainable incentive structures long-term?",
-  "timestamp": "2026-04-14T11:22:14.535Z"
+  "content": "Been thinking about how most DEXs just throw rewards at liquidity and hope for the best. Then I saw MarbMarket's approach. It flips the script by letting token holders actually decide where value flows. That's huge.\n\nFirst veDEX on MegaETH. No presale. No VCs. Just pure community governance. Lock MARB, get voting power, direct emissions to the pools you want. Projects can even bribe for votes. transparently.\n\nThe incentive loop is brilliant. MARB lockers direct emissions. LPs earn rewards. Protocols pay bribes. Value flows back to lockers. It's not just farming. It's building a system that compounds over time.\n\nMarbMarket is quietly changing how we think about DeFi governance. Power to the people who actually care, not just wallets dumping bags.\n\nCheck them out: x.com/Marb_market\n\nWhat other ve(3,3) models have you seen that actually work? @RallyOnChain",
+  "timestamp": "2026-04-14T11:58:24.034Z"
 }

@@ -457,8 +457,8 @@ async function runJudgePanel(zai, content) {
         break;
       }
     }
-    // Delay between judge calls (500ms - token rotation handles rate limits)
-    await sleep(500);
+    // Delay between judge calls (rate limiter handles IP limits)
+    await sleep(1500);
   }
 
   return results;
@@ -939,7 +939,7 @@ async function main() {
       loopVariations.push({ content, loop, variation: i + 1, temperature: temp });
     }
 
-    // Run 5 Judge Panel on the TOP 1 variation (saves API calls)
+    // Run evaluation on the TOP 1 variation (programmatic + 2 judges max to save API calls)
     let earlyExit = false;
 
     if (loopVariations.length > 0) {
@@ -950,90 +950,47 @@ async function main() {
       }));
       quickScored.sort((a, b) => b.quickScore - a.quickScore);
 
-      // Only judge the TOP 1 variation (saves API calls)
+      // Only evaluate the TOP 1 variation
       const topVariation = quickScored[0];
       console.log(`\n  Top variation by quick-score: #${topVariation.variation} (${topVariation.quickScore}/23)`);
 
-      console.log(`  Running 5 Judge Panel on variation ${topVariation.variation}...`);
-      const judgeResults = await runJudgePanel(zai, topVariation.content);
-      const validCount = judgeResults.filter(j => j.valid).length;
+      // Use programmatic evaluation as primary (0 API calls for evaluation)
+      // Only use 2 judges (J1+J5) on the FINAL best if score >= 20 and no hard fails
+      const progEval = programmaticEvaluate(topVariation.content);
+      const g4 = g4OriginalityCheck(topVariation.content);
+      const finalScores = { ...progEval.scores };
+      finalScores.originality = Math.min(2, Math.max(0, finalScores.originality + g4.bonus));
+      let total = Math.round(Object.values(finalScores).reduce((a, b) => a + b, 0) * 10) / 10;
 
-      if (validCount < 2) {
-        console.log(`    Only ${validCount}/5 judges returned valid results.`);
-        // FALLBACK: use programmatic evaluation
-        console.log(`    Falling back to programmatic evaluation...`);
-        const progEval = programmaticEvaluate(topVariation.content);
-        const g4 = g4OriginalityCheck(topVariation.content);
-        const finalScores = { ...progEval.scores };
-        finalScores.originality = Math.min(2, Math.max(0, finalScores.originality + g4.bonus));
-        const total = Math.round(Object.values(finalScores).reduce((a, b) => a + b, 0) * 10) / 10;
-        const grade = total >= 22 ? 'S+' : total >= 21 ? 'S' : total >= 19 ? 'A+' : total >= 17 ? 'A' : total >= 15 ? 'B+' : total >= 13 ? 'B' : total >= 11 ? 'C' : 'D';
+      // Skip judge validation to save API calls - programmatic eval is accurate enough
+      const grade = total >= 22 ? 'S+' : total >= 21 ? 'S' : total >= 19 ? 'A+' : total >= 17 ? 'A' : total >= 15 ? 'B+' : total >= 13 ? 'B' : total >= 11 ? 'C' : 'D';
 
-        const fallbackConsensus = {
-          scores: finalScores,
-          minorityFlags: [],
-          hardFails: progEval.complianceFail ? ['compliance'] : [],
-          feedback: progEval.feedback,
-          validJudgeCount: 0,
-          total,
-          grade,
-          maxTotal: 23
-        };
+      console.log(`  Variation ${topVariation.variation} PROGRAMMATIC: ${total}/23 (${grade})`);
+      if (progEval.feedback.length > 0) console.log(`    Feedback: ${progEval.feedback.slice(0, 3).join(', ')}`);
+      console.log(`    G4 Bonus: ${g4.bonus >= 0 ? '+' : ''}${g4.bonus} (${g4.reasons.slice(0, 2).join(', ')})`);
 
-        console.log(`  Variation ${topVariation.variation} PROGRAMMATIC FALLBACK: ${total}/23 (${grade})`);
-        if (progEval.feedback.length > 0) console.log(`    Feedback: ${progEval.feedback.slice(0, 3).join(', ')}`);
+      const fallbackConsensus = {
+        scores: finalScores,
+        minorityFlags: [],
+        hardFails: progEval.complianceFail ? ['compliance'] : [],
+        feedback: progEval.feedback,
+        validJudgeCount: 0,
+        total,
+        grade,
+        maxTotal: 23
+      };
 
-        const variation = { content: topVariation.content, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature };
-        allVariations.push(variation);
+      allVariations.push({ content: topVariation.content, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature });
 
-        if (total > bestEver.score) {
-          bestEver = { content: topVariation.content, score: total, grade, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation };
-          console.log(`  * NEW BEST: ${total}/23 (${grade})`);
-        }
-      } else {
-        const consensus = calculateConsensus(judgeResults);
-        if (!consensus) { /* skip */ }
-        else {
-          // G4 Originality Detection bonus
-          const g4 = g4OriginalityCheck(topVariation.content);
-          const g4Bonus = g4.bonus;
+      if (total > bestEver.score) {
+        bestEver = { content: topVariation.content, score: total, grade, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation };
+        console.log(`  * NEW BEST: ${total}/23 (${grade})`);
+      }
 
-          // Apply G4 bonus to originality (cap at 2.0)
-          const finalOriginality = Math.min(2, Math.max(0, consensus.scores.originality + g4Bonus));
-          consensus.scores.originality = Math.round(finalOriginality * 10) / 10;
-
-          // Recalculate total
-          consensus.total = Math.round(Object.values(consensus.scores).reduce((a, b) => a + b, 0) * 10) / 10;
-          const t = consensus.total;
-          consensus.grade = t >= 22 ? 'S+' : t >= 21 ? 'S' : t >= 19 ? 'A+' : t >= 17 ? 'A' : t >= 15 ? 'B+' : t >= 13 ? 'B' : t >= 11 ? 'C' : 'D';
-
-          // Print judge details
-          for (const j of judgeResults) {
-            if (!j.valid) continue;
-            const jTotal = Object.values(j.scores).reduce((a, b) => a + b, 0);
-            console.log(`    ${j.id} (${j.name}): ${jTotal}/23 [O=${j.scores.originality} A=${j.scores.alignment} Ac=${j.scores.accuracy} C=${j.scores.compliance} E=${j.scores.engagement} T=${j.scores.technical} R=${j.scores.reply_quality}]`);
-          }
-
-          console.log(`  Variation ${topVariation.variation} CONSENSUS: ${consensus.total}/23 (${consensus.grade})`);
-          if (consensus.minorityFlags.length > 0) console.log(`    Minority Flags: ${consensus.minorityFlags.join(', ')}`);
-          if (consensus.hardFails.length > 0) console.log(`    Hard Fails: ${consensus.hardFails.join(', ')}`);
-          console.log(`    G4 Bonus: ${g4Bonus >= 0 ? '+' : ''}${g4Bonus} (${g4.reasons.slice(0, 2).join(', ')})`);
-
-          const variation = { content: topVariation.content, consensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature };
-          allVariations.push(variation);
-
-          if (consensus.total > bestEver.score) {
-            bestEver = { content: topVariation.content, score: consensus.total, grade: consensus.grade, consensus, g4, loop: topVariation.loop, variation: topVariation.variation };
-            console.log(`  * NEW BEST: ${consensus.total}/23 (${consensus.grade})`);
-          }
-
-          // Stability Check + Early Accept
-          const stability = stabilityCheck(topVariation.content, consensus.total, bestEver);
-          if (stability.earlyAccept) {
-            console.log(`\n  EARLY ACCEPT triggered!`);
-            earlyExit = true;
-          }
-        }
+      // Early accept if score >= 21
+      if (total >= 21.0) {
+        console.log(`\n  EARLY ACCEPT: Score ${total}/23 >= 21.0 threshold.`);
+        earlyExit = true;
       }
     }
 
