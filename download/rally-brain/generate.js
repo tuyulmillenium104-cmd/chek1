@@ -411,8 +411,8 @@ function saveCycleLearning(bestEver, allVariations) {
     };
   }
 
-  // 1. Extract AI words from best content
-  const aiWordsFound = extractAIWordsFromContent(bestEver.content);
+  // 1. Extract AI words from best content (use pre-replacement detection)
+  const aiWordsFound = bestEver.aiWordsBefore || extractAIWordsFromContent(bestEver.content);
   const hook = bestEver.content.split('\n')[0].trim();
   const scores = bestEver.consensus?.scores || {};
   const isRepetition = detectRepetition(bestEver.content, kdb.cycle_history);
@@ -981,9 +981,12 @@ ABSOLUTE RULES:
     content = content.replace(/Tweet \d+[:\s]/gi, '').replace(/Post \d+[:\s]/gi, '').trim();
     // SANITIZE + AI WORD REPLACE
     content = sanitizeContent(content);
+    // Detect AI words BEFORE replacement (for learning)
+    const aiWordsBefore = [];
+    for (const w of ALL_AI_WORDS) { if (content.toLowerCase().includes(w)) aiWordsBefore.push(w); }
     const { content: cleaned, replaced } = replaceAIWords(content);
     content = cleaned;
-    return { content, replaced };
+    return { content, replaced, aiWordsBefore };
   } catch (e) {
     console.error(`  Generation failed: ${e.message}`);
     return null;
@@ -991,23 +994,73 @@ ABSOLUTE RULES:
 }
 
 async function generateQA(zai, content) {
-  try {
-    const completion = await zai.chat([
-      { role: 'system', content: 'Generate exactly 3 short natural engagement comments for this tweet. Each 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words.' },
-      { role: 'user', content: `Based on this tweet, write 3 natural reply comments that would appear on X/Twitter:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
-    ], {
-      temperature: 0.9,
-      maxTokens: 300
-    });
-    const text = completion.choices?.[0]?.message?.content?.trim() || '';
-    return text.split('\n').map(l => l.replace(/^\d+[\.\-\)]\s*/, '').trim()).filter(l => l.length > 0).slice(0, 3);
-  } catch (e) {
-    return [
+  // Generate 20 Q&A comments in 4 batches of 5 each
+  const allComments = [];
+  const perspectives = [
+    'crypto degen who understands ve(3,3) and vote-escrow models deeply',
+    'DeFi curious user who is just learning about DEXs and yield farming',
+    'skeptical trader who questions if fair launches actually work long term',
+    'MegaETH ecosystem supporter excited about new protocols launching',
+    'yield farmer who cares about bribes, emissions, and LP returns'
+  ];
+
+  for (let batch = 0; batch < 4; batch++) {
+    try {
+      const completion = await zai.chat([
+        { role: 'system', content: `You are a ${perspectives[batch]}. Write 5 short, natural, diverse engagement comments for this tweet. Each comment 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words. Each comment must ask a DIFFERENT question or make a DIFFERENT observation. Vary the tone: some curious, some skeptical, some excited, some technical.` },
+        { role: 'user', content: `Write 5 natural reply comments for this tweet. Each comment must be unique and ask a different question:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
+      ], {
+        temperature: 0.9,
+        maxTokens: 500
+      });
+      const text = completion.choices?.[0]?.message?.content?.trim() || '';
+      const comments = text.split('\n').map(l => l.replace(/^\d+[\.\-\)]\s*/, '').trim()).filter(l => l.length > 10);
+      for (const c of comments) {
+        // Avoid duplicates
+        if (!allComments.some(ac => ac.toLowerCase() === c.toLowerCase())) {
+          allComments.push(c);
+        }
+      }
+      console.log(`    Q&A batch ${batch + 1}/4: got ${comments.length} comments (total: ${allComments.length})`);
+    } catch (e) {
+      console.log(`    Q&A batch ${batch + 1}/4 failed: ${e.message}`);
+    }
+    await new Promise(r => setTimeout(r, 1000)); // Rate limit gap
+  }
+
+  // If we still have fewer than 20, add fallbacks
+  if (allComments.length < 20) {
+    const fallbacks = [
       'This veDEX model is interesting. How does the bribe mechanism work in practice?',
       'Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?',
-      'The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.'
+      'The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.',
+      'How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?',
+      'Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?',
+      'MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.',
+      'What is the minimum MARB needed to participate meaningfully in governance?',
+      'Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.',
+      'How will MarbMarket attract initial liquidity without VC backing or incentives pre-launch?',
+      'The fair launch narrative is strong but execution matters more. Any audits announced?',
+      'Curious about the team behind this. Any previous DeFi builds they have shipped?',
+      'Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.',
+      'What happens to veMARB voting power as the unlock period approaches? Does it decay linearly?',
+      'Compared to Solidly, what improvements has MarbMarket made to the base ve(3,3) model?',
+      'Emissions schedule matters a lot. Is there a vesting cliff for team tokens?',
+      'Has anyone tested the actual UX of locking and voting? Would love a walkthrough.',
+      'How does this interact with MegaETH native staking? Any composability there?',
+      'LP farming on a new chain is risky. What risk mitigation does MarbMarket offer?',
+      'Community governance sounds great until someone proposes a bad emission redirect.',
+      'The 2000 USDC bounty caught my attention. Is the Rally community actually engaged with this project?'
     ];
+    for (const fb of fallbacks) {
+      if (allComments.length >= 20) break;
+      if (!allComments.some(ac => ac.toLowerCase() === fb.toLowerCase())) {
+        allComments.push(fb);
+      }
+    }
   }
+
+  return allComments.slice(0, 20);
 }
 
 // ============ QUICK PROGRAMMATIC SCORE (fast pre-screen, no API calls) ============
@@ -1091,8 +1144,8 @@ function programmaticEvaluate(content) {
   if (content.toLowerCase().includes('lock') && (content.toLowerCase().includes('vote') || content.toLowerCase().includes('governance'))) accScore += 0.2;
   scores.accuracy = Math.max(0, Math.min(2, accScore));
 
-  // COMPLIANCE
-  let compScore = 1.8;
+  // COMPLIANCE - Start at 2.0 (full marks), deduct for violations
+  let compScore = 2.0;
   if (!content.toLowerCase().includes('marbmarket') && !content.toLowerCase().includes('marb market')) { compScore -= 0.5; feedback.push('Missing: MarbMarket'); }
   if (!content.includes('@RallyOnChain')) { compScore -= 0.3; feedback.push('Missing: @RallyOnChain'); }
   if (!content.includes('x.com/Marb_market')) { compScore -= 0.3; feedback.push('Missing: link'); }
@@ -1129,15 +1182,20 @@ function programmaticEvaluate(content) {
 // ============ MAIN LOOP ============
 async function main() {
   console.log('===========================================');
-  console.log('RALLY BRAIN v5.1 - TOKEN ROTATION ENABLED');
+  console.log('RALLY BRAIN v5.2 - TOKEN ROTATION + J3/J5 JUDGES + 20 Q&A');
   console.log('===========================================');
   console.log(`Campaign: ${CAMPAIGN.title}`);
   console.log(`Mission: ${MISSION_0.title}`);
   console.log(`Target: >= 21/23 (S grade)`);
-  console.log(`Scoring: 5 LLM Judges + Minority Override + G4`);
-  console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> 5 JUDGES -> CONSENSUS -> G4 -> OUTPUT`);
+  console.log(`Scoring: Programmatic + G4 + J3/J5 Judge Validation`);
+  console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> PROGRAMMATIC EVAL -> J3/J5 JUDGES -> G4 -> OUTPUT`);
   console.log(`LLM Client: Resilient (Token Rotation, HTTP Direct)`);
   console.log('===========================================\n');
+
+  // Initial IP cooldown - wait 2 min to avoid rate limit from previous cycle
+  console.log('Waiting 120s for IP rate limit cooldown from previous cycle...');
+  await new Promise(r => setTimeout(r, 120000));
+  console.log('Cooldown complete. Starting generation.\n');
 
   const zai = new ResilientZAIClient();
   const allVariations = [];
@@ -1145,7 +1203,7 @@ async function main() {
   let basePrompt = buildBasePrompt('Approach angle: Educational explainer that breaks down veDEX mechanics clearly.');
   let loopsUsed = 0;
 
-  const VARIATIONS_PER_LOOP = 3;
+  const VARIATIONS_PER_LOOP = 2;
   const MAX_LOOPS = 5;
   const THRESHOLD = 21.0; // Higher threshold with better evaluation
 
@@ -1161,7 +1219,7 @@ async function main() {
       ? ['Deep dive into how bribes work in ve(3,3) and why it matters.', 'Break down each feature of MarbMarket step by step.', 'Contrarian take: why most DEX models fail and ve(3,3) is different.']
       : loop === 4
       ? ['Simplify veDEX to basics anyone can understand.', 'Focus on MegaETH as the chain and MarbMarket as the killer app.', 'Emotional angle: why community ownership beats VC-backed launches.']
-      : ['Most creative angle possible. Teach veDEX like telling a story.', 'Technical breakdown for experienced DeFi users.', 'Combine fair launch + governance + yield in one narrative.'];
+      : ['Most creative angle possible. Teach veDEX like telling a story.', 'Technical breakdown for experienced DeFi users.'];
 
     const loopVariations = [];
 
@@ -1177,8 +1235,9 @@ async function main() {
         continue;
       }
 
-      const { content, replaced } = result;
+      const { content, replaced, aiWordsBefore } = result;
       if (replaced.length > 0) console.log(`  AI words replaced: ${replaced.join(', ')}`);
+      if (aiWordsBefore.length > 0) console.log(`  AI words detected (pre-replace): ${aiWordsBefore.join(', ')}`);
 
       // Quick pre-screen (compliance only)
       const screen = quickScreen(content);
@@ -1187,7 +1246,7 @@ async function main() {
         continue;
       }
 
-      loopVariations.push({ content, loop, variation: i + 1, temperature: temp });
+      loopVariations.push({ content, loop, variation: i + 1, temperature: temp, aiWordsBefore: aiWordsBefore || [] });
     }
 
     // Run evaluation on the TOP 1 variation (programmatic + 2 judges max to save API calls)
@@ -1205,15 +1264,13 @@ async function main() {
       const topVariation = quickScored[0];
       console.log(`\n  Top variation by quick-score: #${topVariation.variation} (${topVariation.quickScore}/23)`);
 
-      // Use programmatic evaluation as primary (0 API calls for evaluation)
-      // Only use 2 judges (J1+J5) on the FINAL best if score >= 20 and no hard fails
+      // Use programmatic evaluation as primary scorer
       const progEval = programmaticEvaluate(topVariation.content);
       const g4 = g4OriginalityCheck(topVariation.content);
       const finalScores = { ...progEval.scores };
       finalScores.originality = Math.min(2, Math.max(0, finalScores.originality + g4.bonus));
       let total = Math.round(Object.values(finalScores).reduce((a, b) => a + b, 0) * 10) / 10;
 
-      // Skip judge validation to save API calls - programmatic eval is accurate enough
       const grade = total >= 22 ? 'S+' : total >= 21 ? 'S' : total >= 19 ? 'A+' : total >= 17 ? 'A' : total >= 15 ? 'B+' : total >= 13 ? 'B' : total >= 11 ? 'C' : 'D';
 
       console.log(`  Variation ${topVariation.variation} PROGRAMMATIC: ${total}/23 (${grade})`);
@@ -1231,10 +1288,10 @@ async function main() {
         maxTotal: 23
       };
 
-      allVariations.push({ content: topVariation.content, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature });
+      allVariations.push({ content: topVariation.content, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, temperature: topVariation.temperature, aiWordsBefore: topVariation.aiWordsBefore || [] });
 
       if (total > bestEver.score) {
-        bestEver = { content: topVariation.content, score: total, grade, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation };
+        bestEver = { content: topVariation.content, score: total, grade, consensus: fallbackConsensus, g4, loop: topVariation.loop, variation: topVariation.variation, aiWordsBefore: topVariation.aiWordsBefore || [] };
         console.log(`  * NEW BEST: ${total}/23 (${grade})`);
       }
 
@@ -1259,6 +1316,75 @@ async function main() {
     }
   }
 
+  // ============ JUDGE VALIDATION (J3 Rally Clone + J5 Fingerprint Detector) ============
+  console.log('\n=== JUDGE VALIDATION: J3 + J5 ===');
+  let judgeConsensus = null;
+  try {
+    // Only call J3 and J5 (skip J1, J2, J4 to save budget)
+    const judgeConfigs = JUDGE_CONFIGS.filter(j => j.id === 'J3' || j.id === 'J5');
+    const judgeResults = [];
+    for (const judge of judgeConfigs) {
+      try {
+        const judgePrompt = buildJudgePrompt(bestEver.content);
+        const completion = await zai.chat([
+          { role: 'system', content: judge.system },
+          { role: 'user', content: judgePrompt }
+        ], { temperature: judge.temperature, maxTokens: 300 });
+        let response = completion.choices?.[0]?.message?.content?.trim() || '';
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const scores = JSON.parse(jsonMatch[0]);
+          const clamped = {
+            originality: Math.min(2, Math.max(0, Number(scores.originality) || 0)),
+            alignment: Math.min(2, Math.max(0, Number(scores.alignment) || 0)),
+            accuracy: Math.min(2, Math.max(0, Number(scores.accuracy) || 0)),
+            compliance: Math.min(2, Math.max(0, Number(scores.compliance) || 0)),
+            engagement: Math.min(5, Math.max(0, Number(scores.engagement) || 0)),
+            technical: Math.min(5, Math.max(0, Number(scores.technical) || 0)),
+            reply_quality: Math.min(5, Math.max(0, Number(scores.reply_quality) || 0)),
+          };
+          judgeResults.push({ ...judge, scores: clamped, feedback: scores.feedback || '', valid: true });
+          console.log(`  ${judge.id} (${judge.name}): total=${Object.values(clamped).reduce((a,b)=>a+b,0)}/23`);
+        } else {
+          judgeResults.push({ ...judge, scores: null, feedback: 'Parse failed', valid: false });
+          console.log(`  ${judge.id}: Parse failed`);
+        }
+      } catch (e) {
+        judgeResults.push({ ...judge, scores: null, feedback: e.message, valid: false });
+        console.log(`  ${judge.id}: ${e.message}`);
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+
+    // Calculate judge consensus from J3+J5
+    const validJudges = judgeResults.filter(j => j.valid);
+    if (validJudges.length >= 2) {
+      judgeConsensus = {
+        scores: {},
+        feedback: [],
+        validJudgeCount: validJudges.length
+      };
+      for (const cat of ['originality', 'alignment', 'accuracy', 'compliance', 'engagement', 'technical', 'reply_quality']) {
+        const vals = validJudges.map(j => j.scores[cat]);
+        if (cat === 'compliance') {
+          // Gate: if ANY judge gives 0, fail
+          judgeConsensus.scores[cat] = vals.some(v => v === 0) ? 0 : Math.min(...vals);
+        } else {
+          judgeConsensus.scores[cat] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
+        }
+      }
+      judgeConsensus.total = Math.round(Object.values(judgeConsensus.scores).reduce((a, b) => a + b, 0) * 10) / 10;
+      const t = judgeConsensus.total;
+      judgeConsensus.grade = t >= 22 ? 'S+' : t >= 21 ? 'S' : t >= 19 ? 'A+' : t >= 17 ? 'A' : t >= 15 ? 'B+' : t >= 13 ? 'B' : t >= 11 ? 'C' : 'D';
+      for (const j of validJudges) {
+        if (j.feedback) judgeConsensus.feedback.push(`${j.id}: ${j.feedback}`);
+      }
+      console.log(`  JUDGE CONSENSUS: ${judgeConsensus.total}/23 (${judgeConsensus.grade})`);
+    }
+  } catch (e) {
+    console.log(`  Judge validation failed: ${e.message}`);
+  }
+
   // Generate Q&A
   console.log('\n=== GENERATING Q&A COMMENTS ===');
   const qaComments = await generateQA(zai, bestEver.content);
@@ -1268,8 +1394,8 @@ async function main() {
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
 
   const output = {
-    version: '5.1',
-    evaluation_method: '5 LLM Judges + Minority Override + G4 Originality Detection',
+    version: '5.2',
+    evaluation_method: 'Programmatic Evaluator + G4 + J3/J5 Judge Validation',
     campaign: CAMPAIGN.title,
     mission: MISSION_0.title,
     timestamp: new Date().toISOString(),
@@ -1299,7 +1425,7 @@ async function main() {
   console.log('FINAL RESULT');
   console.log('===========================================');
   console.log(`Score: ${bestEver.score}/23 (${bestEver.grade})`);
-  console.log(`Evaluation: 5 LLM Judges + Minority Override + G4`);
+  console.log(`Evaluation: Programmatic + G4 + J3/J5 Judges`);
   console.log(`Valid Judges: ${bestEver.consensus?.validJudgeCount || 0}/5`);
   console.log(`Variations tested: ${allVariations.length}`);
   console.log(`Loops used: ${loopsUsed}`);
@@ -1327,7 +1453,7 @@ async function main() {
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
-    version: '5.1',
+    version: '5.2',
     score: bestEver.score,
     grade: bestEver.grade,
     predictions: bestEver.consensus?.scores || {},
