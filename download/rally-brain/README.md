@@ -1,129 +1,90 @@
-# Rally Brain v2.0 — Level 2 Content Generation System
+# Rally Brain v5.2.1
 
-> **Philosophy**: "Rally minta 1, kita beri 2" — exceed Rally's quality expectations, not quantity.
+Automated content generation system for [Rally.fun](https://rally.fun) campaigns. Generates high-quality, anti-AI-detected social media posts using a multi-stage pipeline with closed-loop learning, LLM judge evaluation, and self-healing error recovery.
 
-## Architecture
+> **Current Campaign**: MarbMarket - The First veDEX on MegaETH (2000 USDC)
+> **Contract**: `0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB`
+> **Mission 0**: "Explain the veDEX Model & Why MarbMarket Matters"
+
+## Quick Start
+
+See **[QUICKSTART.md](QUICKSTART.md)** for new AI chat sessions - read this first!
+
+For deep technical reference, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
+## Architecture Overview
 
 ```
-/cron (link) set 30m
-         │
-         ▼
-    ┌─────────────────────────────────┐
-    │     CONNECTED PIPELINE          │
-    │                                 │
-    │  1. LEARN  ← Rally API         │
-    │     ├─ Fetch submissions        │
-    │     ├─ Extract patterns         │
-    │     │   ├─ Surface (format)     │
-    │     │   ├─ Structural (CTA etc) │
-    │     │   └─ Semantic (WHY)       │
-    │     └─ Update knowledge_db      │
-    │                                 │
-    │  2. GENERATE → Content          │
-    │     ├─ Loop (max 5x):          │
-    │     │   ├─ 3 variations         │
-    │     │   ├─ Score each           │
-    │     │   ├─ Best >= 16? → keep   │
-    │     │   └─ If not → improve     │
-    │     └─ Best of ALL variations   │
-    │                                 │
-    │  3. OUTPUT                      │
-    │     ├─ best_content.txt         │
-    │     ├─ qa.json (3 comments)     │
-    │     └─ prediction.json          │
-    │                                 │
-    │  4. LEARN from new cycle        │
-    │     └─ → back to step 1         │
-    └─────────────────────────────────┘
+CRON (Job 89260, every 30 min)
+    |
+    v
+self_heal.js (v2.1) - Pre-cycle health check + 5x retry + diagnosis
+    |
+    v
+generate.js (v5.2.1) - LEARN -> GENERATE -> EVALUATE -> JUDGE -> Q&A -> OUTPUT
+    |                        Budget: 12 API calls/cycle (~2 min)
+    v
+zai-resilient.js (v1.0) - 5 tokens x 300/day = 1,500 quota, 10s rate limit
+    |
+    v
+Gateway 1: 172.25.136.210:8080
+Gateway 2: 172.25.136.193:8080
 ```
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `engine.py` | Core: PatternExtractor, ScorePredictor, ContentGenerator, RallyBrainEngine |
-| `cron_learner.py` | Fetch Rally API data, extract patterns, update knowledge |
-| `cron_generator.py` | Generate loop, evaluate quality, output best content + Q&A |
-| `cron.py` | Command interface: parse `/cron (link) set 30m`, manage jobs |
-| `knowledge_db.json` | Persistent knowledge: patterns, scoring model, campaign memories |
-| `campaign_data/` | Per-campaign storage: submissions, outputs, predictions |
+| File | Version | Purpose |
+|------|---------|---------|
+| `generate.js` | v5.2.1 | Main pipeline: LEARN -> GENERATE -> EVALUATE -> JUDGE -> Q&A -> OUTPUT |
+| `zai-resilient.js` | v1.0 | Token rotation (5 tokens), rate limiting, 5x retry |
+| `self_heal.js` | v2.1 | Runner wrapper with auto-diagnosis and health monitoring |
+| `health_monitor.js` | v1.0 | 4-level health tracking (HEALTHY/WARNING/CRITICAL/EMERGENCY) |
+| `knowledge_db.json` | v3.0.0 | Closed-loop learning (cycle history, AI word freq, category trends) |
+| `ARCHITECTURE.md` | - | Deep technical reference for all subsystems |
+| `QUICKSTART.md` | - | Quick-start guide for new AI chat sessions |
+| `campaign_data/` | - | Output dir: best_content.txt, qa.json, prediction.json |
 
-## Key Concepts
+## Token Pool (5 tokens = 1,500 calls/day)
 
-### 3-Level Pattern Extraction
-1. **Surface** — Format rules (spacing, compliance, technical)
-2. **Structural** — Engagement patterns (CTA, hooks, mentions)
-3. **Semantic** — WHY things fail (exaggeration risk, vagueness, alignment gaps)
+| Token | User ID | Source |
+|-------|---------|--------|
+| TOKEN_1 | 97631263... | Manual |
+| TOKEN_2 | 1cdcf579... | Manual |
+| TOKEN_3 | 97631263... | Manual |
+| TOKEN_4 | bb829ea3... | Manual |
+| TOKEN_5_AUTO | 4f3de308... | System auto |
 
-### Score Prediction
-- 6 categories: Originality (2), Alignment (2), Accuracy (2), Compliance (2), Engagement (5), Technical (5)
-- Max: 18/18
-- Threshold: 16/18 (Level 2 quality)
-- Self-calibrating from actual Rally scores
+## Scoring (23 points max)
 
-### Generate Loop
-```
-Loop 1: Generate 3 → Evaluate → Best score: 14.5 → Below 16
-Loop 2: Generate 3 (improved prompt) → Evaluate → Best: 15.8 → Below 16
-Loop 3: Generate 3 → Evaluate → Best: 16.5 → ✅ STOP
-Output: Best of all 9 variations (could be from any loop)
-```
+| Category | Max | Type |
+|----------|-----|------|
+| Originality | 2 | Gate (0 or 2) |
+| Alignment | 2 | Gate (0 or 2) |
+| Accuracy | 2 | Gate (0 or 2) |
+| Compliance | 2 | Gate (0 or 2) |
+| Engagement | 5 | Quality (0-5) |
+| Technical | 5 | Quality (0-5) |
+| Reply Quality | 5 | Quality (0-5) |
 
-### v3 Lessons (Built-in)
-From actual Rally scoring of our first submission (14/18 vs predicted 17.5):
-- ❌ "Zero cost" = exaggeration → Accuracy -1
-- ❌ "Figured it out" = vague → Accuracy -0.5
-- ❌ Mysterious opening → Compliance -1
-- ❌ Extra whitespace → Technical -1
-- ❌ No CTA → Engagement -0.5
+Grades: S+(22-23) S(21) A+(19-20.9) A(17-18.9) B+(15-16.9) B(13-14.9) C(11-12.9) D(<11)
 
-## Usage
+## Multi-Campaign Roadmap
 
-### As Module (Next.js API Route)
-```python
-from rally_brain.cron import handle_cron_command, execute_cycle
+| Tokens | 1 Campaign | 2 Campaigns | 3 Campaigns |
+|--------|-----------|-------------|-------------|
+| 5 (current) | ~11 min | ~23 min | ~35 min |
+| 9 | ~6 min | ~13 min | ~19 min |
 
-# Parse command
-result = await handle_cron_command("/cron https://rally.fun/campaigns/abc123 set 30m")
+Formula: `interval = (campaigns x 12 x 1440) / (tokens x 300)` minutes
 
-# Execute one cycle
-result = await execute_cycle("https://rally.fun/campaigns/abc123")
-```
+## Known Issues
 
-### Standalone
-```bash
-# Run one full cycle (learn + generate) for a campaign
-python cron_generator.py https://rally.fun/campaigns/abc123
+- `valid_judges` always 0 in output (judges run but score comes from programmatic evaluator)
+- nohup + Node.js die silently (use `stdbuf -oL -eL`)
+- Accuracy category declining (avg 68%)
+- Reply Quality weak (avg 58%)
 
-# Run learning only
-python cron_learner.py https://rally.fun/campaigns/abc123
+## GitHub
 
-# Test cron command parsing
-python cron.py "/cron https://rally.fun/campaigns/abc123 set 30m"
-python cron.py "/cron list"
-```
-
-## Cron Integration
-
-The cron scheduler supports:
-- `/cron <link> set <interval>` — Start job (15m, 30m, 1h, 2h)
-- `/cron <link> stop` — Stop specific job
-- `/cron list` — Show all active jobs and stats
-- `/cron status` — Engine knowledge stats
-
-Each cycle: LEARN (from Rally API) → GENERATE (with learned patterns) → OUTPUT (best content + Q&A)
-
-## Data Flow
-
-```
-Rally API → cron_learner.py → engine.py (PatternExtractor)
-                                      ↓
-                              knowledge_db.json (updated)
-                                      ↓
-cron_generator.py → engine.py (ContentGenerator + ScorePredictor)
-                                      ↓
-                              campaign_data/{id}_output/
-                              ├─ best_content.txt
-                              ├─ qa.json
-                              └─ prediction.json
-```
+- **Repo**: https://github.com/tuyulmillenium104-cmd/chek1
+- **Branch**: `main`
