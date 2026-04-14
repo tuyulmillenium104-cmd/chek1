@@ -1,59 +1,72 @@
-# Rally Brain v5.2.1 - Quick Start Guide
+# Rally Brain v6.0 - Quick Start Guide
 
 > For new AI chat sessions. Read this first, then ARCHITECTURE.md for deep reference.
 
 ## 1. What Am I Looking At?
 
-Rally Brain is an automated content generation system for Rally.fun crypto campaigns. It generates X/Twitter posts about DeFi projects, scores them on a 23-point rubric (7 categories), and saves the best output with 10 Q&A reply pairs. The system runs on a 30-minute cron cycle (Job 89260), uses 5 API tokens with rotation (1,500 calls/day), and learns from its own past cycles to improve quality over time. Current campaign is MarbMarket (veDEX on MegaETH), averaging 17.2/23 across 9 cycles.
+Rally Brain v6.0 is a **multi-campaign** automated content generation system for Rally.fun crypto campaigns. It runs **3 campaigns simultaneously** every 45 minutes, generating X/Twitter posts about DeFi projects. Each campaign gets scored on a 23-point rubric (7 categories), produces 10 Q&A reply pairs, and learns from its own past cycles to improve quality over time.
+
+**Key difference from v5.x**: The system now supports multiple campaigns via a config-driven architecture. Each campaign has its own JSON config file, output directory, and knowledge database. The orchestrator (`run_all.js`) runs all campaigns sequentially every cron trigger.
+
+### Active Campaigns
+
+| ID | Mission | Contract |
+|----|---------|----------|
+| `marbmarket-m0` | Explain the veDEX Model & Why MarbMarket Matters | `0x39a11fa3...` |
+| `marbmarket-m1` | Breakdown the MARB Token Incentive Loop & Fair Launch Mechanics | `0x39a11fa3...` |
+| `second-campaign` | TBD (placeholder) | `0xE4aeE08A...` |
+
+### Token Budget
+- 5 tokens x 300/day = 1,500 calls/day
+- 3 campaigns x 12 calls/cycle = 36 calls per rotation
+- Runs every 45 minutes = 32 rotations/day = 1,152 calls/day (buffer: 23%)
 
 ## 2. Common Tasks
 
 | Task | Command |
 |------|---------|
+| **Run all campaigns** | `node /home/z/my-project/download/rally-brain/run_all.js` |
+| Run specific campaign | `node /home/z/my-project/download/rally-brain/run_all.js marbmarket-m0` |
+| List available campaigns | `node /home/z/my-project/download/rally-brain/run_all.js --list` |
+| Run single with self-heal | `node /home/z/my-project/download/rally-brain/self_heal.js --campaign marbmarket-m0` |
+| Run generate directly | `cd /home/z/my-project && node generate.js marbmarket-m0` |
 | Check health | `node /home/z/my-project/download/rally-brain/health_monitor.js status` |
-| Run cycle (recommended) | `node /home/z/my-project/download/rally-brain/self_heal.js` |
-| Run generate directly | `cd /home/z/my-project && node /home/z/my-project/download/rally-brain/generate.js` |
-| Reset health monitor | `node /home/z/my-project/download/rally-brain/health_monitor.js reset` |
-| View latest content | Read `campaign_data/0x39a11fa3..._output/best_content.txt` |
-| View latest score | Read `campaign_data/0x39a11fa3..._output/prediction.json` |
-| View cycle history | Read `knowledge_db.json` -> `cycle_history` |
-| Check recovery log | Read `campaign_data/recovery_log.json` |
+| Reset health | `node /home/z/my-project/download/rally-brain/health_monitor.js reset` |
+| View latest content (M0) | Read `campaign_data/marbmarket-m0_output/best_content.txt` |
+| View latest score (M0) | Read `campaign_data/marbmarket-m0_output/prediction.json` |
+| View cycle history (M0) | Read `campaign_data/marbmarket-m0_knowledge_db.json` -> `cycle_history` |
 | Syntax check | `node -c /home/z/my-project/download/rally-brain/generate.js` |
-| Push to GitHub | `cd /home/z/my-project/download/rally-brain && git add -A && git commit -m "msg" && git push origin main` |
+| Push to GitHub | `cd /home/z/my-project && git add -A && git commit -m "msg" && git push origin main` |
 
-## 3. How to Run a Cycle
+## 3. How Multi-Campaign Works
 
-```bash
-# Recommended (with self-heal + health monitoring):
-node /home/z/my-project/download/rally-brain/self_heal.js
-
-# Direct (no retry, no health check):
-cd /home/z/my-project && node /home/z/my-project/download/rally-brain/generate.js
-
-# For nohup/cron (line-buffered output):
-stdbuf -oL -eL node generate.js > campaign_data/cycle_output.log 2>&1
+```
+CRON (45 min) -> run_all.js
+  -> self_heal.js --campaign marbmarket-m0 -> generate.js marbmarket-m0
+  -> self_heal.js --campaign marbmarket-m1 -> generate.js marbmarket-m1
+  -> self_heal.js --campaign second-campaign -> generate.js second-campaign
 ```
 
-Cycle takes ~2 minutes (12 API calls, 10s intervals).
+Each campaign config is in `campaigns/<id>.json` with:
+- `campaign`: title, contract address, reward, creator
+- `mission`: title, description, rules
+- `knowledge_base`: project facts for the AI to write about
+- `campaign_rules`: style and tone guidelines
+- `compliance_checks`: required mentions, keywords, fallback Q&A
 
-## 4. How to Check Health
+## 4. How to Add a New Campaign
 
-```bash
-node /home/z/my-project/download/rally-brain/health_monitor.js status
-```
-
-| Status | Meaning | Action |
-|--------|---------|--------|
-| HEALTHY | Normal | Run normally |
-| WARNING | 3+ fails or 3+ low scores | Monitor closely |
-| CRITICAL | 5+ fails | Auto-skips 3 cycles |
-| EMERGENCY | 10+ fails | Auto-skips 5 cycles |
-
-Look at: Success Rate, Best/Worst scores, Trend, Cooldown remaining.
+1. Copy an existing config:
+   ```bash
+   cp campaigns/marbmarket-m0.json campaigns/new-campaign.json
+   ```
+2. Edit the JSON fields (campaign, mission, knowledge_base, compliance_checks)
+3. Verify: `node run_all.js --list`
+4. It will run automatically on next cron cycle
 
 ## 5. How to Add Tokens
 
-Edit `zai-resilient.js` CONFIG.tokens array. Each token must be HS256 JWT with `user_id` + `chat_id`.
+Edit `zai-resilient.js` CONFIG.tokens array. Each token needs HS256 JWT with `user_id` + `chat_id`.
 
 ```javascript
 {
@@ -71,108 +84,48 @@ Edit `zai-resilient.js` CONFIG.tokens array. Each token must be HS256 JWT with `
 
 Each token = +300 daily calls = +25 cycles/day. System auto-selects token with most remaining quota.
 
-## 6. How to Add a New Campaign
-
-Edit these 3 sections at the top of `generate.js`:
-
-```javascript
-// 1. CAMPAIGN object (line ~29)
-const CAMPAIGN = {
-  title: "New Campaign Title",
-  contractAddress: "0xNewContractAddress",
-  campaignId: "campaign-xxx",
-  reward: "1000 USDC",
-  creator: "Creator (@handle)",
-  xUsername: "handle"
-};
-
-// 2. MISSION_0 object (line ~38)
-const MISSION_0 = {
-  id: "mission-0",
-  title: "Mission Title",
-  description: "What to create",
-  rules: ["Rule 1", "Rule 2"]
-};
-
-// 3. KNOWLEDGE_BASE string (line ~53)
-const KNOWLEDGE_BASE = `
-## Project Info
-Key facts...
-`;
-```
-
-Also update: output directory path, quickScreen banned words if different, programmaticEvaluate alignment keywords, generateQA fallback Q&A.
-
-## 7. How to Diagnose Problems
+## 6. How to Diagnose Problems
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
 | 429 / RATE_LIMITED | API quota exhausted | Wait for midnight UTC reset or add tokens |
 | SyntaxError in generate.js | Broken code from edit | Check recent edits, run `node -c generate.js` |
 | Cannot find module 'z-ai-web-dev-sdk' | SDK not installed | `cd /home/z/my-project && bun install` |
-| ECONNREFUSED / ETIMEDOUT | Gateway unreachable | Check 172.25.136.210:8080 and .193:8080 |
-| All variations score < 13 | Prompt or config issue | Check KNOWLEDGE_BASE, review banned words |
-| Score declining over cycles | Learning loop too aggressive | Review knowledge_db.json, may need `health_monitor.js reset` |
-| valid_judges: 0 | Known issue (not a bug) | Judges run but programmatic score used as primary |
-| Process dies with nohup | Output buffering | Use `stdbuf -oL -eL` prefix |
+| Campaign config not found | Wrong campaign ID | Check `campaigns/` dir, use `run_all.js --list` |
+| No output files | generate.js didn't complete | Check self_heal.js logs, check health status |
+| All variations score < 13 | Prompt or config issue | Check knowledge_base, review banned words |
+| Score declining over cycles | Learning loop too aggressive | Check campaign knowledge_db.json |
+| Process dies with nohup | Fixed in v2.2 | `setBlocking(true)` now handles this |
 
-## 8. Known Issues
-
-1. `valid_judges` always 0 - J3/J5 run but programmatic evaluator is primary scorer
-2. Accuracy declining (avg 68%) - LLM tends to exaggerate claims
-3. Reply Quality weak (avg 58%) - Generated questions too generic
-4. nohup + Node.js die silently - Use `stdbuf -oL -eL`
-5. Recovery log shows "pending" status even after successful recovery
-
-## 9. How to Push to GitHub
-
-```bash
-cd /home/z/my-project/download/rally-brain
-git status                          # Check changes
-git add -A                          # Stage all
-git commit -m "description"         # Commit
-git push origin main                # Push
-```
-
-Repo: https://github.com/tuyulmillenium104-cmd/chek1
-Branch: `main`
-
-## 10. Important File Paths
+## 7. Important File Paths
 
 ```
 /home/z/my-project/download/rally-brain/
-  generate.js          <- Main pipeline (EDIT for campaigns)
-  zai-resilient.js     <- Token pool (EDIT for tokens)
-  self_heal.js         <- Runner (rarely edit)
-  health_monitor.js    <- Health tracking (rarely edit)
-  knowledge_db.json    <- Learning data (auto-managed)
-  README.md            <- This overview
-  ARCHITECTURE.md      <- Deep technical reference
-  QUICKSTART.md        <- This file
+  run_all.js              <- Multi-campaign orchestrator
+  generate.js             <- Main pipeline (parameterized)
+  self_heal.js             <- Runner with auto-retry + health monitor
+  health_monitor.js        <- Health tracking
+  zai-resilient.js         <- Token pool
+  campaigns/               <- Campaign config files (JSON)
+    marbmarket-m0.json
+    marbmarket-m1.json
+    second-campaign.json
   campaign_data/
-    0x39a11fa3..._output/
-      best_content.txt   <- Latest winning content
-      qa.json            <- 10 Q&A reply pairs
-      prediction.json    <- Cycle score + metadata
-    health_status.json   <- Health monitor state
-    recovery_log.json    <- Self-heal history
-    cycle_output.log     <- Process log
+    marbmarket-m0_output/     <- M0 output (content, Q&A, scores)
+    marbmarket-m1_output/     <- M1 output
+    second-campaign_output/   <- 2nd campaign output
+    marbmarket-m0_knowledge_db.json  <- M0 learning data
+    marbmarket-m1_knowledge_db.json  <- M1 learning data
+    health_status.json        <- Health monitor state
+    recovery_log.json         <- Self-heal history
+    orchestrator_log.json     <- Run-all history
 
 /home/z/my-project/upload/rally_logs_extracted/  <- External Rally data
-  rally_pattern_cache.json
-  rally_knowledge_vault.json
-  rally_submissions_cache.json
 ```
 
-## Quick Reference: Score Categories
+## 8. GitHub
 
-| Category | Max | Current Avg | Status |
-|----------|-----|-------------|--------|
-| originality | 2 | 1.47 | 74% |
-| alignment | 2 | 2.00 | 100% |
-| accuracy | 2 | 1.36 | 68% (weak) |
-| compliance | 2 | 1.96 | 98% |
-| engagement | 5 | 3.59 | 72% |
-| technical | 5 | 3.88 | 78% |
-| reply_quality | 5 | 2.90 | 58% (weak) |
-| **Total** | **23** | **17.2** | **75%** |
+- **Repo**: https://github.com/tuyulmillenium104-cmd/chek1
+- **Branch**: `main`
+- To push new changes: `git add -f download/rally-brain/<new-files> && git commit -m "msg" && git push origin main`
+- Note: `download/` is in `.gitignore`, use `git add -f` for new files
