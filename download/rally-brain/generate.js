@@ -1144,34 +1144,38 @@ function programmaticEvaluate(content) {
   if (content.toLowerCase().includes('lock') && (content.toLowerCase().includes('vote') || content.toLowerCase().includes('governance'))) accScore += 0.2;
   scores.accuracy = Math.max(0, Math.min(2, accScore));
 
-  // COMPLIANCE - Start at 2.0 (full marks), deduct for violations
+  // COMPLIANCE - STRICT: Rally gives 0 for any missing requirement
   let compScore = 2.0;
-  if (!content.toLowerCase().includes('marbmarket') && !content.toLowerCase().includes('marb market')) { compScore -= 0.5; feedback.push('Missing: MarbMarket'); }
-  if (!content.includes('@RallyOnChain')) { compScore -= 0.3; feedback.push('Missing: @RallyOnChain'); }
-  if (!content.includes('x.com/Marb_market')) { compScore -= 0.3; feedback.push('Missing: link'); }
+  if (!content.toLowerCase().includes('marbmarket') && !content.toLowerCase().includes('marb market')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing MarbMarket'); }
+  if (!content.includes('@RallyOnChain')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing @RallyOnChain'); }
+  if (!content.includes('x.com/Marb_market')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing x.com/Marb_market link'); }
   for (const w of BANNED_WORDS_21) { if (content.toLowerCase().includes(w.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${w}"`); break; } }
   if (!complianceFail) { for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${p}"`); break; } } }
   scores.compliance = Math.max(0, Math.min(2, compScore));
 
-  // ENGAGEMENT
-  let engScore = 3.0;
-  if (/\?/.test(content)) engScore += 0.8; else feedback.push('Missing: CTA');
-  if (content.split('\n')[0].trim().length < 80 && content.split('\n')[0].trim().length > 10) engScore += 0.4;
+  // ENGAGEMENT - stricter baseline
+  let engScore = 2.5;
+  if (/\?/.test(content)) engScore += 1.0; else feedback.push('Missing: CTA question');
+  if (content.split('\n')[0].trim().length < 80 && content.split('\n')[0].trim().length > 10) engScore += 0.5;
   if ((content.match(/\./g) || []).length >= 3) engScore += 0.3;
+  const genuineQs = ['what about you', 'what do you think', 'thoughts?', 'your take', "what's your", 'have you'] || [];
+  if (genuineQs.some(q => content.toLowerCase().includes(q))) engScore += 0.7;
   scores.engagement = Math.max(0, Math.min(5, engScore));
 
-  // TECHNICAL
-  let techScore = 4.5;
+  // TECHNICAL - stricter baseline
+  let techScore = 4.0;
   if (/  /.test(content)) techScore -= 0.5;
+  if (/[\u201c\u201d\u2018\u2019]/.test(content)) techScore -= 0.3;
   if (content.length > 50 && content.length < 2000) techScore += 0.2;
+  if (/\?/.test(content) && content.includes('@RallyOnChain')) techScore += 0.3;
   scores.technical = Math.max(0, Math.min(5, techScore));
 
-  // REPLY QUALITY
-  let replyScore = 3.0;
+  // REPLY QUALITY - stricter baseline
+  let replyScore = 2.0;
   const genuineQ = ['what about you', 'what do you think', 'thoughts?', 'agree?', 'have you', 'your take', "what's your", 'how about', 'anyone else'];
-  if (genuineQ.some(q => content.toLowerCase().includes(q))) replyScore += 1.5;
-  else if (/\?/.test(content)) replyScore += 0.8;
-  else replyScore -= 1.0;
+  if (genuineQ.some(q => content.toLowerCase().includes(q))) replyScore += 2.0;
+  else if (/\?/.test(content)) replyScore += 1.0;
+  else replyScore -= 1.5;
   if (content.includes('@RallyOnChain') && /\?/.test(content)) replyScore += 0.5;
   scores.reply_quality = Math.max(0, Math.min(5, replyScore));
 
@@ -1192,9 +1196,9 @@ async function main() {
   console.log(`LLM Client: Resilient (Token Rotation, HTTP Direct)`);
   console.log('===========================================\n');
 
-  // Initial IP cooldown - wait 2 min to avoid rate limit from previous cycle
-  console.log('Waiting 120s for IP rate limit cooldown from previous cycle...');
-  await new Promise(r => setTimeout(r, 120000));
+  // Initial IP cooldown - wait 5 min to avoid rate limit from previous cycle
+  console.log('Waiting 300s for IP rate limit cooldown from previous cycle...');
+  await new Promise(r => setTimeout(r, 300000));
   console.log('Cooldown complete. Starting generation.\n');
 
   const zai = new ResilientZAIClient();
