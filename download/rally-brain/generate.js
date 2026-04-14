@@ -25,51 +25,26 @@ const { ResilientZAIClient } = require('./zai-resilient.js');
 const fs = require('fs');
 const path = require('path');
 
-// ============ CAMPAIGN CONTEXT ============
-const CAMPAIGN = {
-  title: "MarbMarket - The First veDEX on MegaETH is Launching",
-  contractAddress: "0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB",
-  campaignId: "campaign-1775000340083-pyw7t815z",
-  reward: "2000 USDC",
-  creator: "Marb Market (@marb_market)",
-  xUsername: "marbz564355"
-};
+// ============ MULTI-CAMPAIGN SUPPORT ============
+const CAMPAIGN_ID = process.argv[2] || 'marbmarket-m0';
+const CONFIG_DIR = '/home/z/my-project/download/rally-brain/campaigns';
 
-const MISSION_0 = {
-  id: "mission-0",
-  title: "Explain the veDEX Model & Why MarbMarket Matters",
-  description: "Create a post or short thread educating your audience about what a veDEX is and why MarbMarket's fair launch on MegaETH is a big deal for DeFi.",
-  rules: [
-    "Must explain what a veDEX is",
-    "Must mention MarbMarket's upcoming launch",
-    "Include either x.com/Marb_market or t.me/marbmarket",
-    "Mention at least one key feature: vote-escrow, bribes, LP farming, or fair launch",
-    "Content must be original and written in your own words",
-    "Format: single post or short thread of 2-4 posts max",
-    "Bonus: explain MARB incentive loop or ve(3,3) model creatively"
-  ]
-};
+function loadCampaignConfig(campaignId) {
+  const configPath = path.join(CONFIG_DIR, `${campaignId}.json`);
+  if (!fs.existsSync(configPath)) {
+    console.error(`Campaign config not found: ${configPath}`);
+    console.error(`Available campaigns: ${fs.readdirSync(CONFIG_DIR).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')).join(', ')}`);
+    process.exit(1);
+  }
+  return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+}
 
-const KNOWLEDGE_BASE = `
-## What is MarbMarket?
-MarbMarket is a veDEX (Vote-Escrowed DEX) launching on MegaETH in Q2. First of its kind on MegaETH. No presale, no VC backing. Fully fair launch. Inspired by Solidly/Aerodrome.
-
-## veDEX Mechanics:
-- Users lock MARB tokens to gain veTokens (voting power)
-- Longer lock = more influence + more rewards
-- veHolders vote weekly on which LP pools get MARB emissions
-- Projects can offer bribes to attract votes, creating decentralized incentive
-
-## MARB Incentive Loop:
-MARB Lockers direct emissions to LPs, LPs get rewards, Protocols pay bribes for votes, Incentives flow back to MARB Lockers.
-
-## Key Talking Points:
-- Community-driven voting model
-- First veDEX on MegaETH
-- ve(3,3) model
-- Fair launch: no presale, no VCs
-- LP farming, voting, bribing at launch
-`;
+const campaignConfig = loadCampaignConfig(CAMPAIGN_ID);
+const CAMPAIGN = campaignConfig.campaign;
+const MISSION_0 = campaignConfig.mission;
+const KNOWLEDGE_BASE = campaignConfig.knowledge_base;
+const CAMPAIGN_RULES = campaignConfig.campaign_rules;
+const COMPLIANCE = campaignConfig.compliance_checks;
 
 // ============ V3 LESSONS ============
 const V3_LESSONS = {
@@ -93,15 +68,8 @@ const V3_LESSONS = {
   ]
 };
 
-// ============ CAMPAIGN-SPECIFIC RULES ============
-const CAMPAIGN_RULES = [
-  "Be authentic, no spam, respectful",
-  "Use your own words, educational and specific",
-  "Avoid price predictions, financial promises, generic hype",
-  "Avoid copied wording or low effort submissions",
-  "Style: Energetic and community-focused",
-  "Speak to DeFi-native users who understand yield farming, liquidity, and governance"
-];
+// ============ CAMPAIGN-SPECIFIC RULES (loaded from config) ============
+// CAMPAIGN_RULES is now loaded from campaign config above
 
 // ============ BANNED LISTS (from SKILL.md v9.5) ============
 
@@ -338,7 +306,7 @@ function extractLearnedKnowledge() {
 const LEARNED = extractLearnedKnowledge();
 
 // ============ CLOSED-LOOP LEARNING (knowledge_db.json) ============
-const KDB_PATH = '/home/z/my-project/download/rally-brain/knowledge_db.json';
+const KDB_PATH = `/home/z/my-project/download/rally-brain/campaign_data/${CAMPAIGN_ID}_knowledge_db.json`;
 const MAX_CYCLE_HISTORY = 50; // Keep last 50 cycles
 
 function loadKnowledgeDB() {
@@ -615,7 +583,7 @@ GATES (0 or 2 only - no half points):
 1. Originality (0 or 2): Zero AI words. Zero template phrases. Unique angle. Personal voice. UNEVEN sentence lengths.
 2. Content Alignment (0 or 2): Matches campaign topic exactly. Uses correct terminology. Covers mission requirements.
 3. Information Accuracy (0 or 2): All claims factually correct from KB. No exaggeration. No vague phrases. Specific and verifiable.
-4. Campaign Compliance (0 or 2): Has @RallyOnChain. Has x.com/Marb_market link. No banned words. No hashtags. No dashes. No starting with @.
+4. Campaign Compliance (0 or 2): Has ${COMPLIANCE.must_include.join(' and ')}. No banned words. No hashtags. No dashes. No starting with @.
 
 QUALITY SCORES (0 to 5):
 5. Engagement Potential (0-5): Hook grabs attention. Genuine CTA/question. Makes reader want to reply. Not generic.
@@ -630,7 +598,7 @@ COMPLIANCE = 0 IF ANY OF:
 - Hashtag (#anything)
 - Em-dash, en-dash, or double-hyphen
 - Starts with @mention
-- Missing @RallyOnChain or x.com/Marb_market
+- Missing ${COMPLIANCE.must_include.join(' or ')}
 
 RESPOND ONLY WITH JSON (no other text):
 {"originality":0,"alignment":0,"accuracy":0,"compliance":0,"engagement":0,"technical":0,"reply_quality":0,"feedback":"one sentence explaining lowest score"}
@@ -933,7 +901,7 @@ ${buildPreWritingContext()}
 10. Vary paragraph/sentence lengths. Mix 3-word sentences with 15-word ones.
 11. End with genuine open question that has NO obvious answer.
 12. Include @RallyOnChain mention naturally (NOT at start).
-13. Include x.com/Marb_market link.
+13. Include ${COMPLIANCE.must_include.filter(m => !m.startsWith('@')).join(' and ')} link.
 
 ${variationHint}
 
@@ -1078,20 +1046,7 @@ RESPOND ONLY WITH JSON ARRAY. Format:
 
   // If we still have fewer than 10, add fallback Q&A pairs
   if (allQA.length < 10) {
-    const fallbackQA = [
-      { q: 'This veDEX model is interesting. How does the bribe mechanism work in practice?', a: 'Projects that want their LP pools to get more MARB emissions can offer incentives (called bribes) to veMARB holders. When you lock MARB, you get voting power. You vote on which pools get emissions. Projects bribe you with their own tokens to vote for their pool. It sounds shady but it actually aligns incentives — the best pools attract the most votes because projects compete for them.' },
-      { q: 'Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?', a: 'Aerodrome on Base is probably the biggest veDEX right now in terms of TVL and volume. But MarbMarket launching on MegaETH is a different play — MegaETH has sub-second finality which could make governance votes way smoother. The real comparison will be after launch when we see actual numbers.' },
-      { q: 'The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.', a: 'Same. The weekly emission votes should be public on-chain so anyone can track where incentives flow. That transparency is one of the better parts of the ve(3,3) model — you can actually see which pools the community values vs which ones projects are paying to promote.' },
-      { q: 'How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?', a: "Can't really compare yet since MarbMarket hasn't launched. Aerodrome has months of runway and Base's ecosystem behind it. But MegaETH's speed could be a real edge for governance — voting on a slow chain vs near-instant finality changes the UX completely. We'll see after Q2." },
-      { q: 'Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?', a: 'Good point. Low turnout means a small group of holders controls all emission direction. Early on that probably will happen since most token holders won\'t bother voting weekly. But the bribe mechanism actually helps here — projects have financial incentive to encourage their communities to lock and vote. It self-corrects over time.' },
-      { q: 'MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.', a: 'For real. On most chains you vote and wait minutes for confirmation. On MegaETH the whole vote-claim cycle could happen in seconds. That changes how people interact with governance — it goes from "set it and forget it" to something you can actually participate in without it feeling like a chore.' },
-      { q: 'What is the minimum MARB needed to participate meaningfully in governance?', a: 'Haven\'t seen exact numbers from the team yet. In most ve models even small holders can vote, they just have less influence. The question is whether the minimum lock is accessible enough for regular users or if it\'s geared toward bigger players. That\'ll matter for actual decentralization.' },
-      { q: 'Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.', a: 'Exactly. The bribe is just a term from the Solidly docs. What it actually means is projects can directly incentivize liquidity providers through the governance system. Instead of the protocol deciding where rewards go, the community decides and projects compete for their attention. It\'s basically a free market for emissions.' },
-      { q: 'How will MarbMarket attract initial liquidity without VC backing or incentives pre-launch?', a: 'That\'s the real challenge. No VC money means no subsidized LP rewards at launch. They\'re betting on community — fair distribution, transparent governance, and the novelty of being first on MegaETH. Whether that\'s enough to pull liquidity from established DEXs is the big question. The 2000 USDC Rally bounty helps with visibility at least.' },
-      { q: 'The fair launch narrative is strong but execution matters more. Any audits announced?', a: "Haven't seen audit details yet. That's something to watch — a fair launch on a new chain with no audit would be a red flag. Hopefully they get at least one reputable audit firm before mainnet. The MegaETH team's reputation is on the line too since this would be one of the first major DeFi protocols on their chain." },
-      { q: 'Curious about the team behind this. Any previous DeFi builds they have shipped?', a: "Good question and I don't have a complete answer here. Would want to see their track record before committing capital. A fair launch means nothing if the team rugs or abandons. Their transparency so far has been decent but past builds would tell us a lot more than any marketing." },
-      { q: 'Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.', a: 'Yeah that\'s the tradeoff. Long-term holders get more governance power and rewards, short-term traders get less. It\'s designed to reduce mercenary capital. The question is whether the reward premium is enough to convince people to lock up tokens on a brand new protocol where the risk is already high.' }
-    ];
+    const fallbackQA = campaignConfig.compliance_checks.fallback_qa || [];
     for (const qa of fallbackQA) {
       if (allQA.length >= 10) break;
       if (!allQA.some(a => a.q.toLowerCase() === qa.q.toLowerCase())) {
@@ -1109,22 +1064,18 @@ function quickProgrammaticScore(content) {
   const lower = content.toLowerCase();
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
 
-  // Alignment checks
-  if (lower.includes('vedex') || lower.includes('ve dex')) score += 0.5;
-  if (lower.includes('marbmarket') || lower.includes('marb market')) score += 0.5;
-  if (lower.includes('launch')) score += 0.3;
-  if (lower.includes('megaeth')) score += 0.3;
-  if (lower.includes('vote') || lower.includes('escrow')) score += 0.2;
-  if (lower.includes('fair launch')) score += 0.2;
+  // Alignment checks (from campaign config)
+  const projectKeywords = COMPLIANCE.project_keywords || [];
+  for (const kw of projectKeywords) { if (lower.includes(kw)) score += 0.15; }
 
   // Accuracy: penalize exaggeration
   const absWords = ['everyone', 'nobody', 'always', 'never', 'impossible', 'guaranteed', '100%'];
   for (const w of absWords) { if (lower.includes(w)) score -= 0.5; }
 
-  // Compliance: check requirements
-  if (!lower.includes('marbmarket') && !lower.includes('marb market')) score -= 0.5;
+  // Compliance: check requirements (from campaign config)
+  if (!lower.includes(COMPLIANCE.project_name.toLowerCase())) score -= 0.5;
   if (!content.includes('@RallyOnChain')) score -= 0.3;
-  if (!content.includes('x.com/Marb_market')) score -= 0.3;
+  if (COMPLIANCE.must_include[1] && !content.includes(COMPLIANCE.must_include[1])) score -= 0.3;
 
   // Originality: penalize AI words
   for (const w of ALL_AI_WORDS) { if (lower.includes(w)) score -= 0.15; }
@@ -1151,7 +1102,7 @@ function programmaticEvaluate(content) {
 
   // ORIGINALITY (start from 0, earn points)
   let origScore = 0;
-  const uniqueMarkers = ['ve(3,3)', 'veDEX', 'vote-escrow', 'MARB', 'MegaETH', 'bribes'];
+  const uniqueMarkers = COMPLIANCE.unique_markers || [];
   let uniqueCount = 0;
   for (const m of uniqueMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) uniqueCount++; }
   if (uniqueCount >= 3) origScore += 0.6;
@@ -1168,14 +1119,10 @@ function programmaticEvaluate(content) {
   }
   scores.originality = Math.max(0, Math.min(2, origScore));
 
-  // ALIGNMENT
+  // ALIGNMENT (from campaign config)
   let alignScore = 0;
-  if (content.toLowerCase().includes('vedex') || content.toLowerCase().includes('ve dex')) alignScore += 0.5;
-  if (content.toLowerCase().includes('marbmarket') || content.toLowerCase().includes('marb market')) alignScore += 0.5;
-  if (content.toLowerCase().includes('launch')) alignScore += 0.3;
-  if (content.toLowerCase().includes('megaeth')) alignScore += 0.3;
-  if (content.toLowerCase().includes('vote') || content.toLowerCase().includes('escrow')) alignScore += 0.2;
-  if (content.toLowerCase().includes('fair launch')) alignScore += 0.2;
+  const alignKeywords = COMPLIANCE.project_keywords || [];
+  for (const kw of alignKeywords) { if (lower.includes(kw)) alignScore += 0.3; }
   scores.alignment = Math.max(0, Math.min(2, alignScore));
 
   // ACCURACY (start from 1.0, earn/lose)
@@ -1186,9 +1133,9 @@ function programmaticEvaluate(content) {
 
   // COMPLIANCE - STRICT: Rally gives 0 for any missing requirement
   let compScore = 2.0;
-  if (!content.toLowerCase().includes('marbmarket') && !content.toLowerCase().includes('marb market')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing MarbMarket'); }
+  if (!content.toLowerCase().includes(COMPLIANCE.project_name.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`FAIL: Missing ${COMPLIANCE.project_name}`); }
   if (!content.includes('@RallyOnChain')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing @RallyOnChain'); }
-  if (!content.includes('x.com/Marb_market')) { compScore = 0; complianceFail = true; feedback.push('FAIL: Missing x.com/Marb_market link'); }
+  if (COMPLIANCE.must_include[1] && !content.includes(COMPLIANCE.must_include[1])) { compScore = 0; complianceFail = true; feedback.push(`FAIL: Missing ${COMPLIANCE.must_include[1]} link`); }
   for (const w of BANNED_WORDS_21) { if (content.toLowerCase().includes(w.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${w}"`); break; } }
   if (!complianceFail) { for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${p}"`); break; } } }
   scores.compliance = Math.max(0, Math.min(2, compScore));
@@ -1228,7 +1175,7 @@ async function main() {
   console.log('===========================================');
   console.log('RALLY BRAIN v5.2.1 - BUGDET-OPTIMIZED + HONEST SCORING + CLOSED LOOP');
   console.log('===========================================');
-  console.log(`Campaign: ${CAMPAIGN.title}`);
+  console.log(`Campaign: ${CAMPAIGN.title} [${CAMPAIGN_ID}]`);
   console.log(`Mission: ${MISSION_0.title}`);
   console.log(`Target: >= 21/23 (S grade)`);
   console.log(`Budget: 12 calls max (8 gen + 2 QA + 2 judges)`);
@@ -1492,7 +1439,10 @@ async function main() {
   saveCycleLearning(bestEver, allVariations);
 
   // Save output
-  const outputDir = '/home/z/my-project/download/rally-brain/campaign_data/0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB_output';
+  const outputDir = `/home/z/my-project/download/rally-brain/campaign_data/${CAMPAIGN_ID}_output`;
+
+  // Ensure output directory exists
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({

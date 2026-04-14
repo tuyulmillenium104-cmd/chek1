@@ -18,3 +18,23 @@ Stage Summary:
 - Pipeline: web-search for campaigns → user picks → generate 5 variations → AI judge scoring (6 dimensions, max 18) → feedback loops (max 2) → self-healing → present report
 - Key features: AI banned words detection, template phrase detection, compliance checking, multi-dimensional scoring
 - Ready for installation and testing
+---
+Task ID: 2
+Agent: General-Purpose Agent
+Task: Create run_all.js multi-campaign orchestrator
+
+Work Log:
+- Verified project directory at /home/z/my-project/download/rally-brain/
+- Reviewed existing project files (self_heal.js, generate.js, cron.py, etc.)
+- Created /home/z/my-project/download/rally-brain/run_all.js — multi-campaign orchestrator v1.0
+- Appended worklog entry
+
+Stage Summary:
+- Created run_all.js at /home/z/my-project/download/rally-brain/run_all.js
+- Orchestrator runs all 3 campaigns (marbmarket-m0, marbmarket-m1, second-campaign) sequentially
+- Supports CLI flags: --list (show campaigns), or pass specific campaign ID to run just one
+- Each campaign delegated to self_heal.js --campaign <id> with 10 min timeout
+- 15 second inter-campaign delay to avoid rate limiting
+- Logs results to campaign_data/orchestrator_log.json (rotates at 100 entries)
+- Exit code 0 if at least 1 campaign succeeds, 1 otherwise
+- Integration point: CRON (45 min) -> run_all.js -> self_heal.js --campaign <id> -> generate.js <id>
