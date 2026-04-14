@@ -1,12 +1,15 @@
 /**
- * Rally Brain Self-Heal v2.0
+ * Rally Brain Self-Heal v2.1
  * Wraps the generate cycle with automatic error detection, diagnosis, and recovery.
  * If something fails → diagnose root cause → fix code/config → retry → repeat until success.
+ * 
+ * v2.1: Integrated Health Monitor — pre-cycle check, post-cycle update, auto-skip on CRITICAL
  */
 
 const { execSync, exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { preCycleCheck, postCycleUpdate, getStatusSummary } = require('./health_monitor.js');
 
 const MAX_RECOVERY_ATTEMPTS = 5;
 const RECOVERY_DIR = '/home/z/my-project/download/rally-brain/campaign_data';
@@ -326,11 +329,37 @@ function sleep(ms) {
 
 // ============ MAIN SELF-HEAL RUNNER ============
 async function runWithRecovery() {
-  console.log('╔══════════════════════════════════════╗');
-  console.log('║  RALLY BRAIN v2.0 — SELF-HEAL MODE  ║');
-  console.log('╚══════════════════════════════════════╝');
+  const cycleStart = Date.now();
+  console.log('╔════════════════════════════════════════════╗');
+  console.log('║  RALLY BRAIN v2.1 — SELF-HEAL + MONITOR  ║');
+  console.log('╚══════════════════════════════════════════╝');
   console.log(`Max recovery attempts: ${MAX_RECOVERY_ATTEMPTS}`);
-  console.log(`Recovery log: ${LOG_FILE}\n`);
+  console.log(`Recovery log: ${LOG_FILE}`);
+
+  // === PRE-CYCLE HEALTH CHECK ===
+  console.log('\n--- HEALTH MONITOR: Pre-Cycle Check ---');
+  const healthCheck = preCycleCheck();
+  console.log(`  System Status: ${healthCheck.status}`);
+  console.log(`  Consecutive Failures: ${healthCheck.consecutive_failures}`);
+  console.log(`  Consecutive Low Scores: ${healthCheck.consecutive_low_scores}`);
+
+  if (!healthCheck.should_run) {
+    console.log(`\n  ⏭ SKIPPING CYCLE: ${healthCheck.skipped_reason}`);
+    console.log('  (Saving API quota. Health monitor will retry after cooldown.)\n');
+    return { status: 'skipped', reason: healthCheck.skipped_reason, health: healthCheck };
+  }
+
+  if (healthCheck.reason) {
+    console.log(`  ℹ ${healthCheck.reason}`);
+  }
+
+  if (healthCheck.alerts_to_report.length > 0) {
+    console.log('  Pending Alerts:');
+    for (const alert of healthCheck.alerts_to_report) {
+      console.log(`    [${alert.level}] ${alert.code}: ${alert.message}`);
+    }
+  }
+  console.log('');
 
   for (let attempt = 1; attempt <= MAX_RECOVERY_ATTEMPTS; attempt++) {
     console.log(`\n${'='.repeat(50)}`);
@@ -366,11 +395,40 @@ async function runWithRecovery() {
       log.total_recoveries += (attempt - 1); // Number of recoveries needed
       saveRecoveryLog(log);
 
+      // Read prediction.json for score
+      let cycleScore = null;
+      let cycleGrade = null;
+      try {
+        const predPath = '/home/z/my-project/download/rally-brain/campaign_data/0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB_output/prediction.json';
+        if (fs.existsSync(predPath)) {
+          const pred = JSON.parse(fs.readFileSync(predPath, 'utf-8'));
+          cycleScore = pred.total_score || pred.score || null;
+          cycleGrade = pred.grade || null;
+        }
+      } catch {}
+
+      const cycleDuration = Date.now() - cycleStart;
+
       console.log('\n✅ GENERATE CYCLE COMPLETED SUCCESSFULLY');
       if (attempt > 1) {
         console.log(`⚡ Recovered after ${attempt - 1} failed attempt(s)`);
       }
-      return { status: 'success', attempts: attempt, recovered: attempt > 1 };
+      if (cycleScore !== null) {
+        console.log(`📊 Score: ${cycleScore}/23 (${cycleGrade || 'N/A'})`);
+      }
+      console.log(`⏱ Duration: ${(cycleDuration / 1000).toFixed(1)}s`);
+
+      // === POST-CYCLE HEALTH UPDATE ===
+      const healthResult = postCycleUpdate({
+        status: 'success',
+        score: cycleScore,
+        grade: cycleGrade,
+        attempts: attempt,
+        duration_ms: cycleDuration
+      });
+      console.log(`🏥 Health Status: ${healthResult.system_status}`);
+
+      return { status: 'success', attempts: attempt, recovered: attempt > 1, score: cycleScore, health: healthResult };
 
     } catch (error) {
       console.error(`\n❌ ATTEMPT ${attempt} FAILED:`);
@@ -380,7 +438,19 @@ async function runWithRecovery() {
         console.log(`\n🚨 ALL ${MAX_RECOVERY_ATTEMPTS} ATTEMPTS EXHAUSTED`);
         console.log('⚠ Layer 2 recovery needed — AI agent will diagnose and fix architecture');
         logRecovery('exhausted', 'failed', error.toString());
-        return { status: 'exhausted', error: error.toString(), attempts: attempt };
+
+        // === POST-CYCLE HEALTH UPDATE (FAILURE) ===
+        const healthFail = postCycleUpdate({
+          status: 'exhausted',
+          score: null,
+          grade: null,
+          attempts: attempt,
+          error: error.toString(),
+          duration_ms: Date.now() - cycleStart
+        });
+        console.log(`🏥 Health Status: ${healthFail.system_status}`);
+
+        return { status: 'exhausted', error: error.toString(), attempts: attempt, health: healthFail };
       }
 
       // DIAGNOSE
@@ -408,10 +478,36 @@ async function runWithRecovery() {
 // ============ RUN ============
 runWithRecovery().then(result => {
   console.log('\n' + '='.repeat(50));
-  console.log('SELF-HEAL RESULT:', JSON.stringify(result, null, 2));
+  console.log('SELF-HEAL RESULT:', JSON.stringify({
+    status: result.status,
+    attempts: result.attempts,
+    score: result.score || null,
+    duration_ms: result.health ? null : undefined
+  }, null, 2));
+
+  // Print health summary if not skipped
+  if (result.status !== 'skipped') {
+    const summary = getStatusSummary();
+    console.log('\n--- HEALTH SUMMARY ---');
+    console.log(`  Status: ${summary.emoji} ${summary.system_status}`);
+    console.log(`  Cycles: ${summary.total_cycles} | Success Rate: ${summary.success_rate}`);
+    console.log(`  Best: ${summary.best_score}/23 | Trend: ${summary.score_trend}`);
+    console.log(`  Cooldown: ${summary.cooldown_remaining} cycles remaining`);
+  }
+
   process.exit(result.status === 'success' ? 0 : 1);
 }).catch(err => {
   console.error('Self-heal system crashed:', err);
   logRecovery('self_heal_crash', 'failed', err.toString());
+
+  // Log crash to health monitor
+  postCycleUpdate({
+    status: 'fail',
+    score: null, grade: null,
+    attempts: 0,
+    error: err.toString(),
+    duration_ms: 0
+  });
+
   process.exit(1);
 });
