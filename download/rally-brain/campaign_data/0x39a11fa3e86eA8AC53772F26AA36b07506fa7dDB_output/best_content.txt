@@ -1,11 +1,17 @@
-Everyone's chasing the next hot DEX launch, but the real shift is happening behind the scenes. veDEXes like MarbMarket aren't just trading platforms—they're creating entirely new incentive models where your vote actually matters.
+Most DEXes think liquidity is enough. They're missing the point.
 
-MarbMarket is bringing the ve(3,3) model to MegaETH, first of its kind. No presale, no VC backing—just pure community power. When you lock MARB tokens, you don't just earn rewards—you gain voting power that shapes where liquidity flows weekly.
+A veDEX flips the script: your governance power comes from locking tokens, not just providing liquidity. MarbMarket is bringing this model to MegaETH.
 
-Here's the magic: projects can offer bribes to attract votes to their pools. So veMARB holders decide which LPs get emissions. The longer you lock, the more influence you have. This creates a flywheel where lockers direct rewards → LPs get incentives → protocols pay bribes → value flows back to lockers.
+Here's how it works:
+1. Lock MARB tokens → get veTokens (voting power)
+2. Longer lock = more influence + more rewards
+3. veHolders vote weekly on which LP pools get MARB emissions
+4. Projects can "bribe" for votes → decentralized incentive design
 
-The beauty is in the simplicity. No complex tokenomics. Just direct democracy in DeFi.
+The MARB flywheel is beautiful: lockers direct emissions → LPs get rewards → protocols pay bribes for votes → incentives flow back to lockers.
 
-Check out how MarbMarket is building this on MegaETH: x.com/Marb_market
+MarbMarket's fair launch means no presale, no VCs — just community power. First veDEX on MegaETH.
 
-@RallyOnChain What's your take on the veDEX model? Is this the future of decentralized governance?
+Check the launch: x.com/Marb_market
+
+@RallyOnChain what's the most innovative incentive mechanism you've seen in DeFi?
