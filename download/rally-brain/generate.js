@@ -1007,9 +1007,9 @@ ABSOLUTE RULES:
 }
 
 async function generateQA(zai, content) {
-  // Generate Q&A comments in 2 batches of 5 each (10 real + fallback to 20)
+  // Generate Q&A pairs (question + answer) for reply comments
   // Budget: 2 API calls for QA
-  const allComments = [];
+  const allQA = [];
   const perspectives = [
     'crypto degen who understands ve(3,3) and vote-escrow models deeply',
     'skeptical trader who questions if fair launches actually work long term'
@@ -1018,60 +1018,89 @@ async function generateQA(zai, content) {
   for (let batch = 0; batch < 2; batch++) {
     try {
       const completion = await zai.chat([
-        { role: 'system', content: `You are a ${perspectives[batch]}. Write 5 short, natural, diverse engagement comments for this tweet. Each comment 1-2 sentences. One per line. No numbering. No labels. No dashes. No AI words. Each comment must ask a DIFFERENT question or make a DIFFERENT observation. Vary the tone: some curious, some skeptical, some excited, some technical.` },
-        { role: 'user', content: `Write 5 natural reply comments for this tweet. Each comment must be unique and ask a different question:\n\n${content}\n\nCampaign: ${CAMPAIGN.title}` }
+        { role: 'system', content: `You are generating Q&A reply pairs for a social media post about a crypto project. The post author needs ready-to-use QUESTION + ANSWER pairs so they can reply to comments on their post.
+
+For each Q&A pair:
+- QUESTION: A realistic comment someone would leave on the post (curious, skeptical, excited, or technical — vary the tone). 1-2 sentences. Natural language, no AI words.
+- ANSWER: The post author's reply. Must be helpful, specific, and consistent with the original post. Use the same casual tone. Include specific details from the original post. 1-3 sentences. No AI words.
+
+IMPORTANT RULES:
+- Each Q&A must cover a DIFFERENT topic/angle
+- Questions must feel like real people wrote them
+- Answers must NOT contradict the original post
+- Answers must include specific facts, not vague statements
+- No "delve", "leverage", "ecosystem", "landscape", "paradigm", "flywheel", "seamless", "robust", "innovative", "game-changer", "revolutionary", etc.
+- Write in plain, casual English like a real crypto user on Twitter/X
+
+RESPOND ONLY WITH JSON ARRAY. Format:
+[{"q": "question text", "a": "answer text"}, ...]` },
+        { role: 'user', content: `Generate 5 Q&A reply pairs for this post. Each pair has a question someone might ask and the author's answer:\n\n${content}\n\nCampaign context: ${CAMPAIGN.title}\nKey facts: ${KNOWLEDGE_BASE.split('\\n').filter(l => l.trim()).slice(0, 8).join('\\n')}` }
       ], {
         temperature: 0.9,
-        maxTokens: 500
+        maxTokens: 1500
       });
       const text = completion.choices?.[0]?.message?.content?.trim() || '';
-      const comments = text.split('\n').map(l => l.replace(/^\d+[\.\-\)]\s*/, '').trim()).filter(l => l.length > 10);
-      for (const c of comments) {
-        // Avoid duplicates
-        if (!allComments.some(ac => ac.toLowerCase() === c.toLowerCase())) {
-          allComments.push(c);
+      
+      // Parse JSON array
+      let parsed = [];
+      try {
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        console.log(`    Q&A batch ${batch + 1}/2: JSON parse failed, trying line split`);
+      }
+
+      // Fallback: if JSON parse failed, try splitting by lines
+      if (parsed.length === 0) {
+        const lines = text.split('\n').map(l => l.replace(/^\d+[\.\-\)]\s*/, '').trim()).filter(l => l.length > 15);
+        // Pair up consecutive lines as Q and A
+        for (let i = 0; i < lines.length - 1; i += 2) {
+          parsed.push({ q: lines[i], a: lines[i + 1] });
         }
       }
-      console.log(`    Q&A batch ${batch + 1}/2: got ${comments.length} comments (total: ${allComments.length})`);
+
+      for (const qa of parsed) {
+        if (qa.q && qa.a && qa.q.length > 10 && qa.a.length > 10) {
+          // Avoid duplicate questions
+          if (!allQA.some(a => a.q.toLowerCase() === qa.q.toLowerCase())) {
+            allQA.push({ q: qa.q.trim(), a: qa.a.trim() });
+          }
+        }
+      }
+      console.log(`    Q&A batch ${batch + 1}/2: got ${parsed.length} pairs (total: ${allQA.length})`);
     } catch (e) {
       console.log(`    Q&A batch ${batch + 1}/2 failed: ${e.message}`);
     }
     await new Promise(r => setTimeout(r, 1000)); // Rate limit gap
   }
 
-  // If we still have fewer than 20, add fallbacks
-  if (allComments.length < 20) {
-    const fallbacks = [
-      'This veDEX model is interesting. How does the bribe mechanism work in practice?',
-      'Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?',
-      'The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.',
-      'How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?',
-      'Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?',
-      'MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.',
-      'What is the minimum MARB needed to participate meaningfully in governance?',
-      'Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.',
-      'How will MarbMarket attract initial liquidity without VC backing or incentives pre-launch?',
-      'The fair launch narrative is strong but execution matters more. Any audits announced?',
-      'Curious about the team behind this. Any previous DeFi builds they have shipped?',
-      'Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.',
-      'What happens to veMARB voting power as the unlock period approaches? Does it decay linearly?',
-      'Compared to Solidly, what improvements has MarbMarket made to the base ve(3,3) model?',
-      'Emissions schedule matters a lot. Is there a vesting cliff for team tokens?',
-      'Has anyone tested the actual UX of locking and voting? Would love a walkthrough.',
-      'How does this interact with MegaETH native staking? Any composability there?',
-      'LP farming on a new chain is risky. What risk mitigation does MarbMarket offer?',
-      'Community governance sounds great until someone proposes a bad emission redirect.',
-      'The 2000 USDC bounty caught my attention. Is the Rally community actually engaged with this project?'
+  // If we still have fewer than 10, add fallback Q&A pairs
+  if (allQA.length < 10) {
+    const fallbackQA = [
+      { q: 'This veDEX model is interesting. How does the bribe mechanism work in practice?', a: 'Projects that want their LP pools to get more MARB emissions can offer incentives (called bribes) to veMARB holders. When you lock MARB, you get voting power. You vote on which pools get emissions. Projects bribe you with their own tokens to vote for their pool. It sounds shady but it actually aligns incentives — the best pools attract the most votes because projects compete for them.' },
+      { q: 'Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?', a: 'Aerodrome on Base is probably the biggest veDEX right now in terms of TVL and volume. But MarbMarket launching on MegaETH is a different play — MegaETH has sub-second finality which could make governance votes way smoother. The real comparison will be after launch when we see actual numbers.' },
+      { q: 'The lock duration mechanic creates good incentive alignment. Would love to see emission data after launch.', a: 'Same. The weekly emission votes should be public on-chain so anyone can track where incentives flow. That transparency is one of the better parts of the ve(3,3) model — you can actually see which pools the community values vs which ones projects are paying to promote.' },
+      { q: 'How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?', a: "Can't really compare yet since MarbMarket hasn't launched. Aerodrome has months of runway and Base's ecosystem behind it. But MegaETH's speed could be a real edge for governance — voting on a slow chain vs near-instant finality changes the UX completely. We'll see after Q2." },
+      { q: 'Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?', a: 'Good point. Low turnout means a small group of holders controls all emission direction. Early on that probably will happen since most token holders won\'t bother voting weekly. But the bribe mechanism actually helps here — projects have financial incentive to encourage their communities to lock and vote. It self-corrects over time.' },
+      { q: 'MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.', a: 'For real. On most chains you vote and wait minutes for confirmation. On MegaETH the whole vote-claim cycle could happen in seconds. That changes how people interact with governance — it goes from "set it and forget it" to something you can actually participate in without it feeling like a chore.' },
+      { q: 'What is the minimum MARB needed to participate meaningfully in governance?', a: 'Haven\'t seen exact numbers from the team yet. In most ve models even small holders can vote, they just have less influence. The question is whether the minimum lock is accessible enough for regular users or if it\'s geared toward bigger players. That\'ll matter for actual decentralization.' },
+      { q: 'Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.', a: 'Exactly. The bribe is just a term from the Solidly docs. What it actually means is projects can directly incentivize liquidity providers through the governance system. Instead of the protocol deciding where rewards go, the community decides and projects compete for their attention. It\'s basically a free market for emissions.' },
+      { q: 'How will MarbMarket attract initial liquidity without VC backing or incentives pre-launch?', a: 'That\'s the real challenge. No VC money means no subsidized LP rewards at launch. They\'re betting on community — fair distribution, transparent governance, and the novelty of being first on MegaETH. Whether that\'s enough to pull liquidity from established DEXs is the big question. The 2000 USDC Rally bounty helps with visibility at least.' },
+      { q: 'The fair launch narrative is strong but execution matters more. Any audits announced?', a: "Haven't seen audit details yet. That's something to watch — a fair launch on a new chain with no audit would be a red flag. Hopefully they get at least one reputable audit firm before mainnet. The MegaETH team's reputation is on the line too since this would be one of the first major DeFi protocols on their chain." },
+      { q: 'Curious about the team behind this. Any previous DeFi builds they have shipped?', a: "Good question and I don't have a complete answer here. Would want to see their track record before committing capital. A fair launch means nothing if the team rugs or abandons. Their transparency so far has been decent but past builds would tell us a lot more than any marketing." },
+      { q: 'Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.', a: 'Yeah that\'s the tradeoff. Long-term holders get more governance power and rewards, short-term traders get less. It\'s designed to reduce mercenary capital. The question is whether the reward premium is enough to convince people to lock up tokens on a brand new protocol where the risk is already high.' }
     ];
-    for (const fb of fallbacks) {
-      if (allComments.length >= 20) break;
-      if (!allComments.some(ac => ac.toLowerCase() === fb.toLowerCase())) {
-        allComments.push(fb);
+    for (const qa of fallbackQA) {
+      if (allQA.length >= 10) break;
+      if (!allQA.some(a => a.q.toLowerCase() === qa.q.toLowerCase())) {
+        allQA.push(qa);
       }
     }
   }
 
-  return allComments.slice(0, 20);
+  return allQA.slice(0, 10);
 }
 
 // ============ QUICK PROGRAMMATIC SCORE (fast pre-screen, no API calls) ============
@@ -1400,9 +1429,9 @@ async function main() {
   }
 
   // Generate Q&A
-  console.log('\n=== GENERATING Q&A COMMENTS ===');
+  console.log('\n=== GENERATING Q&A PAIRS ===');
   const qaComments = await generateQA(zai, bestEver.content);
-  console.log(`Generated ${qaComments.length} engagement comments`);
+  console.log(`Generated ${qaComments.length} Q&A pairs`);
 
   // ============ OUTPUT ============
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
@@ -1424,7 +1453,7 @@ async function main() {
     valid_judges: bestEver.consensus?.validJudgeCount || 0,
     total_variations: allVariations.length,
     loops_used: loopsUsed,
-    qa_comments: qaComments,
+    qna_pairs: qaComments,
     all_scores: allVariations.map(v => ({
       loop: v.loop,
       variation: v.variation,
@@ -1450,8 +1479,8 @@ async function main() {
   console.log(`G4 Bonus: ${bestEver.g4?.bonus || 0}`);
   console.log('\n--- BEST CONTENT ---');
   console.log(bestEver.content);
-  console.log('\n--- Q&A COMMENTS ---');
-  qaComments.forEach((c, i) => console.log(`  ${i + 1}. ${c}`));
+  console.log('\n--- Q&A PAIRS ---');
+  qaComments.forEach((qa, i) => console.log(`  ${i + 1}. Q: ${qa.q}\n     A: ${qa.a}`));
   console.log('\n--- SCORE BREAKDOWN ---');
   if (bestEver.consensus?.scores) {
     for (const [cat, score] of Object.entries(bestEver.consensus.scores)) {
@@ -1481,7 +1510,8 @@ async function main() {
     mission: MISSION_0.title
   }, null, 2));
   fs.writeFileSync(path.join(outputDir, 'qa.json'), JSON.stringify({
-    comments: qaComments,
+    qna_pairs: qaComments,
+    total: qaComments.length,
     content: bestEver.content,
     timestamp: output.timestamp
   }, null, 2));
