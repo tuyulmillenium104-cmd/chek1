@@ -9,3 +9,4 @@ __pycache__/
 .DS_Store
 campaign_data/.rally_guard.lock
 
+.secrets/
