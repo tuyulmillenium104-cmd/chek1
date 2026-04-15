@@ -1,57 +1,88 @@
 #!/bin/bash
-# Rally Brain v7.0 - Sequential Auto-Runner
-# Menjalankan semua campaign SEQUENTIALIAL (bukan paralel) untuk menghindari 429
-# Self-healing built-in: infra, config, content, scoring, growth
+# Rally Brain Runner v2.0
+# Cron calls this every 15 min. Each run = 1 campaign (rotating).
+# Quality gate: regenerate if score < 18.
 
 cd /home/z/my-project/download/rally-brain
-LOG="/tmp/rally_run_$(date +%Y%m%d_%H%M%S).log"
+mkdir -p campaign_data
 
 CAMPAIGNS=("campaign_3" "marbmarket-m0" "marbmarket-m1")
+MIN_SCORE=18
+MAX_REGEN=2
+LOG="/tmp/rally_run.log"
 
-# Reset token state jika sudah 24 jam
-TS_FILE="campaign_data/.token_state.json"
-if [ -f "$TS_FILE" ]; then
-    AGE=$(( $(date +%s) - $(stat -c %Y "$TS_FILE") ))
-    if [ $AGE -gt 86400 ]; then
-        rm -f "$TS_FILE"
-        echo "[$(date)] Token state reset (age: ${AGE}s)" >> "$LOG"
-    fi
-fi
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG"; }
 
-# Clear stale lock
+# Pick next campaign
+ROT="campaign_data/rotation_state.json"
+LAST=""
+[ -f "$ROT" ] && LAST=$(python3 -c "import json; print(json.load(open('$ROT')).get('last_campaign',''))" 2>/dev/null)
+NEXT=""
+for i in "${!CAMPAIGNS[@]}"; do
+  [ "${CAMPAIGNS[$i]}" = "$LAST" ] && { NEXT="${CAMPAIGNS[$(( (i+1) % ${#CAMPAIGNS[@]} ))]}"; break; }
+done
+[ -z "$NEXT" ] && NEXT="${CAMPAIGNS[0]}"
+
+log "=== RUN: $NEXT ==="
+
+# Clear lock
 rm -f campaign_data/.rally_guard.lock
 
-for CAMPAIGN in "${CAMPAIGNS[@]}"; do
-    echo "[$(date)] === $CAMPAIGN START ===" >> "$LOG"
-    node generate.js "$CAMPAIGN" >> "$LOG" 2>&1
-    EXIT=$?
-    echo "[$(date)] === $CAMPAIGN DONE (exit=$EXIT) ===" >> "$LOG"
-    
-    # Cek skor
-    SCORE=$(python3 -c "import json; print(json.load(open('campaign_data/${CAMPAIGN}_output/prediction.json')).get('score','ERR'))" 2>/dev/null)
-    echo "[$(date)] $CAMPAIGN Score: $SCORE/23" >> "$LOG"
-    
-    # Update rotation
-    python3 -c "
+# Generate
+node generate.js "$NEXT" >> "$LOG" 2>&1
+EXIT=$?
+
+# Read score
+PRED="campaign_data/${NEXT}_output/prediction.json"
+SCORE="ERR"
+[ -f "$PRED" ] && SCORE=$(python3 -c "import json; print(json.load(open('$PRED')).get('score','ERR'))" 2>/dev/null)
+GRADE="?"
+[ -f "$PRED" ] && GRADE=$(python3 -c "import json; print(json.load(open('$PRED')).get('grade','?'))" 2>/dev/null)
+
+log "RAW: $NEXT exit=$EXIT score=$SCORE grade=$GRADE"
+
+# Quality gate: regenerate if score < MIN
+if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < $MIN_SCORE" | bc -l 2>/dev/null)" = "1" ]; then
+  for R in $(seq 1 $MAX_REGEN); do
+    log "REGEN $R/$MAX_REGEN (score=$SCORE)"
+    sleep 10
+    rm -f campaign_data/.rally_guard.lock
+    node generate.js "$NEXT" >> "$LOG" 2>&1
+    [ -f "$PRED" ] && SCORE=$(python3 -c "import json; print(json.load(open('$PRED')).get('score','ERR'))" 2>/dev/null)
+    [ -f "$PRED" ] && GRADE=$(python3 -c "import json; print(json.load(open('$PRED')).get('grade','?'))" 2>/dev/null)
+    log "REGEN $R: score=$SCORE"
+    IS_OK=$(echo "$SCORE >= $MIN_SCORE" | bc -l 2>/dev/null)
+    [ "$IS_OK" = "1" ] && break
+  done
+fi
+
+# Inject fix if low
+if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < 15" | bc -l 2>/dev/null)" = "1" ]; then
+  KDB="campaign_data/${NEXT}_knowledge_db.json"
+  python3 << PYEOF 2>/dev/null
+import json
+try: d=json.load(open('$KDB'))
+except: d={'patterns':{'semantic':{}}}
+d.setdefault('patterns',{}).setdefault('semantic',{})
+d['patterns']['semantic'].setdefault('self_heal_directives',{'directives':[],'level':'critical'})
+dirs=d['patterns']['semantic']['self_heal_directives']['directives']
+dirs.insert(0,f'LOW SCORE: $SCORE/23. ALL required tags/links MUST be included. No AI words. No dashes. Human voice.')
+d['patterns']['semantic']['self_heal_directives']['directives']=dirs[:10]
+json.dump(d,open('$KDB','w'),indent=2)
+PYEOF
+  log "FIX injected for $NEXT"
+fi
+
+# Update rotation
+python3 << PYEOF 2>/dev/null
 import json
 f='campaign_data/rotation_state.json'
-try:
-    d=json.load(open(f))
-except:
-    d={}
-d['last_campaign']='${CAMPAIGN}'
+try: d=json.load(open(f))
+except: d={}
+d['last_campaign']='${NEXT}'
 d['last_run']='$(date -Iseconds)'
 d['cycle_count']=d.get('cycle_count',0)+1
 json.dump(d,open(f,'w'),indent=2)
-" 2>/dev/null
-    
-    # Jeda 10 detik antar campaign
-    sleep 10
-done
+PYEOF
 
-echo "[$(date)] === ALL CAMPAIGNS COMPLETE ===" >> "$LOG"
-
-# Cleanup old logs
-ls -t /tmp/rally_run_*.log 2>/dev/null | tail -n +6 | xargs -r rm
-
-exit 0
+log "DONE: $NEXT $SCORE/23 ($GRADE)"

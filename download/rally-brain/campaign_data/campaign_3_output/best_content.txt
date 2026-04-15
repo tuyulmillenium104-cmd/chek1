@@ -1,1 +1,11 @@
-I've been looking at Fragments' BTC-Jr for weeks now. It's not like the leverage products you're used to. No margin calls. No liquidation risk. Just perpetual ~1.33x Bitcoin exposure through tranching. The protocol splits cbBTC into junior (high vol) and senior (stable yield) tokens. No debt structure. No external shorts. Just pure, amplified Bitcoin for buy-and-hold investors. @FragmentsOrg built this with Ampleforth. The backtesting looks solid. I think this could change how we think about durable leverage. Not sure if it's right for most people, but the mechanics are interesting. link.fragments.org/rally. Thoughts?
+Spent the weekend digging into how tranching actually works. It basically splits an asset into two parts. You get a junior token for amplified exposure and a senior token for stability. The crazy part is this structure creates leverage without borrowing.
+
+Bitcoin Junior from @FragmentsOrg uses this to give you about 1.33x exposure to BTC. It is backed by cbBTC. There is no debt and no liquidation risk because the volatility is built into the token structure itself.
+
+I think this is better than margin trading or perps. You don't deal with funding rates or daily rebalancing decay. It is purely for holding. You can swap back to cbBTC anytime.
+
+Not sure how it handles a prolonged bear market though. The backtesting looks solid but I am curious to see it live.
+
+link.fragments.org/rally
+
+thoughts?

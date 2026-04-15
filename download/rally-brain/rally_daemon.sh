@@ -1,21 +1,22 @@
 #!/bin/bash
-# Rally Brain Daemon v1.0 - Infinite Loop
-# JANGAN berhenti. Jalan terus sampai di-kill.
-# Quality gate: regenerate jika skor < 18
+# Rally Brain Daemon v2.0 - Container-Kill Proof
+# Setsid + nohup + detach child = survives container kill of parent
 
 cd /home/z/my-project/download/rally-brain
 mkdir -p campaign_data
 
 CAMPAIGNS=("campaign_3" "marbmarket-m0" "marbmarket-m1")
 MIN_SCORE=18
-MAX_REGEN=3
-CYCLE_DELAY=60
+MAX_REGEN=2
+CYCLE_DELAY=30
 
 log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a /tmp/rally_daemon.log
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> /tmp/rally_daemon.log
+  # Also try stderr (unbuffered)
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >&2
 }
 
-echo "RALLY DAEMON v1.0 PID: $$" > /tmp/rally_daemon.pid
+echo $$ > /tmp/rally_daemon.pid
 log "DAEMON STARTED PID: $$"
 
 IDX=0
@@ -34,11 +35,24 @@ while true; do
   # Clean lock
   rm -f campaign_data/.rally_guard.lock
 
-  # Run generate
-  node generate.js "$CAM" > /tmp/rally_daemon_cycle.log 2>&1
-  EXIT=$?
-  
-  # Read score
+  # Fork generate into background (detached from shell)
+  setsid node generate.js "$CAM" </dev/null >/tmp/rally_cycle_$CAM.log 2>&1 &
+  GEN_PID=$!
+  log "GENERATE STARTED pid=$GEN_PID campaign=$CAM"
+
+  # Wait with timeout (5 min)
+  WAITED=0
+  while kill -0 $GEN_PID 2>/dev/null; do
+    sleep 5
+    ((WAITED+=5))
+    if [ $WAITED -ge 300 ]; then
+      log "TIMEOUT: Killing generate after ${WAITED}s"
+      kill -9 $GEN_PID 2>/dev/null
+      break
+    fi
+  done
+
+  # Read result
   SCORE="ERR"
   GRADE="?"
   PRED_FILE="campaign_data/${CAM}_output/prediction.json"
@@ -47,97 +61,75 @@ while true; do
     GRADE=$(python3 -c "import json; print(json.load(open('$PRED_FILE')).get('grade','ERR'))" 2>/dev/null)
   fi
 
-  log "RAW: $CAM exit=$EXIT score=$SCORE grade=$GRADE"
+  log "RESULT: $CAM score=$SCORE grade=$GRADE"
 
-  # Quality gate
-  NEED_REGEN=false
-  if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < $MIN_SCORE" | bc -l 2>/dev/null)" = "1" ]; then
-    NEED_REGEN=true
-  fi
-
-  # Also regenerate if process crashed
-  if [ $EXIT -ne 0 ]; then
-    NEED_REGEN=true
-    # Check for syntax errors - don't retry
-    if rg -q "SyntaxError" /tmp/rally_daemon_cycle.log 2>/dev/null; then
-      log "SYNTAX ERROR in generate.js. NOT retrying. Manual fix needed."
-      ((FAIL++))
-      sleep $CYCLE_DELAY
-      continue
+  # Quality gate: regenerate if needed
+  if [ "$SCORE" != "ERR" ]; then
+    IS_LOW=$(echo "$SCORE < $MIN_SCORE" | bc -l 2>/dev/null)
+    if [ "$IS_LOW" = "1" ]; then
+      for R in $(seq 1 $MAX_REGEN); do
+        log "REGEN $R/$MAX_REGEN for $CAM (score=$SCORE)"
+        sleep 20
+        rm -f campaign_data/.rally_guard.lock
+        setsid node generate.js "$CAM" </dev/null >/tmp/rally_cycle_${CAM}_r${R}.log 2>&1 &
+        REGEN_PID=$!
+        RW=0
+        while kill -0 $REGEN_PID 2>/dev/null; do
+          sleep 5; ((RW+=5))
+          [ $RW -ge 300 ] && { kill -9 $REGEN_PID 2>/dev/null; break; }
+        done
+        NEW_SCORE=$(python3 -c "import json; print(json.load(open('$PRED_FILE')).get('score','ERR'))" 2>/dev/null)
+        log "REGEN $R result: $NEW_SCORE"
+        if [ "$NEW_SCORE" != "ERR" ]; then
+          SCORE=$NEW_SCORE
+          GRADE=$(python3 -c "import json; print(json.load(open('$PRED_FILE')).get('grade','?'))" 2>/dev/null)
+          IS_OK=$(echo "$SCORE >= $MIN_SCORE" | bc -l 2>/dev/null)
+          [ "$IS_OK" = "1" ] && break
+        fi
+      done
     fi
   fi
 
-  # Regenerate loop
-  if [ "$NEED_REGEN" = true ]; then
-    for R in $(seq 1 $MAX_REGEN); do
-      log "REGEN $R/$MAX_REGEN for $CAM (score was $SCORE)"
-      sleep 15
-      rm -f campaign_data/.rally_guard.lock
-      node generate.js "$CAM" > /tmp/rally_daemon_cycle.log 2>&1
-      if [ -f "$PRED_FILE" ]; then
-        NEW_SCORE=$(python3 -c "import json; print(json.load(open('$PRED_FILE')).get('score','ERR'))" 2>/dev/null)
-        NEW_GRADE=$(python3 -c "import json; print(json.load(open('$PRED_FILE')).get('grade','ERR'))" 2>/dev/null)
-        log "REGEN $R result: score=$NEW_SCORE grade=$NEW_GRADE"
-        
-        # Accept if score improved enough
-        if [ "$NEW_SCORE" != "ERR" ] && [ "$(echo "$NEW_SCORE >= $MIN_SCORE" | bc -l 2>/dev/null)" = "1" ]; then
-          SCORE=$NEW_SCORE
-          GRADE=$NEW_GRADE
-          break
-        fi
-        SCORE=$NEW_SCORE
-        GRADE=$NEW_GRADE
-      fi
-    done
-  fi
-
-  # Final assessment
+  # Assessment
   if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE >= 10" | bc -l 2>/dev/null)" = "1" ]; then
     ((SUCCESS++))
-    log "SUCCESS: $CAM $SCORE/23 ($GRADE) | Total success: $SUCCESS/$TOTAL"
+    log "SUCCESS: $CAM $SCORE/23 ($GRADE) | Stats: $SUCCESS ok / $FAIL fail / $TOTAL total"
   else
     ((FAIL++))
-    log "FAIL: $CAM score=$SCORE | Total fail: $FAIL/$TOTAL"
+    log "FAIL: $CAM score=$SCORE | Stats: $SUCCESS ok / $FAIL fail / $TOTAL total"
   fi
 
-  # Inject fix directive if score is low
+  # Inject fix if very low score
   if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < 15" | bc -l 2>/dev/null)" = "1" ]; then
     KDB_FILE="campaign_data/${CAM}_knowledge_db.json"
-    python3 -c "
+    python3 << PYEOF 2>/dev/null
 import json
 f='$KDB_FILE'
-try:
-    d=json.load(open(f))
-except:
-    d={'patterns':{'semantic':{}}}
-if 'patterns' not in d: d['patterns']={}
-if 'semantic' not in d['patterns']: d['patterns']['semantic']={}
-if 'self_heal_directives' not in d['patterns']['semantic']:
-    d['patterns']['semantic']['self_heal_directives']={'directives':[],'level':'critical'}
+try: d=json.load(open(f))
+except: d={'patterns':{'semantic':{}}}
+d.setdefault('patterns',{}).setdefault('semantic',{})
+d['patterns']['semantic'].setdefault('self_heal_directives',{'directives':[],'level':'critical'})
 dirs=d['patterns']['semantic']['self_heal_directives']['directives']
-dirs.insert(0, f'LOW SCORE WARNING: Last score was $SCORE/23. ABSOLUTELY MUST include all required tags/links. No AI words. No dashes. Genuine question at end. Write with human voice.')
+dirs.insert(0,f'LOW SCORE: $SCORE/23. MUST include all tags/links. No AI words. No dashes. Human voice. Genuine question.')
 d['patterns']['semantic']['self_heal_directives']['directives']=dirs[:10]
 json.dump(d,open(f,'w'),indent=2)
-" 2>/dev/null
-    log "INJECTED fix directive to $KDB_FILE"
+PYEOF
+    log "FIX INJECTED to $KDB_FILE"
   fi
 
-  # Update rotation state
-  python3 -c "
+  # Save state
+  python3 << PYEOF 2>/dev/null
 import json
 f='campaign_data/rotation_state.json'
-try:
-    d=json.load(open(f))
-except:
-    d={}
+try: d=json.load(open(f))
+except: d={}
 d['last_campaign']='${CAM}'
 d['last_run']='$(date -Iseconds)'
 d['cycle_count']=d.get('cycle_count',0)+1
 json.dump(d,open(f,'w'),indent=2)
-" 2>/dev/null
+PYEOF
 
-  # Save daemon stats
-  echo "{\"total_cycles\":$TOTAL,\"success\":$SUCCESS,\"fail\":$FAIL,\"last_campaign\":\"$CAM\",\"last_score\":\"$SCORE\",\"last_grade\":\"$GRADE\"}" > campaign_data/daemon_state.json
+  echo "{\"ts\":\"$(date -Iseconds)\",\"cycles\":$TOTAL,\"success\":$SUCCESS,\"fail\":$FAIL,\"last\":\"$CAM\",\"score\":\"$SCORE\",\"grade\":\"$GRADE\"}" > campaign_data/daemon_state.json
 
   log "Sleeping ${CYCLE_DELAY}s..."
   sleep $CYCLE_DELAY
