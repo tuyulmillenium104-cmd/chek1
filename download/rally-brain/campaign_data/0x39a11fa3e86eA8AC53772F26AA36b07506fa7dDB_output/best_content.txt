@@ -1,7 +1,0 @@
-I've been watching veDEX models for months. Most folks miss the real magic. It's not just about locking tokens. It's about creating this self-reinforcing cycle where your vote actually matters. MarbMarket is bringing this to MegaETH with no presale. Just fair launch mechanics. You lock MARB, you get veMARB, you vote on where emissions go. Projects pay bribes for those votes. The incentives flow back to you. It's a beautiful loop.
-
-What I find fascinating is how long-term lockers get more influence. Your lock duration directly translates to power. The ve(3,3) model means everyone's incentives are aligned. No VCs. No insiders. Just the community deciding where liquidity goes.
-
-This changes everything for liquidity mining. Instead of chasing random APYs, you get to vote on sustainable rewards. Protocols have to compete fairly. It's not about who has the biggest marketing budget. It's about who offers real value.
-
-The real question I'm wrestling with: how do we prevent vote delegation from becoming another form of centralization? @RallyOnChain what's your take on keeping the truly decentralized spirit alive here? x.com/Marb_market
