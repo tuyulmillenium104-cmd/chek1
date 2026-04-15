@@ -6,7 +6,9 @@
     "total_patterns": 0,
     "best_score_achieved": 21.9,
     "avg_score": 20.4,
-    "last_learned": "2026-04-15T12:54:58.408Z"
+    "last_learned": "2026-04-15T12:54:58.408Z",
+    "v7_last_sync": "2026-04-15T17:05:18.965658+00:00",
+    "v7_total_submissions": 258
   },
   "cycle_history": [
     {
@@ -314,7 +316,42 @@
         "description": "Balance categories",
         "level": "medium",
         "learned_rules": []
-      }
+      },
+      "v7_intelligence": {
+        "avg_score": 0,
+        "weak_categories": [
+          "reply_quality"
+        ],
+        "strong_categories": [
+          "alignment",
+          "accuracy",
+          "compliance",
+          "technical"
+        ],
+        "total_data_points": 258
+      },
+      "learned_rules": [
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid repetitive \u2014 drops originality', 'confidence': 0.8, 'frequency': 5}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include natural for higher originality', 'confidence': 1.0, 'frequency': 3}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid similar to \u2014 drops originality', 'confidence': 1.0, 'frequency': 9}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include distinctive for higher originality', 'confidence': 1.0, 'frequency': 8}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include conversational for higher originality', 'confidence': 1.0, 'frequency': 5}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid formulaic \u2014 drops originality', 'confidence': 1.0, 'frequency': 12}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include original for higher originality', 'confidence': 1.0, 'frequency': 10}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include authentic for higher originality', 'confidence': 1.0, 'frequency': 19}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid marketing speak \u2014 drops originality', 'confidence': 1.0, 'frequency': 16}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include creative for higher originality', 'confidence': 1.0, 'frequency': 3}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid overly promotional \u2014 drops originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include fresh for higher originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid generic \u2014 drops originality', 'confidence': 1.0, 'frequency': 34}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid promotional tone \u2014 drops originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid overlap \u2014 drops originality', 'confidence': 1.0, 'frequency': 57}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid derivative \u2014 drops originality', 'confidence': 1.0, 'frequency': 52}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid template \u2014 drops originality', 'confidence': 1.0, 'frequency': 91}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include unique for higher originality', 'confidence': 1.0, 'frequency': 56}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include genuine for higher originality', 'confidence': 1.0, 'frequency': 43}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include personal for higher originality', 'confidence': 1.0, 'frequency': 70}"
+      ]
     }
   },
   "scoring_model": {

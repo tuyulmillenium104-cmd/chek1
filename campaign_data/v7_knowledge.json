@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0",
+  "version": "7.0",
   "created": "2026-04-15T16:04:04.055282+00:00",
   "last_updated": "2026-04-15T16:06:06.331146+00:00",
   "stats": {
@@ -2700,5 +2700,285 @@
       "is_repetition": false,
       "content_preview": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about lock..."
     }
-  ]
+  ],
+  "last_analysis": "2026-04-15T17:05:18.965658+00:00",
+  "total_submissions": 258,
+  "score_stats": {
+    "min": 12.0,
+    "max": 23.0,
+    "avg": 16.94,
+    "median": 17.0
+  },
+  "category_averages": {
+    "originality": 1.31,
+    "alignment": 1.98,
+    "accuracy": 1.97,
+    "compliance": 1.92,
+    "engagement": 3.99,
+    "technical": 4.69,
+    "reply_quality": 1.09
+  },
+  "weak_categories": [
+    "reply_quality"
+  ],
+  "strong_categories": [
+    "alignment",
+    "accuracy",
+    "compliance",
+    "technical"
+  ],
+  "top_patterns": [
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include personal for higher originality",
+      "confidence": 1.0,
+      "frequency": 70
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include genuine for higher originality",
+      "confidence": 1.0,
+      "frequency": 43
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include unique for higher originality",
+      "confidence": 1.0,
+      "frequency": 56
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid template — drops originality",
+      "confidence": 1.0,
+      "frequency": 91
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid derivative — drops originality",
+      "confidence": 1.0,
+      "frequency": 52
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overlap — drops originality",
+      "confidence": 1.0,
+      "frequency": 57
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid promotional tone — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid generic — drops originality",
+      "confidence": 1.0,
+      "frequency": 34
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include fresh for higher originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overly promotional — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include creative for higher originality",
+      "confidence": 1.0,
+      "frequency": 3
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid marketing speak — drops originality",
+      "confidence": 1.0,
+      "frequency": 16
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include authentic for higher originality",
+      "confidence": 1.0,
+      "frequency": 19
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include original for higher originality",
+      "confidence": 1.0,
+      "frequency": 10
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid formulaic — drops originality",
+      "confidence": 1.0,
+      "frequency": 12
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include conversational for higher originality",
+      "confidence": 1.0,
+      "frequency": 5
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include distinctive for higher originality",
+      "confidence": 1.0,
+      "frequency": 8
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid similar to — drops originality",
+      "confidence": 1.0,
+      "frequency": 9
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include natural for higher originality",
+      "confidence": 1.0,
+      "frequency": 3
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid repetitive — drops originality",
+      "confidence": 0.8,
+      "frequency": 5
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid ai-generated — drops originality",
+      "confidence": 0.7,
+      "frequency": 4
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid cliched — drops originality",
+      "confidence": 0.5,
+      "frequency": 2
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid manufactured — drops originality",
+      "confidence": 0.5,
+      "frequency": 1
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include personal for higher originality",
+      "confidence": 1.0,
+      "frequency": 70
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include genuine for higher originality",
+      "confidence": 1.0,
+      "frequency": 43
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include unique for higher originality",
+      "confidence": 1.0,
+      "frequency": 56
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid template — drops originality",
+      "confidence": 1.0,
+      "frequency": 91
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid derivative — drops originality",
+      "confidence": 1.0,
+      "frequency": 52
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overlap — drops originality",
+      "confidence": 1.0,
+      "frequency": 57
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid promotional tone — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    }
+  ],
+  "what_works": [
+    "[originality] original (x10)",
+    "[originality] personal (x9)",
+    "[originality] conversational (x9)",
+    "[originality] unique (x8)",
+    "[originality] authentic (x8)",
+    "[originality] natural (x8)",
+    "[reply_quality] specific (x8)",
+    "[originality] distinctive (x8)",
+    "[originality] creative (x7)",
+    "[accuracy] accurately describes (x7)"
+  ],
+  "what_fails": [
+    "[compliance] hashtag (x10)",
+    "[technical] spelling (x10)",
+    "[accuracy] misleading (x7)",
+    "[engagement] no explicit (x6)",
+    "[compliance] missing (x4)",
+    "[originality] derivative (x4)",
+    "[originality] generic (x3)",
+    "[originality] overlap (x3)",
+    "[accuracy] unverifiable (x3)",
+    "[originality] template (x3)"
+  ],
+  "recommendations": [
+    "REPLY_QUALITY has the biggest gap (78.2% room for improvement). Current avg: 1.09/5. Focus on this category for maximum score gain.",
+    "ORIGINALITY has the biggest gap (34.5% room for improvement). Current avg: 1.31/2. Focus on this category for maximum score gain.",
+    "What works in top submissions: [originality] original (x10)",
+    "What fails in bottom submissions: [compliance] hashtag (x10)"
+  ],
+  "category_gaps": {
+    "originality": {
+      "avg": 1.31,
+      "max": 2,
+      "gap_pct": 34.5
+    },
+    "reply_quality": {
+      "avg": 1.09,
+      "max": 5,
+      "gap_pct": 78.2
+    }
+  }
 }

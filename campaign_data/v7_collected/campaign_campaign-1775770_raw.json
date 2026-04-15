@@ -8,9 +8,9 @@
   "endDate": "2026-05-06T22:00:00.000Z",
   "periodLengthDays": 28,
   "campaignDurationPeriods": 1,
-  "minimumFollowers": 100,
+  "minimumFollowers": 0,
   "maximumFollowers": 0,
-  "onlyVerifiedUsers": true,
+  "onlyVerifiedUsers": false,
   "maxSubmissionsPerParticipant": 0,
   "adminNotice": null,
   "whitelistedSubmitters": [],
@@ -18,7 +18,7 @@
     "symbol": "USDC",
     "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png",
-    "usdPrice": 0.9998816455164744,
+    "usdPrice": 0.9998895325057756,
     "chainId": 8453,
     "chain": {
       "platform": "evm"
