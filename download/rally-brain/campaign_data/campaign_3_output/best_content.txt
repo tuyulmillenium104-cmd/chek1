@@ -1,11 +1,9 @@
-Spent the weekend digging into how tranching actually works. It basically splits an asset into two parts. You get a junior token for amplified exposure and a senior token for stability. The crazy part is this structure creates leverage without borrowing.
+I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage products scare me because of liquidation risk. You mess up once and your position is gone. That's why I'm interested in what @FragmentsOrg is building with Bitcoin Junior.
 
-Bitcoin Junior from @FragmentsOrg uses this to give you about 1.33x exposure to BTC. It is backed by cbBTC. There is no debt and no liquidation risk because the volatility is built into the token structure itself.
+It works by splitting cbBTC into two parts. The Junior token gets about 1.33x amplified upside while the Senior token earns yield. There is no borrowing involved so you can't get liquidated. It's built for holding through cycles rather than active trading.
 
-I think this is better than margin trading or perps. You don't deal with funding rates or daily rebalancing decay. It is purely for holding. You can swap back to cbBTC anytime.
+Backtesting from 2023 to 2024 shows this structure outperforming raw Bitcoin over time. I think this could be a better fit for long-term holders who want leveraged exposure without the stress of margin calls.
 
-Not sure how it handles a prolonged bear market though. The backtesting looks solid but I am curious to see it live.
+Waitlist is live at link.fragments.org/rally
 
-link.fragments.org/rally
-
-thoughts?
+Thoughts?
