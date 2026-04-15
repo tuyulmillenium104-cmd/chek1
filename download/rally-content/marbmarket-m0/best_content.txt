@@ -1,0 +1,9 @@
+Most people chase the next 100x token. I'm focused on systems that quietly rewrite how value flows in DeFi. veDEXes are that shift.
+
+MarbMarket is launching the first veDEX on MegaETH. No presale. No VCs. Just a fair launch with a clever incentive loop.
+
+Here's how it works: You lock MARB tokens for veMARB. Longer locks = more voting power. Projects pay bribes to get your votes. Those bribes flow back to you. The ve(3,3) model makes your rewards compound over time.
+
+It's not just trading. It's directing capital flows. Community decides where liquidity gets rewards. @RallyOnChain has been building infrastructure that compounds over time. This feels like that.
+
+x.com/Marb_market is where you can learn more. Anyone else seeing how ve(3,3) models are changing the game beyond just yield?

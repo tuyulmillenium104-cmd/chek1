@@ -1,0 +1,47 @@
+{
+  "qna_pairs": [
+    {
+      "q": "What's a veDEX and how is it different from regular DEXs?",
+      "a": "A veDEX is a vote-escrowed DEX where users lock tokens for voting power. Unlike regular DEXs, it lets the community decide where liquidity gets rewarded through weekly votes, and projects pay bribes to attract those votes."
+    },
+    {
+      "q": "Why would anyone lock their MARB tokens instead of just trading with them?",
+      "a": "Locking MARB gives you veMARB tokens with voting power that grows with longer lock periods. You earn bribes from projects that want your votes, and our ve(3,3) model makes those rewards compound over time - basically your tokens work harder for you when locked."
+    },
+    {
+      "q": "How does this 'bribe' system work exactly? Who's paying and what's the benefit for them?",
+      "a": "Projects pay bribes in various tokens to get veMARB holders to vote for their liquidity pools. This gives their pools more MARB emissions, attracting more liquidity. It's a win-win where projects get concentrated liquidity and veMARB holders earn extra rewards."
+    },
+    {
+      "q": "What makes MegaETH a good choice for launching this veDEX compared to other L2s?",
+      "a": "MegaETH offers low transaction fees and fast settlement times, making it perfect for the frequent voting and reward distribution our system requires. Plus, being the first veDEX on their chain gives us a nice head start."
+    },
+    {
+      "q": "How is this fair if early adopters can lock tokens for longer and get more voting power?",
+      "a": "It's fair because anyone can lock MARB tokens at any time - there's no presale or VC advantage. While longer locks do give more power, the weekly voting keeps the system dynamic, and new lockers can participate immediately in directing capital flows."
+    },
+    {
+      "q": "What exactly is a veDEX and how is it different from regular DEXs?",
+      "a": "A veDEX is a Vote-Escrowed DEX where you lock tokens to get voting power. Unlike regular DEXs, MarbMarket lets the community decide where liquidity rewards go through weekly votes, creating a more democratic system for capital allocation."
+    },
+    {
+      "q": "No presale and no VCs sounds great, but how does MarbMarket fund development without that money?",
+      "a": "Development is funded through the veMARB incentive loop. Projects pay bribes to get votes on their pools, and a portion of those payments flows back to veMARB holders, creating sustainable funding while keeping the launch fair."
+    },
+    {
+      "q": "How does the ve(3,3) model work exactly? I'm not familiar with that specific mechanism.",
+      "a": "ve(3,3) means your locked MARB tokens give you veMARB that compounds over time. The longer you lock, the more voting power and rewards you get, creating a positive feedback loop where early participants benefit the most."
+    },
+    {
+      "q": "If projects are paying bribes for votes, doesn't that just make it whoever pays the most wins?",
+      "a": "The community actually votes on which pools deserve rewards, not just who pays the most. Bribes are incentives for projects to compete for your votes, but the community decides how to allocate MARB emissions based on what's best for the protocol."
+    },
+    {
+      "q": "I'm new to veDEXes - what's the minimum amount of MARB I need to lock to start earning rewards?",
+      "a": "There's no minimum to lock, but remember that longer locks = more voting power and rewards. Even small amounts will earn something, but the ve(3,3) model really benefits those who lock for longer periods."
+    }
+  ],
+  "total": 10,
+  "content": "Most people chase the next 100x token. I'm focused on systems that quietly rewrite how value flows in DeFi. veDEXes are that shift.\n\nMarbMarket is launching the first veDEX on MegaETH. No presale. No VCs. Just a fair launch with a clever incentive loop.\n\nHere's how it works: You lock MARB tokens for veMARB. Longer locks = more voting power. Projects pay bribes to get your votes. Those bribes flow back to you. The ve(3,3) model makes your rewards compound over time.\n\nIt's not just trading. It's directing capital flows. Community decides where liquidity gets rewards. @RallyOnChain has been building infrastructure that compounds over time. This feels like that.\n\nx.com/Marb_market is where you can learn more. Anyone else seeing how ve(3,3) models are changing the game beyond just yield?",
+  "timestamp": "2026-04-15T03:44:26.369Z"
+}
