@@ -65,3 +65,24 @@ Stage Summary:
 - v6.0 multi-campaign fully deployed
 - Cron job 89507 active every 45 minutes
 - GitHub pushed to main branch
+---
+Task ID: 1
+Agent: main
+Task: Build frontend download center for Rally Brain content + trigger cron rotation
+
+Work Log:
+- Verified existing Download Center modal in page.tsx (header button)
+- Updated /api/rally-content route to read directly from campaign_data/ (freshest cron data)
+- Fixed directory discovery to only show *_output dirs from campaign_data
+- Added proper file sorting (best_content.txt first, qa.json second)
+- Added readable download filenames (e.g., marbmarket-m0_best_content.txt)
+- Tested API listing endpoint — returns 3 campaigns × 4 files = 12 files
+- Tested file download — proper Content-Disposition headers
+- Triggered Rally Brain rotation via setsid (PID 2220) — marbmarket-m0 done, m1 in progress
+- Verified dev server running on port 3000
+
+Stage Summary:
+- Download Center accessible via green "Download" button in header
+- API reads from campaign_data/ — always shows latest cron output
+- 3 campaigns listed: MarbMarket veDEX, MarbMarket Fair Launch, Fragments BTC-Jr
+- Rally Brain rotation running in background (setsid)

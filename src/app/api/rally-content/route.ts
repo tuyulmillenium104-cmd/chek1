@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const CONTENT_DIR = '/home/z/my-project/download/rally-content';
+// Read directly from campaign_data — always fresh from cron runs
+const CONTENT_DIR = '/home/z/my-project/download/rally-brain/campaign_data';
 
 interface FileInfo {
   name: string;
@@ -25,13 +26,14 @@ function getFileType(filename: string): 'txt' | 'json' | 'unknown' {
   return 'unknown';
 }
 
-function getLabel(campaignName: string): string {
+function getLabel(dirName: string): string {
   const labels: Record<string, string> = {
-    'marbmarket-m0': 'MarbMarket — veDEX on MegaETH',
-    'marbmarket-m1': 'MarbMarket — ve(3,3) Fair Launch',
-    'campaign_3-fragments-btcjr': 'Fragments — Bitcoin Junior (BTC-Jr)',
+    'marbmarket-m0_output': 'MarbMarket — veDEX on MegaETH',
+    'marbmarket-m1_output': 'MarbMarket — ve(3,3) Fair Launch',
+    'campaign_3_output': 'Fragments — Bitcoin Junior (BTC-Jr)',
+    '0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB_output': 'MarbMarket — Legacy (0x39a1...)',
   };
-  return labels[campaignName] || campaignName;
+  return labels[dirName] || dirName.replace(/_output$/, '').replace(/_/g, ' ');
 }
 
 function getFileLabel(filename: string): string {
@@ -44,7 +46,7 @@ function getFileLabel(filename: string): string {
   return labels[filename] || filename;
 }
 
-// GET /api/rally-content — list all files
+// GET /api/rally-content — list all files or serve download
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const file = searchParams.get('file');
@@ -70,11 +72,16 @@ export async function GET(request: NextRequest) {
       json: 'application/json',
     };
 
+    // Use readable filename for download (strip _output from campaign dir)
+    const safeName = campaign.replace(/_output$/, '');
+    const downloadName = file.includes('.json') ? `${safeName}_${file}` : `${safeName}_${file}`;
+
     return new NextResponse(fileBuffer, {
       headers: {
         'Content-Type': contentTypes[ext || ''] || 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${file}"`,
+        'Content-Disposition': `attachment; filename="${downloadName}"`,
         'Content-Length': fileBuffer.length.toString(),
+        'Cache-Control': 'no-cache',
       },
     });
   }
@@ -87,9 +94,10 @@ export async function GET(request: NextRequest) {
   const entries = fs.readdirSync(CONTENT_DIR, { withFileTypes: true });
   const campaigns: CampaignGroup[] = [];
 
+  // Only show output directories (end with _output)
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    if (entry.name.startsWith('.')) continue;
+    if (!entry.name.endsWith('_output')) continue;
 
     const dirPath = path.join(CONTENT_DIR, entry.name);
     const files = fs.readdirSync(dirPath).filter(f => !f.startsWith('.'));
@@ -104,7 +112,13 @@ export async function GET(request: NextRequest) {
         modified: stat.mtime.toISOString(),
         type: getFileType(f),
       };
-    }).sort((a, b) => a.name.localeCompare(b.name));
+    }).sort((a, b) => {
+      // Sort: best_content.txt first, then qa.json, then others
+      const order: Record<string, number> = { 'best_content.txt': 0, 'qa.json': 1, 'full_output.json': 2, 'prediction.json': 3 };
+      const aOrder = order[a.name] ?? 99;
+      const bOrder = order[b.name] ?? 99;
+      return aOrder - bOrder;
+    });
 
     if (fileInfos.length > 0) {
       campaigns.push({
@@ -114,6 +128,16 @@ export async function GET(request: NextRequest) {
       });
     }
   }
+
+  // Sort campaigns: marbmarket first, then campaign_3, then others
+  campaigns.sort((a, b) => {
+    const order: Record<string, number> = {
+      'marbmarket-m0_output': 0,
+      'marbmarket-m1_output': 1,
+      'campaign_3_output': 2,
+    };
+    return (order[a.campaign] ?? 99) - (order[b.campaign] ?? 99);
+  });
 
   const totalFiles = campaigns.reduce((sum, c) => sum + c.files.length, 0);
 
