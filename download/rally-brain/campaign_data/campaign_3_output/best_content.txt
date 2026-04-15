@@ -1,3 +1,11 @@
 I've been looking into this for a bit now.
 
-Could be wrong, but Spent last week digging into how tranching actually works on-chain. Most use products fail because of debt and liquidation risk. Fragments by Ampleforth takes a different approach by splitting cbBTC into two parts. You get a senior tranche for stable yield and a junior tranche for amplified exposure. Bitcoin Junior gives you about 1.33x exposure to BTC price moves. It is built for holding, not trading. There is no margin debt and no liquidations. Backtesting from 2023 to 2024 shows this structure outperforms raw BTC over time. You can swap back to cbBTC whenever you want. This feels like a better way to get leveraged exposure without the stress of getting wiped out on a dip. Following @FragmentsOrg for updates on this. The April waitlist is live at link.fragments.org/rally if you want to check it out. Thoughts on structure-based use versus debt?
+Spent last week digging into how tranching actually works on-chain. Most crypto leverage products fail because of debt and liquidation risk. Fragments by Ampleforth takes a different approach. They split cbBTC into two parts. A senior tranche for stable yield and a junior tranche for amplified exposure.
+
+Bitcoin Junior gives you about 1.33x exposure to BTC price moves. Built for holding, not trading. No margin debt. No liquidations. Backtesting from 2023 to 2024 shows this structure outperforms raw BTC over time. You can swap back to cbBTC whenever.
+
+Feels like a cleaner way to get amplified BTC exposure without the stress of getting wiped out on a dip.
+
+Following @FragmentsOrg for updates. Their April waitlist is live at link.fragments.org/rally. They're also running a giveaway where 10 random signups win $200 each this month.
+
+Anyone here tried structure-based leverage before? Would love to hear thoughts on this versus traditional margin.
