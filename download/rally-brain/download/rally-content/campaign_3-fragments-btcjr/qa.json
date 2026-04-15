@@ -1,0 +1,47 @@
+{
+  "qna_pairs": [
+    {
+      "q": "How exactly does the tranching work without using debt? Is this really different from leverage?",
+      "a": "Tranching splits the volatility of cbBTC into two tokens - BTC-Jr gets amplified swings while BTC-Sr absorbs them and earns yield. It's structure-based leverage, not debt. No borrowing means no liquidations ever."
+    },
+    {
+      "q": "If this is built by Ampleforth, why isn't it getting more hype in the DeFi space?",
+      "a": "Fragments is a newer protocol that's focused on solving a specific problem - durable Bitcoin exposure without margin risk. Ampleforth's team has been building solid DeFi tech for years, sometimes the best plays take time to get noticed."
+    },
+    {
+      "q": "How does backtesting show 1.33x outperforms raw BTC over time? Wouldn't higher volatility lead to more losses during crashes?",
+      "a": "The 2023-2024 backtest showed that despite higher volatility, the 1.33x exposure outperformed Bitcoin because the structure avoids liquidation events that force leveraged traders out of positions during dips. No margin calls mean you can ride out the volatility."
+    },
+    {
+      "q": "What happens if Bitcoin crashes 50%? Would my BTC-Jr tokens be worth nothing?",
+      "a": "No, your BTC-Jr tokens wouldn't be worth nothing. The protocol uses a tranching mechanism that absorbs volatility through the senior token. You'd experience amplified downside but wouldn't face liquidation like you would with margin trading."
+    },
+    {
+      "q": "The $3k USDC reward is nice but seems small for a campaign like this. Is there more incentive to participate?",
+      "a": "The real incentive is understanding how to gain durable Bitcoin exposure without liquidation risk. The $3k reward is just a nice bonus - the long-term play is having a 1.33x Bitcoin position that you can truly buy and hold forever without babysitting."
+    },
+    {
+      "q": "How is this 1.33x leverage achieved without borrowing like traditional margin trading?",
+      "a": "The 1.33x exposure comes from tranching, not borrowing. Protocol splits cbBTC into Jr (higher volatility) and Sr (stable yield) tokens. This structure gives Jr amplified upside without debt, margin calls, or liquidation risks."
+    },
+    {
+      "q": "What happens if Bitcoin crashes 50%? Would my Bitcoin Junior tokens be wiped out?",
+      "a": "Not at all. The tranching structure is designed to handle extreme volatility. Bitcoin Junior tokens would experience amplified losses but wouldn't be completely wiped out. Our backtesting through 2023-2024 market chaos showed the protocol holding up well even during major downturns."
+    },
+    {
+      "q": "Is the $3k USDC reward the only incentive, or is there ongoing yield for BTC-Sr token holders?",
+      "a": "The $3k reward is for the Phase 2 UGC campaign, but BTC-Sr token holders earn ongoing yield from the protocol. The yield comes from demand for leverage in the system - it's how the tranching structure works without needing external debt."
+    },
+    {
+      "q": "How does this compare to something like a leveraged ETF? I'm worried about daily rebalancing decay.",
+      "a": "Big difference! Unlike leveraged ETFs that rebalance daily and suffer from decay, Bitcoin Junior is perpetual with no daily rebalancing. The tranching structure maintains the leverage without the drag that comes from frequent adjustments - that's why we call it durable leverage."
+    },
+    {
+      "q": "Can I actually swap my BTC-Jr back to cbBTC anytime, or are there lock-ups?",
+      "a": "You can swap to cbBTC anytime with no lock-ups. That's one of the best parts - you get the leveraged exposure when you want it, but can exit back to regular cbBTC whenever you choose. The protocol is designed to be flexible for holders."
+    }
+  ],
+  "total": 10,
+  "content": "Been staring at Fragments' Bitcoin Junior for days. Most people chase 10x plays. I'm looking for 1.33x that lasts forever. No liquidations. No margin calls. Just straight exposure to Bitcoin's upside without the babysitting.\n\nTranching is wild. Junior token gets the amplified swings. Senior token collects the yield. No debt structure. Just protocol-level use. @RallyOnChain creators should check this out. The $3k USDC reward is decent, but the real play is understanding how this changes long-term Bitcoin exposure for holders.\n\nSwappable to cbBTC anytime. Backtested through 2023-2024 market chaos. Still standing.\n\nWhat if durable use is more valuable than chasing memecoins? Waitlist: waitlist.fragments.org",
+  "timestamp": "2026-04-15T03:43:05.929Z"
+}

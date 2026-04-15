@@ -1,0 +1,402 @@
+{
+  "version": "3.0.0",
+  "last_updated": "2026-04-14T17:37:57.659Z",
+  "stats": {
+    "total_cycles": 9,
+    "total_patterns": 0,
+    "best_score_achieved": 21.5,
+    "avg_score": 17.2,
+    "last_learned": "2026-04-14T17:37:57.659Z"
+  },
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-14T13:59:26.533Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behind the scenes. MarbMarket is different. No presale. No VC backing. First veDEX on MegaETH. That's real fair.",
+      "is_repetition": false,
+      "content_preview": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behi..."
+    },
+    {
+      "timestamp": "2026-04-14T14:02:46.886Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
+      "is_repetition": false,
+      "content_preview": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then ..."
+    },
+    {
+      "timestamp": "2026-04-14T15:23:19.482Z",
+      "score": 21.5,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4.5,
+        "technical": 4.5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
+      "is_repetition": false,
+      "content_preview": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veToken..."
+    },
+    {
+      "timestamp": "2026-04-14T15:35:45.287Z",
+      "score": 15.5,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes are changing DeFi governance in ways nobody sees coming yet.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes..."
+    },
+    {
+      "timestamp": "2026-04-14T15:40:28.451Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actually matters.",
+      "is_repetition": false,
+      "content_preview": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actual..."
+    },
+    {
+      "timestamp": "2026-04-14T15:49:31.082Z",
+      "score": 14.2,
+      "grade": "B",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 2,
+      "variations_tested": 3,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity ..."
+    },
+    {
+      "timestamp": "2026-04-14T16:44:51.503Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.",
+      "is_repetition": false,
+      "content_preview": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on..."
+    },
+    {
+      "timestamp": "2026-04-14T17:02:44.820Z",
+      "score": 14.3,
+      "grade": "B",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 4,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.",
+      "is_repetition": false,
+      "content_preview": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. ..."
+    },
+    {
+      "timestamp": "2026-04-14T17:37:57.659Z",
+      "score": 15.5,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about locking tokens. It's about creating this self-reinforcing cycle where your vote actually matters. MarbMarket is bringing this to MegaETH with no presale. Just fair launch mechanics. You lock MARB, you get veMARB, you vote on where emissions go. Projects pay bribes for those votes. The incentives flow back to you. It's a beautiful loop.",
+      "is_repetition": false,
+      "content_preview": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about lock..."
+    }
+  ],
+  "ai_word_frequency": {},
+  "winning_hooks": [
+    {
+      "hook": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behind the scenes. MarbMarket is different. No presale. No VC backing. First veDEX on MegaETH. That's real fair.",
+      "score": 20.9,
+      "timestamp": "2026-04-14T13:59:26.533Z"
+    },
+    {
+      "hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
+      "score": 20.9,
+      "timestamp": "2026-04-14T14:02:46.886Z"
+    },
+    {
+      "hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
+      "score": 21.5,
+      "timestamp": "2026-04-14T15:23:19.482Z"
+    }
+  ],
+  "category_trends": {
+    "originality": {
+      "total": 13.250000000000002,
+      "count": 9,
+      "avg": 1.47,
+      "last5": [
+        1.15,
+        1.2000000000000002,
+        1.15,
+        1.25,
+        1.25
+      ]
+    },
+    "alignment": {
+      "total": 18,
+      "count": 9,
+      "avg": 2,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "accuracy": {
+      "total": 12.199999999999998,
+      "count": 9,
+      "avg": 1.36,
+      "last5": [
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        0.7
+      ]
+    },
+    "compliance": {
+      "total": 17.6,
+      "count": 9,
+      "avg": 1.96,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "engagement": {
+      "total": 32.3,
+      "count": 9,
+      "avg": 3.59,
+      "last5": [
+        3.5,
+        2.8,
+        3.5,
+        2.8,
+        3.5
+      ]
+    },
+    "technical": {
+      "total": 34.9,
+      "count": 9,
+      "avg": 3.88,
+      "last5": [
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5
+      ]
+    },
+    "reply_quality": {
+      "total": 26.1,
+      "count": 9,
+      "avg": 2.9,
+      "last5": [
+        2.5,
+        1.5,
+        2.5,
+        1.5,
+        2.5
+      ]
+    }
+  },
+  "patterns": {
+    "semantic": {
+      "claim_specificity": {
+        "description": "Concrete verifiable claims score higher",
+        "level": "high",
+        "learned_rules": []
+      },
+      "tone_style_match": {
+        "description": "Tone must match campaign context",
+        "level": "high",
+        "learned_rules": []
+      },
+      "engagement_hook": {
+        "description": "Opening hooks + CTA for engagement",
+        "level": "high",
+        "learned_rules": [
+          "Focus on reply_quality: avg 2.9/5 (58%)",
+          "Focus on accuracy: avg 1.36/2 (68%)"
+        ]
+      },
+      "rally_mention": {
+        "description": "Natural contextual mention with concrete mechanism",
+        "level": "high",
+        "learned_rules": []
+      },
+      "exaggeration_risk": {
+        "description": "Absolute claims risk Accuracy deductions",
+        "level": "critical",
+        "learned_rules": []
+      },
+      "cross_category_tradeoff": {
+        "description": "Balance categories",
+        "level": "medium",
+        "learned_rules": []
+      }
+    }
+  },
+  "scoring_model": {
+    "calibration_log": [
+      {
+        "timestamp": "2026-04-14T13:59:26.533Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-14T14:02:46.886Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-14T15:23:19.482Z",
+        "predicted": 21.5,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-14T15:35:45.287Z",
+        "predicted": 15.5,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T15:40:28.451Z",
+        "predicted": 15.9,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T15:49:31.082Z",
+        "predicted": 14.2,
+        "grade": "B"
+      },
+      {
+        "timestamp": "2026-04-14T16:44:51.503Z",
+        "predicted": 15.9,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-14T17:02:44.820Z",
+        "predicted": 14.3,
+        "grade": "B"
+      },
+      {
+        "timestamp": "2026-04-14T17:37:57.659Z",
+        "predicted": 15.5,
+        "grade": "B+"
+      }
+    ],
+    "category_weights": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    }
+  },
+  "campaign_memories": {},
+  "v3_lessons": {}
+}

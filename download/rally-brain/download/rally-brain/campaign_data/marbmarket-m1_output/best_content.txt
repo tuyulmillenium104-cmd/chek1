@@ -1,0 +1,9 @@
+I've been looking at MarbMarket's ve(3,3) model and it's got me thinking. Most new DEXs chase VC money and presales, but Marb's doing something different. No presale, no VCs, just a fair launch on MegaETH.
+
+MARB works like this: you lock tokens to get veMARB voting power. Longer locks = more power + more rewards. Projects actually bribe veMARB holders for votes. That's wild. It's like Solidly's model but on MegaETH.
+
+The fee revenue goes to token stakers. Creates this self-reinforcing loop. Aerodrome and Velodrome proved this works. No early investors dumping on you. Community gets all tokens from day one.
+
+Not sure if this is the next big thing, but the incentive structure feels different. What if this becomes the standard for fair launches? x.com/Marb_market
+
+@RallyOnChain what do you think about the ve(3,3) model replacing traditional DEX launches?

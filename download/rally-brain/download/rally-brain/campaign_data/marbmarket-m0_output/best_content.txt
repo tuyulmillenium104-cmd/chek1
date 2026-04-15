@@ -1,0 +1,3 @@
+I've been diving into the veDEX model lately and it's fascinating how different it is from your typical AMM. Most DEXs just throw rewards at liquidity, but veDEXes flip the script. You lock tokens, get voting power, then decide where emissions go. MarbMarket is bringing this to MegaETH with no presale, no VCs. Pure community power. x.com/Marb_market
+
+The real beauty is the incentive loop. Projects pay bribes for votes, LPs get rewards, lockers earn more. It's not just farming. It's governance that actually matters. Spotted via @RallyOnChain. I'm curious if this could fix the "who controls the rewards" problem that plagues so many protocols. Thoughts?

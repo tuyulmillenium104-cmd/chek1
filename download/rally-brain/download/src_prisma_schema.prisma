@@ -1,0 +1,18 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\">// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  name      String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Post {\n  id        String   @id @default(cuid())\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  authorId  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel PipelineRun {\n  id            String   @id @default(cuid())\n  status        String   @default(\"completed\")\n  bestScore     Float?\n  verdict       String?\n  variations    Int\n  feedbackLoops Int      @default(0)\n  pipelineTime  Float?\n  bestAngle     String?\n  bestContent   String?\n  requestParams String?\n  errorMessage  String?\n  createdAt     DateTime @default(now())\n}\n\nmodel RallyCampaign {\n  id                String   @id @default(cuid())\n  title             String\n  contractAddress   String?\n  campaignUrl       String?\n  creator           String?\n  xUsername         String?\n  rewardPool        String?\n  startDate         String?\n  endDate           String?\n  status            String   @default(\"active\")\n  description       String?\n  source            String   @default(\"manual\")\n  dataJson          String?\n  isActive          Boolean  @default(true)\n  missionsJson      String?\n  knowledgeBase     String?\n  proposedAnglesJson String?\n  rulesJson         String?\n  style             String?\n  goal              String?\n  createdAt         DateTime @default(now())\n  updatedAt         DateTime @updatedAt\n}\n\nmodel RallyCronJob {\n  id              String   @id @default(cuid())\n  name            String\n  campaignId      String\n  campaignTitle   String\n  campaignAddress String\n  mode            String   @default(\"BUILD\")\n  scheduleKind    String   @default(\"fixed_rate\")\n  scheduleExpr    String\n  timezone        String   @default(\"Asia/Jakarta\")\n  status          String   @default(\"active\")\n  systemJobId     String?\n  lastRunAt       DateTime?\n  nextRunAt       DateTime?\n  runCount        Int      @default(0)\n  lastError       String?\n  payload         String\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n}</pre></body></html>",
+    "title": "",
+    "url": "https://raw.githubusercontent.com/tuyulmillenium104-cmd/chek1/rally-command-center-v17/prisma/schema.prisma",
+    "usage": {
+      "tokens": 626
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 626
+    }
+  },
+  "status": 20000
+}

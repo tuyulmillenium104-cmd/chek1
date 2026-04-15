@@ -1,0 +1,54 @@
+{
+  "id": "marbmarket-m1",
+  "name": "MarbMarket M1",
+  "campaign": {
+    "title": "MarbMarket - The First veDEX on MegaETH is Launching",
+    "contractAddress": "0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB",
+    "campaignId": "campaign-1775000340083-pyw7t815z",
+    "reward": "2000 USDC",
+    "creator": "Marb Market (@marb_market)",
+    "xUsername": "marbz564355"
+  },
+  "mission": {
+    "id": "mission-1",
+    "title": "Breakdown the MARB Token Incentive Loop & Fair Launch Mechanics",
+    "description": "Create a post explaining how MARB token works, the ve(3,3) incentive model, and why a fair launch with no presale matters for DeFi users.",
+    "rules": [
+      "Must explain MARB token utility (locking, voting, rewards)",
+      "Must discuss the ve(3,3) incentive loop",
+      "Must mention fair launch aspect (no presale, no VCs)",
+      "Include either x.com/Marb_market or t.me/marbmarket",
+      "Content must be original and written in your own words",
+      "Format: single post or short thread of 2-4 posts max",
+      "Bonus: compare to other successful fair launches in DeFi"
+    ]
+  },
+  "knowledge_base": "## What is MarbMarket?\nMarbMarket is a veDEX (Vote-Escrowed DEX) launching on MegaETH in Q2. First of its kind on MegaETH. No presale, no VC backing. Fully fair launch. Inspired by Solidly/Aerodrome.\n\n## MARB Token:\n- Lock MARB to get veMARB (voting power)\n- Longer lock = more voting power + more rewards\n- veMARB holders vote on LP pool emissions weekly\n- Projects bribe veMARB holders for votes\n\n## ve(3,3) Model:\n- Inspired by Andre Cronje's Solidly\n- Users lock tokens (ve) for voting power (3)\n- Fee revenue goes to token stakers (3)\n- Creates self-reinforcing value cycle\n- Successful on Aerodrome (Base), Velodrome (Optimism)\n\n## Fair Launch:\n- No presale, no pre-mine, no VC allocation\n- Community gets all tokens from the start\n- Equal opportunity for everyone\n- No early investor dumping risk",
+  "campaign_rules": [
+    "Be authentic, no spam, respectful",
+    "Use your own words, educational and specific",
+    "Avoid price predictions, financial promises, generic hype",
+    "Avoid copied wording or low effort submissions",
+    "Style: Informative and community-focused",
+    "Speak to DeFi-native users who understand tokenomics"
+  ],
+  "compliance_checks": {
+    "must_include": ["@RallyOnChain", "x.com/Marb_market"],
+    "project_name": "MarbMarket",
+    "project_x": "Marb_market",
+    "project_keywords": ["vedex", "marbmarket", "marb market", "fair launch", "ve(3,3)", "marb token", "vemarb", "megaeth", "no presale"],
+    "unique_markers": ["ve(3,3)", "MARB", "veMARB", "fair launch", "Aerodrome", "Solidly", "vote-escrow"],
+    "fallback_qa": [
+      {"q": "How is MARB different from other DEX tokens like UNI or AERO?", "a": "MARB uses vote-escrow locking. You don't just hold it, you lock it for veMARB which gives you governance power and revenue share. UNI is a straight governance token with no lock mechanism. AERO is similar but on Base. MARB's edge is being first on MegaETH."},
+      {"q": "Fair launch sounds great but how do they fund development without VC money?", "a": "Good question. Protocol fees and emission schedules fund operations. The team likely holds some allocation too but it's distributed from day one. No lockups for insiders is the key difference from VC-backed launches."},
+      {"q": "What happens to my MARB if I don't lock it?", "a": "You can still trade it but you get no governance power and no revenue share. Unlocked MARB is basically just a speculative token. The real value comes from locking which aligns your incentives with the protocol's long term success."},
+      {"q": "How long do you need to lock MARB for max benefits?", "a": "In most ve models max lock is 4 years. The longer you lock the more veMARB you get per MARB. But there are shorter lock options too. It's a sliding scale where your voting power decays as the lock approaches expiry."},
+      {"q": "Compare this to Velodrome on Optimism. Is the model proven?", "a": "Velodrome has been running the ve(3,3) model for over a year with solid results. Aerodrome on Base even more so. The model works when there's real trading volume and LP activity. The question for MarbMarket is whether MegaETH can attract that volume early on."},
+      {"q": "What prevents whale domination in voting?", "a": "Nothing really prevents it. That's a known weakness of ve models. Large holders control more votes. But the bribe mechanism helps spread influence because projects pay for votes across all holders, not just the biggest ones."},
+      {"q": "Is the fair launch actually fair or is there hidden allocation?", "a": "They say no presale and no VCs. Whether that's fully true we won't know until launch. But the MegaETH team's reputation is tied to this too. Best to watch the token distribution after launch before committing capital."},
+      {"q": "Why MegaETH specifically? Why not Base or Arbitrum?", "a": "MegaETH has sub-second finality which is genuinely useful for governance voting. On L2s like Base or Arbitrum you wait minutes for confirmation. On MegaETH it's near-instant. Plus being first mover on a new chain gives MarbMarket the full ecosystem attention."},
+      {"q": "What revenue sources do veMARB holders get?", "a": "Trading fees from the DEX and bribes from projects wanting emissions. LP fees are split between veMARB holders based on voting weight. It's the core incentive that makes the lock mechanism valuable beyond just governance."},
+      {"q": "Is this another food token or does it have real utility?", "a": "The ve model has been proven by Aerodrome and Velodrome. Real trading volume generates real fees. MARB has actual utility if the protocol gets traction. But it's still pre-launch so everything is theoretical at this point."}
+    ]
+  }
+}

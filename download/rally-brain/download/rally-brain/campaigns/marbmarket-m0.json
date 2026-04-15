@@ -1,0 +1,54 @@
+{
+  "id": "marbmarket-m0",
+  "name": "MarbMarket M0",
+  "campaign": {
+    "title": "MarbMarket - The First veDEX on MegaETH is Launching",
+    "contractAddress": "0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB",
+    "campaignId": "campaign-1775000340083-pyw7t815z",
+    "reward": "2000 USDC",
+    "creator": "Marb Market (@marb_market)",
+    "xUsername": "marbz564355"
+  },
+  "mission": {
+    "id": "mission-0",
+    "title": "Explain the veDEX Model & Why MarbMarket Matters",
+    "description": "Create a post or short thread educating your audience about what a veDEX is and why MarbMarket's fair launch on MegaETH is a big deal for DeFi.",
+    "rules": [
+      "Must explain what a veDEX is",
+      "Must mention MarbMarket's upcoming launch",
+      "Include either x.com/Marb_market or t.me/marbmarket",
+      "Mention at least one key feature: vote-escrow, bribes, LP farming, or fair launch",
+      "Content must be original and written in your own words",
+      "Format: single post or short thread of 2-4 posts max",
+      "Bonus: explain MARB incentive loop or ve(3,3) model creatively"
+    ]
+  },
+  "knowledge_base": "## What is MarbMarket?\nMarbMarket is a veDEX (Vote-Escrowed DEX) launching on MegaETH in Q2. First of its kind on MegaETH. No presale, no VC backing. Fully fair launch. Inspired by Solidly/Aerodrome.\n\n## veDEX Mechanics:\n- Users lock MARB tokens to gain veTokens (voting power)\n- Longer lock = more influence + more rewards\n- veHolders vote weekly on which LP pools get MARB emissions\n- Projects can offer bribes to attract votes, creating decentralized incentive\n\n## MARB Incentive Loop:\nMARB Lockers direct emissions to LPs, LPs get rewards, Protocols pay bribes for votes, Incentives flow back to MARB Lockers.\n\n## Key Talking Points:\n- Community-driven voting model\n- First veDEX on MegaETH\n- ve(3,3) model\n- Fair launch: no presale, no VCs\n- LP farming, voting, bribing at launch",
+  "campaign_rules": [
+    "Be authentic, no spam, respectful",
+    "Use your own words, educational and specific",
+    "Avoid price predictions, financial promises, generic hype",
+    "Avoid copied wording or low effort submissions",
+    "Style: Energetic and community-focused",
+    "Speak to DeFi-native users who understand yield farming, liquidity, and governance"
+  ],
+  "compliance_checks": {
+    "must_include": ["@RallyOnChain", "x.com/Marb_market"],
+    "project_name": "MarbMarket",
+    "project_x": "Marb_market",
+    "project_keywords": ["vedex", "ve dex", "marbmarket", "marb market", "launch", "megaeth", "vote", "escrow", "fair launch"],
+    "unique_markers": ["ve(3,3)", "veDEX", "vote-escrow", "MARB", "MegaETH", "bribes"],
+    "fallback_qa": [
+      {"q": "This veDEX model is interesting. How does the bribe mechanism work in practice?", "a": "Projects that want their LP pools to get more MARB emissions can offer incentives (called bribes) to veMARB holders. When you lock MARB, you get voting power. You vote on which pools get emissions. Projects bribe you with their own tokens to vote for their pool."},
+      {"q": "Fair launch with no VCs is the way to go. What chain has the most veDEX activity right now?", "a": "Aerodrome on Base is probably the biggest veDEX right now in terms of TVL and volume. But MarbMarket launching on MegaETH is a different play because MegaETH has sub-second finality which could make governance votes way smoother."},
+      {"q": "How does MarbMarket compare to Aerodrome on Base in terms of actual TVL and user activity?", "a": "Can't really compare yet since MarbMarket hasn't launched. Aerodrome has months of runway and Base's ecosystem behind it. But MegaETH's speed could be a real edge for governance."},
+      {"q": "What is the minimum MARB needed to participate meaningfully in governance?", "a": "Haven't seen exact numbers from the team yet. In most ve models even small holders can vote, they just have less influence. The question is whether the minimum lock is accessible enough for regular users."},
+      {"q": "Vote-escrow models need real participation. What happens if voter turnout is low in early weeks?", "a": "Good point. Low turnout means a small group of holders controls all emission direction. Early on that probably will happen since most token holders won't bother voting weekly. But the bribe mechanism actually helps here."},
+      {"q": "The fair launch narrative is strong but execution matters more. Any audits announced?", "a": "Haven't seen audit details yet. That's something to watch because a fair launch on a new chain with no audit would be a red flag. Hopefully they get at least one reputable audit firm before mainnet."},
+      {"q": "Curious about the team behind this. Any previous DeFi builds they have shipped?", "a": "Good question and I don't have a complete answer here. Would want to see their track record before committing capital. A fair launch means nothing if the team rugs or abandons."},
+      {"q": "Lock duration determines your power. That is smart for long-term alignment but rough for short-term traders.", "a": "Yeah that's the tradeoff. Long-term holders get more governance power and rewards, short-term traders get less. It's designed to reduce mercenary capital."},
+      {"q": "MegaETH speed is a real advantage here. Sub-second finality for governance votes is huge.", "a": "For real. On most chains you vote and wait minutes for confirmation. On MegaETH the whole vote-claim cycle could happen in seconds."},
+      {"q": "Bribing in ve(3,3) sounds negative but is actually positive sum. Most people miss that.", "a": "Exactly. The bribe is just a term from the Solidly docs. What it actually means is projects can directly incentivize liquidity providers through the governance system. It's basically a free market for emissions."}
+    ]
+  }
+}

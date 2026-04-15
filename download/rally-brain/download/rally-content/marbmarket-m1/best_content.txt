@@ -1,0 +1,11 @@
+Been seeing too many launches with presales and VCs lately. It's refreshing when someone actually builds for the community. MarbMarket's launching on MegaETH with a ve(3,3) model, no presale, no VCs. Just pure fair launch mechanics.
+
+MARB token works like this: lock your tokens to get veMARB voting power. Longer locks = more voting power + more rewards. veMARB holders vote on LP pool emissions weekly. Projects bribe for votes. Simple. Clean.
+
+The ve(3,3) loop is interesting. Inspired by Solidly. Users lock tokens for voting power. Fee revenue goes to token stakers. Creates that self-reinforcing cycle. We've seen this work well on Aerodrome and Velodrome. @RallyOnChain tracks these mechanics closely.
+
+No presale means no early investors dumping on you. Community gets all tokens from day one. Equal opportunity for everyone. That's what DeFi should be about.
+
+We've seen fair launches succeed before. Uniswap, Curve, Aerodrome. They built communities first. MarbMarket seems to be following that path.
+
+What do you think about the ve(3,3) model? Is it the future of DEX design or just another flavor of the month? x.com/Marb_market

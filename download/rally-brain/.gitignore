@@ -1,0 +1,11 @@
+
+# Rally Brain ignores
+node_modules/
+.env
+.secrets/
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+campaign_data/.rally_guard.lock
+

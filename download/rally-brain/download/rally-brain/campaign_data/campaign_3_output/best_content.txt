@@ -1,0 +1,9 @@
+I've been looking at Fragments' Bitcoin Junior for a while now and it's fascinating how they split Bitcoin's volatility into two parts. BTC-Jr gives you ~1.33x Bitcoin exposure without liquidation risk. No margin calls. No debt. Just pure amplified exposure through tranching.
+
+The junior token (BTC-Jr) gets the amplified upside while the senior token (BTC-Sr) absorbs volatility and earns yield. It's built for buy-and-hold investors who want more Bitcoin exposure without trading headaches.
+
+What makes this different from traditional use? No liquidation risk. No interest payments. No funding rate drag. Just a simple structure that compounds over time.
+
+Been thinking about how this could change Bitcoin exposure for long-term holders. The backtesting from 2023-2024 shows 1.33x exposure outperforming raw BTC over time. Not sure if this holds in all market cycles though.
+
+Anyone else looking at Fragments for their Bitcoin strategy? @RallyOnChain
