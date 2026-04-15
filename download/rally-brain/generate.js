@@ -97,7 +97,6 @@ const ALL_AI_WORDS = [...AI_WORDS_26, ...EXTRA_AI_WORDS];
 const AI_WORD_REPLACEMENTS = {
   'flywheel': 'incentive loop',
   'ecosystem': 'network',
-  'leverage': 'use',
   'paradigm': 'model',
   'landscape': 'space',
   'realm': 'world',
@@ -909,7 +908,7 @@ ${buildPreWritingContext()}
 4. NO starting with @mention.
 5. NO banned words: guaranteed, 100%, risk-free, buy now, get rich, passive income, etc.
 6. NO Rally banned phrases: vibe coding, skin in the game, trust layer, agent era, frictionless, etc.
-7. NO AI words: delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic.
+7. NO AI words: delve, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic. NOTE: common crypto terms like leverage, yield, exposure, liquidity, protocol are ACCEPTABLE in context.
 8. NO template phrases: hot take, let's dive in, nobody is talking about, unpopular opinion, thread alert, picture this, at the end of the day, key takeaways, here's the thing.
 9. NO exaggeration words: everyone, nobody, always, never, impossible, guaranteed, 100%, zero cost.
 10. Use contractions naturally: don't, can't, won't, I'm, that's.
@@ -1108,7 +1107,7 @@ async function generateVariation(zai, prompt, temp) {
 
 ABSOLUTE RULES:
 - NEVER use em-dash, en-dash, or double-hyphen. Use period or comma.
-- NEVER use AI words: delve, leverage, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic.
+- NEVER use AI words: delve, paradigm, tapestry, landscape, nuance, crucial, pivotal, embark, harness, foster, utilize, elevate, streamline, empower, comprehensive, realm, flywheel, ecosystem, seamless, robust, innovative, cutting-edge, game-changer, revolutionary, disrupt, transform, synergy, holistic, dynamic. NOTE: crypto terms like leverage, yield, exposure are OK.
 - NEVER use template phrases: hot take, let's dive in, nobody is talking about, unpopular opinion, thread alert, picture this, at the end of the day, here's the thing, key takeaways.
 - AVOID exaggeration: never use "everyone", "nobody", "always", "never", "guaranteed", "100%", "impossible"
 - Use contractions: don't, can't, won't, I'm, that's.
@@ -1244,7 +1243,8 @@ function quickProgrammaticScore(content) {
 
   // Compliance: check requirements (from campaign config)
   if (!lower.includes(COMPLIANCE.project_name.toLowerCase())) score -= 0.5;
-  if (!content.includes('@RallyOnChain')) score -= 0.3;
+  const dynamicTag = COMPLIANCE.must_include[0]; // e.g. @FragmentsOrg, @RallyOnChain
+  if (dynamicTag && !content.includes(dynamicTag)) score -= 0.3;
   if (COMPLIANCE.must_include[1] && !content.includes(COMPLIANCE.must_include[1])) score -= 0.3;
 
   // Originality: penalize AI words
@@ -1367,7 +1367,8 @@ function programmaticEvaluate(content) {
   if (/[\u201c\u201d\u2018\u2019]/.test(content)) techScore -= 0.3;
   if (/[#*\[\]{}]/.test(content)) techScore -= 0.3;
   if (content.length > 80 && content.length < 2000) techScore += 0.3;
-  if (/\?/.test(content) && content.includes('@RallyOnChain')) techScore += 0.3;
+  const dynamicTag = COMPLIANCE.must_include[0] || '';
+  if (/\?/.test(content) && dynamicTag && content.includes(dynamicTag)) techScore += 0.3;
   // Clean formatting bonus
   if (!content.includes('...') || content.endsWith('...')) techScore += 0.1;
   // Proper sentence ending
