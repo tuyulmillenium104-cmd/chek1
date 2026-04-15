@@ -5,7 +5,7 @@
     "title": "Fragments - Bitcoin Junior UGC Campaign Phase 2",
     "contractAddress": "0xE4aeE08A3537544f7B946d429ca60990af443Da7",
     "campaignId": "fragments-btcjr-phase2",
-    "reward": "$3,000 USDC",
+    "reward": "$5,000 USDC monthly (best content takes biggest cut)",
     "creator": "Fragments by Ampleforth (@FragmentsOrg)",
     "xUsername": "FragmentsOrg"
   },
@@ -16,14 +16,14 @@
     "rules": [
       "Must explain what Bitcoin Junior (BTC-Jr) is in simple terms",
       "Must mention that BTC-Jr is ~1.33x leveraged Bitcoin with no liquidation risk",
-      "Include either @FragmentsOrg or link to waitlist.fragments.org",
-      "Content must be original and written in your own words",
+      "Must include @FragmentsOrg tag",
+      "Must include link: link.fragments.org/rally (April waitlist)",
       "Explain the tranching concept: junior (high vol) and senior (stable yield) assets",
       "Mention it's built for buy-and-hold investors, not traders",
       "Bonus: compare BTC-Jr to traditional leverage products and explain why it's different"
     ]
   },
-  "knowledge_base": "## What is Fragments?\nFragments is a perpetual tranching protocol built by Ampleforth. It splits the volatility of an asset into two parts: a higher-volatility junior asset (BTC-Jr) and a stable-yield senior asset (BTC-Sr). This creates leveraged exposure that can be held for long periods without margin debt or liquidation risk.\n\n## What is Bitcoin Junior (BTC-Jr)?\n- Perpetual ~1.33x leveraged Bitcoin\n- No margin calls, no liquidations\n- No debt structure - uses tranching and balancing, not borrowing\n- Built for buy-and-hold investors who want amplified BTC exposure\n- Backed by cbBTC (Coinbase wrapped Bitcoin)\n- Swap to cbBTC anytime\n- Multiyear backtesting (2023-2024) shows 1.33x exposure outperforms raw BTC over time\n\n## How Tranching Works:\n- Protocol takes in cbBTC and splits it into two tokens\n- BTC-Jr (Junior): gets amplified upside exposure, higher volatility\n- BTC-Sr (Senior): absorbs volatility, earns stable yield from demand for leverage\n- No borrowing, no external short, no loan\n- Elevated volatility is built into the token structure, not through debt\n\n## Key Talking Points:\n- Durable leverage: designed to survive market cycles\n- No babysitting required: no margin calls, no liquidation events\n- Simple: swap to cbBTC anytime\n- Brought to you by Ampleforth (proven DeFi team)\n- Phase 2 waitlist is live\n- Different from traditional leverage: structure-based, not debt-based\n\n## Key Comparisons:\n- vs Margin Trading: No liquidation risk, no interest payments\n- vs Futures/Perps: No funding rate drag, no roll costs\n- vs Leveraged ETFs: No daily rebalancing decay, perpetual structure\n- vs Options: No time decay, no complexity, no premium erosion",
+  "knowledge_base": "## What is Fragments?\nFragments is a perpetual tranching protocol built by Ampleforth. It splits the volatility of an asset into two parts: a higher-volatility junior asset (BTC-Jr) and a stable-yield senior asset (BTC-Sr). This creates leveraged exposure that can be held for long periods without margin debt or liquidation risk.\n\n## What is Bitcoin Junior (BTC-Jr)?\n- Perpetual ~1.33x leveraged Bitcoin\n- No margin calls, no liquidations\n- No debt structure - uses tranching and balancing, not borrowing\n- Built for buy-and-hold investors who want amplified BTC exposure\n- Backed by cbBTC (Coinbase wrapped Bitcoin)\n- Swap to cbBTC anytime\n- Multiyear backtesting (2023-2024) shows 1.33x exposure outperforms raw BTC over time\n\n## How Tranching Works:\n- Protocol takes in cbBTC and splits it into two tokens\n- BTC-Jr (Junior): gets amplified upside exposure, higher volatility\n- BTC-Sr (Senior): absorbs volatility, earns stable yield from demand for leverage\n- No borrowing, no external short, no loan\n- Elevated volatility is built into the token structure, not through debt\n\n## Key Talking Points:\n- Durable leverage: designed to survive market cycles\n- No babysitting required: no margin calls, no liquidation events\n- Simple: swap to cbBTC anytime\n- Brought to you by Ampleforth (proven DeFi team)\n- Phase 2 waitlist is live\n- Different from traditional leverage: structure-based, not debt-based\n\n## IMPORTANT: April Campaign Compliance (from Rally page)\n- MUST tag @FragmentsOrg (NOT @RallyOnChain)\n- MUST include waitlist link: link.fragments.org/rally\n- April Giveaway: 10 random waitlist signups win $200 each ($2,000 total)\n- Total monthly reward pool: $5,000 USDC\n- Campaign page: app.rally.fun/campaigns\n- Waitlist landing: link.fragments.org/rally\n\n## Key Comparisons:\n- vs Margin Trading: No liquidation risk, no interest payments\n- vs Futures/Perps: No funding rate drag, no roll costs\n- vs Leveraged ETFs: No daily rebalancing decay, perpetual structure\n- vs Options: No time decay, no complexity, no premium erosion",
   "campaign_rules": [
     "Be authentic, no spam, respectful",
     "Use your own words, clear and educational",
@@ -33,7 +33,7 @@
     "Speak to both Bitcoin holders and DeFi users who understand leverage products"
   ],
   "compliance_checks": {
-    "must_include": ["@RallyOnChain"],
+    "must_include": ["@FragmentsOrg", "link.fragments.org/rally"],
     "project_name": "Fragments",
     "project_x": "FragmentsOrg",
     "project_keywords": ["bitcoin junior", "btc-jr", "fragments", "durable leverage", "no liquidation", "buy and hold", "ampleforth", "tranching", "cbtc", "leveraged bitcoin", "perpetual leverage"],
@@ -48,7 +48,7 @@
       {"q": "Is this available on any chain?", "a": "Currently the waitlist is open for early access. The protocol hasn't publicly announced which chain it launches on first, but given they use cbBTC, Ethereum or Base would be natural fits."},
       {"q": "How does this compare to leveraged ETFs like BTCDL?", "a": "Leveraged ETFs rebalance daily which creates volatility drag over time. You can lose money even if BTC goes up in the long run. BTC-Jr is perpetual with no daily rebalancing, so the 1.33x exposure compounds naturally without the decay problem."},
       {"q": "Sounds interesting but what are the risks?", "a": "The main risk is that BTC-Jr amplifies both gains AND losses. In a prolonged bear market you'd underperform raw BTC significantly. There's also smart contract risk since it's a DeFi protocol, and protocol-specific risks around the tranching mechanism working as designed during extreme volatility."},
-      {"q": "What's the waitlist for?", "a": "The protocol is launching in cohorts. Joining the waitlist at waitlist.fragments.org gets you early access to BTC-Jr before public launch. Earlier signups get priority access."}
+      {"q": "What's the waitlist for?", "a": "The protocol is launching in cohorts. Joining the waitlist at link.fragments.org/rally gets you early access to BTC-Jr before public launch. Plus right now there's an April giveaway where 10 random signups win $200 each ($2,000 total). Earlier signups get priority access."}
     ]
   }
 }
