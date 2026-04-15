@@ -1,32 +1,28 @@
 /**
  * ============================================================
- * Z-AI RESILIENT CLIENT v1.0 - Token Rotation + Rate Limiting
+ * Z-AI RESILIENT CLIENT v2.0 - Token Rotation + Rate Limiting
  * ============================================================
  *
- * Built for Rally Brain v5.2.1 (5 Judge Panel = many LLM calls)
+ * UPGRADED from v1.0:
+ *   + Persistent token state (syncs with rally-guard.js)
+ *   + Adaptive cooldown (learns from 429 patterns)
+ *   + No more blind resets - respects real quota limits
  *
  * KEY FEATURES:
  * 1. Token Rotation - 5 tokens x 300/day = 1,500 daily quota
- * 2. Quota Tracking - ACCURATE from response headers
- * 3. Rate Limiting - 10s minimum interval between API calls
- * 4. Auto Retry - Exponential backoff on failure (5x)
+ * 2. Quota Tracking - ACCURATE from response headers + persistent file
+ * 3. Rate Limiting - Adaptive interval (3s-30s based on 429 history)
+ * 4. Auto Retry - Exponential backoff on failure (3x)
  * 5. SDK-compatible interface for drop-in replacement
- *
- * LIMITS PER TOKEN (empirically tested):
- *   - Daily: 300 requests (separate per token)
- *   - User Daily: ~500 requests (per user_id)
- *   - QPS: 2 req/sec per gateway (shared across tokens)
- *   - IP 10-min: 10 req/10 min per token per gateway (NOT per IP)
- *
- * RATE LIMIT FINDINGS:
- *   - Token rotation: each token has 300 daily quota TERPISAT ✅
- *   - Gateway rotation: ip-10min counter TERPISAH per gateway ✅
- *   - IP rotation: TIDAK BISA (hanya 1 IP available) ❌
  *
  * ============================================================
  */
 
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+const TOKEN_STATE_FILE = path.join('/home/z/my-project/download/rally-brain/campaign_data', '.token_state.json');
 
 // ============ CONFIGURATION ============
 const CONFIG = {
@@ -98,7 +94,7 @@ const CONFIG = {
 
   rateLimit: {
     qps: 1,
-    minInterval: 2000, // 2 seconds between API calls (optimized for container limits)
+    minInterval: 3000, // 3 seconds base (safer default)
   },
 
   ipRateLimit: {
@@ -108,10 +104,50 @@ const CONFIG = {
 
   retry: {
     maxRetries: 3,
-    baseDelay: 8000,
+    baseDelay: 10000,
     maxDelay: 60000
   }
 };
+
+// ============ PERSISTENT STATE SYNC ============
+function loadPersistedState() {
+  try {
+    return JSON.parse(fs.readFileSync(TOKEN_STATE_FILE, 'utf-8'));
+  } catch { return null; }
+}
+
+function savePersistedState(state) {
+  try {
+    fs.writeFileSync(TOKEN_STATE_FILE, JSON.stringify(state, null, 2));
+  } catch {}
+}
+
+// Sync token state from persistent file (set by rally-guard.js)
+function syncFromPersistedState() {
+  const persisted = loadPersistedState();
+  if (!persisted || !persisted.tokens) return;
+  for (const pt of persisted.tokens) {
+    const local = CONFIG.tokens.find(t => t.name === pt.name);
+    if (local) {
+      local.remainingDaily = pt.remainingDaily || 0;
+      local.remainingUserDaily = pt.remainingUserDaily || 0;
+      local.isExhausted = pt.isExhausted || false;
+      local.requestCount = pt.requestCount || 0;
+    }
+  }
+}
+
+// Get adaptive cooldown from 429 history
+function getAdaptiveCooldown() {
+  const persisted = loadPersistedState();
+  if (!persisted || !persisted.four29Timestamps) return CONFIG.rateLimit.minInterval;
+  const now = Date.now();
+  const recent429s = persisted.four29Timestamps.filter(t => now - t < 600000);
+  if (recent429s.length >= 3) return 30000;
+  if (recent429s.length >= 2) return 15000;
+  if (recent429s.length >= 1) return 8000;
+  return CONFIG.rateLimit.minInterval;
+}
 
 // ============ RATE LIMITER ============
 class RateLimiter {
@@ -120,14 +156,14 @@ class RateLimiter {
   }
 
   async waitForSlot() {
+    const interval = getAdaptiveCooldown();
     const now = Date.now();
-    this.requestTimes = this.requestTimes.filter(t => now - t < CONFIG.rateLimit.minInterval);
+    this.requestTimes = this.requestTimes.filter(t => now - t < interval);
 
     if (this.requestTimes.length >= 1) {
       const oldest = Math.min(...this.requestTimes);
-      const wait = CONFIG.rateLimit.minInterval - (now - oldest) + 100;
+      const wait = interval - (now - oldest) + 100;
       if (wait > 0) {
-        // No logging for short waits to reduce output noise
         await new Promise(r => setTimeout(r, wait));
       }
     }
@@ -142,29 +178,67 @@ class ResilientZAIClient {
     this.gatewayIndex = 0;
     this.totalRequests = 0;
     this.totalErrors = 0;
+    // Sync persistent state on init (respects rally-guard.js tracking)
+    syncFromPersistedState();
   }
 
   getBestToken() {
-    const available = CONFIG.tokens.filter(t => !t.isExhausted);
+    // Re-sync from persistent state before picking token
+    syncFromPersistedState();
+    const available = CONFIG.tokens.filter(t => !t.isExhausted && t.remainingDaily > 3);
     if (available.length === 0) {
-      CONFIG.tokens.forEach(t => { t.isExhausted = false; t.remainingDaily = 300; t.remainingUserDaily = 500; });
-      console.log('    [Client] All tokens exhausted, resetting quotas...');
-      return CONFIG.tokens[0];
+      // DO NOT blindly reset - check persisted state first
+      const persisted = loadPersistedState();
+      const anyHealthy = persisted?.tokens?.find(t => !t.isExhausted && t.remainingDaily > 3);
+      if (!anyHealthy) {
+        console.log('    [Client] ALL TOKENS TRULY EXHAUSTED - aborting to prevent 429 loop');
+        return null;
+      }
+      // If persisted says healthy but local says exhausted, sync
+      syncFromPersistedState();
+      const resynced = CONFIG.tokens.filter(t => !t.isExhausted && t.remainingDaily > 3);
+      if (resynced.length === 0) {
+        console.log('    [Client] All tokens exhausted. Waiting for quota reset.');
+        return null;
+      }
+      return resynced.sort((a, b) => b.remainingDaily - a.remainingDaily)[0];
     }
     return available.sort((a, b) => b.remainingDaily - a.remainingDaily)[0];
   }
 
-  updateTokenStats(token, headers) {
+  updateTokenStats(token, headers, is429 = false) {
     const daily = parseInt(headers['x-ratelimit-remaining-daily'] || '0');
     const userDaily = parseInt(headers['x-ratelimit-user-daily-remaining'] || '0');
     token.remainingDaily = isNaN(daily) ? token.remainingDaily : daily;
     token.remainingUserDaily = isNaN(userDaily) ? token.remainingUserDaily : userDaily;
     token.requestCount++;
-    if (daily > 0 && daily < 5) {
+    if (is429) {
+      token.isExhausted = true;
+      console.log(`    [Client] ${token.name} got 429 - marked EXHAUSTED`);
+    } else if (daily > 0 && daily < 5) {
       token.isExhausted = true;
       console.log(`    [Client] ${token.name} near exhaustion (${daily} remaining)`);
     }
     this.totalRequests++;
+    // Sync to persistent file
+    this.syncToPersistent(token);
+  }
+
+  syncToPersistent(changedToken) {
+    const persisted = loadPersistedState();
+    if (!persisted || !persisted.tokens) return;
+    const pt = persisted.tokens.find(t => t.name === changedToken.name);
+    if (pt) {
+      pt.remainingDaily = changedToken.remainingDaily;
+      pt.remainingUserDaily = changedToken.remainingUserDaily;
+      pt.isExhausted = changedToken.isExhausted;
+      pt.requestCount = changedToken.requestCount;
+      pt.lastUsed = Date.now();
+      pt.totalUsed = (pt.totalUsed || 0) + 1;
+    }
+    persisted.globalLastRequest = Date.now();
+    persisted.totalRequests = (persisted.totalRequests || 0) + 1;
+    savePersistedState(persisted);
   }
 
   getGateway() {
@@ -197,7 +271,20 @@ class ResilientZAIClient {
         res.on('end', () => {
           this.updateTokenStats(token, res.headers);
           if (res.statusCode === 200) { try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`JSON parse: ${e.message}`)); } }
-          else if (res.statusCode === 429) { token.isExhausted = true; this.totalErrors++; reject(new Error('RATE_LIMITED_429')); }
+          else if (res.statusCode === 429) {
+            this.updateTokenStats(token, res.headers, true);
+            this.totalErrors++;
+            // Record 429 in persistent state
+            const persisted = loadPersistedState();
+            if (persisted) {
+              persisted.four29Timestamps = persisted.four29Timestamps || [];
+              persisted.four29Timestamps.push(Date.now());
+              if (persisted.four29Timestamps.length > 20) persisted.four29Timestamps = persisted.four29Timestamps.slice(-20);
+              persisted.totalErrors = (persisted.totalErrors || 0) + 1;
+              savePersistedState(persisted);
+            }
+            reject(new Error('RATE_LIMITED_429'));
+          }
           else { this.totalErrors++; reject(new Error(`HTTP ${res.statusCode}: ${data.slice(0, 200)}`)); }
         });
       });
@@ -214,6 +301,9 @@ class ResilientZAIClient {
       try {
         await this.rateLimiter.waitForSlot();
         const token = this.getBestToken();
+        if (!token) {
+          throw new Error('ALL_TOKENS_EXHAUSTED');
+        }
         const gateway = this.getGateway();
         const result = await this.makeRequest(gateway, token, messages, options);
         this.totalRequests++;
@@ -221,9 +311,14 @@ class ResilientZAIClient {
       } catch (error) {
         lastError = error;
         const errMsg = error.message?.toString() || '';
+        if (errMsg.includes('ALL_TOKENS_EXHAUSTED')) {
+          console.log('    [ZAI] All tokens exhausted. Cannot proceed.');
+          throw error; // Fatal - don't retry
+        }
         if (errMsg.includes('429') || errMsg.includes('RATE_LIMITED')) {
-          console.log(`    [ZAI] Token ${this.getBestToken()?.name || '?'} rate limited, rotating token (attempt ${attempt + 1}/${CONFIG.retry.maxRetries})...`);
-          await new Promise(r => setTimeout(r, 3000)); // Short wait then rotate
+          const cooldown = getAdaptiveCooldown();
+          console.log(`    [ZAI] Token rate limited, rotating (attempt ${attempt + 1}/${CONFIG.retry.maxRetries}), cooldown: ${cooldown/1000}s`);
+          await new Promise(r => setTimeout(r, cooldown));
           continue;
         }
         this.totalErrors++;

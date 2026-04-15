@@ -1,9 +1,3 @@
-I've been looking at Fragments' Bitcoin Junior for a while now and it's fascinating how they split Bitcoin's volatility into two parts. BTC-Jr gives you ~1.33x Bitcoin exposure without liquidation risk. No margin calls. No debt. Just pure amplified exposure through tranching.
+Spent last week digging into how use actually works in DeFi and most of it feels like walking on a tightrope. You get the upside but one bad wick wipes you out completely. Fragments by Ampleforth takes a totally different approach. They use tranching to split cbBTC into two tokens. You have the Senior tranche which is stable and earns yield from the use demand. Then you have Bitcoin Junior. It gets the amplified exposure, about 1.33x, without any debt or borrowing. Since there is no loan structure, you can't get liquidated. It is built for holding through cycles, not for active trading. I think the backtests from 2023 to 2024 showing it outperforming raw BTC are interesting, but I'm curious how it handles a prolonged bear market. You can usually swap back to cbBTC which helps. @RallyOnChain flagged this early. It feels like a cleaner way to get exposure without babysitting margin positions. Check the waitlist at fragments.org and let me know if you think this structure actually replaces traditional use.
 
-The junior token (BTC-Jr) gets the amplified upside while the senior token (BTC-Sr) absorbs volatility and earns yield. It's built for buy-and-hold investors who want more Bitcoin exposure without trading headaches.
-
-What makes this different from traditional use? No liquidation risk. No interest payments. No funding rate drag. Just a simple structure that compounds over time.
-
-Been thinking about how this could change Bitcoin exposure for long-term holders. The backtesting from 2023-2024 shows 1.33x exposure outperforming raw BTC over time. Not sure if this holds in all market cycles though.
-
-Anyone else looking at Fragments for their Bitcoin strategy? @RallyOnChain
+Anyone else looking into tranching protocols?
