@@ -17,6 +17,10 @@ interface FileInfo {
 interface CampaignGroup {
   campaign: string;
   label: string;
+  score?: number;
+  grade?: string;
+  mission?: string;
+  timestamp?: string;
   files: FileInfo[];
 }
 
@@ -129,9 +133,27 @@ export async function GET(request: NextRequest) {
     });
 
     if (fileInfos.length > 0) {
+      // Read prediction.json for score/grade
+      let score: number | undefined;
+      let grade: string | undefined;
+      let mission: string | undefined;
+      let timestamp: string | undefined;
+      const predPath = path.join(dirPath, 'prediction.json');
+      try {
+        const predData = JSON.parse(fs.readFileSync(predPath, 'utf-8'));
+        score = predData.score;
+        grade = predData.grade;
+        mission = predData.mission;
+        timestamp = predData.timestamp;
+      } catch {}
+
       campaigns.push({
         campaign: entry.name,
         label: getLabel(entry.name),
+        score,
+        grade,
+        mission,
+        timestamp,
         files: fileInfos,
       });
     }

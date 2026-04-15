@@ -322,7 +322,7 @@ export default function RallyDashboard() {
 
   // Download center
   const [showDownload, setShowDownload] = useState(false);
-  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; consolidatedFile?: { name: string; path: string; size: number; modified: string; type: string }; totalFiles: number } | null>(null);
+  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; score?: number; grade?: string; mission?: string; timestamp?: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; consolidatedFile?: { name: string; path: string; size: number; modified: string; type: string }; totalFiles: number } | null>(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
 
   const fetchDownloadFiles = useCallback(async () => {
@@ -750,7 +750,7 @@ export default function RallyDashboard() {
                 </div>
                 <div>
                   <h1 className="text-lg font-bold tracking-tight md:text-xl">
-                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6 <span className="text-orange-500">⚡</span></span>
+                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6.0 <span className="text-emerald-500">S</span></span>
                   </h1>
                   <p className="text-[11px] text-muted-foreground hidden sm:block">
                     Rally-aligned scoring — 7 content categories, max 21.0 points
@@ -851,12 +851,50 @@ export default function RallyDashboard() {
                     </a>
                   )}
                   {/* ── Per-Campaign Files ── */}
-                  {downloadData.campaigns.map((camp) => (
+                  {downloadData.campaigns.map((camp) => {
+                    const gradeColors: Record<string, string> = {
+                      'S+': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                      'S': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                      'A+': 'bg-blue-100 text-blue-800 border-blue-300',
+                      'A': 'bg-blue-50 text-blue-700 border-blue-200',
+                      'B+': 'bg-gray-100 text-gray-700 border-gray-300',
+                      'B': 'bg-gray-50 text-gray-600 border-gray-200',
+                    };
+                    const gradeColor = gradeColors[camp.grade || ''] || 'bg-gray-100 text-gray-600 border-gray-200';
+                    const scorePct = camp.score ? Math.round((camp.score / 23) * 100) : 0;
+                    const timeStr = camp.timestamp ? new Date(camp.timestamp).toLocaleString('id-ID', {
+                      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                    }) : '';
+                    return (
                     <div key={camp.campaign} className="rounded-xl border border-gray-200 overflow-hidden">
-                      {/* Campaign header */}
+                      {/* Campaign header with score */}
                       <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2.5 border-b border-gray-200">
-                        <p className="text-sm font-semibold text-emerald-800">{camp.label}</p>
-                        <p className="text-[11px] text-emerald-600/70 mt-0.5">{camp.files.length} file</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-emerald-800 flex-1 min-w-0 truncate">{camp.label}</p>
+                          {camp.grade && (
+                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${gradeColor}`}>
+                              {camp.grade} {camp.score ? camp.score + '/23' : ''}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between mt-0.5">
+                          <p className="text-[11px] text-emerald-600/70">{camp.files.length} file</p>
+                          {timeStr && <p className="text-[10px] text-emerald-600/50">{timeStr}</p>}
+                        </div>
+                        {/* Score bar */}
+                        {camp.score && (
+                          <div className="mt-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all"
+                                  style={{ width: `${scorePct}%` }}
+                                />
+                              </div>
+                              <span className="text-[10px] font-medium text-emerald-600">{scorePct}%</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       {/* File list */}
                       <div className="divide-y divide-gray-100">
@@ -869,7 +907,7 @@ export default function RallyDashboard() {
                           };
                           const iconColor = f.type === 'txt' ? 'text-blue-500' : 'text-amber-500';
                           const sizeStr = f.size > 1024 ? `${(f.size / 1024).toFixed(1)} KB` : `${f.size} B`;
-                          const timeStr = new Date(f.modified).toLocaleString('id-ID', {
+                          const fileTimeStr = new Date(f.modified).toLocaleString('id-ID', {
                             day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
                           });
                           return (
@@ -884,7 +922,7 @@ export default function RallyDashboard() {
                                   {fileLabels[f.name] || f.name}
                                 </p>
                                 <p className="text-[11px] text-gray-400">
-                                  {sizeStr} &middot; {timeStr}
+                                  {sizeStr} &middot; {fileTimeStr}
                                 </p>
                               </div>
                               <Download className="h-3.5 w-3.5 text-gray-300 group-hover:text-emerald-500 transition-colors shrink-0" />
@@ -893,7 +931,8 @@ export default function RallyDashboard() {
                         })}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                   <p className="text-center text-[11px] text-muted-foreground pt-1">
                     Total: {downloadData.totalFiles} file dari {downloadData.campaigns.length} campaign
                     {downloadData.consolidatedFile ? ' + 1 konsolidasi' : ''}
