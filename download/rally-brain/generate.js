@@ -1221,8 +1221,8 @@ function programmaticEvaluate(content) {
   const feedback = [];
   let complianceFail = false;
 
-  // ORIGINALITY (start from 0.5, reduced AI penalties)
-  let origScore = 0.5;
+  // ORIGINALITY (start from 0.3, stricter - must earn points)
+  let origScore = 0.3;
   const uniqueMarkers = COMPLIANCE.unique_markers || [];
   let uniqueCount = 0;
   for (const m of uniqueMarkers) { if (content.toLowerCase().includes(m.toLowerCase())) uniqueCount++; }
@@ -1254,8 +1254,8 @@ function programmaticEvaluate(content) {
   for (const kw of alignKeywords) { if (contentLower.includes(kw.toLowerCase())) alignScore += 0.3; }
   scores.alignment = Math.max(0, Math.min(2, alignScore));
 
-  // ACCURACY (start from 1.2, reduced penalty for natural exaggeration)
-  let accScore = 1.2;
+  // ACCURACY (start from 0.8, stricter - must earn points)
+  let accScore = 0.8;
   const exagWords = ['zero cost', 'impossible', 'guaranteed', '100%', 'everyone', 'nobody', 'always', 'never'];
   for (const w of exagWords) { if (content.toLowerCase().includes(w)) { accScore -= 0.3; feedback.push(`Exaggeration: "${w}"`); } }
   // Bonus for specific technical mentions from knowledge base
@@ -1275,8 +1275,8 @@ function programmaticEvaluate(content) {
   if (!complianceFail) { for (const p of RALLY_BANNED_PHRASES_17) { if (content.toLowerCase().includes(p.toLowerCase())) { compScore = 0; complianceFail = true; feedback.push(`BANNED: "${p}"`); break; } } }
   scores.compliance = Math.max(0, Math.min(2, compScore));
 
-  // ENGAGEMENT (start at 2.0, more bonus triggers)
-  let engScore = 2.0;
+  // ENGAGEMENT (start at 1.5, stricter - must earn points)
+  let engScore = 1.5;
   if (/\?/.test(content)) engScore += 1.0; else feedback.push('Missing: CTA question');
   const firstLine = content.split('\n')[0].trim();
   if (firstLine.length < 80 && firstLine.length > 10) engScore += 0.5;
@@ -1294,8 +1294,8 @@ function programmaticEvaluate(content) {
   if (content.length >= 300 && content.length <= 1500) engScore += 0.3;
   scores.engagement = Math.max(0, Math.min(5, engScore));
 
-  // TECHNICAL (start at 3.5, more bonus triggers)
-  let techScore = 3.5;
+  // TECHNICAL (start at 2.5, stricter - must earn points)
+  let techScore = 2.5;
   if (/  /.test(content)) techScore -= 0.5;
   if (/[\u201c\u201d\u2018\u2019]/.test(content)) techScore -= 0.3;
   if (/[#*\[\]{}]/.test(content)) techScore -= 0.3;
@@ -1315,8 +1315,8 @@ function programmaticEvaluate(content) {
   if (termCount >= 3) techScore += 0.3;
   scores.technical = Math.max(0, Math.min(5, techScore));
 
-  // REPLY QUALITY (start from 1.5, stronger bonuses for genuine engagement)
-  let replyScore = 1.5;
+  // REPLY QUALITY (start from 0.5, stricter - must earn points)
+  let replyScore = 0.5;
   const genuineQ = ['what about you', 'what do you think', 'thoughts?', 'agree?', 'have you', 'your take', "what's your", 'how about', 'anyone else', 'would you', 'why do you', 'where do you', 'what if we', 'who else is', 'your thoughts', 'what are your', 'do you think', 'any takes'];
   if (genuineQ.some(q => content.toLowerCase().includes(q))) replyScore += 2.5;
   else if (/\?/.test(content)) replyScore += 1.5;
@@ -1360,7 +1360,7 @@ async function main() {
 
   const VARIATIONS_PER_LOOP = 2;
   const MAX_LOOPS = 3; // Increased from 2 for better iteration
-  const THRESHOLD = 21.0;
+  const THRESHOLD = 22.0;
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {
     loopsUsed = loop;
@@ -1450,9 +1450,9 @@ async function main() {
           console.log(`  * NEW BEST: ${total}/23 (${grade})`);
         }
 
-        // Early accept if score >= 21
-        if (total >= 21.0) {
-          console.log(`\n  EARLY ACCEPT: Score ${total}/23 >= 21.0 threshold.`);
+        // Early accept only if score >= 22 (strict)
+        if (total >= 22.0) {
+          console.log(`\n  EARLY ACCEPT: Score ${total}/23 >= 22.0 threshold.`);
           earlyExit = true;
         }
       } // end topCount loop
@@ -1541,6 +1541,33 @@ async function main() {
     console.log(`  Judge validation failed: ${e.message}`);
   }
 
+  // ============ MERGE JUDGE RESULTS INTO FINAL SCORE ============
+  // BUG FIX v6.2: Judge results were computed but never used in output.
+  // Now we use judge consensus as the FINAL score when available.
+  console.log('\n=== MERGING SCORES: Programmatic + Judge ===');
+  let finalConsensus = bestEver.consensus; // default: programmatic
+  let finalScore = bestEver.score;
+  let finalGrade = bestEver.grade;
+  let evalMethod = 'Programmatic + G4';
+  let finalValidJudges = 0;
+
+  if (judgeConsensus && judgeConsensus.validJudgeCount >= 1) {
+    // Judge results available - USE THEM as primary score
+    finalConsensus = judgeConsensus;
+    finalScore = Math.round(judgeConsensus.total * 10) / 10;
+    finalGrade = judgeConsensus.grade;
+    finalValidJudges = judgeConsensus.validJudgeCount;
+    evalMethod = `Judge Panel (${judgeConsensus.validJudgeCount}/2) + G4`;
+
+    // Compare programmatic vs judge for logging
+    console.log(`  Programmatic: ${bestEver.score}/23 (${bestEver.grade})`);
+    console.log(`  Judge Panel:  ${judgeConsensus.total}/23 (${judgeConsensus.grade})`);
+    const diff = (judgeConsensus.total - bestEver.score).toFixed(1);
+    console.log(`  Delta: ${diff > 0 ? '+' : ''}${diff} (judge vs programmatic)`);
+  } else {
+    console.log(`  Judge panel unavailable, using programmatic score: ${bestEver.score}/23`);
+  }
+
   // Generate Q&A
   console.log('\n=== GENERATING Q&A PAIRS ===');
   const qaComments = await generateQA(zai, bestEver.content);
@@ -1550,20 +1577,29 @@ async function main() {
   const maxScores = { originality: 2, alignment: 2, accuracy: 2, compliance: 2, engagement: 5, technical: 5, reply_quality: 5 };
 
   const output = {
-    version: '5.2.1',
-    evaluation_method: 'Programmatic Evaluator + G4 + J3/J5 Judge Validation',
+    version: '6.2',
+    evaluation_method: evalMethod,
     campaign: CAMPAIGN.title,
     mission: MISSION_0.title,
     timestamp: new Date().toISOString(),
     best_content: bestEver.content,
-    score: bestEver.score,
-    grade: bestEver.grade,
-    predictions: bestEver.consensus?.scores || {},
+    score: finalScore,
+    grade: finalGrade,
+    predictions: finalConsensus?.scores || bestEver.consensus?.scores || {},
     g4_bonus: bestEver.g4?.bonus || 0,
     g4_reasons: bestEver.g4?.reasons || [],
-    minority_flags: bestEver.consensus?.minorityFlags || [],
-    hard_fails: bestEver.consensus?.hardFails || [],
-    valid_judges: bestEver.consensus?.validJudgeCount || 0,
+    minority_flags: finalConsensus?.minorityFlags || bestEver.consensus?.minorityFlags || [],
+    hard_fails: finalConsensus?.hardFails || bestEver.consensus?.hardFails || [],
+    valid_judges: finalValidJudges,
+    judge_consensus: judgeConsensus ? {
+      total: judgeConsensus.total,
+      grade: judgeConsensus.grade,
+      scores: judgeConsensus.scores,
+      feedback: judgeConsensus.feedback,
+      validCount: judgeConsensus.validJudgeCount
+    } : null,
+    programmatic_score: bestEver.score,
+    programmatic_grade: bestEver.grade,
     total_variations: allVariations.length,
     loops_used: loopsUsed,
     qna_pairs: qaComments,
@@ -1580,29 +1616,37 @@ async function main() {
   console.log('\n===========================================');
   console.log('FINAL RESULT');
   console.log('===========================================');
-  console.log(`Score: ${bestEver.score}/23 (${bestEver.grade})`);
-  console.log(`Evaluation: Programmatic + G4 + J3/J5 Judges`);
-  console.log(`Valid Judges: ${bestEver.consensus?.validJudgeCount || 0}/5`);
+  console.log(`Score: ${finalScore}/23 (${finalGrade})`);
+  console.log(`Evaluation: ${evalMethod}`);
+  console.log(`Valid Judges: ${finalValidJudges}/2`);
+  console.log(`Programmatic Score: ${bestEver.score}/23 (${bestEver.grade})`);
   console.log(`Variations tested: ${allVariations.length}`);
   console.log(`Loops used: ${loopsUsed}`);
   const clientStatus = zai.getStatus();
   console.log(`Token Usage: ${clientStatus.totalRequests} requests, ${clientStatus.totalErrors} errors`);
   console.log(`Remaining Quota: ${clientStatus.totalRemaining} across ${clientStatus.tokens.length} tokens`);
-  if (bestEver.consensus?.minorityFlags?.length > 0) console.log(`Minority Flags: ${bestEver.consensus.minorityFlags.join(', ')}`);
+  if (finalConsensus?.minorityFlags?.length > 0) console.log(`Minority Flags: ${finalConsensus.minorityFlags.join(', ')}`);
   console.log(`G4 Bonus: ${bestEver.g4?.bonus || 0}`);
   console.log('\n--- BEST CONTENT ---');
   console.log(bestEver.content);
   console.log('\n--- Q&A PAIRS ---');
   qaComments.forEach((qa, i) => console.log(`  ${i + 1}. Q: ${qa.q}\n     A: ${qa.a}`));
-  console.log('\n--- SCORE BREAKDOWN ---');
-  if (bestEver.consensus?.scores) {
-    for (const [cat, score] of Object.entries(bestEver.consensus.scores)) {
-      console.log(`  ${cat}: ${score}/${maxScores[cat]}`);
+  console.log('\n--- FINAL SCORE BREAKDOWN ---');
+  if (finalConsensus?.scores) {
+    for (const [cat, score] of Object.entries(finalConsensus.scores)) {
+      const max = maxScores[cat] || 2;
+      console.log(`  ${cat}: ${score}/${max}`);
     }
+  }
+  if (judgeConsensus) {
+    console.log('\n--- JUDGE FEEDBACK ---');
+    judgeConsensus.feedback.forEach(f => console.log(`  ${f}`));
   }
 
   // === PHASE 5: SAVE CYCLE LEARNING ===
-  saveCycleLearning(bestEver, allVariations);
+  // Use final (judge) score for learning
+  const learningBest = { ...bestEver, score: finalScore, grade: finalGrade, consensus: finalConsensus };
+  saveCycleLearning(learningBest, allVariations);
 
   // Save output
   const outputDir = `/home/z/my-project/download/rally-brain/campaign_data/${CAMPAIGN_ID}_output`;
@@ -1612,13 +1656,17 @@ async function main() {
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
-    version: '5.2.1',
-    score: bestEver.score,
-    grade: bestEver.grade,
-    predictions: bestEver.consensus?.scores || {},
+    version: '6.2',
+    score: finalScore,
+    grade: finalGrade,
+    evaluation_method: evalMethod,
+    predictions: finalConsensus?.scores || {},
     g4_bonus: bestEver.g4?.bonus || 0,
-    minority_flags: bestEver.consensus?.minorityFlags || [],
-    valid_judges: bestEver.consensus?.validJudgeCount || 0,
+    minority_flags: finalConsensus?.minorityFlags || [],
+    hard_fails: finalConsensus?.hardFails || [],
+    valid_judges: finalValidJudges,
+    programmatic_score: bestEver.score,
+    judge_consensus: judgeConsensus ? { total: judgeConsensus.total, grade: judgeConsensus.grade } : null,
     total_variations: allVariations.length,
     loops_used: loopsUsed,
     timestamp: output.timestamp,
