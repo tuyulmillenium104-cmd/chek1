@@ -1367,8 +1367,7 @@ function programmaticEvaluate(content) {
   if (/[\u201c\u201d\u2018\u2019]/.test(content)) techScore -= 0.3;
   if (/[#*\[\]{}]/.test(content)) techScore -= 0.3;
   if (content.length > 80 && content.length < 2000) techScore += 0.3;
-  const dynamicTag = COMPLIANCE.must_include[0] || '';
-  if (/\?/.test(content) && dynamicTag && content.includes(dynamicTag)) techScore += 0.3;
+  if (/\?/.test(content) && requiredTag && content.includes(requiredTag)) techScore += 0.3;
   // Clean formatting bonus
   if (!content.includes('...') || content.endsWith('...')) techScore += 0.1;
   // Proper sentence ending
@@ -1395,8 +1394,7 @@ function programmaticEvaluate(content) {
   const lastSentence = content.trim().split(/[.!?]+/).pop().trim();
   if (lastSentence.endsWith('?') || /\?/.test(lastSentence)) replyScore += 0.5;
   // Dynamic tag context bonus (from must_include[0])
-  const dynamicTag = COMPLIANCE.must_include[0];
-  if (dynamicTag && content.includes(dynamicTag) && /\?/.test(content)) replyScore += 0.5;
+  if (requiredTag && content.includes(requiredTag) && /\?/.test(content)) replyScore += 0.5;
   // Vulnerability/uncertainty bonus (encourages real discussion)
   const vulnerability = ['not sure', 'could be wrong', 'maybe', 'i think', 'curious', 'wondering', 'open to', 'might be'];
   if (vulnerability.some(v => content.toLowerCase().includes(v))) replyScore += 0.5;
