@@ -322,7 +322,7 @@ export default function RallyDashboard() {
 
   // Download center
   const [showDownload, setShowDownload] = useState(false);
-  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; totalFiles: number } | null>(null);
+  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; consolidatedFile?: { name: string; path: string; size: number; modified: string; type: string }; totalFiles: number } | null>(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
 
   const fetchDownloadFiles = useCallback(async () => {
@@ -828,8 +828,29 @@ export default function RallyDashboard() {
                   <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
                   <p className="text-sm text-muted-foreground">Memuat daftar file...</p>
                 </div>
-              ) : downloadData && downloadData.campaigns.length > 0 ? (
+              ) : downloadData && (downloadData.campaigns.length > 0 || downloadData.consolidatedFile) ? (
                 <div className="space-y-4">
+                  {/* ── Consolidated All-in-One File ── */}
+                  {downloadData.consolidatedFile && (
+                    <a
+                      href="/api/rally-content?campaign=__all__&file=rally-all-content.txt"
+                      className="flex items-center gap-4 rounded-xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 px-4 py-3 hover:shadow-lg hover:border-emerald-400 transition-all group cursor-pointer"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm shrink-0">
+                        <FileText className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
+                          Semua Konten (1 File)
+                        </p>
+                        <p className="text-[11px] text-emerald-600/70 mt-0.5">
+                          Konten + Q&A + Skor dari semua campaign &middot; {(downloadData.consolidatedFile.size / 1024).toFixed(0)} KB
+                        </p>
+                      </div>
+                      <Download className="h-5 w-5 text-emerald-400 group-hover:text-emerald-600 transition-colors shrink-0" />
+                    </a>
+                  )}
+                  {/* ── Per-Campaign Files ── */}
                   {downloadData.campaigns.map((camp) => (
                     <div key={camp.campaign} className="rounded-xl border border-gray-200 overflow-hidden">
                       {/* Campaign header */}
@@ -875,6 +896,7 @@ export default function RallyDashboard() {
                   ))}
                   <p className="text-center text-[11px] text-muted-foreground pt-1">
                     Total: {downloadData.totalFiles} file dari {downloadData.campaigns.length} campaign
+                    {downloadData.consolidatedFile ? ' + 1 konsolidasi' : ''}
                   </p>
                 </div>
               ) : (

@@ -4,6 +4,7 @@ import path from 'path';
 
 // Read directly from campaign_data — always fresh from cron runs
 const CONTENT_DIR = '/home/z/my-project/download/rally-brain/campaign_data';
+const CONSOLIDATED_FILE = '/home/z/my-project/download/rally-all-content.txt';
 
 interface FileInfo {
   name: string;
@@ -17,6 +18,13 @@ interface CampaignGroup {
   campaign: string;
   label: string;
   files: FileInfo[];
+}
+
+interface ListResponse {
+  campaigns: CampaignGroup[];
+  consolidatedFile?: FileInfo;
+  totalFiles: number;
+  generatedAt: string;
 }
 
 function getFileType(filename: string): 'txt' | 'json' | 'unknown' {
@@ -36,26 +44,31 @@ function getLabel(dirName: string): string {
   return labels[dirName] || dirName.replace(/_output$/, '').replace(/_/g, ' ');
 }
 
-function getFileLabel(filename: string): string {
-  const labels: Record<string, string> = {
-    'best_content.txt': 'Best Content (siap post)',
-    'qa.json': 'Q&A Pairs (10 pasangan)',
-    'full_output.json': 'Full Output (lengkap + skor)',
-    'prediction.json': 'Prediction Data',
-  };
-  return labels[filename] || filename;
-}
-
 // GET /api/rally-content — list all files or serve download
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const file = searchParams.get('file');
   const campaign = searchParams.get('campaign');
 
-  // If file requested → serve download
+  // ── Special: consolidated file download ──
+  if (file === 'rally-all-content.txt' && campaign === '__all__') {
+    if (!fs.existsSync(CONSOLIDATED_FILE)) {
+      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    }
+    const fileBuffer = fs.readFileSync(CONSOLIDATED_FILE);
+    return new NextResponse(fileBuffer, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="rally-all-content.txt"',
+        'Content-Length': fileBuffer.length.toString(),
+        'Cache-Control': 'no-cache',
+      },
+    });
+  }
+
+  // ── Individual file download ──
   if (file && campaign) {
     const filePath = path.join(CONTENT_DIR, campaign, file);
-    // Security: ensure path doesn't escape CONTENT_DIR
     const resolved = path.resolve(filePath);
     if (!resolved.startsWith(CONTENT_DIR)) {
       return NextResponse.json({ error: 'Invalid path' }, { status: 403 });
@@ -72,9 +85,8 @@ export async function GET(request: NextRequest) {
       json: 'application/json',
     };
 
-    // Use readable filename for download (strip _output from campaign dir)
     const safeName = campaign.replace(/_output$/, '');
-    const downloadName = file.includes('.json') ? `${safeName}_${file}` : `${safeName}_${file}`;
+    const downloadName = `${safeName}_${file}`;
 
     return new NextResponse(fileBuffer, {
       headers: {
@@ -86,7 +98,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // List all campaigns and files
+  // ── List all campaigns and files ──
   if (!fs.existsSync(CONTENT_DIR)) {
     return NextResponse.json({ campaigns: [], totalFiles: 0 });
   }
@@ -94,7 +106,6 @@ export async function GET(request: NextRequest) {
   const entries = fs.readdirSync(CONTENT_DIR, { withFileTypes: true });
   const campaigns: CampaignGroup[] = [];
 
-  // Only show output directories (end with _output)
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     if (!entry.name.endsWith('_output')) continue;
@@ -113,11 +124,8 @@ export async function GET(request: NextRequest) {
         type: getFileType(f),
       };
     }).sort((a, b) => {
-      // Sort: best_content.txt first, then qa.json, then others
       const order: Record<string, number> = { 'best_content.txt': 0, 'qa.json': 1, 'full_output.json': 2, 'prediction.json': 3 };
-      const aOrder = order[a.name] ?? 99;
-      const bOrder = order[b.name] ?? 99;
-      return aOrder - bOrder;
+      return (order[a.name] ?? 99) - (order[b.name] ?? 99);
     });
 
     if (fileInfos.length > 0) {
@@ -129,7 +137,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Sort campaigns: marbmarket first, then campaign_3, then others
   campaigns.sort((a, b) => {
     const order: Record<string, number> = {
       'marbmarket-m0_output': 0,
@@ -139,11 +146,27 @@ export async function GET(request: NextRequest) {
     return (order[a.campaign] ?? 99) - (order[b.campaign] ?? 99);
   });
 
-  const totalFiles = campaigns.reduce((sum, c) => sum + c.files.length, 0);
+  // Build consolidated file info if exists
+  let consolidatedFile: FileInfo | undefined;
+  if (fs.existsSync(CONSOLIDATED_FILE)) {
+    const stat = fs.statSync(CONSOLIDATED_FILE);
+    consolidatedFile = {
+      name: 'rally-all-content.txt',
+      path: '__all__/rally-all-content.txt',
+      size: stat.size,
+      modified: stat.mtime.toISOString(),
+      type: 'txt',
+    };
+  }
 
-  return NextResponse.json({
+  const campaignFiles = campaigns.reduce((sum, c) => sum + c.files.length, 0);
+
+  const response: ListResponse = {
     campaigns,
-    totalFiles,
+    consolidatedFile,
+    totalFiles: campaignFiles + (consolidatedFile ? 1 : 0),
     generatedAt: new Date().toISOString(),
-  });
+  };
+
+  return NextResponse.json(response);
 }
