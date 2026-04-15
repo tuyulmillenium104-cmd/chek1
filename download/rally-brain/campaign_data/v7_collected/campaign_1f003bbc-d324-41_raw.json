@@ -1,0 +1,65 @@
+{
+  "id": "1f003bbc-d324-4171-b672-5e8d5ba6d195",
+  "intelligentContractAddress": "0x42e23447fBAa7420090A3fD78CEA71EFF7dF7a93",
+  "creatorAddress": "0x4aDfd543c112171dCAdAc79cAe086094dBeb4348",
+  "title": "The AI Crypto Future: My 2026 Picks",
+  "distributionContractChainId": 8453,
+  "startDate": "2026-03-30T22:00:00.000Z",
+  "endDate": "2026-04-20T22:00:00.000Z",
+  "periodLengthDays": 21,
+  "campaignDurationPeriods": 1,
+  "minimumFollowers": 100,
+  "maximumFollowers": 0,
+  "onlyVerifiedUsers": false,
+  "maxSubmissionsPerParticipant": 0,
+  "adminNotice": null,
+  "whitelistedSubmitters": [],
+  "token": {
+    "symbol": "RLP",
+    "address": "0x2222222222222222222222222222222222222222",
+    "logoUri": null,
+    "usdPrice": null,
+    "chainId": 61899,
+    "chain": {
+      "platform": "genlayer"
+    }
+  },
+  "campaignRewards": [
+    {
+      "totalAmount": 85000,
+      "tokenAddress": "0x2222222222222222222222222222222222222222",
+      "source": "on_chain",
+      "claimable": true,
+      "token": {
+        "symbol": "RLP",
+        "logoUri": null
+      }
+    }
+  ],
+  "participating": false,
+  "missionCount": 1,
+  "userMissionProgress": 0,
+  "displayCreator": {
+    "type": "organization",
+    "xUsername": "genlayer",
+    "displayName": "GenLayer",
+    "avatarUrl": "https://yt3.googleusercontent.com/veiz-qzFdP2I8Az2Mcj_uLDbEUP8O39fkjRgci7EMjwf25TqzI1gFCPBZvylc6-F8i51FA4NiA=s160-c-k-c0x00ffffff-no-rj",
+    "profileUrl": "https://x.com/genlayer",
+    "organization": {
+      "id": "5dbe52b7-896d-461c-9ee3-9f9b1e633957",
+      "name": "GenLayer",
+      "slug": "genlayer",
+      "xUsername": "genlayer",
+      "xUsernameDisplay": "GenLayer",
+      "logoUrl": "https://yt3.googleusercontent.com/veiz-qzFdP2I8Az2Mcj_uLDbEUP8O39fkjRgci7EMjwf25TqzI1gFCPBZvylc6-F8i51FA4NiA=s160-c-k-c0x00ffffff-no-rj",
+      "description": "Trust Infrastructure for The AI Age",
+      "websiteUrl": "https://www.genlayer.com/",
+      "waitlistReferralUrl": null,
+      "isActive": true,
+      "createdAt": "2025-10-08T16:49:08.287Z",
+      "updatedAt": "2026-01-16T16:33:41.852Z",
+      "defaultCampaignHeaderUrl": null
+    }
+  },
+  "headerImageUrl": "https://storage.googleapis.com/rally-campaigns-uploads/campaign-headers/0x42e23447fBAa7420090A3fD78CEA71EFF7dF7a93/3fTGPdA0.jpeg"
+}
