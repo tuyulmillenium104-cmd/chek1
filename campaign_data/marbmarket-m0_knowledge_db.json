@@ -1,0 +1,478 @@
+{
+  "version": "3.0.0",
+  "last_updated": "2026-04-15T16:11:09.779Z",
+  "stats": {
+    "total_cycles": 10,
+    "total_patterns": 0,
+    "best_score_achieved": 21.7,
+    "avg_score": 20,
+    "last_learned": "2026-04-15T16:11:09.779Z"
+  },
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-15T03:34:25.584Z",
+      "score": 14,
+      "grade": "B",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 1.8,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 1,
+      "variations_tested": 4,
+      "ai_words_found": [
+        "flywheel"
+      ],
+      "best_hook": "Most people chase token pumps. I'm looking at systems that rewrite the rules. MarbMarket is launching the first veDEX on MegaETH. No presale. No VCs. Just a fair launch with real community power.",
+      "is_repetition": false,
+      "content_preview": "Most people chase token pumps. I'm looking at systems that rewrite the rules. MarbMarket is launchin..."
+    },
+    {
+      "timestamp": "2026-04-15T03:44:26.370Z",
+      "score": 15,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 1.8,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 2,
+      "variations_tested": 2,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the next 100x token. I'm focused on systems that quietly rewrite how value flows in DeFi. veDEXes are that shift.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the next 100x token. I'm focused on systems that quietly rewrite how value flows i..."
+    },
+    {
+      "timestamp": "2026-04-15T04:46:45.053Z",
+      "score": 21.7,
+      "grade": "S",
+      "scores": {
+        "originality": 1.95,
+        "alignment": 1.8,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 4.8,
+        "technical": 4.599999999999999,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 2,
+      "ai_words_found": [],
+      "best_hook": "I've been diving into veDEX mechanics lately and MarbMarket's approach to MegaETH feels different. Most DEXs just throw tokens at liquidity. MarbMarket flips this. You lock MARB to get veTokens, which control weekly emissions. Longer locks mean more influence. It's not just farming. It's governance.",
+      "is_repetition": false,
+      "content_preview": "I've been diving into veDEX mechanics lately and MarbMarket's approach to MegaETH feels different. M..."
+    },
+    {
+      "timestamp": "2026-04-15T05:07:11.198Z",
+      "score": 21.7,
+      "grade": "S",
+      "scores": {
+        "originality": 1.95,
+        "alignment": 1.8,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 4.6,
+        "technical": 4.799999999999999,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 2,
+      "ai_words_found": [],
+      "best_hook": "I've been deep in the veDEX rabbit hole for weeks, and MarbMarket's fair launch on MegaETH feels different. No presale. No VCs. Just pure community power. A veDEX lets you lock MARB tokens to gain voting power. Longer locks = more influence + more rewards. Weekly votes decide which LP pools get MARB emissions. Projects can \"bribe\" for votes. It's wild. The incentive loop is beautiful: MARB lockers direct emissions, LPs get rewards, protocols pay bribes, incentives flow back to lockers. @RallyOnChain is tracking this closely. x.com/Marb_market is where you need to be. Not sure how the ve(3,3) model will play out on MegaETH yet. Thoughts?",
+      "is_repetition": false,
+      "content_preview": "I've been deep in the veDEX rabbit hole for weeks, and MarbMarket's fair launch on MegaETH feels dif..."
+    },
+    {
+      "timestamp": "2026-04-15T11:36:44.142Z",
+      "score": 21.2,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Spent the last few days digging into the vote-escrow model and I think it fixes the biggest problem in liquidity mining. Instead of emissions just going to the highest APY farm, token lockers actually vote on where the rewards go. Projects then offer bribes to capture those votes. It creates a circular economy where governance power directly translates to yield. MarbMarket is bringing this exact mechanic to MegaETH as the first veDEX there. No presale and no VC money either. The whole thing relies on users locking MARB to get veTokens, which lets them direct emissions to specific LP pools. @RallyOnChain caught my attention with this one. I'm curious to see if the community can actually sustain the bribe markets without external capital. Check the launch details at x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "Spent the last few days digging into the vote-escrow model and I think it fixes the biggest problem ..."
+    },
+    {
+      "timestamp": "2026-04-15T11:44:31.714Z",
+      "score": 21.4,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been digging into vote-escrowed models again because the alignment incentives actually make sense. You lock your token to get voting power, longer lock means more influence. Then you vote on where the liquidity rewards go each week. It turns LPs into mercenaries and voters into generals. MarbMarket is bringing this exact ve(3,3) mechanic to MegaETH without a presale or VC bag. That is rare. Protocols can bribe voters to direct emissions to their pools, so the cycle actually feeds back to the people who commit capital. I think the fair launch aspect here might be the most important part. @RallyOnChain has been building something interesting here. Check out the mechanics at x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "I've been digging into vote-escrowed models again because the alignment incentives actually make sen..."
+    },
+    {
+      "timestamp": "2026-04-15T11:44:31.876Z",
+      "score": 21.4,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been digging into the ve(3,3) mechanics again and realized most people miss the point. It is not just about voting. You lock MARB for longer to get veTokens. That voting power decides where the weekly emissions go. Projects then bid for those votes with direct bribes. The loop is actually simple. Lockers direct rewards to LPs, protocols pay for liquidity, and the cycle feeds back into the lockers. MarbMarket is bringing this to MegaETH without a presale or VC money. I think the fair launch aspect might be the most interesting part here. Following @RallyOnChain for updates on this. Curious if this model actually works better on a chain like MegaETH. x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "I've been digging into the ve(3,3) mechanics again and realized most people miss the point. It is no..."
+    },
+    {
+      "timestamp": "2026-04-15T12:33:54.255Z",
+      "score": 21.6,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Spent the last few days digging into the vote-escrowed DEX model and why people actually lock tokens. It basically turns liquidity into a political game. You lock MARB for a long time to get veTokens, then you vote on which trading pairs get the most emissions. Projects bribe you for those votes, so you earn real yield while controlling the protocol. MarbMarket is bringing this exact mechanic to MegaETH without a presale or VCs. It is a fair launch. I think the incentive loop is interesting because protocols pay for liquidity while lockers get paid to govern. It might solve the liquidity retention problem if it works. Check out x.com/Marb_market for the launch details. @RallyOnChain caught my attention with this one. Curious if ve(3,3) actually lasts this time or if we see the same decay as before. What do you think?",
+      "is_repetition": false,
+      "content_preview": "Spent the last few days digging into the vote-escrowed DEX model and why people actually lock tokens..."
+    },
+    {
+      "timestamp": "2026-04-15T12:53:50.033Z",
+      "score": 20.4,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Spent the weekend digging into the vote-escrow model again. It is fascinating how locking tokens for longer periods actually controls the entire reward flow of a DEX. You lock MARB, you get veTokens to vote on emissions, and protocols pay bribes to direct those emissions to their pools. It basically turns liquidity provision into a self-governing loop where the most committed holders decide where the yield goes. MarbMarket is bringing this exact ve(3,3) mechanic to MegaETH. I think this is a pretty big deal because it is the first veDEX on the chain and there is zero presale or VC involvement. Just a fair launch with LP farming and voting live from day one. Not sure how the initial emissions will shake out but the structure looks solid for sustainable liquidity. Following @RallyOnChain for updates on this. Check the details at x.com/Marb_market or t.me/marbmarket. Do you prefer pure AMM pools or the vote-escrow bribery model?",
+      "is_repetition": false,
+      "content_preview": "Spent the weekend digging into the vote-escrow model again. It is fascinating how locking tokens for..."
+    },
+    {
+      "timestamp": "2026-04-15T16:11:09.779Z",
+      "score": 21.6,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been digging into vote-escrowed DEXs again and realized most people miss the point. It's not just about trading fees. It's about who controls the emissions. In a standard DEX the protocol decides rewards. In a veDEX like MarbMarket the users decide. You lock MARB to get veTokens. The longer you lock, the more weight you carry. Then you vote on where the weekly liquidity mining rewards go. Protocols bribe you for those votes to incentivize liquidity for their specific pairs. It turns governance into a marketplace. MarbMarket is bringing this exact model to MegaETH as the first veDEX there. No presale and no VC allocation. Just a fair launch with LP farming, voting, and bribes available from day one. Following @RallyOnChain for updates on this. I think the incentive loop could be really sticky if the volume shows up. x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "I've been digging into vote-escrowed DEXs again and realized most people miss the point. It's not ju..."
+    }
+  ],
+  "ai_word_frequency": {
+    "flywheel": 1
+  },
+  "winning_hooks": [
+    {
+      "hook": "I've been diving into veDEX mechanics lately and MarbMarket's approach to MegaETH feels different. Most DEXs just throw tokens at liquidity. MarbMarket flips this. You lock MARB to get veTokens, which control weekly emissions. Longer locks mean more influence. It's not just farming. It's governance.",
+      "score": 21.7,
+      "timestamp": "2026-04-15T04:46:45.053Z"
+    },
+    {
+      "hook": "I've been deep in the veDEX rabbit hole for weeks, and MarbMarket's fair launch on MegaETH feels different. No presale. No VCs. Just pure community power. A veDEX lets you lock MARB tokens to gain voting power. Longer locks = more influence + more rewards. Weekly votes decide which LP pools get MARB emissions. Projects can \"bribe\" for votes. It's wild. The incentive loop is beautiful: MARB lockers direct emissions, LPs get rewards, protocols pay bribes, incentives flow back to lockers. @RallyOnChain is tracking this closely. x.com/Marb_market is where you need to be. Not sure how the ve(3,3) model will play out on MegaETH yet. Thoughts?",
+      "score": 21.7,
+      "timestamp": "2026-04-15T05:07:11.198Z"
+    },
+    {
+      "hook": "Spent the last few days digging into the vote-escrow model and I think it fixes the biggest problem in liquidity mining. Instead of emissions just going to the highest APY farm, token lockers actually vote on where the rewards go. Projects then offer bribes to capture those votes. It creates a circular economy where governance power directly translates to yield. MarbMarket is bringing this exact mechanic to MegaETH as the first veDEX there. No presale and no VC money either. The whole thing relies on users locking MARB to get veTokens, which lets them direct emissions to specific LP pools. @RallyOnChain caught my attention with this one. I'm curious to see if the community can actually sustain the bribe markets without external capital. Check the launch details at x.com/Marb_market",
+      "score": 21.2,
+      "timestamp": "2026-04-15T11:36:44.142Z"
+    },
+    {
+      "hook": "I've been digging into vote-escrowed models again because the alignment incentives actually make sense. You lock your token to get voting power, longer lock means more influence. Then you vote on where the liquidity rewards go each week. It turns LPs into mercenaries and voters into generals. MarbMarket is bringing this exact ve(3,3) mechanic to MegaETH without a presale or VC bag. That is rare. Protocols can bribe voters to direct emissions to their pools, so the cycle actually feeds back to the people who commit capital. I think the fair launch aspect here might be the most important part. @RallyOnChain has been building something interesting here. Check out the mechanics at x.com/Marb_market",
+      "score": 21.4,
+      "timestamp": "2026-04-15T11:44:31.714Z"
+    },
+    {
+      "hook": "I've been digging into the ve(3,3) mechanics again and realized most people miss the point. It is not just about voting. You lock MARB for longer to get veTokens. That voting power decides where the weekly emissions go. Projects then bid for those votes with direct bribes. The loop is actually simple. Lockers direct rewards to LPs, protocols pay for liquidity, and the cycle feeds back into the lockers. MarbMarket is bringing this to MegaETH without a presale or VC money. I think the fair launch aspect might be the most interesting part here. Following @RallyOnChain for updates on this. Curious if this model actually works better on a chain like MegaETH. x.com/Marb_market",
+      "score": 21.4,
+      "timestamp": "2026-04-15T11:44:31.876Z"
+    },
+    {
+      "hook": "Spent the last few days digging into the vote-escrowed DEX model and why people actually lock tokens. It basically turns liquidity into a political game. You lock MARB for a long time to get veTokens, then you vote on which trading pairs get the most emissions. Projects bribe you for those votes, so you earn real yield while controlling the protocol. MarbMarket is bringing this exact mechanic to MegaETH without a presale or VCs. It is a fair launch. I think the incentive loop is interesting because protocols pay for liquidity while lockers get paid to govern. It might solve the liquidity retention problem if it works. Check out x.com/Marb_market for the launch details. @RallyOnChain caught my attention with this one. Curious if ve(3,3) actually lasts this time or if we see the same decay as before. What do you think?",
+      "score": 21.6,
+      "timestamp": "2026-04-15T12:33:54.255Z"
+    },
+    {
+      "hook": "Spent the weekend digging into the vote-escrow model again. It is fascinating how locking tokens for longer periods actually controls the entire reward flow of a DEX. You lock MARB, you get veTokens to vote on emissions, and protocols pay bribes to direct those emissions to their pools. It basically turns liquidity provision into a self-governing loop where the most committed holders decide where the yield goes. MarbMarket is bringing this exact ve(3,3) mechanic to MegaETH. I think this is a pretty big deal because it is the first veDEX on the chain and there is zero presale or VC involvement. Just a fair launch with LP farming and voting live from day one. Not sure how the initial emissions will shake out but the structure looks solid for sustainable liquidity. Following @RallyOnChain for updates on this. Check the details at x.com/Marb_market or t.me/marbmarket. Do you prefer pure AMM pools or the vote-escrow bribery model?",
+      "score": 20.4,
+      "timestamp": "2026-04-15T12:53:50.033Z"
+    },
+    {
+      "hook": "I've been digging into vote-escrowed DEXs again and realized most people miss the point. It's not just about trading fees. It's about who controls the emissions. In a standard DEX the protocol decides rewards. In a veDEX like MarbMarket the users decide. You lock MARB to get veTokens. The longer you lock, the more weight you carry. Then you vote on where the weekly liquidity mining rewards go. Protocols bribe you for those votes to incentivize liquidity for their specific pairs. It turns governance into a marketplace. MarbMarket is bringing this exact model to MegaETH as the first veDEX there. No presale and no VC allocation. Just a fair launch with LP farming, voting, and bribes available from day one. Following @RallyOnChain for updates on this. I think the incentive loop could be really sticky if the volume shows up. x.com/Marb_market",
+      "score": 21.6,
+      "timestamp": "2026-04-15T16:11:09.779Z"
+    }
+  ],
+  "category_trends": {
+    "originality": {
+      "total": 18.3,
+      "count": 10,
+      "avg": 1.83,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "alignment": {
+      "total": 19.2,
+      "count": 10,
+      "avg": 1.92,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "accuracy": {
+      "total": 17.4,
+      "count": 10,
+      "avg": 1.74,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "compliance": {
+      "total": 20,
+      "count": 10,
+      "avg": 2,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "engagement": {
+      "total": 39,
+      "count": 10,
+      "avg": 3.9,
+      "last5": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "technical": {
+      "total": 46.4,
+      "count": 10,
+      "avg": 4.64,
+      "last5": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "reply_quality": {
+      "total": 42.5,
+      "count": 10,
+      "avg": 4.25,
+      "last5": [
+        4.5,
+        4.5,
+        5,
+        4.5,
+        5
+      ]
+    }
+  },
+  "patterns": {
+    "semantic": {
+      "claim_specificity": {
+        "description": "Concrete verifiable claims score higher",
+        "level": "high",
+        "learned_rules": []
+      },
+      "tone_style_match": {
+        "description": "Tone must match campaign context",
+        "level": "high",
+        "learned_rules": []
+      },
+      "engagement_hook": {
+        "description": "Opening hooks + CTA for engagement",
+        "level": "high",
+        "learned_rules": [
+          "Focus on engagement: avg 3.9/5 (78%)",
+          "Focus on reply_quality: avg 4.25/5 (85%)"
+        ]
+      },
+      "rally_mention": {
+        "description": "Natural contextual mention with concrete mechanism",
+        "level": "high",
+        "learned_rules": []
+      },
+      "exaggeration_risk": {
+        "description": "Absolute claims risk Accuracy deductions",
+        "level": "critical",
+        "learned_rules": []
+      },
+      "cross_category_tradeoff": {
+        "description": "Balance categories",
+        "level": "medium",
+        "learned_rules": []
+      },
+      "self_heal_directives": {
+        "description": "Auto-generated directives from self-healing engine",
+        "level": "critical",
+        "directives": [
+          "AI words keep leaking. Read each sentence OUT LOUD before finalizing. If it sounds like corporate jargon, rewrite it."
+        ],
+        "generated_at": "2026-04-15T11:27:02.718Z"
+      }
+    }
+  },
+  "scoring_model": {
+    "calibration_log": [
+      {
+        "timestamp": "2026-04-15T03:34:25.584Z",
+        "predicted": 14,
+        "grade": "B"
+      },
+      {
+        "timestamp": "2026-04-15T03:44:26.370Z",
+        "predicted": 15,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-15T04:46:45.053Z",
+        "predicted": 21.7,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T05:07:11.198Z",
+        "predicted": 21.7,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T11:36:44.142Z",
+        "predicted": 21.2,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T11:44:31.714Z",
+        "predicted": 21.4,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T11:44:31.876Z",
+        "predicted": 21.4,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:33:54.255Z",
+        "predicted": 21.6,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:53:50.033Z",
+        "predicted": 20.4,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-15T16:11:09.779Z",
+        "predicted": 21.6,
+        "grade": "S"
+      }
+    ],
+    "category_weights": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "max_scores": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "prediction_accuracy": {
+      "total_predictions": 0,
+      "correct_predictions": 0,
+      "avg_diff": 0
+    }
+  },
+  "campaign_memories": {},
+  "v3_lessons": {}
+}

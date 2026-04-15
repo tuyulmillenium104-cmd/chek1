@@ -1,0 +1,105 @@
+{
+  "version": "6.2",
+  "evaluation_method": "Blended (2/2 judges + programmatic) + G4",
+  "campaign": "MarbMarket - The First veDEX on MegaETH is Launching",
+  "mission": "Explain the veDEX Model & Why MarbMarket Matters",
+  "timestamp": "2026-04-15T16:11:09.777Z",
+  "best_content": "I've been digging into vote-escrowed DEXs again and realized most people miss the point. It's not just about trading fees. It's about who controls the emissions. In a standard DEX the protocol decides rewards. In a veDEX like MarbMarket the users decide. You lock MARB to get veTokens. The longer you lock, the more weight you carry. Then you vote on where the weekly liquidity mining rewards go. Protocols bribe you for those votes to incentivize liquidity for their specific pairs. It turns governance into a marketplace. MarbMarket is bringing this exact model to MegaETH as the first veDEX there. No presale and no VC allocation. Just a fair launch with LP farming, voting, and bribes available from day one. Following @RallyOnChain for updates on this. I think the incentive loop could be really sticky if the volume shows up. x.com/Marb_market\n\nanyone else looking at this?",
+  "score": 21.6,
+  "grade": "S",
+  "predictions": {
+    "originality": 2,
+    "alignment": 2,
+    "accuracy": 2,
+    "compliance": 2,
+    "engagement": 4,
+    "technical": 5,
+    "reply_quality": 5
+  },
+  "g4_bonus": 0.5,
+  "g4_reasons": [
+    "High sentence variety (CV=0.45)",
+    "Strong personal voice",
+    "Some contractions",
+    "Shows vulnerability/uncertainty",
+    "Zero AI words (clean)",
+    "Mixed sentence lengths"
+  ],
+  "minority_flags": [],
+  "hard_fails": [],
+  "valid_judges": 2,
+  "judge_consensus": {
+    "total": 22,
+    "grade": "S+",
+    "scores": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 4,
+      "technical": 5,
+      "reply_quality": 5
+    },
+    "feedback": [
+      "J3: Technical quality is the lowest score due to minor punctuation issues",
+      "J5: Engagement is strong but not perfect as the hook is slightly standard for crypto analysis."
+    ],
+    "validCount": 2
+  },
+  "programmatic_score": 21.3,
+  "programmatic_grade": "S",
+  "total_variations": 1,
+  "loops_used": 1,
+  "qna_pairs": [
+    {
+      "q": "How does ve(3,3) work exactly? I've heard of it but not sure how it applies here.",
+      "a": "ve(3,3) means for every 3 MARB you lock for 3 years, you get max voting power. It's a longer lock = more weight system that rewards committed holders. The longer your MARB stays locked, the more influence you have over where emissions go."
+    },
+    {
+      "q": "What's to stop projects from offering crazy bribes and messing with the voting?",
+      "a": "The market decides. If a bribe is too high, it might indicate their token is overvalued or the pool isn't sustainable. veToken holders can vote based on both bribe size and fundamental value of the protocol. It's a self-correcting system."
+    },
+    {
+      "q": "Why MegaETH? Is this chain getting a lot of activity or is it just new?",
+      "a": "MegaETH is gaining traction because it offers lower fees and faster finality than regular Ethereum. It's perfect for DEX activity where transaction costs matter. Being the first veDEX there gives us an early mover advantage with their growing user base."
+    },
+    {
+      "q": "How do I actually start participating? Do I need to lock MARB right away?",
+      "a": "At launch, you'll be able to lock MARB tokens to get veTokens. The longer you lock, the more voting power you have. Then you can vote on which liquidity pools get the weekly MARB emissions. LP farming will be available from day one."
+    },
+    {
+      "q": "If there's no presale, how do people get MARB tokens to begin with?",
+      "a": "MARB tokens will be distributed through liquidity mining on day one. You'll be able to provide liquidity to LP pools and earn MARB rewards as part of our fair launch model. The token distribution starts with the community, not VCs or insiders."
+    },
+    {
+      "q": "How is this different from just a standard AMM like Uniswap?",
+      "a": "Big difference is who controls the emissions. On a standard AMM the protocol decides where rewards go. On MarbMarket, you lock MARB for veTokens and actually vote on where the weekly liquidity mining rewards go. It turns governance into a marketplace."
+    },
+    {
+      "q": "Is there a presale or VC round I missed?",
+      "a": "Nope, none of that. It’s a fully fair launch with no presale and no VC allocation. You just have LP farming, voting, and bribes available from day one."
+    },
+    {
+      "q": "So projects just pay users to vote for their pools?",
+      "a": "Exactly. Protocols offer bribes to incentivize liquidity for their specific pairs. It creates a loop where MARB lockers direct emissions, LPs get rewards, and protocols pay bribes to get votes."
+    },
+    {
+      "q": "Does it matter how long I lock my tokens for?",
+      "a": "Yeah, the longer you lock, the more weight you carry. Your lock duration determines your voting power and influence over the rewards."
+    },
+    {
+      "q": "When is this actually going live?",
+      "a": "They are launching on MegaETH in Q2. It’s the first veDEX on that chain, so definitely following @RallyOnChain for updates."
+    }
+  ],
+  "all_scores": [
+    {
+      "loop": 1,
+      "variation": 1,
+      "score": 21.3,
+      "grade": "S",
+      "minorityFlags": [],
+      "hardFails": []
+    }
+  ]
+}

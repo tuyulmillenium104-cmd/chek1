@@ -1,0 +1,9 @@
+I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage products scare me because of liquidation risk. You mess up once and your position is gone. That's why I'm interested in what @FragmentsOrg is building with Bitcoin Junior.
+
+It works by splitting cbBTC into two parts. The Junior token gets about 1.33x amplified upside while the Senior token earns yield. There is no borrowing involved so you can't get liquidated. It's built for holding through cycles rather than active trading.
+
+Backtesting from 2023 to 2024 shows this structure outperforming raw Bitcoin over time. I think this could be a better fit for long-term holders who want leveraged exposure without the stress of margin calls.
+
+Waitlist is live at link.fragments.org/rally
+
+Thoughts?

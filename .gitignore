@@ -1,87 +1,11 @@
-# Dependencies
+
+# Rally Brain ignores
 node_modules/
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
-
-# Misc
+.env
+.secrets/
+*.log
+__pycache__/
+*.pyc
 .DS_Store
-*.pem
+campaign_data/.rally_guard.lock
 
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-server.log
-dev.log
-
-# Environment files
-.env*
-!.env.example
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-
-# Z.ai specific
-.claude
-.z-ai-config
-.zscripts/
-agent-ctx/
-worklog.md
-raw_worklog.json
-test
-prompt
-
-# Skills directory (system-level, not project code)
-/skills/
-
-# Upload directory (reference files)
-/upload/
-
-# Database files
-db/*.db
-db/*.db-journal
-prisma/*.db
-prisma/*.db-journal
-
-# Download cache/temp files
-download/*.json
-download/tree_*.json
-download/src_*.json
-download/zscripts_tree.json
-download/caddyfile.json
-download/components.json
-download/pkg.json
-download/next_config.json
-download/prisma_tree.json
-download/examples_tree.json
-download/full_tree.json
-download/miniservices_tree.json
-download/repo_*.json
-download/rally_*.json
-
-# Campaign data JSON (keep txt output only)
-download/rally-brain/campaign_data/*.json
-download/rally-brain/campaign_data/*_output/*.json
-download/rally-brain/knowledge_db.json
-download/rally-brain/learning_db.json

@@ -1,0 +1,514 @@
+{
+  "version": "3.0.0",
+  "last_updated": "2026-04-15T12:53:13.344Z",
+  "stats": {
+    "total_cycles": 11,
+    "total_patterns": 0,
+    "best_score_achieved": 21.7,
+    "avg_score": 18.9,
+    "last_learned": "2026-04-15T12:53:13.344Z"
+  },
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-15T03:43:05.930Z",
+      "score": 13.2,
+      "grade": "B",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 1.2,
+        "accuracy": 1,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 2,
+      "variations_tested": 2,
+      "ai_words_found": [
+        "leverage"
+      ],
+      "best_hook": "Been staring at Fragments' Bitcoin Junior for days. Most people chase 10x plays. I'm looking for 1.33x that lasts forever. No liquidations. No margin calls. Just straight exposure to Bitcoin's upside without the babysitting.",
+      "is_repetition": false,
+      "content_preview": "Been staring at Fragments' Bitcoin Junior for days. Most people chase 10x plays. I'm looking for 1.3..."
+    },
+    {
+      "timestamp": "2026-04-15T04:45:55.208Z",
+      "score": 21,
+      "grade": "S",
+      "scores": {
+        "originality": 1.5500000000000003,
+        "alignment": 1.2,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 5,
+        "technical": 4.799999999999999,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [
+        "leverage"
+      ],
+      "best_hook": "Been thinking about this one.",
+      "is_repetition": false,
+      "content_preview": "Been thinking about this one.\n\nSpent last week diving into Fragments' new BTC-Jr product. It's not y..."
+    },
+    {
+      "timestamp": "2026-04-15T05:06:18.602Z",
+      "score": 21,
+      "grade": "S",
+      "scores": {
+        "originality": 1.9,
+        "alignment": 1.5,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 4.8,
+        "technical": 4.799999999999999,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 3,
+      "variations_tested": 6,
+      "ai_words_found": [
+        "leverage"
+      ],
+      "best_hook": "Spent last week diving into Fragments' Bitcoin Junior. It's wild how they split Bitcoin volatility into two parts. BTC-Jr gets the amplified upside with ~1.33x exposure. No margin calls, no liquidation risk. The tranching concept is clever - junior takes the volatility, senior stays stable.",
+      "is_repetition": false,
+      "content_preview": "Spent last week diving into Fragments' Bitcoin Junior. It's wild how they split Bitcoin volatility i..."
+    },
+    {
+      "timestamp": "2026-04-15T10:35:51.728Z",
+      "score": 17.5,
+      "grade": "A",
+      "scores": {
+        "originality": 1,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 0,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 3.5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [
+        "leverage"
+      ],
+      "best_hook": "Spent the weekend digging into how Fragments actually works and the mechanics are pretty wild. It takes cbBTC and splits it into two separate tokens. You get BTC-Jr which targets about 1.33x exposure, and BTC-Sr which earns yield from the other side. The crazy part is there is no debt involved here. Unlike margin trading or perps, you can't get liquidated because the use is built into the structure, not a loan. It is specifically designed for people who just want to hold Bitcoin for years without babysitting a position. I think this fixes the biggest problem with traditional use products. No funding rates, no daily rebalance decay, and no margin calls. You just swap back to cbBTC whenever you want. @RallyOnChain flagged this early. I'm curious if this actually becomes the standard for long term exposure. Check it out at waitlist.fragments.org",
+      "is_repetition": false,
+      "content_preview": "Spent the weekend digging into how Fragments actually works and the mechanics are pretty wild. It ta..."
+    },
+    {
+      "timestamp": "2026-04-15T10:37:58.679Z",
+      "score": 8.5,
+      "grade": "D",
+      "scores": {
+        "originality": 0,
+        "alignment": 1,
+        "accuracy": 1,
+        "compliance": 0,
+        "engagement": 2,
+        "technical": 2.5,
+        "reply_quality": 2
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [
+        "leverage"
+      ],
+      "best_hook": "Spent last week digging into how use actually works in DeFi and most of it feels like walking on a tightrope. You get the upside but one bad wick wipes you out completely. Fragments by Ampleforth takes a totally different approach. They use tranching to split cbBTC into two tokens. You have the Senior tranche which is stable and earns yield from the use demand. Then you have Bitcoin Junior. It gets the amplified exposure, about 1.33x, without any debt or borrowing. Since there is no loan structure, you can't get liquidated. It is built for holding through cycles, not for active trading. I think the backtests from 2023 to 2024 showing it outperforming raw BTC are interesting, but I'm curious how it handles a prolonged bear market. You can usually swap back to cbBTC which helps. @RallyOnChain flagged this early. It feels like a cleaner way to get exposure without babysitting margin positions. Check the waitlist at fragments.org and let me know if you think this structure actually replaces traditional use.",
+      "is_repetition": false,
+      "content_preview": "Spent last week digging into how use actually works in DeFi and most of it feels like walking on a t..."
+    },
+    {
+      "timestamp": "2026-04-15T10:49:03.070Z",
+      "score": 20.2,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been looking into this for a bit now.",
+      "is_repetition": false,
+      "content_preview": "I've been looking into this for a bit now.\n\nCould be wrong, but Spent last week digging into how tra..."
+    },
+    {
+      "timestamp": "2026-04-15T11:38:16.515Z",
+      "score": 21.6,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been staring at my Bitcoin position for months wondering how to get more exposure without the margin stress. Then I found Fragments' BTC-Jr. It's basically a way to get ~1.33x Bitcoin exposure without liquidation risk. No debt, no margin calls. The protocol splits Bitcoin into junior (high vol) and senior (stable yield) tokens. BTC-Jr gets the amplified upside. You can swap back to cbBTC anytime. I'm still not sure how the tranching math works perfectly, but the backtesting looks solid. Traditional leverage products have usually scared me with their liquidation cliffs. This feels different. @FragmentsOrg is running a waitlist now. link.fragments.org/rally Thoughts?",
+      "is_repetition": false,
+      "content_preview": "I've been staring at my Bitcoin position for months wondering how to get more exposure without the m..."
+    },
+    {
+      "timestamp": "2026-04-15T11:43:29.982Z",
+      "score": 21.2,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4.5,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been digging into Fragments by Ampleforth for weeks now. Their Bitcoin Junior (BTC-Jr) thing is wild. It's not margin trading. No liquidation risk. Just perpetual 1.33x Bitcoin exposure through this tranching magic. Junior token gets the amplified upside. Senior token absorbs volatility. Built for buy-and-hold folks who want more BTC exposure without babysitting positions. Different from all those other leverage products that blow up when markets move. @FragmentsOrg is doing something real here. Waitlist is open at link.fragments.org/rally. 10 people get $200 just for signing up. What's your take on this structure-based leverage?",
+      "is_repetition": false,
+      "content_preview": "I've been digging into Fragments by Ampleforth for weeks now. Their Bitcoin Junior (BTC-Jr) thing is..."
+    },
+    {
+      "timestamp": "2026-04-15T12:33:03.759Z",
+      "score": 21.3,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I spent the weekend digging into how tranching actually works because I was tired of getting liquidated on margin. The setup by @FragmentsOrg is pretty interesting. They take cbBTC and split it into two separate tokens. You get BTC-Jr which targets about 1.33x exposure, and BTC-Sr which earns yield from the other side.",
+      "is_repetition": false,
+      "content_preview": "I spent the weekend digging into how tranching actually works because I was tired of getting liquida..."
+    },
+    {
+      "timestamp": "2026-04-15T12:35:30.246Z",
+      "score": 21.7,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Spent the weekend digging into how tranching actually works. It basically splits an asset into two parts. You get a junior token for amplified exposure and a senior token for stability. The crazy part is this structure creates leverage without borrowing.",
+      "is_repetition": false,
+      "content_preview": "Spent the weekend digging into how tranching actually works. It basically splits an asset into two p..."
+    },
+    {
+      "timestamp": "2026-04-15T12:53:13.344Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage products scare me because of liquidation risk. You mess up once and your position is gone. That's why I'm interested in what @FragmentsOrg is building with Bitcoin Junior.",
+      "is_repetition": false,
+      "content_preview": "I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage ..."
+    }
+  ],
+  "ai_word_frequency": {
+    "leverage": 5
+  },
+  "winning_hooks": [
+    {
+      "hook": "Been thinking about this one.",
+      "score": 21,
+      "timestamp": "2026-04-15T04:45:55.208Z"
+    },
+    {
+      "hook": "Spent last week diving into Fragments' Bitcoin Junior. It's wild how they split Bitcoin volatility into two parts. BTC-Jr gets the amplified upside with ~1.33x exposure. No margin calls, no liquidation risk. The tranching concept is clever - junior takes the volatility, senior stays stable.",
+      "score": 21,
+      "timestamp": "2026-04-15T05:06:18.602Z"
+    },
+    {
+      "hook": "I've been looking into this for a bit now.",
+      "score": 20.2,
+      "timestamp": "2026-04-15T10:49:03.070Z"
+    },
+    {
+      "hook": "I've been staring at my Bitcoin position for months wondering how to get more exposure without the margin stress. Then I found Fragments' BTC-Jr. It's basically a way to get ~1.33x Bitcoin exposure without liquidation risk. No debt, no margin calls. The protocol splits Bitcoin into junior (high vol) and senior (stable yield) tokens. BTC-Jr gets the amplified upside. You can swap back to cbBTC anytime. I'm still not sure how the tranching math works perfectly, but the backtesting looks solid. Traditional leverage products have usually scared me with their liquidation cliffs. This feels different. @FragmentsOrg is running a waitlist now. link.fragments.org/rally Thoughts?",
+      "score": 21.6,
+      "timestamp": "2026-04-15T11:38:16.515Z"
+    },
+    {
+      "hook": "I've been digging into Fragments by Ampleforth for weeks now. Their Bitcoin Junior (BTC-Jr) thing is wild. It's not margin trading. No liquidation risk. Just perpetual 1.33x Bitcoin exposure through this tranching magic. Junior token gets the amplified upside. Senior token absorbs volatility. Built for buy-and-hold folks who want more BTC exposure without babysitting positions. Different from all those other leverage products that blow up when markets move. @FragmentsOrg is doing something real here. Waitlist is open at link.fragments.org/rally. 10 people get $200 just for signing up. What's your take on this structure-based leverage?",
+      "score": 21.2,
+      "timestamp": "2026-04-15T11:43:29.982Z"
+    },
+    {
+      "hook": "I spent the weekend digging into how tranching actually works because I was tired of getting liquidated on margin. The setup by @FragmentsOrg is pretty interesting. They take cbBTC and split it into two separate tokens. You get BTC-Jr which targets about 1.33x exposure, and BTC-Sr which earns yield from the other side.",
+      "score": 21.3,
+      "timestamp": "2026-04-15T12:33:03.759Z"
+    },
+    {
+      "hook": "Spent the weekend digging into how tranching actually works. It basically splits an asset into two parts. You get a junior token for amplified exposure and a senior token for stability. The crazy part is this structure creates leverage without borrowing.",
+      "score": 21.7,
+      "timestamp": "2026-04-15T12:35:30.246Z"
+    },
+    {
+      "hook": "I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage products scare me because of liquidation risk. You mess up once and your position is gone. That's why I'm interested in what @FragmentsOrg is building with Bitcoin Junior.",
+      "score": 20.9,
+      "timestamp": "2026-04-15T12:53:13.344Z"
+    }
+  ],
+  "category_trends": {
+    "originality": {
+      "total": 17.65,
+      "count": 11,
+      "avg": 1.6,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "alignment": {
+      "total": 18.9,
+      "count": 11,
+      "avg": 1.72,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "accuracy": {
+      "total": 19,
+      "count": 11,
+      "avg": 1.73,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "compliance": {
+      "total": 18,
+      "count": 11,
+      "avg": 1.64,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "engagement": {
+      "total": 43.1,
+      "count": 11,
+      "avg": 3.92,
+      "last5": [
+        4,
+        4.5,
+        4,
+        4,
+        4
+      ]
+    },
+    "technical": {
+      "total": 50.599999999999994,
+      "count": 11,
+      "avg": 4.6,
+      "last5": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "reply_quality": {
+      "total": 44.5,
+      "count": 11,
+      "avg": 4.05,
+      "last5": [
+        5,
+        5,
+        4.5,
+        5,
+        4
+      ]
+    }
+  },
+  "patterns": {
+    "semantic": {
+      "claim_specificity": {
+        "description": "Concrete verifiable claims score higher",
+        "level": "high",
+        "learned_rules": [
+          "leverage (appeared 5x - the LLM keeps generating this, be extra careful)"
+        ]
+      },
+      "tone_style_match": {
+        "description": "Tone must match campaign context",
+        "level": "high",
+        "learned_rules": []
+      },
+      "engagement_hook": {
+        "description": "Opening hooks + CTA for engagement",
+        "level": "high",
+        "learned_rules": [
+          "Focus on engagement: avg 3.92/5 (78%)",
+          "Focus on originality: avg 1.6/2 (80%)"
+        ]
+      },
+      "rally_mention": {
+        "description": "Natural contextual mention with concrete mechanism",
+        "level": "high",
+        "learned_rules": []
+      },
+      "exaggeration_risk": {
+        "description": "Absolute claims risk Accuracy deductions",
+        "level": "critical",
+        "learned_rules": []
+      },
+      "cross_category_tradeoff": {
+        "description": "Balance categories",
+        "level": "medium",
+        "learned_rules": []
+      },
+      "self_heal_directives": {
+        "description": "Auto-generated directives from self-healing engine",
+        "level": "critical",
+        "directives": [
+          "AI words keep leaking. Read each sentence OUT LOUD before finalizing. If it sounds like corporate jargon, rewrite it."
+        ],
+        "generated_at": "2026-04-15T11:12:01.602Z"
+      }
+    }
+  },
+  "scoring_model": {
+    "calibration_log": [
+      {
+        "timestamp": "2026-04-15T03:43:05.930Z",
+        "predicted": 13.2,
+        "grade": "B"
+      },
+      {
+        "timestamp": "2026-04-15T04:45:55.208Z",
+        "predicted": 21,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T05:06:18.602Z",
+        "predicted": 21,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T10:35:51.728Z",
+        "predicted": 17.5,
+        "grade": "A"
+      },
+      {
+        "timestamp": "2026-04-15T10:37:58.679Z",
+        "predicted": 8.5,
+        "grade": "D"
+      },
+      {
+        "timestamp": "2026-04-15T10:49:03.070Z",
+        "predicted": 20.2,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-15T11:38:16.515Z",
+        "predicted": 21.6,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T11:43:29.982Z",
+        "predicted": 21.2,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:33:03.759Z",
+        "predicted": 21.3,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:35:30.246Z",
+        "predicted": 21.7,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:53:13.344Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      }
+    ],
+    "category_weights": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "max_scores": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "prediction_accuracy": {
+      "total_predictions": 0,
+      "correct_predictions": 0,
+      "avg_diff": 0
+    }
+  },
+  "campaign_memories": {},
+  "v3_lessons": {}
+}
