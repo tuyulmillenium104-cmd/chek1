@@ -640,7 +640,7 @@ async function main() {
   }
 
   // Step 4: Run generate.js with minimal learning
-  console.log(`  [GUARD] Starting ${campaignId}...`);
+  console.log(`  [GUARD] Starting ${campaignId} via self_heal.js v4.0...`);
   console.log(`  [GUARD] Adaptive cooldown: ${getAdaptiveCooldown(state) / 1000}s`);
 
   const skipLearning = shouldSkipLearning(state);
@@ -648,13 +648,13 @@ async function main() {
     console.log('  [GUARD] Minimal learning mode (recent 429s detected)');
   }
 
-  // Run generate.js as child process
-  const genScript = path.join(PROJECT_DIR, 'generate.js');
+  // Run self_heal.js v4.0 (autonomous healing engine) as child process
+  const healScript = path.join(PROJECT_DIR, 'self_heal.js');
   const env = { ...process.env };
   if (skipLearning) env.RALLY_MINIMAL_LEARNING = '1';
 
   return new Promise((resolve) => {
-    const child = spawn('node', [genScript, campaignId], {
+    const child = spawn('node', [healScript, '--campaign', campaignId], {
       cwd: PROJECT_DIR,
       stdio: ['ignore', 'pipe', 'pipe'],
       env,

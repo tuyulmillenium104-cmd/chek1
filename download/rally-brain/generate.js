@@ -60,7 +60,7 @@ const V3_LESSONS = {
     "Every claim must be factually verifiable",
     "Use concrete numbers and specific mechanisms, not vague references",
     "Opening line must be directly relevant to the topic, not clickbait",
-    "@RallyOnChain mention: natural, contextual, with concrete mechanism",
+    `${COMPLIANCE.must_include[0]} mention: natural, contextual, with concrete mechanism`,
     "End with genuine open question that author CANNOT answer",
     "No extra spaces, no formatting issues, NO dashes (use periods instead)",
     "Stay tightly aligned with campaign theme",
