@@ -1,7 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-node_modules
+# Dependencies
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,56 +8,55 @@ node_modules
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# misc
+# Misc
 .DS_Store
 *.pem
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+server.log
+dev.log
 
-# env files (can opt-in for committing if needed)
+# Environment files
 .env*
+!.env.example
 
-# vercel
+# Vercel
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 local-*
+
+# Z.ai specific
 .claude
 .z-ai-config
-dev.log
+.zscripts/
+agent-ctx/
+worklog.md
+raw_worklog.json
 test
 prompt
 
-server.log
-# Skills directory
+# Skills directory (system-level, not project code)
 /skills/
 
-# Research artifacts & temp files
-chek1-repo/
-download/
-*.json
-!package.json
-!tsconfig.json
-!components.json
-!postcss.config.mjs
-!eslint.config.mjs
-!src/**/*.json
+# Upload directory (reference files)
+/upload/
 
 # Database files
 db/*.db
@@ -67,7 +64,24 @@ db/*.db-journal
 prisma/*.db
 prisma/*.db-journal
 
-# Z.ai specific
-.zscripts/
-worklog.md
-raw_worklog.json
+# Download cache/temp files
+download/*.json
+download/tree_*.json
+download/src_*.json
+download/zscripts_tree.json
+download/caddyfile.json
+download/components.json
+download/pkg.json
+download/next_config.json
+download/prisma_tree.json
+download/examples_tree.json
+download/full_tree.json
+download/miniservices_tree.json
+download/repo_*.json
+download/rally_*.json
+
+# Campaign data JSON (keep txt output only)
+download/rally-brain/campaign_data/*.json
+download/rally-brain/campaign_data/*_output/*.json
+download/rally-brain/knowledge_db.json
+download/rally-brain/learning_db.json

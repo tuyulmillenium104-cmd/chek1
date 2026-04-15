@@ -1,0 +1,5 @@
+Spent last week diving into Fragments' Bitcoin Junior. It's wild how they split Bitcoin volatility into two parts. BTC-Jr gets the amplified upside with ~1.33x exposure. No margin calls, no liquidation risk. The tranching concept is clever - junior takes the volatility, senior stays stable.
+
+What's different? No debt structure like traditional use. Just pure token mechanics. Backtesting from 2023-2024 shows it outperforms raw BTC over time. Swap to cbBTC anytime.
+
+Still figuring out my take, but I'm still wrapping my head around how the senior yield works. Anyone else think this could change how we approach use in crypto? @RallyOnChain check out Fragments at waitlist.fragments.org. What do you think?
