@@ -750,7 +750,7 @@ export default function RallyDashboard() {
                 </div>
                 <div>
                   <h1 className="text-lg font-bold tracking-tight md:text-xl">
-                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6.0 <span className="text-emerald-500">S</span></span>
+                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6.2 <span className="text-emerald-500">S</span></span>
                   </h1>
                   <p className="text-[11px] text-muted-foreground hidden sm:block">
                     Rally-aligned scoring — 7 content categories, max 21.0 points
