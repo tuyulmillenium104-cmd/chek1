@@ -18,7 +18,7 @@
  * PIPELINE: LEARN (with KDB feedback loop) -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN ->
  *           -> PROGRAMMATIC EVAL -> J3/J5 JUDGE VALIDATION ->
  *           -> G4 BONUS -> STABILITY CHECK -> OUTPUT
- * BUDGET: 12 calls/cycle (8 gen + 2 QA + 2 judges)
+ * BUDGET: 14 calls/cycle (8 gen + 4 QA + 2 judges)
  */
 
 const { ResilientZAIClient } = require('./zai-resilient.js');
@@ -1145,14 +1145,18 @@ ABSOLUTE RULES:
 
 async function generateQA(zai, content) {
   // Generate Q&A pairs (question + answer) for reply comments
-  // Budget: 2 API calls for QA
+  // Budget: 4 API calls for QA (20 pairs for winning content)
   const allQA = [];
   const perspectives = [
     'crypto degen who understands ve(3,3) and vote-escrow models deeply',
-    'skeptical trader who questions if fair launches actually work long term'
+    'skeptical trader who questions if fair launches actually work long term',
+    'defi beginner who needs simple explanations',
+    'experienced whale evaluating tokenomics'
   ];
+  const QA_BATCHES = 4; // 4 batches x 5 pairs = 20 total
+  const PAIRS_PER_BATCH = 5;
 
-  for (let batch = 0; batch < 2; batch++) {
+  for (let batch = 0; batch < QA_BATCHES; batch++) {
     try {
       const completion = await zai.chat([
         { role: 'system', content: `You are generating Q&A reply pairs for a social media post about a crypto project. The post author needs ready-to-use QUESTION + ANSWER pairs so they can reply to comments on their post.
@@ -1171,7 +1175,7 @@ IMPORTANT RULES:
 
 RESPOND ONLY WITH JSON ARRAY. Format:
 [{"q": "question text", "a": "answer text"}, ...]` },
-        { role: 'user', content: `Generate 5 Q&A reply pairs for this post. Each pair has a question someone might ask and the author's answer:\n\n${content}\n\nCampaign context: ${CAMPAIGN.title}\nKey facts: ${KNOWLEDGE_BASE.split('\\n').filter(l => l.trim()).slice(0, 8).join('\\n')}` }
+        { role: 'user', content: `Generate ${PAIRS_PER_BATCH} Q&A reply pairs from the perspective of: ${perspectives[batch % perspectives.length]}. Each pair has a question someone might ask and the author's answer:\n\n${content}\n\nCampaign context: ${CAMPAIGN.title}\nKey facts: ${KNOWLEDGE_BASE.split('\\n').filter(l => l.trim()).slice(0, 8).join('\\n')}` }
       ], {
         temperature: 0.9,
         maxTokens: 1500
@@ -1206,18 +1210,18 @@ RESPOND ONLY WITH JSON ARRAY. Format:
           }
         }
       }
-      console.log(`    Q&A batch ${batch + 1}/2: got ${parsed.length} pairs (total: ${allQA.length})`);
+      console.log(`    Q&A batch ${batch + 1}/${QA_BATCHES}: got ${parsed.length} pairs (total: ${allQA.length})`);
     } catch (e) {
-      console.log(`    Q&A batch ${batch + 1}/2 failed: ${e.message}`);
+      console.log(`    Q&A batch ${batch + 1}/${QA_BATCHES} failed: ${e.message}`);
     }
     await new Promise(r => setTimeout(r, 500)); // Minimal rate limit gap
   }
 
-  // If we still have fewer than 10, add fallback Q&A pairs
-  if (allQA.length < 10) {
+  // If we still have fewer than 15, add fallback Q&A pairs
+  if (allQA.length < 15) {
     const fallbackQA = campaignConfig.compliance_checks.fallback_qa || [];
     for (const qa of fallbackQA) {
-      if (allQA.length >= 10) break;
+      if (allQA.length >= 15) break;
       if (!allQA.some(a => a.q.toLowerCase() === qa.q.toLowerCase())) {
         allQA.push(qa);
       }
@@ -1412,7 +1416,7 @@ async function main() {
   console.log(`Campaign: ${CAMPAIGN.title} [${CAMPAIGN_ID}]`);
   console.log(`Mission: ${MISSION_0.title}`);
   console.log(`Target: >= 21/23 (S grade)`);
-  console.log(`Budget: 12 calls max (8 gen + 2 QA + 2 judges)`);
+  console.log(`Budget: 14 calls max (8 gen + 4 QA + 2 judges)`);
   console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> PROGRAMMATIC EVAL -> J3/J5 JUDGES (fair) -> G4 -> OUTPUT`);
   console.log('===========================================\n');
 
