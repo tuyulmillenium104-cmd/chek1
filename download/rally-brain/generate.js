@@ -1195,7 +1195,7 @@ async function main() {
   let loopsUsed = 0;
 
   const VARIATIONS_PER_LOOP = 2;
-  const MAX_LOOPS = 4;
+  const MAX_LOOPS = 2; // Reduced from 4 to fit within 2-min container timeout
   const THRESHOLD = 21.0; // Higher threshold with better evaluation
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {

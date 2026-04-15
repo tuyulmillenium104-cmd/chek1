@@ -98,7 +98,7 @@ const CONFIG = {
 
   rateLimit: {
     qps: 1,
-    minInterval: 10000, // 10 seconds between API calls
+    minInterval: 5000, // 5 seconds between API calls (reduced from 10s for faster cycles)
   },
 
   ipRateLimit: {
