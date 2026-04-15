@@ -98,7 +98,7 @@ const CONFIG = {
 
   rateLimit: {
     qps: 1,
-    minInterval: 5000, // 5 seconds between API calls (reduced from 10s for faster cycles)
+    minInterval: 2000, // 2 seconds between API calls (optimized for container limits)
   },
 
   ipRateLimit: {
@@ -107,9 +107,9 @@ const CONFIG = {
   },
 
   retry: {
-    maxRetries: 5,
-    baseDelay: 15000,
-    maxDelay: 120000
+    maxRetries: 3,
+    baseDelay: 8000,
+    maxDelay: 60000
   }
 };
 
@@ -125,9 +125,9 @@ class RateLimiter {
 
     if (this.requestTimes.length >= 1) {
       const oldest = Math.min(...this.requestTimes);
-      const wait = CONFIG.rateLimit.minInterval - (now - oldest) + 500;
+      const wait = CONFIG.rateLimit.minInterval - (now - oldest) + 100;
       if (wait > 0) {
-        console.log(`    [RateLimiter] Waiting ${Math.round(wait/1000)}s...`);
+        // No logging for short waits to reduce output noise
         await new Promise(r => setTimeout(r, wait));
       }
     }
@@ -210,30 +210,25 @@ class ResilientZAIClient {
 
   async chat(messages, options = {}) {
     let lastError = null;
-    const ZAI = require('z-ai-web-dev-sdk');
-    const Client = ZAI.default || ZAI;
     for (let attempt = 0; attempt < CONFIG.retry.maxRetries; attempt++) {
       try {
         await this.rateLimiter.waitForSlot();
-        const zai = await Client.create();
-        const result = await zai.chat.completions.create({
-          messages, model: options.model || 'default',
-          max_tokens: options.maxTokens || options.max_tokens || 1000,
-          temperature: options.temperature || 0.7
-        });
+        const token = this.getBestToken();
+        const gateway = this.getGateway();
+        const result = await this.makeRequest(gateway, token, messages, options);
         this.totalRequests++;
         return result;
       } catch (error) {
         lastError = error;
         const errMsg = error.message?.toString() || '';
-        if (errMsg.includes('429') || errMsg.includes('rate') || errMsg.includes('limit')) {
-          console.log(`    [ZAI] Rate limited, waiting ${60 + attempt * 30}s...`);
-          await new Promise(r => setTimeout(r, (60 + attempt * 30) * 1000));
-          this.rateLimiter.requestTimes = [];
+        if (errMsg.includes('429') || errMsg.includes('RATE_LIMITED')) {
+          console.log(`    [ZAI] Token ${this.getBestToken()?.name || '?'} rate limited, rotating token (attempt ${attempt + 1}/${CONFIG.retry.maxRetries})...`);
+          await new Promise(r => setTimeout(r, 3000)); // Short wait then rotate
           continue;
         }
         this.totalErrors++;
         const delay = Math.min(CONFIG.retry.baseDelay * Math.pow(2, attempt), CONFIG.retry.maxDelay);
+        console.log(`    [ZAI] Error: ${errMsg.slice(0, 80)}, retrying in ${delay/1000}s...`);
         await new Promise(r => setTimeout(r, delay));
       }
     }

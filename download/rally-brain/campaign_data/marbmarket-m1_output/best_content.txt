@@ -1,9 +1,3 @@
-I've been studying this ve(3,3) model for weeks and it's fascinating how it flips traditional DEX incentives on their head. MarbMarket's taking Solidly's playbook to MegaETH with a fair launch that actually puts power in users' hands. No presale. No VCs. Just pure community value.
+Spent last week digging into the MarbMarket docs for MegaETH. It is basically a pure ve(3,3) implementation. You lock MARB to get veMARB. The longer you lock, the more weight you have. That voting power directs emissions to specific liquidity pools. Protocols then bribe those voters to capture that flow. It is the exact same loop that worked on Aerodrome and Velodrome. What stands out is the launch. No presale. No VC allocation. No team pre-mine. The community has to bootstrap the entire liquidity from day one. I think removing the early investor dumping risk is actually the biggest feature here. Not sure if the MegaETH network is deep enough yet to sustain it, but the mechanics are sound. Saw this first on @RallyOnChain. Check the mechanics at x.com/Marb_market
 
-Lock MARB, get veMARB voting power. Longer locks = more say in where fees flow. Projects actually bribe veMARB holders for their votes. It's wild how this creates a self-reinforcing loop. Fee revenue goes to stakers, who then vote for more rewards. We saw this work on Aerodrome and Velodrome.
-
-What makes this different? The fair launch. No early investors dumping on day one. Just community members locking tokens and building together. I think this could be the template for next-gen DEXs. @RallyOnChain should definitely keep an eye on this one.
-
-x.com/Marb_market
-
-What do you think about ve(3,3) models replacing traditional DEX reward structures?
+Curious if you think ve models still work in this cycle or if we are done with vote bribery. Thoughts?

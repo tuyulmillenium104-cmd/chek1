@@ -204,8 +204,8 @@ async function main() {
         results.push({ campaign: cid, status: 'failed', duration: `${d}s`, error: err.message?.slice(0, 200) });
       }
       if (i < campaigns.length - 1) {
-        console.log(`\n  Waiting 15s before next campaign...`);
-        await new Promise(r => setTimeout(r, 15000));
+        console.log(`\n  Waiting 3s before next campaign...`);
+        await new Promise(r => setTimeout(r, 3000));
       }
     }
 

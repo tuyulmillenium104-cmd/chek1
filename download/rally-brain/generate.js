@@ -652,8 +652,8 @@ async function runJudgePanel(zai, content) {
         break;
       }
     }
-    // Delay between judge calls (rate limiter handles IP limits)
-    await sleep(1500);
+    // Minimal delay between judge calls
+    await sleep(500);
   }
 
   return results;
@@ -945,6 +945,40 @@ function qualityBoost(content) {
   let c = content;
   let boosted = [];
 
+  // 0. COMPLIANCE INJECTION - Ensure @RallyOnChain and must_include links are present
+  if (!c.includes('@RallyOnChain')) {
+    // Insert naturally in the last paragraph before the question
+    const rallyInserts = [
+      ' @RallyOnChain has been tracking this one.',
+      ' Saw this first on @RallyOnChain.',
+      ' @RallyOnChain flagged this early.',
+      ' Spotted via @RallyOnChain.'
+    ];
+    const insert = rallyInserts[Math.floor(Math.random() * rallyInserts.length)];
+    // Try to insert before last sentence
+    const sentences = c.split(/(?<=[.!?])\s+/);
+    if (sentences.length > 2) {
+      sentences.splice(-2, 0, insert.trim());
+      c = sentences.join(' ');
+    } else {
+      c = c.trim() + ' ' + insert;
+    }
+    boosted.push('injected @RallyOnChain');
+  }
+  // Inject must_include link (2nd item in must_include, e.g. "x.com/Marb_market")
+  if (COMPLIANCE.must_include[1] && !c.includes(COMPLIANCE.must_include[1])) {
+    const link = COMPLIANCE.must_include[1];
+    const linkInserts = [
+      ` ${link} is where to follow for updates.`,
+      ` Check ${link} for details.`,
+      ` More at ${link}.`,
+      ` Following ${link} for the latest.`
+    ];
+    const insert = linkInserts[Math.floor(Math.random() * linkInserts.length)];
+    c = c.trim() + ' ' + insert;
+    boosted.push(`injected ${link}`);
+  }
+
   // 1. Replace remaining exaggeration words with softer alternatives
   const exagReplacements = {
     'everyone': 'most people',
@@ -1162,7 +1196,7 @@ RESPOND ONLY WITH JSON ARRAY. Format:
     } catch (e) {
       console.log(`    Q&A batch ${batch + 1}/2 failed: ${e.message}`);
     }
-    await new Promise(r => setTimeout(r, 1000)); // Rate limit gap
+    await new Promise(r => setTimeout(r, 500)); // Minimal rate limit gap
   }
 
   // If we still have fewer than 10, add fallback Q&A pairs
@@ -1347,10 +1381,8 @@ async function main() {
   console.log(`Pipeline: LEARN -> SANITIZE -> AI WORD REPLACE -> QUICK SCREEN -> PROGRAMMATIC EVAL -> J3/J5 JUDGES -> G4 -> OUTPUT`);
   console.log('===========================================\n');
 
-  // Short cooldown to avoid rate limit from previous cycle
-  console.log('Waiting 5s for rate limit cooldown...');
-  await new Promise(r => setTimeout(r, 5000));
-  console.log('Cooldown complete. Starting generation.\n');
+  // Minimal cooldown - start immediately to save container time
+  console.log('Starting generation immediately.\n');
 
   const zai = new ResilientZAIClient();
   const allVariations = [];
@@ -1358,8 +1390,8 @@ async function main() {
   let basePrompt = buildBasePrompt('Approach angle: Educational explainer that breaks down veDEX mechanics clearly.');
   let loopsUsed = 0;
 
-  const VARIATIONS_PER_LOOP = 2;
-  const MAX_LOOPS = 3; // Increased from 2 for better iteration
+  const VARIATIONS_PER_LOOP = 1;
+  const MAX_LOOPS = 2; // Reduced for faster cycles within container limits
   const THRESHOLD = 22.0;
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {
@@ -1472,6 +1504,36 @@ async function main() {
     }
   }
 
+  // Guard: if no content generated, exit early
+  if (!bestEver.content || bestEver.content.length < 30) {
+    console.log(`\n  FATAL: No valid content generated after ${loopsUsed} loops. Exiting.`);
+    return null;
+  }
+
+  // ============ EARLY SAVE: Save best content BEFORE judge/QA to survive container kills ============
+  console.log('\n=== EARLY SAVE (pre-judge) ===');
+  const outputDir = `/home/z/my-project/download/rally-brain/campaign_data/${CAMPAIGN_ID}_output`;
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+  // Save best content immediately - even if container kills us later, content is safe
+  fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
+  fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
+    version: '6.2-fast',
+    score: bestEver.score,
+    grade: bestEver.grade,
+    evaluation_method: 'Programmatic + G4 (early save)',
+    predictions: bestEver.consensus?.scores || {},
+    g4_bonus: bestEver.g4?.bonus || 0,
+    valid_judges: 0,
+    programmatic_score: bestEver.score,
+    total_variations: allVariations.length,
+    loops_used: loopsUsed,
+    timestamp: new Date().toISOString(),
+    campaign: CAMPAIGN.title,
+    mission: MISSION_0.title
+  }, null, 2));
+  console.log(`  Early save OK: ${bestEver.score}/23 (${bestEver.grade}) -> ${outputDir}/best_content.txt`);
+
   // ============ JUDGE VALIDATION (J3 Rally Clone + J5 Fingerprint Detector) ============
   console.log('\n=== JUDGE VALIDATION: J3 + J5 ===');
   let judgeConsensus = null;
@@ -1509,7 +1571,7 @@ async function main() {
         judgeResults.push({ ...judge, scores: null, feedback: e.message, valid: false });
         console.log(`  ${judge.id}: ${e.message}`);
       }
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 500));
     }
 
     // Calculate judge consensus from J3+J5
@@ -1648,11 +1710,8 @@ async function main() {
   const learningBest = { ...bestEver, score: finalScore, grade: finalGrade, consensus: finalConsensus };
   saveCycleLearning(learningBest, allVariations);
 
-  // Save output
-  const outputDir = `/home/z/my-project/download/rally-brain/campaign_data/${CAMPAIGN_ID}_output`;
-
-  // Ensure output directory exists
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+  // Save output (update with judge results if available)
+  // outputDir already declared above in EARLY SAVE
 
   fs.writeFileSync(path.join(outputDir, 'best_content.txt'), bestEver.content);
   fs.writeFileSync(path.join(outputDir, 'prediction.json'), JSON.stringify({
