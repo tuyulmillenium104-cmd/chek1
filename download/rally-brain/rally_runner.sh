@@ -42,7 +42,8 @@ GRADE="?"
 log "RAW: $NEXT exit=$EXIT score=$SCORE grade=$GRADE"
 
 # Quality gate: regenerate if score < MIN
-if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < $MIN_SCORE" | bc -l 2>/dev/null)" = "1" ]; then
+REGEN_NEEDED=$(python3 -c "print('1' if float('$SCORE') < $MIN_SCORE else '0')" 2>/dev/null)
+if [ "$SCORE" != "ERR" ] && [ "$REGEN_NEEDED" = "1" ]; then
   for R in $(seq 1 $MAX_REGEN); do
     log "REGEN $R/$MAX_REGEN (score=$SCORE)"
     sleep 10
@@ -51,13 +52,14 @@ if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < $MIN_SCORE" | bc -l 2>/dev/null)
     [ -f "$PRED" ] && SCORE=$(python3 -c "import json; print(json.load(open('$PRED')).get('score','ERR'))" 2>/dev/null)
     [ -f "$PRED" ] && GRADE=$(python3 -c "import json; print(json.load(open('$PRED')).get('grade','?'))" 2>/dev/null)
     log "REGEN $R: score=$SCORE"
-    IS_OK=$(echo "$SCORE >= $MIN_SCORE" | bc -l 2>/dev/null)
+    IS_OK=$(python3 -c "print('1' if float('$SCORE') >= $MIN_SCORE else '0')" 2>/dev/null)
     [ "$IS_OK" = "1" ] && break
   done
 fi
 
 # Inject fix if low
-if [ "$SCORE" != "ERR" ] && [ "$(echo "$SCORE < 15" | bc -l 2>/dev/null)" = "1" ]; then
+FIX_NEEDED=$(python3 -c "print('1' if float('$SCORE') < 15 else '0')" 2>/dev/null)
+if [ "$SCORE" != "ERR" ] && [ "$FIX_NEEDED" = "1" ]; then
   KDB="campaign_data/${NEXT}_knowledge_db.json"
   python3 << PYEOF 2>/dev/null
 import json
