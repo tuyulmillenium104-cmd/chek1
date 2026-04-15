@@ -1408,8 +1408,8 @@ async function main() {
   let basePrompt = buildBasePrompt('Approach angle: Educational explainer that breaks down veDEX mechanics clearly.');
   let loopsUsed = 0;
 
-  const VARIATIONS_PER_LOOP = 2;
-  const MAX_LOOPS = 2; // 2 loops x 2 variations = 4 total attempts
+  const VARIATIONS_PER_LOOP = 1; // Reduced for container timeout (~25s)
+  const MAX_LOOPS = 1; // 1 loop x 1 variation = fast cycle
   const THRESHOLD = 22.0;
 
   for (let loop = 1; loop <= MAX_LOOPS; loop++) {
