@@ -7,6 +7,190 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// RALLY BRAIN v7.0 — Data-Driven Content Generation System
+// ═══════════════════════════════════════════════════════════════════
+
+// --- Campaign Management ---
+
+model Campaign {
+  id                String   @id @default(cuid())
+  name              String
+  campaignAddress   String?  // Rally.fun contract address
+  campaignData      String   // Full JSON config
+  isActive          Boolean  @default(true)
+  lastGeneratedAt   DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  submissions       RallySubmission[]
+  intelligence      CampaignIntelligence?
+  generationResults GenerationResult[]
+}
+
+// --- Rally Submission Data (collected 24/7 by data pipeline) ---
+
+model RallySubmission {
+  id                    String   @id @default(cuid())
+  campaignId            String
+  campaign              Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  // Raw Rally.fun data
+  rallyId               String   // Rally's submission ID
+  xUsername             String
+  tweetId               String
+  tweetUrl              String
+  contentText           String?  // Fetched tweet content (if available)
+
+  // Scores from Rally.fun (atemporal = content quality)
+  contentQualityScore   Float    // 0-21.0 (sum of 7 content categories)
+  contentQualityPct     Float    // 0-100%
+  engagementScore       Float
+  rawScore              Float
+  atemporalPoints       String   // Raw atto value
+  temporalPoints        String   // Raw atto value
+
+  // Validity
+  isValid               Boolean  @default(true)
+  isDisqualified        Boolean  @default(false)
+  isHidden              Boolean  @default(false)
+
+  // Per-category scores (JSON: array of {category, score, maxScore, pct, analysis})
+  categoryScores        String   // JSON
+
+  // Metadata
+  missionId             String?
+  periodIndex           Int      @default(0)
+  fetchedAt             DateTime @default(now())
+
+  @@index([campaignId, contentQualityScore])
+  @@index([campaignId, isValid])
+  @@index([rallyId])
+}
+
+// --- Campaign Intelligence (aggregated from data analysis) ---
+
+model CampaignIntelligence {
+  id                    String   @id @default(cuid())
+  campaignId            String   @unique
+  campaign              Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  // Submission statistics
+  totalSubmissions      Int      @default(0)
+  totalValid            Int      @default(0)
+  lastFetchedAt         DateTime?
+
+  // Score distributions (JSON)
+  scoreStats            String   // JSON: {mean, median, min, max, p10, p25, p50, p75, p90}
+
+  // Per-category averages (JSON)
+  categoryAverages      String   // JSON: [{name, avgPct, avgScore, maxScore}]
+
+  // Weak and strong categories
+  weakCategories        String   // JSON array of strings
+  strongCategories      String   // JSON array of strings
+
+  // Top submissions patterns (JSON)
+  topPatterns           String?  // JSON: analyzed patterns from top performers
+
+  // Calibration thresholds
+  top10Threshold        Float?   // P90 score %
+  top25Threshold        Float?   // P75 score %
+  top50Threshold        Float?   // P50 score %
+  averageThreshold      Float?   // Mean score %
+
+  // Prediction model data (JSON)
+  predictionModel       String?  // JSON: {coefficients, intercept, featureNames, mae, r2, lastTrainedAt, sampleCount}
+  featureStats          String?  // JSON: {featureMeans, featureStds} for normalization
+
+  // Competitive intelligence (JSON)
+  competitiveIntel      String?  // JSON: competitor analysis data
+
+  // Version tracking
+  version               Int      @default(1)
+  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(now())
+}
+
+// --- Content Generation Results ---
+
+model GenerationResult {
+  id                    String   @id @default(cuid())
+  campaignId            String
+  campaign              Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  // Status
+  status                String   @default("pending") // pending, processing, completed, failed
+
+  // Generated content
+  content               String?
+  persona               String?
+  structure             String?
+  emotion               String?
+
+  // Scores (our system's evaluation)
+  predictedScore        Float?   // From prediction model BEFORE submission
+  actualScore           Float?   // From Rally.fun AFTER submission (if available)
+  scoreDelta            Float?   // actualScore - predictedScore (calibration metric)
+
+  // Scoring breakdown (JSON)
+  scoringBreakdown      String?  // JSON: full scoring result with 7 categories
+
+  // AI Judge results (JSON)
+  judgeResults          String?  // JSON: array of judge evaluations
+
+  // Anti-AI detection
+  antiAIScore           Int      @default(0)
+  bannedWordsFound      String?  // JSON array
+  templatePhrasesFound  String?  // JSON array
+
+  // Pipeline metadata
+  totalCycles           Int      @default(0)
+  totalVariations       Int      @default(0)
+  totalAICalls          Int      @default(0)
+  processingTimeMs      Int      @default(0)
+  errorMessage          String?
+
+  // Intelligence snapshot at generation time (JSON)
+  intelligenceSnapshot  String?  // JSON: what intelligence was used
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([campaignId, status])
+  @@index([campaignId, createdAt])
+}
+
+// --- Data Pipeline Run Log ---
+
+model PipelineRun {
+  id                    String   @id @default(cuid())
+  campaignId            String?
+
+  runType               String   // "data_collection", "analysis", "prediction_training", "content_generation"
+  status                String   @default("pending") // pending, running, completed, failed
+
+  // Results
+  submissionsFetched    Int      @default(0)
+  submissionsNew        Int      @default(0)
+  analysisGenerated     Boolean  @default(false)
+  modelTrained          Boolean  @default(false)
+
+  // Metrics
+  processingTimeMs      Int      @default(0)
+  errorMessage          String?
+
+  // Data snapshot (JSON)
+  runData               String?  // JSON: any relevant data from this run
+
+  createdAt             DateTime @default(now())
+
+  @@index([runType, status])
+  @@index([createdAt])
+}
+
+// --- Legacy models (kept for backward compatibility) ---
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -28,9 +212,9 @@ model Post {
 model RallyJob {
   id           String   @id @default(cuid())
   campaignName String
-  campaignData String   // JSON
-  status       String   // pending, processing, completed, failed
-  result       String?  // JSON
+  campaignData String
+  status       String
+  result       String?
   score        Float?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
