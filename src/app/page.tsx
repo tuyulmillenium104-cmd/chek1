@@ -68,6 +68,9 @@ import {
   TrendingUp,
   ShieldOff,
   Eye,
+  Download,
+  FolderOpen,
+  X,
 } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -316,6 +319,24 @@ export default function RallyDashboard() {
 
   // Result state
   const [copied, setCopied] = useState(false);
+
+  // Download center
+  const [showDownload, setShowDownload] = useState(false);
+  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; totalFiles: number } | null>(null);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+
+  const fetchDownloadFiles = useCallback(async () => {
+    setDownloadLoading(true);
+    try {
+      const res = await fetch('/api/rally-content');
+      const data = await res.json();
+      setDownloadData(data);
+    } catch (err) {
+      console.error('Failed to fetch download files:', err);
+    } finally {
+      setDownloadLoading(false);
+    }
+  }, []);
 
   // Status auto-refresh
   const [statusData, setStatusData] = useState<StatusResponse | null>(null);
@@ -749,6 +770,15 @@ export default function RallyDashboard() {
                 </Badge>
               )}
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setShowDownload(!showDownload); if (!showDownload && !downloadData) fetchDownloadFiles(); else if (!showDownload) fetchDownloadFiles(); }}
+                className="gap-1.5 text-xs h-8 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+              >
+                <Download className="h-3 w-3" />
+                Download
+              </Button>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setAutoRefresh(!autoRefresh)}
@@ -768,6 +798,99 @@ export default function RallyDashboard() {
           </div>
         </div>
       </header>
+
+      {/* ═══════ Download Center Panel ═══════ */}
+      {showDownload && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-16 px-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowDownload(false)} />
+          <Card className="relative z-10 w-full max-w-lg border-2 border-emerald-200 shadow-2xl bg-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md">
+                    <FolderOpen className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Download Center</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      Konten yang sudah di-generate dari 3 campaign
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setShowDownload(false)} className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {downloadLoading ? (
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
+                  <p className="text-sm text-muted-foreground">Memuat daftar file...</p>
+                </div>
+              ) : downloadData && downloadData.campaigns.length > 0 ? (
+                <div className="space-y-4">
+                  {downloadData.campaigns.map((camp) => (
+                    <div key={camp.campaign} className="rounded-xl border border-gray-200 overflow-hidden">
+                      {/* Campaign header */}
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2.5 border-b border-gray-200">
+                        <p className="text-sm font-semibold text-emerald-800">{camp.label}</p>
+                        <p className="text-[11px] text-emerald-600/70 mt-0.5">{camp.files.length} file</p>
+                      </div>
+                      {/* File list */}
+                      <div className="divide-y divide-gray-100">
+                        {camp.files.map((f) => {
+                          const fileLabels: Record<string, string> = {
+                            'best_content.txt': 'Best Content',
+                            'qa.json': 'Q&A Pairs',
+                            'full_output.json': 'Full Output',
+                            'prediction.json': 'Prediction',
+                          };
+                          const iconColor = f.type === 'txt' ? 'text-blue-500' : 'text-amber-500';
+                          const sizeStr = f.size > 1024 ? `${(f.size / 1024).toFixed(1)} KB` : `${f.size} B`;
+                          const timeStr = new Date(f.modified).toLocaleString('id-ID', {
+                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                          });
+                          return (
+                            <a
+                              key={f.path}
+                              href={`/api/rally-content?campaign=${encodeURIComponent(camp.campaign)}&file=${encodeURIComponent(f.name)}`}
+                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors group cursor-pointer"
+                            >
+                              <FileText className={`h-4 w-4 shrink-0 ${iconColor}`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-800 group-hover:text-emerald-700 transition-colors truncate">
+                                  {fileLabels[f.name] || f.name}
+                                </p>
+                                <p className="text-[11px] text-gray-400">
+                                  {sizeStr} &middot; {timeStr}
+                                </p>
+                              </div>
+                              <Download className="h-3.5 w-3.5 text-gray-300 group-hover:text-emerald-500 transition-colors shrink-0" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <p className="text-center text-[11px] text-muted-foreground pt-1">
+                    Total: {downloadData.totalFiles} file dari {downloadData.campaigns.length} campaign
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <FolderOpen className="h-8 w-8 text-gray-300" />
+                  <p className="text-sm text-muted-foreground">Belum ada konten yang tersedia</p>
+                  <Button variant="outline" size="sm" onClick={fetchDownloadFiles} className="gap-1.5 text-xs">
+                    <RefreshCw className="h-3 w-3" />
+                    Refresh
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <main className="mx-auto max-w-6xl px-4 py-6 md:px-6 space-y-6">
         {/* ═══════════════════════════════════════════════════════════
