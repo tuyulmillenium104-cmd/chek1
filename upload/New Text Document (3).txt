@@ -1,0 +1,496 @@
+LANGKAH 0 — FIX GIT (WAJIB PERTAMA):
+Jalankan: cd /home/z/my-project && rm -f .git/MERGE_HEAD .git/MERGE_MSG .git/CHERRY_PICK_HEAD .git/REVERT_HEAD .git/index && git reset --hard HEAD && git status
+Jika gagal: cd /home/z/my-project && git merge --abort && git status
+Jika masih gagal: cd /home/z/my-project && rm -rf .git && git init && git remote add origin https://github.com/tuyulmillenium104-cmd/chek1.git && git fetch origin && git checkout main
+JANGAN lanjut sampai git status clean.
+
+LANGKAH 1 — BACA FILE YANG SUDAH ADA (WAJIB, untuk paham state project):
+- src/app/page.tsx — frontend saat ini
+- src/app/api/route.ts — API route yang ada
+- campaign_data/marbmarket-m0_knowledge_db.json — format knowledge DB v8
+- campaign_data/marbmarket-m1_knowledge_db.json — format knowledge DB v8
+- campaign_data/v7_knowledge.json — 293 pre-computed rules dari v7, BACA formatnya untuk referensi
+- campaign_data/v7_collected/ — baca 1-2 file raw JSON untuk paham format data Rally submission
+- package.json — dependency yang sudah terinstall
+- .gitignore — pastikan sudah benar
+- Caddyfile — konfigurasi reverse proxy server
+- Jika ada file learned_rules.json di root project — BACA, berisi 14 rules (4 STRONG, 10 MODERATE) sebagai seed awal patterns.json
+- Jika ada file banned_lists.json di root project — BACA, berisi 32 banned words, 21 template phrases, 42 replacements
+- Jika ada folder .zscripts/ atau file dev.sh — BACA, berisi server startup script
+
+CATAT PENTING saat baca file v7:
+1. Cari URL API Rally.fun yang digunakan di code (cari string "rally.fun" atau "api.rally")
+2. Lihat format response submissions — setiap submission punya field "analysis" per kategori scoring, ini DATA EMAS yang diabaikan v7
+3. Di v7, fungsi parseSubmission() menyimpan analysis: a.analysis tapi TIDAK PERNAH dipakai downstream — hanya score angka yang dipakai. Ini flaw utama v7 yang harus diperbaiki.
+4. Learn v7 menyimpan ke in-memory Map dengan expiry 10 menit — tidak persistent, hilang saat restart. Ini harus diganti file-based storage.
+
+Setelah selesai baca, HAPUS semua file v7:
+rm -rf campaign_data/v7_collected campaign_data/v7_knowledge.json
+Jika ada learned_rules.json di root: pindahkan ke campaign_data/learned_rules_seed.json (jangan hapus, ini data berharga)
+Jika ada banned_lists.json di root: pindahkan ke src/lib/banned-lists.json (bisa jadi referensi)
+Juga hapus yang tidak dipakai: rm -rf examples/ mini-services/
+
+LANGKAH 2 — BUAT GUIDELINES.md di /home/z/my-project/GUIDELINES.md:
+
+# Rally Brain v8 — Project Guidelines
+
+## GIT SAFETY (BACA SETIAP SESI)
+1. SEBELUM mulai kerja: git status
+2. Jika merge conflict: rm -f .git/MERGE_HEAD .git/MERGE_MSG .git/CHERRY_PICK_HEAD .git/REVERT_HEAD .git/index && git reset --hard HEAD
+3. JANGAN git merge/rebase tanpa commit dulu
+4. Commit setelah SETIAP file selesai diedit
+5. JANGAN biarkan working tree dirty saat session berakhir
+6. Jika index corrupt (setiap command gagal): rm -f .git/index && git reset
+7. Jika semua command gagal dengan "needs merge" dan git merge --abort juga gagal: rm -rf .git && re-init (nuclear option, langkah terakhir)
+
+## SERVER
+- Port: 3000
+- Start: bun run dev
+- Start background (persistent): buat script .zscripts/dev.sh berisi:
+  #!/bin/bash
+  lsof -ti:3000 | xargs kill -9 2>/dev/null; cd /home/z/my-project && bun run dev > /tmp/rally-brain.log 2>&1 & disown
+- Kill: lsof -ti:3000 | xargs kill -9
+- Log: tail -f /tmp/rally-brain.log
+
+## TECH
+- Framework: Next.js 16 App Router + TypeScript + Tailwind + shadcn/ui
+- Runtime: Bun
+- Database: File-based (JSONL + JSON), bukan Prisma
+- Baca ARCHITECTURE.md sebelum coding apapun
+- Bahasa: Indonesia untuk komunikasi, English untuk code
+
+## GIT RULES
+- Jangan push ke main langsung
+- Branch untuk fitur: feat/nama-fitur atau v8-nama
+- Commit message format: tipe: deskripsi contoh: feat: add learn pipeline
+- Selalu pull sebelum push: git pull origin branch-name
+
+## ANTI CORRUPT SESSION
+- Session sebelumnya RUSAK karena git merge conflict dan index corrupt
+- Semua tool (Bash, Read, Write, Edit, LS, Glob) TERBLOKIR total
+- Tidak ada command yang bisa jalan, bahkan cd /tmp
+- Pencegahan: SELALU commit sebelum session berakhir, JANGAN biarkan merge conflict
+
+LANGKAH 3 — BUAT ARCHITECTURE.md di /home/z/my-project/ARCHITECTURE.md:
+
+# Rally Brain v8 — Complete Architecture
+
+## OVERVIEW
+Rally Brain = AI content generator untuk Rally.fun campaigns.
+Menggunakan 3 AI session TERPISAH (Learner, Generator, Judge) tanpa bias.
+Versi 8 = total rewrite dari v7 yang flawed.
+
+## RALLY.FUN API
+Base URL: CEK DI FILE CODE YANG SUDAH ADA (cari "rally.fun" atau "api.rally" di src/ atau campaign_data/)
+Endpoint:
+1. GET .../campaigns — daftar campaign aktif
+2. GET .../campaigns/{address} — detail campaign + scoring rubrik
+3. GET .../submissions — submission yang sudah di-judge
+Response submissions berisi analysis TEXT per kategori scoring = DATA EMAS.
+Format response (verifikasi dari file v7_collected):
+- submissions array, tiap submission punya: tweetUrl, username, scores
+- scores = array of {category, score, maxScore, analysis}
+- analysis = text penjelasan dari Rally judge KENAPA dapat score itu
+INILAH yang harus diekstrak oleh Learn pipeline, BUKAN cuma angka score.
+
+## 12 KATEGORI SCORING
+7 Content:
+- Relevance (max 2)
+- Originality (max 2)
+- Clarity (max 2)
+- Depth (max 2)
+- Value Proposition (max 2)
+- Call to Action (max 2)
+- Emotional Appeal (max 1)
+5 Engagement:
+- Hook (max 2)
+- Readability (max 2)
+- Visual Appeal (max 2)
+- Shareability (max 1)
+- Hashtag Relevance (max 1)
+Max total: 23 poin
+Grade: S = 21+, A = 17-20, B = 12-16, C = <12
+
+## V7 FLAWS (MENGAPA HARUS REWRITE TOTAL)
+1. Learn hanya pakai score angka, analysis text dari judge diabaikan total
+2. parseSubmission() simpan analysis: a.analysis tapi tidak pernah dipakai downstream
+3. Learn menyimpan ke in-memory Map, expiry 10 menit, tidak persistent
+4. Learn hilang saat server restart
+5. Learn tidak terhubung ke Generate (Generate baca static JSON, bukan output Learn)
+6. Tidak ada Judge validation — konten langsung keluar tanpa quality check
+7. Tidak ada cron/automasi untuk akumulasi data
+
+## 3-SESSION AI PIPELINE (DESAIN INTI v8)
+
+### Session 1: LEARNER (Analitik)
+Tujuan: Akumulasi data + extraction pattern dari Rally judge analysis
+Input: Submissions dari Rally.fun API
+Output: Knowledge DB files (submissions.jsonl, patterns.json, metadata.json)
+Proses:
+1. Fetch submissions dari campaign yang dipilih
+2. Deduplicate by tweetUrl hash (cek seen_hashes.json)
+3. Ekstrak SEMUA data: tweetUrl, username, totalScore, dan TERUTAMA analysis TEXT per kategori
+4. Append ke submissions.jsonl (format: 1 JSON object per baris)
+5. Re-extract patterns ke patterns.json:
+   - topPhrases: phrase/kata yang sering muncul di submission Grade A dan S
+   - rejectionReasons: kata/kalimat yang sering muncul di submission Grade B dan C
+   - winningStructures: pola panjang tweet, format kalimat, hashtag usage di pemenang
+   - categoryInsights: per-kategori insight — apa yang bikin score tinggi di Relevance, dll
+6. Update metadata.json (lastLearnAt, totalSubmissions, gradeDistribution)
+7. Update seen_hashes.json (tambah hash baru)
+
+### Session 2: GENERATOR (Kreatif)
+Tujuan: Buat konten tweet/post natural dan berkualitas
+Input: patterns.json dari Knowledge DB + campaign brief dari user
+Output: 1 konten tweet siap submit
+ATURAN ANTI-BIAS (WAJIB):
+- TIDAK BOLEH melihat scoring rubrik detail (tidak tahu max score per kategori)
+- TIDAK BOLEH tahu total max score (23)
+- Hanya boleh baca patterns (gaya konten yang menang di campaign ini)
+- TIDAK BOLEH tahu dia adalah bagian dari pipeline (prompt jangan sebut "pipeline")
+ATURAN ANTI-DETECTION (WAJIB):
+- Cek 32 banned words — jika ada, replace atau hapus
+- Cek 21 banned template phrases — jika ada, rewrite
+- Terapkan 42 auto-replacements
+- Pastikan output terasa human, bukan AI-generated
+- Variasi panjang: 200-400 karakter (jangan selalu sama panjangnya)
+- Gunakan conversational tone, bukan corporate/robotic
+- Kalau pakai emoji, maksimal 1-2, jangan berlebihan
+
+### Session 3: JUDGE (Kritis)
+Tujuan: Validasi konten sebelum submit ke Rally.fun
+Input: Konten dari Generator + scoring rubrik campaign (dari Rally API)
+Output: Score 12 kategori + analysis text + decision ACCEPT/REJECT
+ATURAN ANTI-BIAS (WAJIB):
+- TIDAK BOLEH tahu konten dibuat oleh AI Generator
+- TIDAK BOLEH tahu ada pipeline (treat sebagai independent judge yang menilai konten user)
+- Score seperti Rally judge asli — beri analysis text per kategori
+Proses:
+1. Baca konten yang akan di-judge
+2. Baca scoring rubrik campaign dari Rally API
+3. Score setiap 12 kategori (0 sampai maxScore masing-masing)
+4. Tulis analysis text per kategori (jelaskan KENAPA dapat score itu, seperti Rally judge)
+5. Hitung total score dan tentukan grade (S/A/B/C)
+6. PREDICT: "Jika konten ini di-submit ke Rally.fun, apakah akan dapat Grade S?"
+7. Jika total < 17 (Grade B atau C): REJECT
+   - Beri feedback spesifik: kategori mana yang perlu diperbaiki, saran konkretnya apa
+   - Kirkim kembali ke Generator dengan feedback (max 3x retry)
+8. Jika total >= 17 (Grade A atau S): ACCEPT
+   - Konten siap di-submit ke Rally.fun
+   - Simpan hasil judge ke knowledge DB sebagai referensi
+
+## KNOWLEDGE DB (PERSISTENT STORAGE)
+Lokasi: campaign_data/{campaign_slug}/
+File dan format:
+
+submissions.jsonl — append only, 1 JSON object per baris, JANGAN PERNAH overwrite:
+{"id":"sha256hash","tweetUrl":"https://twitter.com/...","username":"user123","totalScore":18,"scores":[{"category":"Relevance","score":2,"maxScore":2,"analysis":"Contoh excellent relevance to campaign topic..."}],"submittedAt":"2025-01-15T10:30:00Z","learnedAt":"2025-01-16T08:00:00Z"}
+
+patterns.json — extracted patterns (di-overwrite setiap learn):
+{
+  "topPhrases": [{"phrase":"...","frequency":15,"avgScore":1.8}],
+  "rejectionReasons": [{"reason":"...","frequency":8,"avgScore":0.5}],
+  "winningStructures": {"avgLength":280,"commonFormats":["question+answer","list+hashtag"],"topHashtags":["#crypto","#defi"]},
+  "categoryInsights": {
+    "Relevance": {"highScorePattern":"...","lowScorePattern":"..."},
+    "Hook": {"highScorePattern":"...","lowScorePattern":"..."}
+  },
+  "lastExtractedAt": "2025-01-16T08:00:00Z"
+}
+
+metadata.json — campaign tracking:
+{
+  "campaignAddress": "0x...",
+  "campaignName": "GenLayer Campaign",
+  "slug": "genlayer-campaign",
+  "totalSubmissions": 150,
+  "lastLearnAt": "2025-01-16T08:00:00Z",
+  "gradeDistribution": {"S":12,"A":45,"B":78,"C":15},
+  "cronActive": false,
+  "cronInterval": "6h",
+  "lastCronRun": null,
+  "nextCronRun": null,
+  "avgScore": 15.3,
+  "topScorerUsername": "user123",
+  "topScorerScore": 22
+}
+
+seen_hashes.json — dedup tracking (array of string):
+["sha256hash1","sha256hash2","sha256hash3"]
+
+FILE LAMA YANG SUDAH ADA (verifikasi keberadaan):
+- campaign_data/learned_rules_seed.json — seed patterns dari v7 (14 rules: 4 STRONG, 10 MODERATE). Gunakan sebagai initial patterns.json jika ada.
+- src/lib/banned-lists.json — banned words reference dari v7. Gunakan untuk cross-check anti-detection.ts.
+
+## ANTI-DETECTION SYSTEM
+File: src/lib/anti-detection.ts
+
+32 Banned Words (HARUS dihapus atau di-replace jika muncul di output Generator):
+revolutionary, cutting-edge, groundbreaking, innovative, game-changing, transformative, unparalleled, exceptional, remarkable, extraordinary, state-of-the-art, next-generation, industry-leading, comprehensive, leverage, utilize, optimize, streamline, empower, enhance, facilitate, seamless, robust, dynamic, strategic, impactful, holistic, synergistic, paradigm-shift, all-in-one
+
+21 Banned Template Phrases (HARUS di-rewrite jika muncul di output Generator):
+"In today's fast-paced world", "Look no further", "The future of X is here", "Unlock your potential", "Don't miss out", "Join the revolution", "Ready to transform", "Discover the power of", "Your journey starts here", "Stay ahead of the curve", "Elevate your experience", "Redefine what's possible", "Built for the modern era", "Where innovation meets", "The ultimate solution for", "Transform the way you", "Experience the difference", "Designed with you in mind", "One platform to rule them all", "Empowering creators everywhere", "The next evolution in"
+
+42 Auto-Replacements (apply ke output Generator sebelum judge):
+"leverage"→"use", "utilize"→"use", "innovative"→"fresh", "streamline"→"simplify",
+"optimize"→"improve", "empower"→"help", "enhance"→"boost", "facilitate"→"enable",
+"seamless"→"smooth", "robust"→"solid", "dynamic"→"active", "strategic"→"smart",
+"impactful"→"effective", "holistic"→"complete", "synergistic"→"combined",
+"comprehensive"→"full", "unparalleled"→"unique", "exceptional"→"great",
+"remarkable"→"impressive", "extraordinary"→"special", "transformative"→"powerful",
+"cutting-edge"→"latest", "groundbreaking"→"new", "game-changing"→"big",
+"revolutionary"→"brand new", "state-of-the-art"→"modern", "next-generation"→"next",
+"industry-leading"→"top", "paradigm-shift"→"change", "all-in-one"→"complete",
+"delve"→"explore", "furthermore"→"also", "moreover"→"plus", "henceforth"→"so",
+"whilst"→"while", "amongst"→"among", "whom"→"who", "thereby"→"by doing this",
+"in order to"→"to", "prior to"→"before", "subsequent to"→"after",
+"in the event that"→"if", "it is important to note"→"", "it goes without saying"→""
+
+Jika file banned-lists.json sudah ada di project, cross-check dan merge dengan list di atas.
+
+## 5 TOKEN POOL ROTATION
+File: src/lib/token-pool.ts
+Simpan token di .env.local: RALLY_TOKEN_1 s/d RALLY_TOKEN_5
+Rotasi round-robin: setiap request ke AI untuk generate, pakai token berikutnya
+Jika token ke-i hit rate limit, skip ke token ke-(i+1)
+Jika semua 5 token hit rate limit, wait 60 detik lalu retry
+Fungsi getNextToken() yang mengembalikan token + auto-rotate
+
+## CRON LEARN
+Implementasi: pakai setInterval di memory (sederhana, tidak perlu dependency)
+User bisa set interval via frontend panel (default: 6 jam)
+Setiap cron run:
+1. Fetch submissions baru dari Rally API
+2. Deduplicate by seen_hashes.json
+3. Append baru ke submissions.jsonl
+4. Re-extract patterns ke patterns.json
+5. Update metadata.json (lastCronRun, nextCronRun, totalSubmissions)
+Status tracking di metadata.json: cronActive, cronInterval, lastCronRun, nextCronRun
+API endpoints: POST /api/rally/learn/start, POST /api/rally/learn/stop, GET /api/rally/learn/status
+
+## FILE STRUCTURE LENGKAP
+src/
+  app/
+    page.tsx                          — Main dashboard (3 tab: Learn, Generate, Judge)
+    layout.tsx                        — Root layout (sudah ada, update title)
+    globals.css                       — Global styles (sudah ada)
+    api/
+      rally/
+        campaigns/route.ts            — GET: fetch campaign list dari Rally.fun
+        campaign/[address]/route.ts   — GET: detail campaign + rubrik
+        learn/route.ts                — POST: trigger learn, GET: status
+        learn/start/route.ts          — POST: start cron learn
+        learn/stop/route.ts           — POST: stop cron learn
+        generate/route.ts             — POST: trigger generate + judge pipeline
+        judge/route.ts                — POST: manual judge konten
+        knowledge/[slug]/route.ts     — GET: read knowledge DB stats
+  lib/
+    types.ts                          — Semua TypeScript interfaces
+    rally-api.ts                      — Rally.fun API client (URL dari file yang ada)
+    knowledge-db.ts                   — JSONL read/append, pattern extraction, dedup
+    learner.ts                        — Learn pipeline orchestration
+    generator.ts                      — Generate pipeline orchestration
+    judge.ts                          — Judge pipeline orchestration
+    anti-detection.ts                 — Banned words check + 42 replacements
+    token-pool.ts                     — 5 token rotation + rate limit handling
+campaign_data/                        — Knowledge DB storage (per campaign)
+  learned_rules_seed.json             — Seed dari v7 learned_rules (jika ada)
+.zscripts/
+  dev.sh                              — Server startup: kill port 3000, bun run dev, disown
+ARCHITECTURE.md                       — File ini
+GUIDELINES.md                         — Rules untuk AI agent
+PROJECT_CONTEXT.md                    — Cross-session state
+worklog.md                            — Work log per session
+.env.local                            — Tokens: GITHUB_TOKEN, RALLY_TOKEN_1 s/d RALLY_TOKEN_5
+.env.local.example                    — Template tanpa nilai token
+Caddyfile                             — Reverse proxy config (sudah ada)
+.gitignore                            — Pastikan include: .env*, .next/, node_modules/, campaign_data/*/submissions.jsonl, .zscripts/
+
+## GITHUB
+Repo: https://github.com/tuyulmillenium104-cmd/chek1
+Branch v8: v8-learn-judge-pipeline
+Auth: GITHUB_TOKEN dari .env.local
+Setup push: git remote set-url origin https://GITHUB_TOKEN@github.com/tuyulmillenium104-cmd/chek1.git
+Jika GITHUB_TOKEN belum ada di .env.local, TANYA KE USER sebelum push.
+
+## SERVER INFRASTRUCTURE
+- Caddyfile sudah ada di repo — ini reverse proxy untuk production
+- Port 3000 untuk development
+- dev.sh di .zscripts/ untuk start server persistent (disown)
+- Log file: /tmp/rally-brain.log
+
+LANGKAH 4 — BUAT PROJECT_CONTEXT.md di /home/z/my-project/PROJECT_CONTEXT.md:
+
+# Rally Brain v8 — Project Context
+
+## Current State
+- Version: v8 (total rewrite dari v7 yang flawed)
+- Status: BUILDING — arsitektur baru sedang dibangun
+- Git branch target: v8-learn-judge-pipeline
+
+## Session History
+- Session 1 (design): Diagnosa masalah v7, desain arsitektur v8 3-session pipeline
+- Session 2 (failed): Percobaan implementasi, git merge conflict, index corrupt, SEMUA tool terblokir total, 0 kode berhasil ditulis
+- Session 3+ (current): Implementasi v8 dari ARCHITECTURE.md
+
+## What was wrong with v7
+1. Learn hanya pakai score angka, analysis text dari judge diabaikan total
+2. parseSubmission() simpan analysis tapi tidak pernah dipakai downstream
+3. Learn tidak persistent (Map expiry 10 menit, hilang saat restart)
+4. Learn tidak terhubung ke Generate (Generate baca static v7_knowledge.json)
+5. Tidak ada Judge validation
+6. Tidak ada cron/automasi
+
+## What v8 fixes
+1. Learn ekstrak analysis TEXT → Knowledge DB persistent (JSONL file)
+2. Knowledge DB tumbuh makin tajam seiring akumulasi data
+3. Learn terhubung ke Generate via patterns.json
+4. 3-session pipeline: Learner (analitik) → Generator (kreatif) → Judge (kritis)
+5. Anti-bias: Generator tidak lihat rubrik, Judge blind
+6. Anti-detection: 32 banned words, 21 templates, 42 replacements
+7. Cron Learn untuk akumulasi data otomatis
+8. 5 token pool rotation untuk rate limit
+
+## Critical Lessons Learned
+- JANGAN biarkan git merge conflict dibiarkan — SELALU commit sebelum session berakhir
+- Jika git index corrupt, semua tool terblokir total, tidak ada yang bisa dijalankan
+- SELALU tulis ARCHITECTURE.md dan GUIDELINES.md di awal — ini lifeline untuk AI session lain
+
+LANGKAH 5 — IMPLEMENTASI (urutan WAJIB, jangan skip):
+
+5a. Buat .zscripts/dev.sh (server startup script):
+  #!/bin/bash
+  lsof -ti:3000 | xargs kill -9 2>/dev/null
+  cd /home/z/my-project && bun run dev > /tmp/rally-brain.log 2>&1 & disown
+  echo "Server started on port 3000"
+  chmod +x .zscripts/dev.sh
+
+5b. Buat .env.local.example:
+  GITHUB_TOKEN=your_github_pat_here
+  RALLY_TOKEN_1=your_rally_token_1
+  RALLY_TOKEN_2=your_rally_token_2
+  RALLY_TOKEN_3=your_rally_token_3
+  RALLY_TOKEN_4=your_rally_token_4
+  RALLY_TOKEN_5=your_rally_token_5
+
+5c. Update .gitignore — tambahkan:
+  .env*
+  .zscripts/
+  campaign_data/*/submissions.jsonl
+
+5d. Buat src/lib/types.ts — semua TypeScript interfaces:
+  - Campaign, Submission, Score (Rally API types)
+  - KnowledgeSubmission, Patterns, Metadata (Knowledge DB types)
+  - GenerateRequest, GenerateResponse (Pipeline types)
+  - JudgeRequest, JudgeResponse, JudgeScore (Judge types)
+  - LearnResult (Learn types)
+
+5e. Buat src/lib/anti-detection.ts:
+  - BANNED_WORDS array (32 kata)
+  - BANNED_PHRASES array (21 frase)
+  - AUTO_REPLACEMENTS map (42 pasangan)
+  - fungsi checkContent(text): return {clean, warnings, replacements}
+  - fungsi cleanContent(text): apply semua replacements
+  - Cross-check dengan banned-lists.json jika ada di project
+
+5f. Buat src/lib/token-pool.ts:
+  - Baca RALLY_TOKEN_1-5 dari process.env
+  - fungsi getNextToken(): return token + increment counter
+  - fungsi resetPool(): reset ke token 1
+  - fungsi reportRateLimit(tokenIndex): skip token tersebut
+  - Handle: jika semua token rate limited, wait 60s retry
+
+5g. Buat src/lib/rally-api.ts:
+  - URL API: BACA DARI FILE YANG SUDAH ADA (cari di src/ dan campaign_data/)
+  - fungsi fetchCampaigns(): GET campaigns
+  - fungsi fetchCampaign(address): GET campaign detail
+  - fungsi fetchSubmissions(address): GET submissions
+  - Handle errors, rate limits, timeouts
+
+5h. Buat src/lib/knowledge-db.ts:
+  - fungsi appendSubmission(slug, submission): append ke submissions.jsonl
+  - fungsi readSubmissions(slug): baca semua submissions
+  - fungsi extractPatterns(slug): analisis submissions → patterns.json
+  - fungsi readPatterns(slug): baca patterns.json
+  - fungsi updateMetadata(slug, data): update metadata.json
+  - fungsi isKnownSubmission(slug, hash): cek seen_hashes.json
+  - fungsi initCampaignData(slug, campaign): buat folder + metadata.json kosong
+  - Jika learned_rules_seed.json ada, gunakan sebagai initial patterns
+
+5i. Buat src/lib/learner.ts:
+  - fungsi learn(campaignAddress): full learn pipeline
+  - 1. Fetch submissions dari Rally API
+  - 2. Deduplicate (cek seen_hashes)
+  - 3. Ekstrak analysis text + score per kategori
+  - 4. Append ke submissions.jsonl
+  - 5. Extract patterns
+  - 6. Update metadata
+  - Return: LearnResult {newSubmissions, totalSubmissions, patternsExtracted}
+
+5j. Buat src/lib/generator.ts:
+  - fungsi generate(campaignSlug, campaignBrief): generate konten
+  - 1. Baca patterns dari knowledge DB
+  - 2. Build prompt (campaign brief + patterns, TANPA rubrik detail)
+  - 3. Call AI via z-ai-web-dev-sdk
+  - 4. Apply anti-detection (cleanContent)
+  - 5. Return generated content
+  - PENTING: prompt TIDAK BOLEH sebut scoring, rubrik, atau pipeline
+
+5k. Buat src/lib/judge.ts:
+  - fungsi judge(content, campaignAddress): judge konten
+  - 1. Fetch campaign rubrik dari Rally API
+  - 2. Build prompt (konten + rubrik, TANPA mention AI/Generator)
+  - 3. Call AI via z-ai-web-dev-sdk
+  - 4. Parse response: score per kategori + analysis text
+  - 5. Calculate total, determine grade
+  - 6. PREDICT Grade S likelihood
+  - 7. Return JudgeResponse {scores, total, grade, accepted, feedback}
+  - PENTING: prompt treat konten sebagai "user submission", bukan AI output
+
+5l. Buat src/lib/pipeline.ts (orchestrator):
+  - fungsi runPipeline(campaignAddress, campaignBrief): full Learn→Generate→Judge
+  - 1. Learn (jika belum pernah atau data stale)
+  - 2. Generate
+  - 3. Judge
+  - 4. Jika rejected: retry generate+judge (max 3x)
+  - 5. Return final result
+
+5m. Buat API routes:
+  - src/app/api/rally/campaigns/route.ts — GET campaigns
+  - src/app/api/rally/campaign/[address]/route.ts — GET campaign detail
+  - src/app/api/rally/learn/route.ts — POST trigger learn
+  - src/app/api/rally/learn/start/route.ts — POST start cron
+  - src/app/api/rally/learn/stop/route.ts — POST stop cron
+  - src/app/api/rally/generate/route.ts — POST generate+judge pipeline
+  - src/app/api/rally/judge/route.ts — POST manual judge
+  - src/app/api/rally/knowledge/[slug]/route.ts — GET knowledge stats
+
+5n. Buat components:
+  - src/components/campaign-browser.tsx — search & select campaign
+  - src/components/learn-panel.tsx — learn control + progress + stats
+  - src/components/generate-panel.tsx — generate + auto judge + retry
+  - src/components/judge-panel.tsx — judge result detail per kategori
+  - src/components/knowledge-stats.tsx — knowledge DB statistics
+
+5o. Update src/app/page.tsx — main dashboard dengan Tabs:
+  - Tab 1: Campaign Browser
+  - Tab 2: Learn (control + status + knowledge stats)
+  - Tab 3: Generate & Judge (generate input + result + judge detail)
+
+SETIAP FILE SELESAI: git add namafile && git commit -m "feat: deskripsi"
+
+LANGKAH 6 — GIT & GITHUB:
+git checkout -b v8-learn-judge-pipeline
+Jika GITHUB_TOKEN ada di .env.local:
+  git remote set-url origin https://$(grep GITHUB_TOKEN .env.local | cut -d= -f2)@github.com/tuyulmillenium104-cmd/chek1.git
+git push -u origin v8-learn-judge-pipeline
+
+Jika GITHUB_TOKEN belum ada, TANYA KE USER.
+
+CATATAN AKHIR:
+- BACA ARCHITECTURE.md DAN GUIDELINES.md SEBELUM CODING
+- JANGAN SKIP LANGKAH 0 (fix git) — session sebelumnya rusak total karena ini
+- Commit tiap file, jangan tunggu semua selesai
+- Jika git status error di manapun, STOP dan fix dulu sebelum lanjut
+- Gunakan z-ai-web-dev-sdk untuk AI calls (sudah terinstall)
+- Gunakan ZAI.create() untuk AI session terpisah (Learner, Generator, Judge harus session berbeda)
