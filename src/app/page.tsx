@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -12,65 +11,34 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import {
-  Activity,
   Zap,
-  Server,
-  FileText,
-  Clock,
+  Search,
+  BookOpen,
+  Copy,
+  Check,
   CheckCircle2,
   XCircle,
   AlertTriangle,
   Loader2,
-  RefreshCw,
-  Wifi,
-  WifiOff,
-  Cpu,
-  Shield,
-  Send,
-  Copy,
-  Check,
-  Terminal,
-  Sparkles,
   ChevronRight,
-  Lightbulb,
-  Search,
-  ArrowLeft,
-  ExternalLink,
-  Tag,
-  BookOpen,
-  ScrollText,
-  Info,
-  Ban,
-  RotateCcw,
-  Target,
-  Type,
-  Link2,
-  CalendarDays,
-  Trophy,
-  Layers,
-  Hash,
-  ImageIcon,
-  Gift,
-  CircleDot,
+  Play,
+  Square,
   MessageSquare,
-  Swords,
-  Crosshair,
-  TrendingUp,
-  ShieldOff,
+  Trophy,
+  Target,
+  Brain,
   Eye,
-  Download,
-  FolderOpen,
-  X,
+  Sparkles,
+  BarChart3,
+  ArrowRight,
+  CircleDot,
+  StopCircle,
+  FileText,
+  Terminal,
 } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -94,6 +62,7 @@ interface MissionInfo {
   prohibitedItems?: string;
   additionalInfo?: string;
   requirements?: string;
+  [key: string]: unknown;
 }
 
 interface CampaignCard {
@@ -103,7 +72,6 @@ interface CampaignCard {
   url: string;
   status: string;
   endDate: string | null;
-  startDate: string | null;
   category: string;
   contentType: string;
   characterLimit: number | null;
@@ -115,7 +83,6 @@ interface CampaignCard {
 interface CampaignDetail {
   title: string;
   description: string;
-  goal: string;
   rules: string;
   style: string;
   requirements: string;
@@ -127,56 +94,14 @@ interface CampaignDetail {
   intelligentContractAddress: string;
   missions: MissionInfo[];
   status: string;
-  adminNotice: string;
-  // New fields
   missionTitle: string | null;
   missionGoal: string | null;
   missionNumber: number | null;
   contentType: string;
   characterLimit: number | null;
-  endDate: string | null;
-  startDate: string | null;
   category: string;
-  campaignRewards: RewardInfo[];
+  campaignRewards: unknown[];
   [key: string]: unknown;
-}
-
-interface TokenInfo {
-  index: number;
-  label: string;
-  userId: string;
-  remaining: number;
-  status: 'active' | 'depleted' | 'auto';
-}
-
-interface GatewayHealth {
-  host: string;
-  status: string;
-}
-
-interface StatusResponse {
-  status: string;
-  timestamp: string;
-  queue: {
-    pendingJobs: number;
-    processingJobs: number;
-    totalResults: number;
-  };
-  tokenPool: {
-    total: number;
-    active: number;
-    tokens: TokenInfo[];
-  };
-  gateways: {
-    current: string;
-    all: string[];
-    health: GatewayHealth[];
-  };
-  rateLimits: {
-    activeBuckets: number;
-    totalBuckets: number;
-    capacityPer10min: number;
-  };
 }
 
 interface LogEntry {
@@ -186,462 +111,357 @@ interface LogEntry {
   type: 'info' | 'success' | 'error' | 'warning' | 'system';
 }
 
-// ─── View States ────────────────────────────────────────────────────
-
-type ViewState =
-  | { type: 'search' }
-  | { type: 'results'; query: string; results: CampaignCard[] }
-  | { type: 'detail'; campaign: CampaignDetail }
-  | { type: 'generating'; campaign: CampaignDetail }
-  | { type: 'result'; campaign: CampaignDetail; content: string; score: GenerationScore };
-
-interface RallyContentCategory {
-  name: string;
-  score: number;
-  maxScore: number;
-  percentage: number;
+interface ResultItem {
+  id: string;
+  source: 'pipeline' | 'historical' | 'memory';
+  campaignName: string;
+  content: string | null;
+  score: number | null;
+  grade: string | null;
+  categories: Array<{ name: string; score: number; maxScore: number; percentage: number }>;
+  qaPairs: Array<{ q: string; a: string }>;
+  g4Reasons: string[];
+  timestamp: string;
+  metadata: Record<string, unknown>;
 }
 
-interface G4DetectionResult {
-  score: number;
-  bonuses: string[];
-  penalties: string[];
+interface LearningResult {
+  totalSubmissions: number;
+  validSubmissions: number;
+  patterns: Array<{ category: string; winnerAvg: number; loserAvg: number; gap: number; insight: string }>;
+  rules: string[];
+  weakCategories: string[];
+  strongCategories: string[];
+  topScorers: Array<{ rank: number; xUsername: string; contentQualityPct: number; contentQualityScore: number; tweetUrl: string }>;
+  recommendations: string[];
 }
 
-interface XFactorResult {
-  score: number;
-  factors: string[];
-}
+type AppStatus = 'idle' | 'learning' | 'generating' | 'done';
 
-interface GenerationScore {
-  // New Rally-aligned scoring
-  overallGrade: string;
-  contentQualityScore: number;   // max 21.0
-  contentQualityPct: number;     // 0-100%
-  estimatedPosition: string;     // e.g., "Top 10%"
-  passesThreshold: boolean;
-  categories: RallyContentCategory[];
-  g4Detection: G4DetectionResult | null;
-  xFactors: XFactorResult | null;
-  categoryAnalysis?: Record<string, string>;
-  // Pipeline stats
-  cycles: number;
-  variations: number;
-  aiCalls: number;
-  time: number;
-  competitorBeatScore?: number;
-  competitorAvgScore?: number;
-  competitorTopScore?: number;
-  targetScore?: number;
-  // Ground truth calibration
-  groundTruth?: {
-    totalValid: number;
-    top10Pct?: number;
-    top25Pct?: number;
-    top50Pct?: number;
-    averagePct?: number;
-    weakCategories: string[];
-    strongCategories: string[];
-  };
-}
-
-// ─── Quick Hint Presets ─────────────────────────────────────────────
-
-const QUICK_HINTS = [
-  { label: 'Internet Court', icon: '⚖️' },
-  { label: 'DeFi Yield', icon: '💰' },
-  { label: 'AI Governance', icon: '🤖' },
-  { label: 'Crypto Regulation', icon: '📜' },
-  { label: 'NFT Market', icon: '🖼️' },
-  { label: 'Web3 Social', icon: '🌐' },
-  { label: 'Privacy Tech', icon: '🔒' },
-  { label: 'Token Launch', icon: '🚀' },
-];
-
-// ─── Simulated Pipeline Stages ─────────────────────────────────────
-
-const PIPELINE_STAGES = [
-  { label: '⚡ Instant campaign analysis (no AI call)...', duration: 800 },
-  { label: '📊 Fetching Rally submissions for calibration...', duration: 1200 },
-  { label: 'Generating 4 content variations in parallel...', duration: 4000 },
-  { label: '⚡ CASCADE: Judging best variant first (early exit)...', duration: 5000 },
-  { label: 'Scoring 7 Rally content categories (max 21.0)...', duration: 600 },
-  { label: '🔍 Competitive analysis (deferred — no bucket contention)...', duration: 1500 },
-  { label: '🔎 G4 Originality + X-Factor detection...', duration: 500 },
-  { label: 'Quality threshold + finalization...', duration: 500 },
-] as const;
-
-// ─── Helper: shorten address ───────────────────────────────────────
-
-function shortenAddress(addr: string) {
-  if (!addr || addr.length < 12) return addr;
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return 'N/A';
-  try {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-function isCampaignActive(endDate: string | null): boolean {
-  if (!endDate) return true;
-  return new Date(endDate) > new Date();
-}
-
-// ─── Main Dashboard Component ───────────────────────────────────────
+// ─── Main Component ────────────────────────────────────────────────
 
 export default function RallyDashboard() {
-  // View state
-  const [view, setView] = useState<ViewState>({ type: 'search' });
-
-  // Search state
+  // ─── State ──────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState('');
+  const [searchResults, setSearchResults] = useState<CampaignCard[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  // Detail loading
+  const [selectedCampaign, setSelectedCampaign] = useState<CampaignDetail | null>(null);
+  const [selectedMissionNum, setSelectedMissionNum] = useState<number | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Generation state
-  const [generating, setGenerating] = useState(false);
-  const [pipelineStageIndex, setPipelineStageIndex] = useState(-1);
+  const [appStatus, setAppStatus] = useState<AppStatus>('idle');
+  const [activeStep, setActiveStep] = useState(0); // 0=Search, 1=Learn, 2=Generate, 3=Output
+  const [learnJobId, setLearnJobId] = useState<string | null>(null);
+  const [generateJobId, setGenerateJobId] = useState<string | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [shouldStop, setShouldStop] = useState(false);
+
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const logEndRef = useRef<HTMLDivElement>(null);
   const logIdRef = useRef(0);
+  const pollAbortRef = useRef(false);
 
-  // Result state
+  const [results, setResults] = useState<ResultItem[]>([]);
+  const [selectedResult, setSelectedResult] = useState<ResultItem | null>(null);
+  const [resultsLoading, setResultsLoading] = useState(false);
+
+  const [learningResult, setLearningResult] = useState<LearningResult | null>(null);
+
   const [copied, setCopied] = useState(false);
 
-  // Download center
-  const [showDownload, setShowDownload] = useState(false);
-  const [downloadData, setDownloadData] = useState<{ campaigns: Array<{ campaign: string; label: string; score?: number; grade?: string; mission?: string; timestamp?: string; files: Array<{ name: string; path: string; size: number; modified: string; type: string }> }>; consolidatedFile?: { name: string; path: string; size: number; modified: string; type: string }; totalFiles: number } | null>(null);
-  const [downloadLoading, setDownloadLoading] = useState(false);
-
-  const fetchDownloadFiles = useCallback(async () => {
-    setDownloadLoading(true);
-    try {
-      const res = await fetch('/api/rally-content');
-      const data = await res.json();
-      setDownloadData(data);
-    } catch (err) {
-      console.error('Failed to fetch download files:', err);
-    } finally {
-      setDownloadLoading(false);
-    }
-  }, []);
-
-  // Status auto-refresh
-  const [statusData, setStatusData] = useState<StatusResponse | null>(null);
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [statusLoading, setStatusLoading] = useState(true);
-
-  // ─── Fetch status ──────────────────────────────────────────────
-
-  const fetchStatus = useCallback(async () => {
-    try {
-      const res = await fetch('/api/rally/status');
-      const data: StatusResponse = await res.json();
-      setStatusData(data);
-      setLastUpdated(new Date().toLocaleTimeString());
-    } catch (err) {
-      console.error('Failed to fetch status:', err);
-    } finally {
-      setStatusLoading(false);
-    }
-  }, []);
+  // ─── Load initial results ──────────────────────────────────────
 
   useEffect(() => {
-    fetchStatus();
-    if (!autoRefresh) return;
-    const interval = setInterval(fetchStatus, 5000);
-    return () => clearInterval(interval);
-  }, [autoRefresh, fetchStatus]);
+    fetchResults();
+  }, []);
 
-  // Auto-scroll log panel
+  const fetchResults = useCallback(async () => {
+    setResultsLoading(true);
+    try {
+      const res = await fetch('/api/rally/results');
+      const data = await res.json();
+      if (data.success) {
+        setResults(data.results || []);
+        if (data.results.length > 0 && !selectedResult) {
+          setSelectedResult(data.results[0]);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch results:', err);
+    } finally {
+      setResultsLoading(false);
+    }
+  }, [selectedResult]);
+
+  // ─── Auto-scroll logs ──────────────────────────────────────────
+
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // ─── Logging Helpers ───────────────────────────────────────────
+  // ─── Logging ───────────────────────────────────────────────────
 
   const addLog = useCallback((message: string, type: LogEntry['type'] = 'info') => {
     const id = ++logIdRef.current;
     const timestamp = new Date().toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+      hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit',
     });
-    setLogs((prev) => [...prev, { id, timestamp, message, type }]);
+    setLogs(prev => [...prev, { id, timestamp, message, type }]);
   }, []);
 
-  // ─── Search Handler ────────────────────────────────────────────
+  const clearLogs = useCallback(() => {
+    setLogs([]);
+    logIdRef.current = 0;
+  }, []);
+
+  // ─── Search ────────────────────────────────────────────────────
 
   const handleSearch = useCallback(async () => {
     const query = searchQuery.trim();
     if (!query || searchLoading) return;
-
     setSearchLoading(true);
-    setSearchError('');
-
+    setHasSearched(true);
     try {
       const res = await fetch(`/api/rally/search?q=${encodeURIComponent(query)}`);
       const data = await res.json();
-
-      if (data.success && data.results.length > 0) {
-        setView({ type: 'results', query, results: data.results });
-      } else if (data.success && data.results.length === 0) {
-        setSearchError(`No campaigns found for "${query}". Try a different search term.`);
+      if (data.success) {
+        setSearchResults(data.results || []);
+        addLog(`Found ${data.results.length} campaign(s) for "${query}"`, 'info');
       } else {
-        setSearchError(data.error || 'Search failed. Please try again.');
+        addLog(`Search error: ${data.error}`, 'error');
       }
     } catch {
-      setSearchError('Network error. Please check your connection and try again.');
+      addLog('Network error during search', 'error');
     } finally {
       setSearchLoading(false);
     }
-  }, [searchQuery, searchLoading]);
+  }, [searchQuery, searchLoading, addLog]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && !searchLoading && searchQuery.trim()) {
-        handleSearch();
-      }
-    },
-    [searchLoading, searchQuery, handleSearch]
-  );
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearch();
+  }, [handleSearch]);
 
-  // ─── Select Campaign -> Fetch Detail ───────────────────────────
+  // ─── Select Campaign ───────────────────────────────────────────
 
   const handleSelectCampaign = useCallback(async (card: CampaignCard) => {
     setDetailLoading(true);
     try {
       const res = await fetch(`/api/rally/campaign/${card.address}`);
       const data = await res.json();
-
       if (data.success && data.campaign) {
-        setView({ type: 'detail', campaign: data.campaign as CampaignDetail });
-      } else {
-        console.error('Failed to fetch campaign details:', data.error);
+        setSelectedCampaign(data.campaign as CampaignDetail);
+        setSelectedMissionNum(data.campaign.missionNumber);
+        setActiveStep(1);
+        addLog(`Selected campaign: "${data.campaign.title}" (Mission ${data.campaign.missionNumber || 1})`, 'success');
       }
     } catch (err) {
-      console.error('Error fetching campaign detail:', err);
+      addLog('Error fetching campaign details', 'error');
     } finally {
       setDetailLoading(false);
     }
-  }, []);
+  }, [addLog]);
 
-  // ─── Switch Mission ────────────────────────────────────────────
-
-  const handleSwitchMission = useCallback(async (missionNum: number, campaign: CampaignDetail) => {
+  const handleSwitchMission = useCallback(async (missionNum: number) => {
+    if (!selectedCampaign) return;
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/rally/campaign/${campaign.intelligentContractAddress}?mission=${missionNum}`);
+      const res = await fetch(`/api/rally/campaign/${selectedCampaign.intelligentContractAddress}?mission=${missionNum}`);
       const data = await res.json();
-
       if (data.success && data.campaign) {
-        setView({ type: 'detail', campaign: data.campaign as CampaignDetail });
+        setSelectedCampaign(data.campaign as CampaignDetail);
+        setSelectedMissionNum(missionNum);
+        addLog(`Switched to Mission ${missionNum}: ${data.campaign.missionTitle || 'Untitled'}`, 'info');
       }
-    } catch (err) {
-      console.error('Error switching mission:', err);
+    } catch {
+      addLog('Error switching mission', 'error');
     } finally {
       setDetailLoading(false);
     }
-  }, []);
+  }, [selectedCampaign, addLog]);
 
-  // ─── Generate Content (Background Job + Polling) ─────────────────
-  // Solves 502 Bad Gateway: pipeline runs in background, no long-lived connections.
-  // 1. POST /api/rally/generate → returns jobId instantly (< 1s)
-  // 2. Poll GET /api/rally/generate/status?jobId=xxx every 2s for progress
+  // ─── Start Learn ───────────────────────────────────────────────
 
-  const handleGenerate = useCallback(async (campaign: CampaignDetail) => {
-    setGenerating(true);
-    setView({ type: 'generating', campaign });
-    setLogs([]);
-    setPipelineStageIndex(0);
-    logIdRef.current = 0;
+  const handleStartLearn = useCallback(async () => {
+    if (!selectedCampaign || appStatus === 'learning' || appStatus === 'generating') return;
 
-    addLog(`Starting pipeline for campaign: "${campaign.title}"...`, 'system');
-    if (campaign.missionTitle) {
-      addLog(`Mission: ${campaign.missionTitle}`, 'info');
-    }
+    clearLogs();
+    setAppStatus('learning');
+    setShouldStop(false);
+    pollAbortRef.current = false;
+    setActiveStep(1);
+    setLearningResult(null);
+
+    addLog('Starting learning pipeline...', 'system');
 
     try {
-      // Step 1: Start pipeline — returns jobId instantly
-      const startRes = await fetch('/api/rally/generate', {
+      const res = await fetch('/api/rally/learn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          campaignName: campaign.title,
-          campaignAddress: campaign.intelligentContractAddress,
-          campaignData: campaign,
+          campaignAddress: selectedCampaign.intelligentContractAddress,
+          campaignName: selectedCampaign.title,
         }),
       });
+      const data = await res.json();
 
-      const startData = await startRes.json();
-      if (!startData.success || !startData.jobId) {
-        throw new Error(startData.error || 'Failed to start pipeline');
+      if (!data.success || !data.jobId) {
+        throw new Error(data.error || 'Failed to start learning');
       }
 
-      const jobId = startData.jobId;
-      addLog('Pipeline started on server (polling for progress)...', 'info');
+      const jobId = data.jobId;
+      setLearnJobId(jobId);
+      setCurrentJobId(jobId);
+      addLog('Learning job started, polling...', 'info');
 
-      // Step 2: Poll for progress every 2 seconds
-      let lastProgressIndex = -1;
-      let pollCount = 0;
-      const maxPolls = 600; // 10 minutes max (600 * 2s)
+      let lastProgressIdx = -1;
+      let polls = 0;
 
-      const poll = async (): Promise<boolean> => {
-        const statusRes = await fetch(`/api/rally/generate/status?jobId=${jobId}`);
-        const statusData = await statusRes.json();
+      while (polls < 150 && !pollAbortRef.current) {
+        await new Promise(r => setTimeout(r, 2000));
+        polls++;
 
-        if (!statusData.success) {
-          addLog(`Status check failed: ${statusData.error}`, 'error');
-          return false;
-        }
+        try {
+          const statusRes = await fetch(`/api/rally/learn?jobId=${jobId}`);
+          const statusData = await statusRes.json();
 
-        // Emit new progress entries (only new ones since last poll)
-        const progress = statusData.progress || [];
-        for (let i = lastProgressIndex + 1; i < progress.length; i++) {
-          addLog(progress[i].message, progress[i].type || 'info');
-          setPipelineStageIndex((prev) => prev + 1);
-        }
-        lastProgressIndex = progress.length - 1;
+          if (statusData.progress) {
+            for (let i = lastProgressIdx + 1; i < statusData.progress.length; i++) {
+              addLog(statusData.progress[i].message, statusData.progress[i].type || 'info');
+            }
+            lastProgressIdx = statusData.progress.length - 1;
+          }
 
-        // Check if completed
-        if (statusData.status === 'completed' || statusData.status === 'failed') {
-          return true; // Done — handle result in main flow
-        }
-
-        pollCount++;
-        if (pollCount >= maxPolls) {
-          addLog('Pipeline taking too long (10+ minutes). Please try again.', 'error');
-          return true;
-        }
-
-        return false; // Still running
-      };
-
-      // Poll loop
-      let done = false;
-      while (!done) {
-        await new Promise((r) => setTimeout(r, 2000));
-        done = await poll();
-      }
-
-      // Step 3: Get final result
-      const finalRes = await fetch(`/api/rally/generate/status?jobId=${jobId}`);
-      const finalData = await finalRes.json();
-
-      if (!finalData.success || !finalData.result) {
-        addLog(`Pipeline failed: ${finalData.error || 'No result returned'}`, 'error');
-        setPipelineStageIndex(PIPELINE_STAGES.length);
-        setGenerating(false);
-        setTimeout(fetchStatus, 1000);
-        return;
-      }
-
-      const result = finalData.result;
-      const jobStatus = result.status || 'success';
-
-      if (jobStatus === 'success') {
-        addLog(`Pipeline completed successfully in ${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s`, 'success');
-      } else if (jobStatus === 'partial') {
-        addLog(`Pipeline completed with partial results (${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s)`, 'warning');
-        if (result.error) addLog(`Note: ${result.error}`, 'warning');
-      } else {
-        addLog(`Pipeline failed (${result.processingTime ? (result.processingTime / 1000).toFixed(1) : '?'}s)`, 'error');
-        if (result.error) addLog(`Error: ${result.error}`, 'error');
-      }
-
-      if (result.bestScoring) {
-        addLog(
-          `Best result: Grade ${result.bestScoring.overallGrade} — Score ${result.bestScoring.contentQualityScore.toFixed(2)} / 21.0 (${result.bestScoring.contentQualityPct.toFixed(1)}%)`,
-          'success'
-        );
-        if (result.bestScoring.estimatedPosition) {
-          addLog(`Estimated Rally Position: ${result.bestScoring.estimatedPosition}`, 'success');
+          if (statusData.status === 'completed' || statusData.status === 'failed') {
+            if (statusData.result) {
+              setLearningResult(statusData.result);
+              addLog(`Learning complete! ${statusData.result.validSubmissions} valid submissions analyzed.`, 'success');
+              setActiveStep(2);
+              setAppStatus('idle');
+            }
+            if (statusData.error) {
+              addLog(`Learning failed: ${statusData.error}`, 'error');
+              setAppStatus('idle');
+            }
+            break;
+          }
+        } catch {
+          // Poll error, continue
         }
       }
 
-      if (result.competitorBeatScore !== undefined) {
-        const beatPct = result.competitorBeatScore;
-        if (beatPct > 0) addLog(`🏆 Beat competitors by ${beatPct}%! (Our score vs competitor avg)`, 'success');
-        else if (beatPct > -20) addLog(`📊 Competitive score: ${beatPct}% (close to competitor average)`, 'warning');
-        else addLog(`⚠️ Below competitor average by ${Math.abs(beatPct)}%`, 'warning');
+      if (pollAbortRef.current) {
+        addLog('Learning stopped by user.', 'warning');
+        setAppStatus('idle');
       }
-
-      addLog(`Stats: ${result.totalVariationsGenerated || 0} variations, ${result.totalCycles || 0} cycles, ${result.totalAIcalls || 0} AI calls`, 'info');
-
-      // Show result view
-      if (result.bestContent) {
-        setPipelineStageIndex(PIPELINE_STAGES.length);
-        setGenerating(false);
-        setView({
-          type: 'result',
-          campaign,
-          content: result.bestContent,
-          score: {
-            overallGrade: result.bestScoring?.overallGrade || '?',
-            contentQualityScore: result.bestScoring?.contentQualityScore || 0,
-            contentQualityPct: result.bestScoring?.contentQualityPct || 0,
-            estimatedPosition: result.bestScoring?.estimatedPosition || '?',
-            passesThreshold: result.bestScoring?.passesThreshold ?? false,
-            categories: result.bestScoring?.categories || [],
-            g4Detection: result.bestScoring?.g4Detection || null,
-            xFactors: result.bestScoring?.xFactors || null,
-            categoryAnalysis: result.bestScoring?.categoryAnalysis,
-            cycles: result.totalCycles || 1,
-            variations: result.totalVariationsGenerated || 1,
-            aiCalls: result.totalAIcalls || 1,
-            time: result.processingTime || 0,
-            competitorBeatScore: result.competitorBeatScore,
-            competitorAvgScore: result.competitiveAnalysis?.patterns?.averageEstimatedScore,
-            competitorTopScore: result.competitiveAnalysis?.patterns?.topScore,
-            targetScore: result.competitiveAnalysis?.differentiation?.targetScore,
-            groundTruth: result.groundTruth,
-          },
-        });
-      } else {
-        addLog(`No content generated. ${result.error || 'All candidates failed quality threshold.'}`, 'error');
-        setPipelineStageIndex(PIPELINE_STAGES.length);
-        setGenerating(false);
-        setView({
-          type: 'result',
-          campaign,
-          content: '',
-          score: {
-            overallGrade: '?', contentQualityScore: 0, contentQualityPct: 0,
-            estimatedPosition: 'N/A', passesThreshold: false, categories: [],
-            g4Detection: null, xFactors: null,
-            cycles: result.totalCycles || 0,
-            variations: result.totalVariationsGenerated || 0,
-            aiCalls: result.totalAIcalls || 0,
-            time: result.processingTime || 0,
-          },
-          _noContent: true,
-        });
-      }
-
-      setTimeout(fetchStatus, 1000);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Network error';
-      addLog(`Request failed: ${errorMsg}`, 'error');
-      setGenerating(false);
-      setPipelineStageIndex(PIPELINE_STAGES.length);
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      addLog(`Learning error: ${msg}`, 'error');
+      setAppStatus('idle');
     }
-  }, [addLog, fetchStatus]);
+  }, [selectedCampaign, appStatus, addLog, clearLogs]);
 
-  // ─── Copy to clipboard ─────────────────────────────────────────
+  // ─── Start Generate ────────────────────────────────────────────
+
+  const handleStartGenerate = useCallback(async () => {
+    if (!selectedCampaign || appStatus === 'learning' || appStatus === 'generating') return;
+
+    clearLogs();
+    setAppStatus('generating');
+    setShouldStop(false);
+    pollAbortRef.current = false;
+    setActiveStep(2);
+
+    addLog('Starting generation pipeline...', 'system');
+
+    try {
+      const res = await fetch('/api/rally/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignName: selectedCampaign.title,
+          campaignAddress: selectedCampaign.intelligentContractAddress,
+          campaignData: selectedCampaign,
+        }),
+      });
+      const data = await res.json();
+
+      if (!data.success || !data.jobId) {
+        throw new Error(data.error || 'Failed to start generation');
+      }
+
+      const jobId = data.jobId;
+      setGenerateJobId(jobId);
+      setCurrentJobId(jobId);
+      addLog('Generation pipeline started, polling...', 'info');
+
+      let lastProgressIdx = -1;
+      let polls = 0;
+
+      while (polls < 300 && !pollAbortRef.current) {
+        await new Promise(r => setTimeout(r, 2000));
+        polls++;
+
+        try {
+          const statusRes = await fetch(`/api/rally/generate/status?jobId=${jobId}`);
+          const statusData = await statusRes.json();
+
+          if (statusData.progress) {
+            for (let i = lastProgressIdx + 1; i < statusData.progress.length; i++) {
+              addLog(statusData.progress[i].message, statusData.progress[i].type || 'info');
+            }
+            lastProgressIdx = statusData.progress.length - 1;
+          }
+
+          if (statusData.status === 'completed' || statusData.status === 'failed') {
+            if (statusData.result?.bestContent) {
+              const result = statusData.result;
+              addLog(
+                `Generation complete! Grade ${result.bestScoring?.overallGrade || '?'} — Score ${result.bestScoring?.contentQualityScore?.toFixed(2) || 0}/21.0`,
+                'success'
+              );
+              setActiveStep(3);
+              setAppStatus('done');
+
+              // Refresh results
+              const resultsRes = await fetch('/api/rally/results');
+              const resultsData = await resultsRes.json();
+              if (resultsData.success && resultsData.results?.length > 0) {
+                setResults(resultsData.results);
+                setSelectedResult(resultsData.results[0]);
+              }
+            } else {
+              addLog('Generation failed: no content produced', 'error');
+              setAppStatus('idle');
+            }
+            break;
+          }
+        } catch {
+          // Poll error, continue
+        }
+      }
+
+      if (pollAbortRef.current) {
+        addLog('Generation stopped by user.', 'warning');
+        setAppStatus('idle');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      addLog(`Generation error: ${msg}`, 'error');
+      setAppStatus('idle');
+    }
+  }, [selectedCampaign, appStatus, addLog, clearLogs]);
+
+  // ─── Stop ──────────────────────────────────────────────────────
+
+  const handleStop = useCallback(() => {
+    pollAbortRef.current = true;
+    setShouldStop(true);
+    addLog('Stop requested...', 'warning');
+  }, [addLog]);
+
+  // ─── Copy ──────────────────────────────────────────────────────
 
   const handleCopy = useCallback(async (text: string) => {
     try {
@@ -649,1737 +469,713 @@ export default function RallyDashboard() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
       document.execCommand('copy');
-      document.body.removeChild(textarea);
+      document.body.removeChild(ta);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   }, []);
 
-  // ─── Copy address ──────────────────────────────────────────────
-
-  const [copiedAddr, setCopiedAddr] = useState('');
-  const handleCopyAddress = useCallback(async (addr: string) => {
-    await handleCopy(addr);
-    setCopiedAddr(addr);
-    setTimeout(() => setCopiedAddr(''), 2000);
-  }, [handleCopy]);
-
-  // ─── Render Helpers ─────────────────────────────────────────────
+  // ─── Helpers ───────────────────────────────────────────────────
 
   const getLogColor = (type: LogEntry['type']) => {
     switch (type) {
-      case 'success': return 'text-emerald-400';
-      case 'error': return 'text-red-400';
-      case 'warning': return 'text-amber-400';
-      case 'system': return 'text-violet-400 font-medium';
-      default: return 'text-gray-400';
+      case 'success': return 'text-emerald-500';
+      case 'error': return 'text-red-500';
+      case 'warning': return 'text-amber-500';
+      case 'system': return 'text-violet-500';
+      default: return 'text-gray-500';
     }
   };
 
-  const getLogIcon = (type: LogEntry['type']) => {
+  const getLogDot = (type: LogEntry['type']) => {
     switch (type) {
-      case 'success': return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />;
-      case 'error': return <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />;
-      case 'warning': return <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />;
-      case 'system': return <Zap className="h-3.5 w-3.5 text-violet-500 shrink-0" />;
-      default: return <ChevronRight className="h-3.5 w-3.5 text-gray-500 shrink-0" />;
+      case 'success': return 'bg-emerald-500';
+      case 'error': return 'bg-red-500';
+      case 'warning': return 'bg-amber-500';
+      case 'system': return 'bg-violet-500';
+      default: return 'bg-gray-400';
     }
   };
 
   const getGradeColor = (grade: string) => {
-    if (grade === 'S+' || grade === 'S') return 'text-amber-600 font-bold';
-    if (grade === 'A') return 'text-emerald-600 font-bold';
-    if (grade === 'B') return 'text-blue-600';
-    if (grade === 'C') return 'text-gray-600';
-    return 'text-red-600';
+    if (!grade) return 'bg-gray-100 text-gray-600';
+    if (grade.startsWith('S')) return 'bg-amber-100 text-amber-800 border-amber-300';
+    if (grade.startsWith('A')) return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+    if (grade.startsWith('B')) return 'bg-blue-100 text-blue-700 border-blue-200';
+    return 'bg-gray-100 text-gray-600 border-gray-200';
   };
 
-  // ─── Loading Overlay ───────────────────────────────────────────
+  const getStepStatus = (step: number) => {
+    if (activeStep > step) return 'completed';
+    if (activeStep === step) return 'active';
+    return 'idle';
+  };
 
-  if (detailLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 text-orange-500 animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading campaign details...</p>
-        </div>
-      </div>
-    );
-  }
+  const isRunning = appStatus === 'learning' || appStatus === 'generating';
 
-  // ─── Main Render ────────────────────────────────────────────────
+  // ─── Mission tabs data ─────────────────────────────────────────
+
+  const missions = selectedCampaign?.missions || [];
+  const missionTabs = missions.length > 0
+    ? missions.map((m, i) => ({
+        num: i + 1,
+        title: m.title || `Mission ${i + 1}`,
+        active: m.active !== false,
+      }))
+    : [];
+
+  // ─── Render ────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* ═══════ Header ═══════ */}
       <header className="border-b bg-white sticky top-0 z-50">
-        <div className="mx-auto max-w-6xl px-4 py-3 md:px-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-3 md:px-6">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* Back button (results/detail/result views) */}
-              {view.type !== 'search' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (view.type === 'result') {
-                      setView({ type: 'detail', campaign: view.campaign });
-                    } else if (view.type === 'generating') {
-                      setView({ type: 'detail', campaign: view.campaign });
-                    } else if (view.type === 'detail') {
-                      setView({ type: 'search' });
-                      setSearchQuery('');
-                    } else if (view.type === 'results') {
-                      setView({ type: 'search' });
-                      setSearchQuery('');
-                    }
-                  }}
-                  className="h-8 w-8 p-0 -ml-1"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              )}
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600">
-                  <Zap className="h-4.5 w-4.5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold tracking-tight md:text-xl">
-                    Rally Content Pipeline <span className="text-xs font-normal text-muted-foreground ml-1.5">v6.2 <span className="text-emerald-500">S</span></span>
-                  </h1>
-                  <p className="text-[11px] text-muted-foreground hidden sm:block">
-                    Rally-aligned scoring — 7 content categories, max 21.0 points
-                  </p>
-                </div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-600">
+                <Brain className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold tracking-tight">
+                  Rally Brain <span className="text-xs font-normal text-muted-foreground ml-1.5">v7</span>
+                </h1>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">
+                  Learn → Generate → Output
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {statusData && (
-                <Badge variant="outline" className="gap-1.5 text-xs">
-                  {statusData.status === 'online' ? (
-                    <Wifi className="h-3 w-3 text-emerald-500" />
-                  ) : (
-                    <WifiOff className="h-3 w-3 text-red-500" />
-                  )}
-                  {statusData.status}
-                </Badge>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { setShowDownload(!showDownload); if (!showDownload && !downloadData) fetchDownloadFiles(); else if (!showDownload) fetchDownloadFiles(); }}
-                className="gap-1.5 text-xs h-8 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-              >
-                <Download className="h-3 w-3" />
-                Download
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className="gap-1.5 text-xs h-8"
-              >
-                <RefreshCw
-                  className={`h-3 w-3 ${autoRefresh ? 'animate-spin' : ''} transition-all duration-1000`}
-                />
-                {autoRefresh ? 'Auto' : 'Manual'}
-              </Button>
-              {lastUpdated && (
-                <span className="text-[11px] text-muted-foreground hidden sm:inline">
-                  {lastUpdated}
-                </span>
-              )}
+              <Badge variant="outline" className={`gap-1.5 text-xs ${
+                appStatus === 'idle' || appStatus === 'done' ? 'border-emerald-300 text-emerald-700' :
+                appStatus === 'learning' ? 'border-amber-300 text-amber-700' :
+                'border-orange-300 text-orange-700'
+              }`}>
+                <CircleDot className={`h-2.5 w-2.5 ${
+                  isRunning ? 'animate-pulse' : ''
+                }`} />
+                {appStatus === 'idle' ? 'Idle' :
+                 appStatus === 'learning' ? 'Learning...' :
+                 appStatus === 'generating' ? 'Generating...' : 'Done'}
+              </Badge>
             </div>
           </div>
         </div>
       </header>
 
-      {/* ═══════ Download Center Panel ═══════ */}
-      {showDownload && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-16 px-4">
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowDownload(false)} />
-          <Card className="relative z-10 w-full max-w-lg border-2 border-emerald-200 shadow-2xl bg-white">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md">
-                    <FolderOpen className="h-5 w-5 text-white" />
+      {/* ═══════ Architecture Flow ═══════ */}
+      <div className="bg-white border-b">
+        <div className="mx-auto max-w-7xl px-4 py-3 md:px-6">
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
+            {[
+              { label: 'Search', icon: Search, step: 0 },
+              { label: 'Learn', icon: BookOpen, step: 1 },
+              { label: 'Generate', icon: Zap, step: 2 },
+              { label: 'Output', icon: Eye, step: 3 },
+            ].map((s, i) => {
+              const status = getStepStatus(s.step);
+              const Icon = s.icon;
+              return (
+                <React.Fragment key={s.step}>
+                  <div className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    status === 'active'
+                      ? 'bg-orange-100 text-orange-800 ring-1 ring-orange-300'
+                      : status === 'completed'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{s.label}</span>
+                    {status === 'completed' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                    {status === 'active' && isRunning && <Loader2 className="h-3 w-3 animate-spin" />}
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">Download Center</CardTitle>
-                    <CardDescription className="text-xs mt-0.5">
-                      Konten yang sudah di-generate dari 3 campaign
-                    </CardDescription>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setShowDownload(false)} className="h-8 w-8 p-0">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4 max-h-[60vh] overflow-y-auto">
-              {downloadLoading ? (
-                <div className="flex flex-col items-center justify-center py-8 gap-3">
-                  <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
-                  <p className="text-sm text-muted-foreground">Memuat daftar file...</p>
-                </div>
-              ) : downloadData && (downloadData.campaigns.length > 0 || downloadData.consolidatedFile) ? (
-                <div className="space-y-4">
-                  {/* ── Consolidated All-in-One File ── */}
-                  {downloadData.consolidatedFile && (
-                    <a
-                      href="/api/rally-content?campaign=__all__&file=rally-all-content.txt"
-                      className="flex items-center gap-4 rounded-xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 px-4 py-3 hover:shadow-lg hover:border-emerald-400 transition-all group cursor-pointer"
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm shrink-0">
-                        <FileText className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
-                          Semua Konten (1 File)
-                        </p>
-                        <p className="text-[11px] text-emerald-600/70 mt-0.5">
-                          Konten + Q&A + Skor dari semua campaign &middot; {(downloadData.consolidatedFile.size / 1024).toFixed(0)} KB
-                        </p>
-                      </div>
-                      <Download className="h-5 w-5 text-emerald-400 group-hover:text-emerald-600 transition-colors shrink-0" />
-                    </a>
+                  {i < 3 && (
+                    <ArrowRight className={`h-3.5 w-3.5 ${
+                      status === 'completed' ? 'text-emerald-500' : 'text-gray-300'
+                    }`} />
                   )}
-                  {/* ── Per-Campaign Files ── */}
-                  {downloadData.campaigns.map((camp) => {
-                    const gradeColors: Record<string, string> = {
-                      'S+': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-                      'S': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-                      'A+': 'bg-blue-100 text-blue-800 border-blue-300',
-                      'A': 'bg-blue-50 text-blue-700 border-blue-200',
-                      'B+': 'bg-gray-100 text-gray-700 border-gray-300',
-                      'B': 'bg-gray-50 text-gray-600 border-gray-200',
-                    };
-                    const gradeColor = gradeColors[camp.grade || ''] || 'bg-gray-100 text-gray-600 border-gray-200';
-                    const scorePct = camp.score ? Math.round((camp.score / 23) * 100) : 0;
-                    const timeStr = camp.timestamp ? new Date(camp.timestamp).toLocaleString('id-ID', {
-                      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-                    }) : '';
-                    return (
-                    <div key={camp.campaign} className="rounded-xl border border-gray-200 overflow-hidden">
-                      {/* Campaign header with score */}
-                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2.5 border-b border-gray-200">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-semibold text-emerald-800 flex-1 min-w-0 truncate">{camp.label}</p>
-                          {camp.grade && (
-                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${gradeColor}`}>
-                              {camp.grade} {camp.score ? camp.score + '/23' : ''}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between mt-0.5">
-                          <p className="text-[11px] text-emerald-600/70">{camp.files.length} file</p>
-                          {timeStr && <p className="text-[10px] text-emerald-600/50">{timeStr}</p>}
-                        </div>
-                        {/* Score bar */}
-                        {camp.score && (
-                          <div className="mt-1.5">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all"
-                                  style={{ width: `${scorePct}%` }}
-                                />
-                              </div>
-                              <span className="text-[10px] font-medium text-emerald-600">{scorePct}%</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      {/* File list */}
-                      <div className="divide-y divide-gray-100">
-                        {camp.files.map((f) => {
-                          const fileLabels: Record<string, string> = {
-                            'best_content.txt': 'Best Content',
-                            'qa.json': 'Q&A Pairs',
-                            'full_output.json': 'Full Output',
-                            'prediction.json': 'Prediction',
-                          };
-                          const iconColor = f.type === 'txt' ? 'text-blue-500' : 'text-amber-500';
-                          const sizeStr = f.size > 1024 ? `${(f.size / 1024).toFixed(1)} KB` : `${f.size} B`;
-                          const fileTimeStr = new Date(f.modified).toLocaleString('id-ID', {
-                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-                          });
-                          return (
-                            <a
-                              key={f.path}
-                              href={`/api/rally-content?campaign=${encodeURIComponent(camp.campaign)}&file=${encodeURIComponent(f.name)}`}
-                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors group cursor-pointer"
-                            >
-                              <FileText className={`h-4 w-4 shrink-0 ${iconColor}`} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-800 group-hover:text-emerald-700 transition-colors truncate">
-                                  {fileLabels[f.name] || f.name}
-                                </p>
-                                <p className="text-[11px] text-gray-400">
-                                  {sizeStr} &middot; {fileTimeStr}
-                                </p>
-                              </div>
-                              <Download className="h-3.5 w-3.5 text-gray-300 group-hover:text-emerald-500 transition-colors shrink-0" />
-                            </a>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    );
-                  })}
-                  <p className="text-center text-[11px] text-muted-foreground pt-1">
-                    Total: {downloadData.totalFiles} file dari {downloadData.campaigns.length} campaign
-                    {downloadData.consolidatedFile ? ' + 1 konsolidasi' : ''}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 gap-3">
-                  <FolderOpen className="h-8 w-8 text-gray-300" />
-                  <p className="text-sm text-muted-foreground">Belum ada konten yang tersedia</p>
-                  <Button variant="outline" size="sm" onClick={fetchDownloadFiles} className="gap-1.5 text-xs">
-                    <RefreshCw className="h-3 w-3" />
-                    Refresh
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
-      )}
+      </div>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 md:px-6 space-y-6">
-        {/* ═══════════════════════════════════════════════════════════
-            STATE 1: SEARCH VIEW
-        ═══════════════════════════════════════════════════════════ */}
-        {view.type === 'search' && (
-          <>
-            {/* Hero Section */}
-            <div className="text-center py-8 md:py-12">
-              <div className="mx-auto max-w-2xl space-y-4">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-200">
-                  <Sparkles className="h-8 w-8 text-white" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                  Find Your Campaign
-                </h2>
-                <p className="text-muted-foreground text-base md:text-lg">
-                  Search from Rally.fun campaigns, review the details, and generate
-                  AI-powered social media content.
-                </p>
-              </div>
-            </div>
-
-            {/* Search Input */}
-            <Card className="border-2 border-orange-200/60 bg-gradient-to-br from-white via-orange-50/30 to-white relative">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 rounded-t-lg" />
-              <CardContent className="pt-6 pb-6 relative">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder='Search campaigns... e.g. "Internet Court", "DeFi Yield"'
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      disabled={searchLoading}
-                      className="h-12 text-base pl-11 pr-4 bg-white border-gray-300 focus:border-orange-400 focus:ring-orange-400/20 disabled:opacity-60"
-                    />
-                    {searchLoading && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Loader2 className="h-5 w-5 text-orange-500 animate-spin" />
-                      </div>
-                    )}
-                  </div>
+      {/* ═══════ Main Content ═══════ */}
+      <main className="flex-1 mx-auto max-w-7xl w-full px-4 py-4 md:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* ── LEFT PANEL: Campaign Selector ── */}
+          <div className="lg:col-span-4 space-y-3">
+            {/* Search */}
+            <Card className="border-gray-200">
+              <CardContent className="p-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search campaigns..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={searchLoading}
+                    className="h-10 pl-9 pr-10 text-sm bg-gray-50 border-gray-200 focus:bg-white"
+                  />
                   <Button
                     onClick={handleSearch}
                     disabled={searchLoading || !searchQuery.trim()}
-                    size="lg"
-                    className="h-12 px-8 gap-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-lg shadow-orange-200 disabled:opacity-50 transition-all"
+                    size="sm"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-2.5 bg-orange-500 hover:bg-orange-600"
                   >
-                    {searchLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="h-4 w-4" />
-                        Search
-                      </>
-                    )}
+                    {searchLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
                   </Button>
-                </div>
-
-                {/* Error Message */}
-                {searchError && (
-                  <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    <XCircle className="h-4 w-4 shrink-0" />
-                    {searchError}
-                  </div>
-                )}
-
-                {/* Quick Hint Chips */}
-                <div className="mt-4">
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Popular campaigns
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {QUICK_HINTS.map((hint) => (
-                      <button
-                        key={hint.label}
-                        onClick={() => {
-                          setSearchQuery(hint.label);
-                          setTimeout(() => {
-                            setSearchQuery(hint.label);
-                            setSearchLoading(true);
-                            setSearchError('');
-                            fetch(`/api/rally/search?q=${encodeURIComponent(hint.label)}`)
-                              .then((r) => r.json())
-                              .then((data) => {
-                                if (data.success && data.results.length > 0) {
-                                  setView({ type: 'results', query: hint.label, results: data.results });
-                                } else if (data.success) {
-                                  setSearchError(`No campaigns found for "${hint.label}".`);
-                                } else {
-                                  setSearchError(data.error || 'Search failed.');
-                                }
-                              })
-                              .catch(() => setSearchError('Network error.'))
-                              .finally(() => setSearchLoading(false));
-                          }, 0);
-                        }}
-                        disabled={searchLoading}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-all hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 hover:shadow-md disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-                      >
-                        <span>{hint.icon}</span>
-                        {hint.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </CardContent>
             </Card>
-          </>
-        )}
 
-        {/* ═══════════════════════════════════════════════════════════
-            STATE 2: RESULTS VIEW
-        ═══════════════════════════════════════════════════════════ */}
-        {view.type === 'results' && (
-          <>
-            {/* Results Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-orange-500" />
-                <h2 className="text-xl font-bold">
-                  Results for &ldquo;{view.query}&rdquo;
-                </h2>
-              </div>
-              <Badge variant="secondary" className="w-fit">
-                {view.results.length} campaign{view.results.length !== 1 ? 's' : ''} found
-              </Badge>
-            </div>
-
-            {/* Campaign Cards Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {view.results.map((campaign) => {
-                const isActive = isCampaignActive(campaign.endDate);
-                return (
-                  <Card
-                    key={campaign.address}
-                    className="cursor-pointer transition-all hover:shadow-lg hover:border-orange-300 hover:-translate-y-0.5 group"
-                    onClick={() => handleSelectCampaign(campaign)}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-base leading-snug group-hover:text-orange-600 transition-colors">
-                          {campaign.title}
-                        </CardTitle>
-                        <Badge
-                          variant="outline"
-                          className={`shrink-0 text-[10px] ${
-                            isActive
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                              : 'border-gray-200 bg-gray-50 text-gray-500'
+            {/* Campaign List */}
+            <Card className="border-gray-200">
+              <CardHeader className="px-4 py-2.5 border-b bg-gray-50/50">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Search className="h-3.5 w-3.5" />
+                  Campaigns
+                  {searchResults.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{searchResults.length}</Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ScrollArea className="max-h-80">
+                  {!hasSearched ? (
+                    <div className="p-6 text-center text-sm text-muted-foreground">
+                      Search for a campaign to get started
+                    </div>
+                  ) : searchLoading ? (
+                    <div className="p-6 flex justify-center">
+                      <Loader2 className="h-5 w-5 text-orange-500 animate-spin" />
+                    </div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="p-6 text-center text-sm text-muted-foreground">
+                      No campaigns found
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {searchResults.map(card => (
+                        <button
+                          key={card.address}
+                          onClick={() => handleSelectCampaign(card)}
+                          disabled={detailLoading}
+                          className={`w-full text-left p-3 hover:bg-gray-50 transition-colors disabled:opacity-60 ${
+                            selectedCampaign?.intelligentContractAddress === card.address ? 'bg-orange-50 border-l-2 border-l-orange-500' : ''
                           }`}
                         >
-                          {isActive ? 'Active' : 'Ended'}
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-xs line-clamp-2">
-                        {campaign.description?.substring(0, 120) || 'No description'}
-                        {(campaign.description?.length || 0) > 120 ? '...' : ''}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-0 space-y-2">
-                      {/* Meta info row */}
-                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                        {campaign.endDate && (
-                          <span className="inline-flex items-center gap-1">
-                            <CalendarDays className="h-3 w-3" />
-                            Ends {formatDate(campaign.endDate)}
-                          </span>
-                        )}
-                        {campaign.rewards?.length > 0 && campaign.rewards[0]?.tokenSymbol && (
-                          <span className="inline-flex items-center gap-1 text-amber-600">
-                            <Gift className="h-3 w-3" />
-                            {campaign.rewards[0].totalAmount} {campaign.rewards[0].tokenSymbol}
-                          </span>
-                        )}
-                        {campaign.missionCount > 0 && (
-                          <span className="inline-flex items-center gap-1">
-                            <Target className="h-3 w-3" />
-                            {campaign.activeMissionCount}/{campaign.missionCount} missions
-                          </span>
-                        )}
-                      </div>
-                      {/* Address + chevron */}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[11px]">
-                          {shortenAddress(campaign.address)}
-                        </code>
-                        <ChevronRight className="h-3.5 w-3.5 ml-auto text-gray-300 group-hover:text-orange-400 transition-colors" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════════
-            STATE 3, 4, 5: DETAIL / GENERATING / RESULT VIEW
-        ═══════════════════════════════════════════════════════════ */}
-        {(view.type === 'detail' || view.type === 'generating' || view.type === 'result') && (
-          <>
-            {/* ═══ Campaign Header Card ═══ */}
-            <Card className="border-2 border-orange-200/60 bg-gradient-to-br from-white via-orange-50/20 to-white relative">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 rounded-t-lg" />
-              <CardHeader className="relative">
-                <div className="flex flex-col gap-3">
-                  {/* Title + Status */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-xl md:text-2xl font-bold tracking-tight">
-                          {view.campaign.title}
-                        </h2>
-                        <Badge
-                          variant="outline"
-                          className={
-                            isCampaignActive(view.campaign.endDate)
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                              : 'border-gray-200 bg-gray-50 text-gray-500'
-                          }
-                        >
-                          {isCampaignActive(view.campaign.endDate) ? 'Active' : 'Ended'}
-                        </Badge>
-                      </div>
-
-                      {/* Mission title if active */}
-                      {view.campaign.missionTitle && (
-                        <div className="flex items-center gap-1.5 text-sm text-orange-700 font-medium">
-                          <Target className="h-3.5 w-3.5" />
-                          Mission {view.campaign.missionNumber}: {view.campaign.missionTitle}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Meta info grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    {/* Contract Address */}
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Hash className="h-3 w-3 shrink-0" />
-                      <div className="flex items-center gap-1 min-w-0">
-                        <code className="truncate font-mono">
-                          {shortenAddress(view.campaign.intelligentContractAddress)}
-                        </code>
-                        <button
-                          onClick={() => handleCopyAddress(view.campaign.intelligentContractAddress)}
-                          className="text-muted-foreground hover:text-orange-600 transition-colors shrink-0"
-                        >
-                          {copiedAddr === view.campaign.intelligentContractAddress ? (
-                            <Check className="h-3 w-3 text-emerald-500" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-gray-900 truncate">{card.title}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{card.description}</p>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] shrink-0 ${
+                                card.status === 'active' ? 'text-emerald-700 border-emerald-200' : 'text-gray-500'
+                              }`}
+                            >
+                              {card.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            {card.rewards.length > 0 && (
+                              <span className="text-[11px] text-amber-700 font-medium">
+                                {card.rewards[0].totalAmount.toLocaleString()} {card.rewards[0].tokenSymbol}
+                              </span>
+                            )}
+                            <span className="text-[11px] text-gray-400">{card.missionCount} missions</span>
+                            {card.category && (
+                              <span className="text-[11px] text-gray-400">{card.category}</span>
+                            )}
+                          </div>
                         </button>
-                      </div>
+                      ))}
                     </div>
-
-                    {/* End Date */}
-                    {view.campaign.endDate && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <CalendarDays className="h-3 w-3 shrink-0" />
-                        <span>Ends {formatDate(view.campaign.endDate)}</span>
-                      </div>
-                    )}
-
-                    {/* Start Date */}
-                    {view.campaign.startDate && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Clock className="h-3 w-3 shrink-0" />
-                        <span>Starts {formatDate(view.campaign.startDate)}</span>
-                      </div>
-                    )}
-
-                    {/* Content Type */}
-                    {view.campaign.contentType && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Type className="h-3 w-3 shrink-0" />
-                        <span className="capitalize">{view.campaign.contentType}</span>
-                      </div>
-                    )}
-
-                    {/* Character Limit */}
-                    {view.campaign.characterLimit && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <FileText className="h-3 w-3 shrink-0" />
-                        <span>Max {view.campaign.characterLimit} chars</span>
-                      </div>
-                    )}
-
-                    {/* Category */}
-                    {view.campaign.category && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Tag className="h-3 w-3 shrink-0" />
-                        <span className="capitalize">{view.campaign.category}</span>
-                      </div>
-                    )}
-
-                    {/* Rewards */}
-                    {Array.isArray(view.campaign.campaignRewards) && view.campaign.campaignRewards.length > 0 && (
-                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                        <Gift className="h-3 w-3 shrink-0" />
-                        <span>
-                          {(view.campaign.campaignRewards as RewardInfo[]).map((r) =>
-                            `${r.totalAmount} ${r.tokenSymbol}`
-                          ).join(', ')}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Rally.fun Link */}
-                    {view.campaign.campaignUrl && (
-                      <div className="flex items-center gap-1.5">
-                        <Link2 className="h-3 w-3 shrink-0 text-orange-500" />
-                        <a
-                          href={view.campaign.campaignUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-orange-600 hover:text-orange-700 font-medium inline-flex items-center gap-0.5"
-                        >
-                          Rally.fun <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
+                  )}
+                </ScrollArea>
+              </CardContent>
             </Card>
 
-            {/* Admin Notice (if present) */}
-            {view.campaign.adminNotice && (
-              <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                <span className="whitespace-pre-wrap">{String(view.campaign.adminNotice)}</span>
-              </div>
-            )}
-
-            {/* ═══ Missions Section ═══ */}
-            {Array.isArray(view.campaign.missions) && view.campaign.missions.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-orange-500" />
-                      <CardTitle className="text-sm">
-                        Available Missions ({view.campaign.missions.length})
-                      </CardTitle>
-                    </div>
-                    {view.campaign.missionNumber && (
-                      <Badge variant="outline" className="text-[10px] border-orange-200 bg-orange-50 text-orange-700">
-                        Mission {view.campaign.missionNumber} selected
-                      </Badge>
-                    )}
-                  </div>
+            {/* Selected Campaign Detail */}
+            {selectedCampaign && (
+              <Card className="border-orange-200 bg-gradient-to-b from-orange-50/30 to-white">
+                <CardHeader className="px-4 py-2.5 border-b bg-orange-50/50">
+                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Target className="h-3.5 w-3.5 text-orange-500" />
+                    Selected Campaign
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {view.campaign.missions.map((mission, idx) => {
-                      const missionNum = idx + 1;
-                      const isActive = mission.active !== false;
-                      const isSelected = view.campaign.missionNumber === missionNum;
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            if (!isSelected) {
-                              handleSwitchMission(missionNum, view.campaign);
-                            }
-                          }}
-                          disabled={isSelected || view.type === 'generating'}
-                          className={`text-left rounded-lg border p-3 transition-all cursor-pointer ${
-                            isSelected
-                              ? 'border-orange-300 bg-orange-50 ring-1 ring-orange-200'
-                              : isActive
-                                ? 'border-gray-200 bg-white hover:border-orange-200 hover:bg-orange-50/50'
-                                : 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="text-xs font-semibold truncate">
-                              M{missionNum}: {mission.title || 'Untitled'}
-                            </span>
-                            <span className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                              isSelected
-                                ? 'bg-orange-200 text-orange-800'
-                                : isActive
-                                  ? 'bg-emerald-100 text-emerald-700'
-                                  : 'bg-gray-200 text-gray-500'
-                            }`}>
-                              {isSelected ? 'Active' : isActive ? 'Available' : 'Inactive'}
-                            </span>
+                <CardContent className="p-3 space-y-3">
+                  {detailLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-5 w-5 text-orange-500 animate-spin" />
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">{selectedCampaign.title}</h3>
+                        {selectedCampaign.missionTitle && (
+                          <p className="text-xs text-orange-700 mt-0.5">Mission {selectedMissionNum}: {selectedCampaign.missionTitle}</p>
+                        )}
+                      </div>
+
+                      {/* Mission Tabs */}
+                      {missionTabs.length > 1 && (
+                        <div className="flex flex-wrap gap-1">
+                          {missionTabs.map(mt => (
+                            <button
+                              key={mt.num}
+                              onClick={() => handleSwitchMission(mt.num)}
+                              disabled={isRunning}
+                              className={`text-[11px] px-2.5 py-1 rounded-full transition-colors ${
+                                selectedMissionNum === mt.num
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              } disabled:opacity-50`}
+                            >
+                              M{mt.num}: {mt.title.length > 20 ? mt.title.substring(0, 20) + '...' : mt.title}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <Separator />
+
+                      {/* Campaign Info */}
+                      <div className="space-y-1.5 text-xs text-gray-600">
+                        {selectedCampaign.contentType && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-400 w-16 shrink-0">Type</span>
+                            <span className="font-medium">{selectedCampaign.contentType}</span>
                           </div>
-                          {(mission.goal || mission.description) && (
-                            <p className="text-[11px] text-muted-foreground line-clamp-2">
-                              {mission.goal || mission.description}
+                        )}
+                        {selectedCampaign.characterLimit && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-400 w-16 shrink-0">Limit</span>
+                            <span className="font-medium">{selectedCampaign.characterLimit} chars</span>
+                          </div>
+                        )}
+                        {selectedCampaign.rules && (
+                          <div className="mt-2">
+                            <p className="text-gray-400 mb-1">Rules (preview)</p>
+                            <p className="text-[11px] text-gray-500 line-clamp-3 bg-gray-50 rounded p-2">
+                              {typeof selectedCampaign.rules === 'string'
+                                ? selectedCampaign.rules
+                                : JSON.stringify(selectedCampaign.rules).substring(0, 300)}
                             </p>
-                          )}
-                          {mission.characterLimit && (
-                            <span className="text-[10px] text-gray-400 mt-1 inline-block">
-                              Max {mission.characterLimit} chars
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             )}
 
-            {/* ═══ Campaign Detail Sections — Accordion ═══ */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-orange-500" />
-                  <CardTitle className="text-sm">Campaign Information</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Accordion type="multiple" defaultValue={['description', 'rules', 'style']} className="w-full">
-                  {/* Description */}
-                  <AccordionItem value="description">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-3.5 w-3.5 text-orange-500" />
-                        <span>Description</span>
-                        {view.campaign.missionTitle && (
-                          <Badge variant="secondary" className="text-[10px] ml-1">Mission: {view.campaign.missionTitle}</Badge>
-                        )}
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ScrollArea className="max-h-96">
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                          {view.campaign.description || view.campaign.goal || 'No description available.'}
-                        </p>
-                      </ScrollArea>
-                    </AccordionContent>
-                  </AccordionItem>
-
+            {/* Learning Results */}
+            {learningResult && (
+              <Card className="border-emerald-200">
+                <CardHeader className="px-4 py-2.5 border-b bg-emerald-50/50">
+                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
+                    Learning Insights
+                    <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-0">
+                      {learningResult.validSubmissions} analyzed
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 space-y-2">
                   {/* Rules */}
-                  <AccordionItem value="rules">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-3.5 w-3.5 text-blue-500" />
-                        <span>Rules</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.rules ? (
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.rules}
-                          </p>
-                        </ScrollArea>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No rules specified.</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
+                  {learningResult.rules.length > 0 && (
+                    <div className="space-y-1">
+                      {learningResult.rules.slice(0, 5).map((rule, i) => (
+                        <div key={i} className="text-[11px] text-gray-600 flex gap-1.5">
+                          <span className="text-orange-500 shrink-0">•</span>
+                          <span>{rule}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <Separator />
+                  {/* Patterns */}
+                  {learningResult.patterns.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-gray-500">Top Differentiators</p>
+                      {learningResult.patterns.slice(0, 3).map((p, i) => (
+                        <div key={i} className="text-[11px]">
+                          <span className="font-medium text-gray-700">{p.category}</span>
+                          <span className="text-gray-400 ml-1">(+{p.gap.toFixed(0)}% gap)</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <Separator />
+                  {/* Weak/Strong */}
+                  <div className="flex gap-3">
+                    <div>
+                      <p className="text-[10px] text-red-500 font-medium">Weak</p>
+                      {learningResult.weakCategories.slice(0, 2).map((w, i) => (
+                        <p key={i} className="text-[11px] text-gray-600">{w}</p>
+                      ))}
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-emerald-500 font-medium">Strong</p>
+                      {learningResult.strongCategories.slice(0, 2).map((s, i) => (
+                        <p key={i} className="text-[11px] text-gray-600">{s}</p>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-                  {/* Style Guide */}
-                  <AccordionItem value="style">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-3.5 w-3.5 text-purple-500" />
-                        <span>Style / Tone Guide</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.style ? (
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.style}
-                          </p>
-                        </ScrollArea>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No style guide specified.</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Requirements */}
-                  <AccordionItem value="requirements">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <ScrollText className="h-3.5 w-3.5 text-indigo-500" />
-                        <span>Requirements</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.requirements ? (
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.requirements}
-                          </p>
-                        </ScrollArea>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No explicit requirements specified.</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Knowledge Base */}
-                  <AccordionItem value="knowledge">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-3.5 w-3.5 text-emerald-500" />
-                        <span>Knowledge Base</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.knowledgeBase ? (
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.knowledgeBase}
-                          </p>
-                        </ScrollArea>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No knowledge base provided.</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Additional Info */}
-                  <AccordionItem value="additional">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <Info className="h-3.5 w-3.5 text-cyan-500" />
-                        <span>Additional Info / Admin Notice</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.additionalInfo ? (
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.additionalInfo}
-                          </p>
-                        </ScrollArea>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No additional info.</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Prohibited Items */}
-                  <AccordionItem value="prohibited">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <Ban className="h-3.5 w-3.5 text-red-500" />
-                        <span>Prohibited Items</span>
-                        {view.campaign.prohibitedItems && (
-                          <Badge variant="destructive" className="text-[10px] ml-1">!</Badge>
+          {/* ── RIGHT PANEL: Results Viewer ── */}
+          <div className="lg:col-span-8 space-y-3">
+            <Card className="border-gray-200 min-h-[300px]">
+              <CardHeader className="px-4 py-2.5 border-b bg-gray-50/50 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Eye className="h-3.5 w-3.5 text-orange-500" />
+                  Results Viewer
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  {selectedResult?.grade && (
+                    <Badge className={`text-xs font-bold px-2.5 py-0.5 border ${getGradeColor(selectedResult.grade)}`}>
+                      {selectedResult.grade}
+                      {selectedResult.score !== null && ` ${selectedResult.score.toFixed(1)}`}
+                    </Badge>
+                  )}
+                  {selectedResult?.source && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {selectedResult.source}
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Tabs defaultValue="content" className="w-full">
+                  <div className="border-b px-4 pt-1">
+                    <TabsList className="bg-transparent h-9 p-0 gap-0">
+                      <TabsTrigger
+                        value="content"
+                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs px-3"
+                      >
+                        <FileText className="h-3.5 w-3.5 mr-1" />
+                        Content
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="qa"
+                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs px-3"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                        Q&A
+                        {selectedResult?.qaPairs && selectedResult.qaPairs.length > 0 && (
+                          <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0 h-4">
+                            {selectedResult.qaPairs.length}
+                          </Badge>
                         )}
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {view.campaign.prohibitedItems ? (
-                        <ScrollArea className="max-h-96">
-                          <div className="rounded-lg border border-red-100 bg-red-50 p-3">
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-red-900">
-                              {view.campaign.prohibitedItems}
-                            </p>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="history"
+                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs px-3"
+                      >
+                        <BarChart3 className="h-3.5 w-3.5 mr-1" />
+                        History
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  {/* Content Tab */}
+                  <TabsContent value="content" className="mt-0">
+                    <div className="p-4">
+                      {!selectedResult && resultsLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="h-6 w-6 text-gray-300 animate-spin" />
+                        </div>
+                      ) : selectedResult && selectedResult.content ? (
+                        <div className="space-y-4">
+                          {/* Campaign Name */}
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-gray-700">{selectedResult.campaignName}</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCopy(selectedResult.content!)}
+                              className="h-7 text-xs gap-1"
+                            >
+                              {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                              {copied ? 'Copied' : 'Copy'}
+                            </Button>
                           </div>
-                        </ScrollArea>
+
+                          {/* Score Breakdown */}
+                          {selectedResult.categories.length > 0 && (
+                            <div className="space-y-2">
+                              <p className="text-xs font-medium text-gray-500">Score Breakdown</p>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {selectedResult.categories.map((cat, i) => (
+                                  <div key={i} className="bg-gray-50 rounded-lg p-2.5">
+                                    <p className="text-[11px] text-gray-500 truncate">{cat.name}</p>
+                                    <div className="flex items-baseline gap-1 mt-0.5">
+                                      <span className={`text-sm font-bold ${
+                                        cat.percentage >= 80 ? 'text-emerald-600' :
+                                        cat.percentage >= 50 ? 'text-amber-600' : 'text-red-600'
+                                      }`}>
+                                        {cat.score}
+                                      </span>
+                                      <span className="text-[11px] text-gray-400">/{cat.maxScore}</span>
+                                    </div>
+                                    <Progress value={cat.percentage} className="h-1 mt-1.5" />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* G4 Reasons */}
+                          {selectedResult.g4Reasons && selectedResult.g4Reasons.length > 0 && (
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 mb-1">G4 Originality Bonuses</p>
+                              <div className="flex flex-wrap gap-1">
+                                {selectedResult.g4Reasons.map((r, i) => (
+                                  <Badge key={i} variant="secondary" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
+                                    {r}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <Separator />
+
+                          {/* Content */}
+                          <div className="relative">
+                            <p className="text-xs font-medium text-gray-500 mb-2">Generated Content</p>
+                            <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-[system-ui]">
+                              {selectedResult.content}
+                            </div>
+                          </div>
+                        </div>
+                      ) : selectedResult ? (
+                        <div className="text-center py-12 text-sm text-muted-foreground">
+                          No content available for this result
+                        </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground italic">No prohibited items specified.</p>
+                        <div className="text-center py-12 text-sm text-muted-foreground">
+                          <Sparkles className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                          <p>Select a campaign and generate content to see results</p>
+                        </div>
                       )}
-                    </AccordionContent>
-                  </AccordionItem>
+                    </div>
+                  </TabsContent>
 
-                  {/* Campaign Goal (if different from description) */}
-                  {view.campaign.goal && view.campaign.goal !== view.campaign.description && (
-                    <AccordionItem value="goal">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-3.5 w-3.5 text-amber-500" />
-                          <span>Campaign Goal (Original)</span>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <ScrollArea className="max-h-96">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                            {view.campaign.goal}
-                          </p>
-                        </ScrollArea>
-                      </AccordionContent>
-                    </AccordionItem>
-                  )}
-
-                  {/* Content Constraints */}
-                  {(view.campaign.contentType || view.campaign.characterLimit) && (
-                    <AccordionItem value="constraints">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="h-3.5 w-3.5 text-gray-500" />
-                          <span>Content Constraints</span>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent>
+                  {/* Q&A Tab */}
+                  <TabsContent value="qa" className="mt-0">
+                    <div className="p-4">
+                      {selectedResult?.qaPairs && selectedResult.qaPairs.length > 0 ? (
                         <div className="space-y-3">
-                          {view.campaign.contentType && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-muted-foreground w-28 shrink-0">Content Type:</span>
-                              <Badge variant="outline" className="capitalize text-xs">
-                                {view.campaign.contentType}
-                              </Badge>
+                          <p className="text-xs font-medium text-gray-500">
+                            {selectedResult.qaPairs.length} Q&A pairs generated
+                          </p>
+                          {selectedResult.qaPairs.map((qa, i) => (
+                            <div key={i} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                              <div className="flex gap-2">
+                                <Badge className="text-[10px] bg-blue-100 text-blue-700 shrink-0 h-5 w-5 flex items-center justify-center p-0">
+                                  Q
+                                </Badge>
+                                <p className="text-sm text-gray-800 font-medium">{qa.q}</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Badge className="text-[10px] bg-emerald-100 text-emerald-700 shrink-0 h-5 w-5 flex items-center justify-center p-0">
+                                  A
+                                </Badge>
+                                <p className="text-sm text-gray-600">{qa.a}</p>
+                              </div>
                             </div>
-                          )}
-                          {view.campaign.characterLimit && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-muted-foreground w-28 shrink-0">Char Limit:</span>
-                              <Badge variant="outline" className="text-xs">
-                                {view.campaign.characterLimit} characters
-                              </Badge>
-                            </div>
-                          )}
-                          {view.campaign.campaignUrl && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-muted-foreground w-28 shrink-0">Campaign URL:</span>
-                              <code className="text-xs text-orange-600 break-all">
-                                {view.campaign.campaignUrl}
-                              </code>
-                            </div>
-                          )}
+                          ))}
                         </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  )}
-                </Accordion>
+                      ) : (
+                        <div className="text-center py-12 text-sm text-muted-foreground">
+                          <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                          <p>No Q&A pairs available. Generate content first.</p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* History Tab */}
+                  <TabsContent value="history" className="mt-0">
+                    <div className="p-4">
+                      {resultsLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="h-6 w-6 text-gray-300 animate-spin" />
+                        </div>
+                      ) : results.length > 0 ? (
+                        <div className="space-y-2">
+                          {results.map((r, i) => (
+                            <button
+                              key={r.id}
+                              onClick={() => setSelectedResult(r)}
+                              className={`w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors hover:bg-gray-50 ${
+                                selectedResult?.id === r.id ? 'bg-orange-50 ring-1 ring-orange-200' : ''
+                              }`}
+                            >
+                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 shrink-0">
+                                <Trophy className={`h-4 w-4 ${
+                                  r.grade?.startsWith('S') ? 'text-amber-500' :
+                                  r.grade?.startsWith('A') ? 'text-emerald-500' : 'text-gray-400'
+                                }`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-800 truncate">{r.campaignName}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <Badge className={`text-[10px] px-1.5 py-0 border ${getGradeColor(r.grade || '')}`}>
+                                    {r.grade || '?'}
+                                  </Badge>
+                                  {r.score !== null && (
+                                    <span className="text-[11px] text-gray-500">{r.score.toFixed(1)}/21</span>
+                                  )}
+                                  <Badge variant="outline" className="text-[10px] text-gray-400">
+                                    {r.source}
+                                  </Badge>
+                                </div>
+                              </div>
+                              {r.timestamp && (
+                                <span className="text-[11px] text-gray-400 shrink-0 hidden sm:block">
+                                  {new Date(r.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 text-sm text-muted-foreground">
+                          No results yet
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
+          </div>
+        </div>
 
-            {/* ═══ Mission Detail (if different from campaign-level data) ═══ */}
-            {view.campaign.missionTitle && Array.isArray(view.campaign.missions) && view.campaign.missions.length > 1 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-orange-500" />
-                    <CardTitle className="text-sm">
-                      Mission {view.campaign.missionNumber} Details: {view.campaign.missionTitle}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Showing data merged from this mission (overrides campaign-level data).
-                  </p>
-                  {view.campaign.missionGoal && (
-                    <div className="mb-3">
-                      <span className="text-xs font-medium text-muted-foreground">Mission Goal:</span>
-                      <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{view.campaign.missionGoal}</p>
-                    </div>
+        {/* ── Control Panel ── */}
+        <div className="mt-4 space-y-3">
+          <Card className="border-gray-200">
+            <CardHeader className="px-4 py-2.5 border-b bg-gray-50/50">
+              <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Zap className="h-3.5 w-3.5 text-orange-500" />
+                Control Panel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  onClick={handleStartLearn}
+                  disabled={!selectedCampaign || isRunning}
+                  className="gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm"
+                >
+                  {appStatus === 'learning' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <BookOpen className="h-4 w-4" />
                   )}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Style: </span>
-                      <span>{view.campaign.style || 'Default'}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Char Limit: </span>
-                      <span>{view.campaign.characterLimit || 'None'}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Content Type: </span>
-                      <span className="capitalize">{view.campaign.contentType || 'Default'}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            <Separator />
-
-            {/* ═══ Generate Button ═══ */}
-            {view.type === 'detail' && (
-              <Card className="border-2 border-dashed border-orange-300 bg-gradient-to-br from-orange-50/60 to-white">
-                <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-200">
-                    <Sparkles className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Ready to Generate</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      All campaign information above will be used to generate optimized content.
-                      {view.campaign.missionTitle && ` Currently targeting Mission ${view.campaign.missionNumber}: "${view.campaign.missionTitle}".`}
-                    </p>
-                  </div>
+                  Start Learn
+                </Button>
+                <Button
+                  onClick={handleStartGenerate}
+                  disabled={!selectedCampaign || isRunning}
+                  className="gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                >
+                  {appStatus === 'generating' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Zap className="h-4 w-4" />
+                  )}
+                  Start Generate
+                </Button>
+                {isRunning && (
                   <Button
-                    onClick={() => handleGenerate(view.campaign)}
-                    size="lg"
-                    className="px-10 gap-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-lg shadow-orange-200 transition-all"
-                  >
-                    <Send className="h-4 w-4" />
-                    Generate Content
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════
-                STATE 4: GENERATING
-            ═══════════════════════════════════════════════════════════ */}
-            {(view.type === 'generating') && (
-              <>
-                {/* Progress Indicator */}
-                <Card className="border-2 border-orange-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-5 w-5 text-orange-500 animate-spin" />
-                        <span className="text-sm font-semibold text-orange-800">
-                          Pipeline Running...
-                        </span>
-                      </div>
-                      <span className="text-xs text-orange-600 font-medium">
-                        Stage {Math.max(pipelineStageIndex + 1, 1)}/{PIPELINE_STAGES.length}
-                      </span>
-                    </div>
-                    <Progress
-                      value={
-                        pipelineStageIndex >= 0
-                          ? ((pipelineStageIndex + 1) / PIPELINE_STAGES.length) * 100
-                          : 5
-                      }
-                      className="h-2.5 [&>[data-slot=progress-indicator]]:bg-gradient-to-r [&>[data-slot=progress-indicator]]:from-orange-400 [&>[data-slot=progress-indicator]]:to-red-500"
-                    />
-                    {pipelineStageIndex >= 0 && pipelineStageIndex < PIPELINE_STAGES.length && (
-                      <p className="mt-2 text-xs text-orange-700 truncate">
-                        {PIPELINE_STAGES[pipelineStageIndex].label}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Live Log Panel */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Terminal className="h-4 w-4 text-gray-600" />
-                        <CardTitle className="text-sm">Pipeline Log</CardTitle>
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
-                        </span>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {logs.length} entries
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="max-h-64 overflow-y-auto bg-gray-900 rounded-b-lg font-mono text-xs">
-                      <div className="divide-y divide-gray-800/50">
-                        {logs.map((log) => (
-                          <div
-                            key={log.id}
-                            className="flex items-start gap-2 px-4 py-1.5 hover:bg-gray-800/30 transition-colors"
-                          >
-                            <span className="text-gray-500 shrink-0 select-none w-16">
-                              {log.timestamp}
-                            </span>
-                            <div className="shrink-0 mt-0.5">{getLogIcon(log.type)}</div>
-                            <span className={getLogColor(log.type)}>{log.message}</span>
-                          </div>
-                        ))}
-                        <div ref={logEndRef} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════
-                STATE 5: RESULT VIEW
-            ═══════════════════════════════════════════════════════════ */}
-            {view.type === 'result' && (
-              <>
-                {/* ═══ Score Header — Big Grade + Key Metrics ═══ */}
-                <Card className={`border-2 ${
-                  view.score.passesThreshold
-                    ? 'border-emerald-200 bg-gradient-to-br from-emerald-50/40 to-white'
-                    : 'border-red-200 bg-gradient-to-br from-red-50/40 to-white'
-                }`}>
-                  <CardHeader className="pb-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          view.score.passesThreshold ? 'bg-emerald-100' : 'bg-red-100'
-                        }`}>
-                          {view.score.passesThreshold ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                          ) : (
-                            <Ban className="h-5 w-5 text-red-600" />
-                          )}
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">
-                            Generation Complete
-                          </CardTitle>
-                          <CardDescription className="text-xs mt-0.5">
-                            {view.score.passesThreshold
-                              ? 'Quality threshold passed — ready for submission'
-                              : 'Below minimum quality threshold — consider regenerating'}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      {/* Key Metrics Row */}
-                      <div className="flex items-center gap-3">
-                        {/* Big Grade */}
-                        <div className="text-center">
-                          <div className={`text-3xl font-black ${getGradeColor(view.score.overallGrade)}`}>
-                            {view.score.overallGrade}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">Grade</div>
-                        </div>
-                        <Separator orientation="vertical" className="h-12" />
-                        {/* Content Quality Score */}
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-orange-600">
-                            {view.score.contentQualityScore.toFixed(2)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">/ 21.0</div>
-                        </div>
-                        <Separator orientation="vertical" className="h-12" />
-                        {/* Quality % */}
-                        <div className="text-center">
-                          <div className={`text-lg font-bold ${
-                            view.score.contentQualityPct >= 76 ? 'text-emerald-600' : view.score.contentQualityPct >= 48 ? 'text-blue-600' : 'text-amber-600'
-                          }`}>
-                            {view.score.contentQualityPct.toFixed(1)}%
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">Quality</div>
-                        </div>
-                        <Separator orientation="vertical" className="h-12" />
-                        {/* Estimated Position */}
-                        <div className="text-center">
-                          <div className={`text-lg font-bold ${
-                            view.score.estimatedPosition === 'Top 10%' ? 'text-emerald-600' :
-                            view.score.estimatedPosition === 'Top 25%' ? 'text-blue-600' :
-                            view.score.estimatedPosition === 'Top 50%' ? 'text-gray-700' :
-                            'text-amber-600'
-                          }`}>
-                            {view.score.estimatedPosition}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">Position</div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {/* Overall Quality Bar */}
-                  <CardContent className="pt-0">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground">Content Quality</span>
-                        <span className="font-medium text-orange-600">{view.score.contentQualityScore.toFixed(2)} / 21.0</span>
-                      </div>
-                      <Progress
-                        value={view.score.contentQualityPct}
-                        className="h-2.5 [&>[data-slot=progress-indicator]]:bg-gradient-to-r [&>[data-slot=progress-indicator]]:from-orange-400 [&>[data-slot=progress-indicator]]:to-red-500"
-                      />
-                      <div className="flex justify-between text-[10px] text-muted-foreground">
-                        <span>0</span>
-                        <span>5.25 (25%)</span>
-                        <span>10.5 (50%)</span>
-                        <span>15.75 (75%)</span>
-                        <span className="text-emerald-500 font-medium">21.0 (100%)</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* ═══ 7 Content Categories Breakdown ═══ */}
-                {view.score.categories && view.score.categories.length > 0 && (
-                  <Card className="border-2 border-orange-200/60 bg-gradient-to-br from-white via-orange-50/20 to-white">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Trophy className="h-4 w-4 text-orange-500" />
-                          <CardTitle className="text-sm">Rally Content Categories</CardTitle>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] border-orange-200 text-orange-700">
-                          7 of 7 Rally scoring categories
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {view.score.categories.map((cat, idx) => (
-                          <div key={idx} className="space-y-1">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-gray-700">{cat.name}</span>
-                                {cat.maxScore <= 2 && (
-                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-blue-200 text-blue-600">Binary Gate</Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`text-sm font-bold ${
-                                  cat.percentage >= 75 ? 'text-emerald-600' :
-                                  cat.percentage >= 50 ? 'text-blue-600' :
-                                  cat.percentage > 0 ? 'text-amber-600' : 'text-red-600'
-                                }`}>
-                                  {cat.score.toFixed(1)} / {cat.maxScore}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground w-10 text-right">
-                                  {cat.percentage.toFixed(0)}%
-                                </span>
-                              </div>
-                            </div>
-                            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  cat.percentage >= 75 ? 'bg-emerald-500' :
-                                  cat.percentage >= 50 ? 'bg-blue-400' :
-                                  cat.percentage > 0 ? 'bg-amber-400' : 'bg-red-400'
-                                }`}
-                                style={{ width: `${Math.max(cat.percentage, 2)}%` }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-
-                        {/* Category Analysis from Judges */}
-                        {view.score.categoryAnalysis && Object.keys(view.score.categoryAnalysis).length > 0 && (
-                          <div className="mt-4 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                            <div className="text-[11px] font-medium text-blue-700 mb-2 flex items-center gap-1">
-                              <Eye className="h-3 w-3" />
-                              Judge Feedback by Category
-                            </div>
-                            <div className="space-y-1.5">
-                              {Object.entries(view.score.categoryAnalysis).map(([category, analysis]) => (
-                                <div key={category}>
-                                  <span className="text-[10px] font-semibold text-gray-700">{category}:</span>
-                                  <p className="text-[11px] text-gray-600 ml-1">{analysis}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* ═══ G4 Originality Detection ═══ */}
-                {view.score.g4Detection && (
-                  <Card className="border-2 border-cyan-200 bg-gradient-to-br from-cyan-50/40 to-white">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-cyan-500" />
-                          <CardTitle className="text-sm">G4 Originality Detection</CardTitle>
-                        </div>
-                        <Badge className={
-                          view.score.g4Detection.score > 2
-                            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
-                            : view.score.g4Detection.score > 0
-                              ? 'bg-amber-100 text-amber-700 hover:bg-amber-100'
-                              : 'bg-red-100 text-red-700 hover:bg-red-100'
-                        }>
-                          Score: {view.score.g4Detection.score > 0 ? '+' : ''}{view.score.g4Detection.score.toFixed(1)}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Bonuses */}
-                        <div className="p-2 bg-emerald-50/50 rounded-lg">
-                          <div className="text-[10px] font-medium text-emerald-700 mb-1">✅ Human Signals Detected</div>
-                          <div className="space-y-0.5">
-                            {view.score.g4Detection.bonuses.length > 0 ? (
-                              view.score.g4Detection.bonuses.map((b) => (
-                                <div key={b} className="text-[10px] text-emerald-600">• {b}</div>
-                              ))
-                            ) : (
-                              <div className="text-[10px] text-gray-400 italic">None detected</div>
-                            )}
-                          </div>
-                        </div>
-                        {/* Penalties */}
-                        <div className="p-2 bg-red-50/50 rounded-lg">
-                          <div className="text-[10px] font-medium text-red-700 mb-1">⚠️ AI Red Flags</div>
-                          <div className="space-y-0.5">
-                            {view.score.g4Detection.penalties.length > 0 ? (
-                              view.score.g4Detection.penalties.map((p) => (
-                                <div key={p} className="text-[10px] text-red-600">• {p}</div>
-                              ))
-                            ) : (
-                              <div className="text-[10px] text-gray-400 italic">Clean — no AI flags</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* ═══ X-Factor Viral Detection ═══ */}
-                {view.score.xFactors && view.score.xFactors.factors.length > 0 && (
-                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50/40 to-white">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-purple-500" />
-                          <CardTitle className="text-sm">X-Factor Viral Indicators</CardTitle>
-                        </div>
-                        <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">
-                          {view.score.xFactors.factors.length} factor{view.score.xFactors.factors.length !== 1 ? 's' : ''} detected
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-1.5">
-                        {view.score.xFactors.factors.map((factor) => (
-                          <Badge key={factor} variant="outline" className="text-[10px] font-normal px-2 py-0.5 border-purple-200 text-purple-700">
-                            {factor}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Generated Content */}
-                <Card className="border-2 border-emerald-200/60">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Send className="h-4 w-4 text-emerald-500" />
-                        <CardTitle className="text-sm">Generated Content</CardTitle>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCopy(view.content)}
-                        className="gap-1.5 text-xs h-7"
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="h-3 w-3 text-emerald-500" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3 w-3" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="rounded-lg bg-gray-50 border p-4">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {view.content}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Stats Row */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="rounded-lg border bg-white p-3 text-center">
-                    <div className="text-lg font-bold text-gray-800">{view.score.cycles}</div>
-                    <div className="text-[10px] text-muted-foreground">Cycles</div>
-                  </div>
-                  <div className="rounded-lg border bg-white p-3 text-center">
-                    <div className="text-lg font-bold text-gray-800">{view.score.variations}</div>
-                    <div className="text-[10px] text-muted-foreground">Variations</div>
-                  </div>
-                  <div className="rounded-lg border bg-white p-3 text-center">
-                    <div className="text-lg font-bold text-gray-800">{view.score.aiCalls}</div>
-                    <div className="text-[10px] text-muted-foreground">AI Calls</div>
-                  </div>
-                  <div className="rounded-lg border bg-white p-3 text-center">
-                    <div className="text-lg font-bold text-gray-800">{(view.score.time / 1000).toFixed(1)}s</div>
-                    <div className="text-[10px] text-muted-foreground">Time</div>
-                  </div>
-                </div>
-
-                {/* ═══ Competitive Beat Score ═══ */}
-                {view.score.competitorBeatScore !== undefined && (
-                  <Card className={`border-2 ${
-                    view.score.competitorBeatScore > 0
-                      ? 'border-emerald-200 bg-gradient-to-br from-emerald-50/40 to-white'
-                      : 'border-amber-200 bg-gradient-to-br from-amber-50/40 to-white'
-                  }`}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Swords className="h-4 w-4 text-orange-500" />
-                          <CardTitle className="text-sm">Competitor Beat Analysis</CardTitle>
-                        </div>
-                        <Badge className={
-                          view.score.competitorBeatScore > 50
-                            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
-                            : view.score.competitorBeatScore > 0
-                              ? 'bg-green-100 text-green-700 hover:bg-green-100'
-                              : 'bg-amber-100 text-amber-700 hover:bg-amber-100'
-                        }>
-                          {view.score.competitorBeatScore > 0 ? '+' : ''}
-                          {view.score.competitorBeatScore}% vs competitors
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-3 gap-4">
-                        {/* Our Score */}
-                        <div className="text-center">
-                          <div className="text-[10px] text-muted-foreground mb-1">Our Score</div>
-                          <div className="text-xl font-bold text-orange-600">
-                            {view.score.contentQualityScore.toFixed(2)}
-                          </div>
-                        </div>
-                        {/* Competitor Avg */}
-                        <div className="text-center">
-                          <div className="text-[10px] text-muted-foreground mb-1">Competitor Avg</div>
-                          <div className="text-xl font-bold text-gray-500">
-                            {view.score.competitorAvgScore?.toFixed(2) || 'N/A'}
-                          </div>
-                        </div>
-                        {/* Target Score */}
-                        <div className="text-center">
-                          <div className="text-[10px] text-muted-foreground mb-1">Target Score</div>
-                          <div className="text-xl font-bold text-emerald-600">
-                            {view.score.targetScore?.toFixed(2) || 'N/A'}
-                          </div>
-                        </div>
-                      </div>
-                      {/* Beat meter */}
-                      <div className="mt-3 space-y-1.5">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-muted-foreground">Beat Score</span>
-                          <span className={`font-medium ${
-                            view.score.competitorBeatScore > 0 ? 'text-emerald-600' : 'text-amber-600'
-                          }`}>
-                            {view.score.competitorBeatScore > 0 ? '🟢 Above average' : '🟡 Below average'}
-                          </span>
-                        </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              view.score.competitorBeatScore > 50
-                                ? 'bg-emerald-500'
-                                : view.score.competitorBeatScore > 0
-                                  ? 'bg-green-400'
-                                  : 'bg-amber-400'
-                            }`}
-                            style={{ width: `${Math.max(Math.min(50 + view.score.competitorBeatScore, 100), 5)}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[10px] text-muted-foreground">
-                          <span>-50%</span>
-                          <span className="text-orange-500 font-medium">Competitor Average</span>
-                          <span>+100%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* ═══ Ground Truth Calibration ═══ */}
-                {view.score.groundTruth && view.score.groundTruth.totalValid > 0 && (
-                  <Card className="border-2 border-violet-200 bg-gradient-to-br from-violet-50/40 to-white">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-4 w-4 text-violet-500" />
-                          <CardTitle className="text-sm">Ground Truth Calibration</CardTitle>
-                        </div>
-                        <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-100">
-                          {view.score.groundTruth.totalValid} real submissions
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {/* Calibration Thresholds */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {view.score.groundTruth.top10Pct !== undefined && (
-                          <div className="text-center p-2 bg-white/60 rounded-lg">
-                            <div className="text-[10px] text-muted-foreground">Top 10% Bar</div>
-                            <div className="text-lg font-bold text-violet-600">{view.score.groundTruth.top10Pct}%</div>
-                          </div>
-                        )}
-                        {view.score.groundTruth.top25Pct !== undefined && (
-                          <div className="text-center p-2 bg-white/60 rounded-lg">
-                            <div className="text-[10px] text-muted-foreground">Top 25% Bar</div>
-                            <div className="text-lg font-bold text-violet-600">{view.score.groundTruth.top25Pct}%</div>
-                          </div>
-                        )}
-                        {view.score.groundTruth.top50Pct !== undefined && (
-                          <div className="text-center p-2 bg-white/60 rounded-lg">
-                            <div className="text-[10px] text-muted-foreground">Top 50% Bar</div>
-                            <div className="text-lg font-bold text-violet-600">{view.score.groundTruth.top50Pct}%</div>
-                          </div>
-                        )}
-                        {view.score.groundTruth.averagePct !== undefined && (
-                          <div className="text-center p-2 bg-white/60 rounded-lg">
-                            <div className="text-[10px] text-muted-foreground">Average</div>
-                            <div className="text-lg font-bold text-violet-600">{view.score.groundTruth.averagePct}%</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Weak & Strong Categories */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="p-2 bg-red-50/50 rounded-lg">
-                          <div className="text-[10px] font-medium text-red-700 mb-1">⚠️ Weak Categories (opportunity)</div>
-                          <div className="space-y-0.5">
-                            {view.score.groundTruth.weakCategories.length > 0 ? (
-                              view.score.groundTruth.weakCategories.map((cat) => (
-                                <div key={cat} className="text-[10px] text-red-600">• {cat}</div>
-                              ))
-                            ) : (
-                              <div className="text-[10px] text-gray-400 italic">No weak categories identified</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="p-2 bg-emerald-50/50 rounded-lg">
-                          <div className="text-[10px] font-medium text-emerald-700 mb-1">✅ Strong Categories (baseline)</div>
-                          <div className="space-y-0.5">
-                            {view.score.groundTruth.strongCategories.length > 0 ? (
-                              view.score.groundTruth.strongCategories.map((cat) => (
-                                <div key={cat} className="text-[10px] text-emerald-600">• {cat}</div>
-                              ))
-                            ) : (
-                              <div className="text-[10px] text-gray-400 italic">No strong categories identified</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Calibration Note */}
-                      <div className="text-[10px] text-muted-foreground italic bg-violet-50/50 p-2 rounded-lg">
-                        💡 This data comes from REAL Rally.fun submissions analyzed via the Ground Truth Calibration endpoint.
-                        Our scoring is calibrated against Rally's actual 7 content categories (max 21.0 points).
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    onClick={() => {
-                      setLogs([]);
-                      setPipelineStageIndex(-1);
-                      logIdRef.current = 0;
-                      handleGenerate(view.campaign);
-                    }}
+                    onClick={handleStop}
                     variant="outline"
-                    className="gap-2"
+                    className="gap-2 text-red-600 border-red-200 hover:bg-red-50 text-sm"
                   >
-                    <RotateCcw className="h-4 w-4" />
-                    Generate Again
+                    <StopCircle className="h-4 w-4" />
+                    Stop
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setView({ type: 'detail', campaign: view.campaign })}
-                  >
-                    Back to Campaign
-                  </Button>
-                </div>
-
-                {/* Collapsible Pipeline Log */}
-                <Card>
-                  <CollapsibleLog logs={logs} />
-                </Card>
-              </>
-            )}
-          </>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════════
-            STATUS FOOTER (always visible)
-        ═══════════════════════════════════════════════════════════ */}
-        <Separator />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Cpu className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-[11px] font-medium text-muted-foreground">Token Pool</span>
-            </div>
-            {statusLoading ? (
-              <Skeleton className="h-5 w-16" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">
-                  {statusData?.tokenPool?.active || 0}/{statusData?.tokenPool?.total || 0}
-                </span>
-                <Progress
-                  value={statusData?.tokenPool?.total ? ((statusData?.tokenPool?.active || 0) / statusData?.tokenPool.total) * 100 : 0}
-                  className="h-1.5 flex-1 max-w-16"
-                />
+                )}
+                {!selectedCampaign && (
+                  <span className="text-xs text-muted-foreground">Select a campaign first</span>
+                )}
               </div>
-            )}
+            </CardContent>
           </Card>
 
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Server className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-[11px] font-medium text-muted-foreground">Gateways</span>
-            </div>
-            {statusLoading ? (
-              <Skeleton className="h-5 w-16" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">
-                  {(statusData?.gateways?.health?.filter(g => g.status === 'connected') || []).length}/{statusData?.gateways?.all?.length || 0}
-                </span>
-                <Badge variant="outline" className={`text-[10px] ${
-                  (statusData?.gateways?.health?.filter(g => g.status === 'connected') || []).length === (statusData?.gateways?.all?.length || 0)
-                    ? 'border-emerald-200 text-emerald-700'
-                    : 'border-amber-200 text-amber-700'
-                }`}>
-                  All Up
-                </Badge>
+          {/* ── Log Panel ── */}
+          <Card className="border-gray-200">
+            <CardHeader className="px-4 py-2.5 border-b bg-gray-50/50 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Terminal className="h-3.5 w-3.5 text-gray-500" />
+                Log Output
+                {logs.length > 0 && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{logs.length}</Badge>
+                )}
+              </CardTitle>
+              {logs.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearLogs}
+                  className="h-6 text-[11px] text-gray-400 hover:text-gray-600"
+                >
+                  Clear
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="h-48 overflow-y-auto font-mono text-xs bg-gray-900 rounded-b-lg">
+                {logs.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-gray-500">
+                    <p>No logs yet. Start a pipeline to see progress.</p>
+                  </div>
+                ) : (
+                  <div className="p-3 space-y-0.5">
+                    {logs.map(log => (
+                      <div key={log.id} className="flex gap-2 items-start">
+                        <span className="text-gray-600 shrink-0 w-16">{log.timestamp}</span>
+                        <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${getLogDot(log.type)}`} />
+                        <span className={`${getLogColor(log.type)} break-all`}>{log.message}</span>
+                      </div>
+                    ))}
+                    <div ref={logEndRef} />
+                  </div>
+                )}
               </div>
-            )}
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Activity className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-[11px] font-medium text-muted-foreground">Rate Limit</span>
-            </div>
-            {statusLoading ? (
-              <Skeleton className="h-5 w-16" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">
-                  {statusData?.rateLimits?.activeBuckets || 0}/{statusData?.rateLimits?.totalBuckets || 0}
-                </span>
-                <Badge variant="outline" className="text-[10px]">
-                  {(statusData?.rateLimits?.capacityPer10min || 0)}/10min
-                </Badge>
-              </div>
-            )}
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <CheckCircle2 className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-[11px] font-medium text-muted-foreground">Completed</span>
-            </div>
-            {statusLoading ? (
-              <Skeleton className="h-5 w-16" />
-            ) : (
-              <span className="text-lg font-bold">
-                {statusData?.queue?.totalResults || 0}
-              </span>
-            )}
+            </CardContent>
           </Card>
         </div>
       </main>
-    </div>
-  );
-}
 
-// ─── Collapsible Log Component ────────────────────────────────────
-
-function CollapsibleLog({ logs }: { logs: LogEntry[] }) {
-  const [open, setOpen] = useState(false);
-
-  const getLogColor = (type: LogEntry['type']) => {
-    switch (type) {
-      case 'success': return 'text-emerald-400';
-      case 'error': return 'text-red-400';
-      case 'warning': return 'text-amber-400';
-      case 'system': return 'text-violet-400 font-medium';
-      default: return 'text-gray-400';
-    }
-  };
-
-  const getLogIcon = (type: LogEntry['type']) => {
-    switch (type) {
-      case 'success': return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />;
-      case 'error': return <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />;
-      case 'warning': return <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />;
-      case 'system': return <Zap className="h-3.5 w-3.5 text-violet-500 shrink-0" />;
-      default: return <ChevronRight className="h-3.5 w-3.5 text-gray-500 shrink-0" />;
-    }
-  };
-
-  return (
-    <>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-3 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-      >
-        <div className="flex items-center gap-2">
-          <Terminal className="h-3.5 w-3.5" />
-          <span>Pipeline Log ({logs.length} entries)</span>
-        </div>
-        <ChevronRight className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-90' : ''}`} />
-      </button>
-      {open && (
-        <div className="border-t">
-          <div className="max-h-48 overflow-y-auto bg-gray-900 rounded-b-lg font-mono text-xs">
-            <div className="divide-y divide-gray-800/50">
-              {logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-start gap-2 px-4 py-1.5 hover:bg-gray-800/30 transition-colors"
-                >
-                  <span className="text-gray-500 shrink-0 select-none w-16">
-                    {log.timestamp}
-                  </span>
-                  <div className="shrink-0 mt-0.5">{getLogIcon(log.type)}</div>
-                  <span className={getLogColor(log.type)}>{log.message}</span>
-                </div>
-              ))}
-            </div>
+      {/* ═══════ Footer ═══════ */}
+      <footer className="border-t bg-white mt-auto">
+        <div className="mx-auto max-w-7xl px-4 py-3 md:px-6">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Rally Brain v7 — AI Content Generation System</span>
+            <span>Rally.fun Campaign Dashboard</span>
           </div>
         </div>
-      )}
-    </>
+      </footer>
+    </div>
   );
 }
