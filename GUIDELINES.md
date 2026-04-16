@@ -16,6 +16,21 @@ Kenapa: .git/index bisa corrupt kapan saja. Tanpa commit berkala, semua pekerjaa
 - Server mati? → `bash /home/z/my-project/.zscripts/dev.sh &`
 - .next corrupt? → `rm -rf .next` lalu restart dev.sh
 
+## BACKUP PROTOCOL (PENTING!)
+Container ini RESTART bersih setiap session baru. /home/sync/repo.tar adalah SATU-SATUNYA
+yang survive antar session. /start.sh akan restore dari tar ini.
+
+SETELAH setiap pekerjaan besar, WAJIB backup:
+```
+cd /home/z/my-project && tar cf /home/sync/repo.tar --exclude='./.next' --exclude='./node_modules' .
+```
+
+SAAT session baru dimulai, VERIFIKASI:
+```
+ls /home/sync/repo.tar  # harus ada (~35MB)
+cd /home/z/my-project && git log --oneline -5  # cek history ada
+```
+
 ## PREVIEW URL
 Satu-satunya preview yang valid:
 https://preview-chat-094005ca-3599-4bf8-bf7f-9c14e570c15e.space.z.ai/
