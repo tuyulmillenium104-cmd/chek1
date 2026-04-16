@@ -1,5 +1,31 @@
 # Rally Brain v7.0 - Setup Worklog
 
+## !! PETUNJUK TETAP — WAJIB DIBACA SEBELUM SETIAP PEKERJAAN !!
+
+### GIT SAFETY PROTOCOL
+Sebelum melakukan APAPUN (edit file, write file, build, install, dll), WAJIB lakukan langkah berikut:
+
+1. **Cek git index** — `cd /home/z/my-project && git status`
+2. **Jika corrupt** — `rm -f .git/index && git reset`
+3. **Setelah selesai edit** — `git add -A && git commit -m "deskripsi singkat"`
+4. **Jangan pernah skip commit** — setiap perubahan HARUS di-commit ke git
+
+Kenapa: File `.git/index` bisa corrupt kapan saja di environment ini. Tanpa commit berkala,
+semua perubahan bisa hilang saat server restart atau .next directory corrupt. Git adalah SATU-SATUNYA
+cara memastikan pekerjaan tidak hilang.
+
+### SERVER MANAGEMENT
+- Gunakan `.zscripts/dev.sh` untuk start server (sudah punya `disown` + `trap cleanup`)
+- JANGAN gunakan `npx next dev &` langsung — proses akan mati saat shell session berakhir
+- Jika server mati: `bash /home/z/my-project/.zscripts/dev.sh &`
+- Jika `.next` corrupt: `rm -rf .next` lalu restart dev.sh
+
+### PREVIEW URL
+Satu-satunya preview yang valid:
+- https://preview-chat-094005ca-3599-4bf8-bf7f-9c14e570c15e.space.z.ai/
+
+---
+
 ## Date: 2025-04-16
 
 ## Summary
