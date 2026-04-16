@@ -1,0 +1,65 @@
+{
+  "id": "b0e96278-8260-4d8d-aa23-d4e5ab17026a",
+  "intelligentContractAddress": "0xc48e4f38EEee8D088eCd6271878ba57887729356",
+  "creatorAddress": "0x4aDfd543c112171dCAdAc79cAe086094dBeb4348",
+  "title": "The Future of Advertising is Here",
+  "distributionContractChainId": 8453,
+  "startDate": "2026-03-29T22:00:00.000Z",
+  "endDate": "2026-04-12T22:00:00.000Z",
+  "periodLengthDays": 14,
+  "campaignDurationPeriods": 1,
+  "minimumFollowers": 100,
+  "maximumFollowers": 0,
+  "onlyVerifiedUsers": false,
+  "maxSubmissionsPerParticipant": 0,
+  "adminNotice": null,
+  "whitelistedSubmitters": [],
+  "token": {
+    "symbol": "RLP",
+    "address": "0x2222222222222222222222222222222222222222",
+    "logoUri": null,
+    "usdPrice": null,
+    "chainId": 61899,
+    "chain": {
+      "platform": "genlayer"
+    }
+  },
+  "campaignRewards": [
+    {
+      "totalAmount": 75000,
+      "tokenAddress": "0x2222222222222222222222222222222222222222",
+      "source": "on_chain",
+      "claimable": true,
+      "token": {
+        "symbol": "RLP",
+        "logoUri": null
+      }
+    }
+  ],
+  "participating": false,
+  "missionCount": 1,
+  "userMissionProgress": 0,
+  "displayCreator": {
+    "type": "organization",
+    "xUsername": "rallyonchain",
+    "displayName": "RallyOnChain",
+    "avatarUrl": "https://pbs.twimg.com/profile_images/2028486837594177536/zfkJHick_400x400.jpg",
+    "profileUrl": "https://x.com/rallyonchain",
+    "organization": {
+      "id": "567b2c41-9c0f-490e-8684-ae01c2ed1fb2",
+      "name": "Rally",
+      "slug": "rally",
+      "xUsername": "rallyonchain",
+      "xUsernameDisplay": "RallyOnChain",
+      "logoUrl": "https://pbs.twimg.com/profile_images/2028486837594177536/zfkJHick_400x400.jpg",
+      "description": null,
+      "websiteUrl": "https://rally.fun",
+      "waitlistReferralUrl": null,
+      "isActive": true,
+      "createdAt": "2025-09-17T12:14:56.080Z",
+      "updatedAt": "2026-03-09T14:33:52.271Z",
+      "defaultCampaignHeaderUrl": null
+    }
+  },
+  "headerImageUrl": "https://storage.googleapis.com/rally-campaigns-uploads/campaign-headers/0xc48e4f38EEee8D088eCd6271878ba57887729356/RDPTsgJF.jpeg"
+}

@@ -1,0 +1,65 @@
+{
+  "id": "campaign-1775062898048-jda05yho0",
+  "intelligentContractAddress": "0xE4aeE08A3537544f7B946d429ca60990af443Da7",
+  "creatorAddress": "0x3BD9870C261f5d377aDcCb700592f6801FE03308",
+  "title": "Fragments April Campaign",
+  "distributionContractChainId": 8453,
+  "startDate": "2026-04-01T18:00:00.000Z",
+  "endDate": "2026-04-29T18:00:00.000Z",
+  "periodLengthDays": 14,
+  "campaignDurationPeriods": 2,
+  "minimumFollowers": 100,
+  "maximumFollowers": 0,
+  "onlyVerifiedUsers": true,
+  "maxSubmissionsPerParticipant": 0,
+  "adminNotice": null,
+  "whitelistedSubmitters": [],
+  "token": {
+    "symbol": "USDC",
+    "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+    "usdPrice": 0.9998895325057756,
+    "chainId": 8453,
+    "chain": {
+      "platform": "evm"
+    }
+  },
+  "campaignRewards": [
+    {
+      "totalAmount": 4000,
+      "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "source": "on_chain",
+      "claimable": true,
+      "token": {
+        "symbol": "USDC",
+        "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png"
+      }
+    }
+  ],
+  "participating": false,
+  "missionCount": 1,
+  "userMissionProgress": 0,
+  "displayCreator": {
+    "type": "organization",
+    "xUsername": "fragmentsorg",
+    "displayName": "Fragments",
+    "avatarUrl": "https://pbs.twimg.com/profile_images/1996668426736357376/wRV7uma__400x400.jpg",
+    "profileUrl": "https://x.com/fragmentsorg",
+    "organization": {
+      "id": "3770dce4-1be9-4aec-9b08-fc70e88b80f9",
+      "name": "Fragments",
+      "slug": "fragments",
+      "xUsername": "fragmentsorg",
+      "xUsernameDisplay": "Fragments",
+      "logoUrl": "https://pbs.twimg.com/profile_images/1996668426736357376/wRV7uma__400x400.jpg",
+      "description": "Bitcoin Junior. Leverage for buy-and-hold investors.",
+      "websiteUrl": "https://www.fragments.org",
+      "waitlistReferralUrl": "https://waitlist.rally.fun/fragments",
+      "isActive": true,
+      "createdAt": "2026-02-25T16:05:40.722Z",
+      "updatedAt": "2026-04-02T10:44:51.632Z",
+      "defaultCampaignHeaderUrl": "https://i.postimg.cc/tRcfLRHQ/image-(79).png"
+    }
+  },
+  "headerImageUrl": "https://i.postimg.cc/tRcfLRHQ/image-(79).png"
+}

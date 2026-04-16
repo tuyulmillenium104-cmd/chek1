@@ -1,0 +1,29 @@
+{
+  "version": "6.2",
+  "score": 20.9,
+  "grade": "A+",
+  "evaluation_method": "Blended (2/2 judges + programmatic) + G4",
+  "predictions": {
+    "originality": 2,
+    "alignment": 2,
+    "accuracy": 2,
+    "compliance": 2,
+    "engagement": 4,
+    "technical": 5,
+    "reply_quality": 4
+  },
+  "g4_bonus": 0.5,
+  "minority_flags": [],
+  "hard_fails": [],
+  "valid_judges": 2,
+  "programmatic_score": 20.9,
+  "judge_consensus": {
+    "total": 21,
+    "grade": "S"
+  },
+  "total_variations": 1,
+  "loops_used": 1,
+  "timestamp": "2026-04-15T12:53:13.343Z",
+  "campaign": "Fragments - Bitcoin Junior UGC Campaign Phase 2",
+  "mission": "Explain Bitcoin Junior (BTC-Jr) and Fragments to Your Audience"
+}

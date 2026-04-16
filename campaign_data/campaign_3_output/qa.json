@@ -1,0 +1,47 @@
+{
+  "qna_pairs": [
+    {
+      "q": "Is this really no liquidation risk? How does the protocol prevent that if the price drops significantly?",
+      "a": "Yes, there's absolutely no liquidation risk because Bitcoin Junior doesn't use debt or margin. The protocol splits cbBTC into two tokens using tranching - the junior token gets amplified upside while the senior token absorbs volatility. Since it's not borrowing against your position, there's nothing to liquidate."
+    },
+    {
+      "q": "How does the 1.33x exposure work exactly? Is it compounding or just a fixed multiplier?",
+      "a": "The 1.33x exposure comes from the tranching structure itself. When cbBTC is split, the junior token naturally gets about 1.33x the upside of Bitcoin. This isn't compounding - it's built into how the tokens are created and balanced. Multiyear backtesting shows this structure has consistently outperformed raw Bitcoin over time."
+    },
+    {
+      "q": "What happens if I want to get my money out quickly? Can I swap back to cbBTC anytime?",
+      "a": "Yep, you can swap back to cbBTC anytime you want. The protocol is designed to be flexible for holders. This means you're not locked in and can access your Bitcoin whenever you need it, which is great for both long-term holders and those who might need liquidity."
+    },
+    {
+      "q": "This seems too good to be true - what's the catch compared to traditional leverage products?",
+      "a": "The key difference is that Bitcoin Junior uses tranching instead of debt or margin. Traditional leverage products have liquidation risk, interest payments, and require constant monitoring. Bitcoin Junior has none of that - no liquidations, no debt, no margin calls. It's simply a different way to get amplified Bitcoin exposure without the usual downsides."
+    },
+    {
+      "q": "I'm on the waitlist but haven't heard anything yet. When can we expect the full launch to happen?",
+      "a": "Great question! The waitlist is currently live at link.fragments.org/rally, and Phase 2 is now open. While I don't have the exact launch date yet, being on the waitlist ensures you'll get early access. Plus, you're entered into the April giveaway where 10 random waitlist signups win $200 each!"
+    },
+    {
+      "q": "How exactly does the tranching work without borrowing? That part is a bit confusing to me.",
+      "a": "Glad you asked! The protocol takes cbBTC and splits it into two tokens - BTC-Jr (gets amplified upside) and BTC-Sr (absorbs volatility to earn yield). No borrowing happens at all - it's just mathematically structured to give the junior token 1.33x exposure while the senior earns yield from demand for leverage."
+    },
+    {
+      "q": "Is this really perpetual? Do I need to constantly rebalance or adjust my position?",
+      "a": "Yes, it's truly perpetual! No rebalancing needed at all. That's the beauty of this structure - it's designed for buy-and-hold investors who want leveraged exposure without having to constantly manage their position or worry about liquidations."
+    },
+    {
+      "q": "What happens if Bitcoin crashes 50%? Will my BTC-Jr position get wiped out?",
+      "a": "Not at all! Since there's no debt or margin involved, you can't get liquidated. The worst that happens is your BTC-Jr value will drop more than Bitcoin itself (around 1.33x), but you won't lose your entire position like you would with traditional leverage."
+    },
+    {
+      "q": "How is this different from a leveraged ETF? I thought those decayed over time.",
+      "a": "Great question! Unlike leveraged ETFs that rebalance daily and lose value to decay, Bitcoin Junior uses a perpetual tranching structure. No daily rebalancing means no decay - it's designed to hold through cycles without the drag that affects leveraged ETFs."
+    },
+    {
+      "q": "Is the $200 giveaway real? Just want to make sure this isn't some scam before I sign up.",
+      "a": "Totally real! Fragments is building by Ampleforth, a proven DeFi team. The giveaway is for 10 random people who join the waitlist at link.fragments.org/rally - $200 each ($2,000 total). We also have a $5k monthly reward pool. Tag @FragmentsOrg if you join!"
+    }
+  ],
+  "total": 10,
+  "content": "I've been looking for a way to get more BTC exposure without watching charts all day. Most leverage products scare me because of liquidation risk. You mess up once and your position is gone. That's why I'm interested in what @FragmentsOrg is building with Bitcoin Junior.\n\nIt works by splitting cbBTC into two parts. The Junior token gets about 1.33x amplified upside while the Senior token earns yield. There is no borrowing involved so you can't get liquidated. It's built for holding through cycles rather than active trading.\n\nBacktesting from 2023 to 2024 shows this structure outperforming raw Bitcoin over time. I think this could be a better fit for long-term holders who want leveraged exposure without the stress of margin calls.\n\nWaitlist is live at link.fragments.org/rally\n\nThoughts?",
+  "timestamp": "2026-04-15T12:53:13.343Z"
+}

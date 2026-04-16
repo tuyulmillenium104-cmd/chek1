@@ -1,0 +1,65 @@
+{
+  "id": "campaign-1775000340083-pyw7t815z",
+  "intelligentContractAddress": "0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB",
+  "creatorAddress": "0xA96106B7769084A70e9504f8C8cD64AcBA8C9B35",
+  "title": "MarbMarket — The First veDEX on MegaETH is Launching",
+  "distributionContractChainId": 8453,
+  "startDate": "2026-04-01T16:00:00.000Z",
+  "endDate": "2026-04-22T16:00:00.000Z",
+  "periodLengthDays": 7,
+  "campaignDurationPeriods": 3,
+  "minimumFollowers": 500,
+  "maximumFollowers": 0,
+  "onlyVerifiedUsers": true,
+  "maxSubmissionsPerParticipant": 0,
+  "adminNotice": null,
+  "whitelistedSubmitters": [],
+  "token": {
+    "symbol": "USDC",
+    "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+    "usdPrice": 0.9998895325057756,
+    "chainId": 8453,
+    "chain": {
+      "platform": "evm"
+    }
+  },
+  "campaignRewards": [
+    {
+      "totalAmount": 2000,
+      "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "source": "on_chain",
+      "claimable": true,
+      "token": {
+        "symbol": "USDC",
+        "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png"
+      }
+    }
+  ],
+  "participating": false,
+  "missionCount": 2,
+  "userMissionProgress": 0,
+  "displayCreator": {
+    "type": "organization",
+    "xUsername": "marb_market",
+    "displayName": "Marb Market",
+    "avatarUrl": "https://i.postimg.cc/CKvJkJFW/2026-03-13-13-32-36.jpg",
+    "profileUrl": "https://x.com/marb_market",
+    "organization": {
+      "id": "58ea6d9e-20d5-4fd9-9876-b96bead0f406",
+      "name": "Marb Market ",
+      "slug": "marbmarket",
+      "xUsername": "marb_market",
+      "xUsernameDisplay": "Marb Market",
+      "logoUrl": "https://i.postimg.cc/CKvJkJFW/2026-03-13-13-32-36.jpg",
+      "description": null,
+      "websiteUrl": "https://x.com/Marb_market",
+      "waitlistReferralUrl": "https://waitlist.rally.fun/marbmarket",
+      "isActive": true,
+      "createdAt": "2026-03-31T09:12:29.356Z",
+      "updatedAt": "2026-04-02T10:39:44.042Z",
+      "defaultCampaignHeaderUrl": null
+    }
+  },
+  "headerImageUrl": "https://storage.googleapis.com/rally-campaigns-uploads/campaign-headers/0x39a11fa3e86eA8AC53772F26AA36b07506fa7dDB/Ey2hV6fu.jpeg"
+}

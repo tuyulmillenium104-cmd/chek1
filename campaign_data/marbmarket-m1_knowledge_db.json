@@ -1,0 +1,419 @@
+{
+  "version": "3.0.0",
+  "last_updated": "2026-04-15T12:54:58.408Z",
+  "stats": {
+    "total_cycles": 7,
+    "total_patterns": 0,
+    "best_score_achieved": 21.9,
+    "avg_score": 20.4,
+    "last_learned": "2026-04-15T12:54:58.408Z",
+    "v7_last_sync": "2026-04-15T17:05:18.965658+00:00",
+    "v7_total_submissions": 258
+  },
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-15T03:46:52.167Z",
+      "score": 15.4,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 2,
+      "variations_tested": 2,
+      "ai_words_found": [],
+      "best_hook": "Been seeing too many launches with presales and VCs lately. It's refreshing when someone actually builds for the community. MarbMarket's launching on MegaETH with a ve(3,3) model, no presale, no VCs. Just pure fair launch mechanics.",
+      "is_repetition": false,
+      "content_preview": "Been seeing too many launches with presales and VCs lately. It's refreshing when someone actually bu..."
+    },
+    {
+      "timestamp": "2026-04-15T04:47:29.470Z",
+      "score": 21.3,
+      "grade": "S",
+      "scores": {
+        "originality": 1.9,
+        "alignment": 2,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 4.8,
+        "technical": 4.599999999999999,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 1,
+      "variations_tested": 2,
+      "ai_words_found": [],
+      "best_hook": "I've been watching the MegaETH space closely, and MarbMarket's approach to fair launches feels different. No presale, no VCs, just pure community play.",
+      "is_repetition": false,
+      "content_preview": "I've been watching the MegaETH space closely, and MarbMarket's approach to fair launches feels diffe..."
+    },
+    {
+      "timestamp": "2026-04-15T05:08:09.177Z",
+      "score": 21.9,
+      "grade": "S",
+      "scores": {
+        "originality": 1.95,
+        "alignment": 1.8,
+        "accuracy": 1.5,
+        "compliance": 2,
+        "engagement": 4.8,
+        "technical": 4.799999999999999,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "I've been studying this ve(3,3) model for weeks and it's fascinating how it flips traditional DEX incentives on their head. MarbMarket's taking Solidly's playbook to MegaETH with a fair launch that actually puts power in users' hands. No presale. No VCs. Just pure community value.",
+      "is_repetition": false,
+      "content_preview": "I've been studying this ve(3,3) model for weeks and it's fascinating how it flips traditional DEX in..."
+    },
+    {
+      "timestamp": "2026-04-15T11:47:09.233Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been diving deep into ve(3,3) models lately and MarbMarket's approach feels different. No presale. No VCs. Just a fair launch on MegaETH with their MARB token. You lock MARB to get veMARB, which gives you voting power and rewards. Longer locks mean more influence. The ve(3,3) model takes fee revenue and shares it with stakers, creating that self-reinforcing loop. Think Solidly but on MegaETH. @RallyOnChain has been tracking these fair launches closely. Projects actually bribe veMARB holders for votes, which is wild. No early investors dumping on day one. Equal opportunity from the start. x.com/Marb_market. What do you think about this fair launch approach compared to other veDEX models?",
+      "is_repetition": false,
+      "content_preview": "I've been diving deep into ve(3,3) models lately and MarbMarket's approach feels different. No presa..."
+    },
+    {
+      "timestamp": "2026-04-15T11:47:09.993Z",
+      "score": 21.3,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I've been digging into MarbMarket's ve(3,3) model and it's fascinating how they're bringing Solidly's incentive design to MegaETH. No presale, no VCs, just a fair launch. Lock MARB, get veMARB for voting power. Longer locks = more influence + rewards. Projects bribe veMARB holders for votes. Fee revenue goes to stakers. That's the (3,3) loop. This is exactly what made Aerodrome and Velodrome successful. Community-owned, no early dump risk. @RallyOnChain has been building something interesting here. The incentive structure aligns most people properly. x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "I've been digging into MarbMarket's ve(3,3) model and it's fascinating how they're bringing Solidly'..."
+    },
+    {
+      "timestamp": "2026-04-15T12:34:35.621Z",
+      "score": 20.6,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4.5,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "I spent the weekend digging into MarbMarket on MegaETH. It is the first veDEX there and the mechanics are actually pretty interesting. You lock MARB to get veMARB. Longer lock means more voting power. Then you vote on which liquidity pools get emissions. Projects bribe you for those votes. This is the classic ve(3,3) model we saw work on Aerodrome and Velodrome. What stands out is the fair launch. No presale. No VCs. No team allocation. The community gets all the tokens from the start. That removes the early investor dumping risk that kills so many protocols. I think the token utility is solid if the volume shows up. Locking creates scarcity. Voting directs incentives. Bribes add yield. It all compounds. @RallyOnChain caught my attention with this one. Not sure if MegaETH has the liquidity yet to support it, but the setup is right. Check the details at x.com/Marb_market",
+      "is_repetition": false,
+      "content_preview": "I spent the weekend digging into MarbMarket on MegaETH. It is the first veDEX there and the mechanic..."
+    },
+    {
+      "timestamp": "2026-04-15T12:54:58.408Z",
+      "score": 21.6,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4,
+        "technical": 5,
+        "reply_quality": 5
+      },
+      "g4_bonus": 0.5,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [
+        "unlock"
+      ],
+      "best_hook": "Spent last night digging into the MarbMarket docs because the ve(3,3) model on MegaETH caught my eye. It reminds me of the early Aerodrome days on Base where the tokenomics actually aligned incentives. You lock MARB for veMARB to vote on emissions, longer locks mean more power, and protocols bribe you for that vote. It creates a loop where fees flow back to stakers instead of just getting dumped. What stands out is the fair launch. No presale, no VC allocation, no team dump. The community gets the tokens from day one. I think this matters because we have seen how VC open up kill momentum on other chains. If you missed the Solidly fork on Optimism, this setup on MegaETH looks worth watching. You can check the mechanics at x.com/Marb_market. @RallyOnChain caught my attention with this one. I am curious if this model can sustain high APYs without initial liquidity. Thoughts?",
+      "is_repetition": false,
+      "content_preview": "Spent last night digging into the MarbMarket docs because the ve(3,3) model on MegaETH caught my eye..."
+    }
+  ],
+  "ai_word_frequency": {
+    "unlock": 1
+  },
+  "winning_hooks": [
+    {
+      "hook": "I've been watching the MegaETH space closely, and MarbMarket's approach to fair launches feels different. No presale, no VCs, just pure community play.",
+      "score": 21.3,
+      "timestamp": "2026-04-15T04:47:29.470Z"
+    },
+    {
+      "hook": "I've been studying this ve(3,3) model for weeks and it's fascinating how it flips traditional DEX incentives on their head. MarbMarket's taking Solidly's playbook to MegaETH with a fair launch that actually puts power in users' hands. No presale. No VCs. Just pure community value.",
+      "score": 21.9,
+      "timestamp": "2026-04-15T05:08:09.177Z"
+    },
+    {
+      "hook": "I've been diving deep into ve(3,3) models lately and MarbMarket's approach feels different. No presale. No VCs. Just a fair launch on MegaETH with their MARB token. You lock MARB to get veMARB, which gives you voting power and rewards. Longer locks mean more influence. The ve(3,3) model takes fee revenue and shares it with stakers, creating that self-reinforcing loop. Think Solidly but on MegaETH. @RallyOnChain has been tracking these fair launches closely. Projects actually bribe veMARB holders for votes, which is wild. No early investors dumping on day one. Equal opportunity from the start. x.com/Marb_market. What do you think about this fair launch approach compared to other veDEX models?",
+      "score": 20.9,
+      "timestamp": "2026-04-15T11:47:09.233Z"
+    },
+    {
+      "hook": "I've been digging into MarbMarket's ve(3,3) model and it's fascinating how they're bringing Solidly's incentive design to MegaETH. No presale, no VCs, just a fair launch. Lock MARB, get veMARB for voting power. Longer locks = more influence + rewards. Projects bribe veMARB holders for votes. Fee revenue goes to stakers. That's the (3,3) loop. This is exactly what made Aerodrome and Velodrome successful. Community-owned, no early dump risk. @RallyOnChain has been building something interesting here. The incentive structure aligns most people properly. x.com/Marb_market",
+      "score": 21.3,
+      "timestamp": "2026-04-15T11:47:09.993Z"
+    },
+    {
+      "hook": "I spent the weekend digging into MarbMarket on MegaETH. It is the first veDEX there and the mechanics are actually pretty interesting. You lock MARB to get veMARB. Longer lock means more voting power. Then you vote on which liquidity pools get emissions. Projects bribe you for those votes. This is the classic ve(3,3) model we saw work on Aerodrome and Velodrome. What stands out is the fair launch. No presale. No VCs. No team allocation. The community gets all the tokens from the start. That removes the early investor dumping risk that kills so many protocols. I think the token utility is solid if the volume shows up. Locking creates scarcity. Voting directs incentives. Bribes add yield. It all compounds. @RallyOnChain caught my attention with this one. Not sure if MegaETH has the liquidity yet to support it, but the setup is right. Check the details at x.com/Marb_market",
+      "score": 20.6,
+      "timestamp": "2026-04-15T12:34:35.621Z"
+    },
+    {
+      "hook": "Spent last night digging into the MarbMarket docs because the ve(3,3) model on MegaETH caught my eye. It reminds me of the early Aerodrome days on Base where the tokenomics actually aligned incentives. You lock MARB for veMARB to vote on emissions, longer locks mean more power, and protocols bribe you for that vote. It creates a loop where fees flow back to stakers instead of just getting dumped. What stands out is the fair launch. No presale, no VC allocation, no team dump. The community gets the tokens from day one. I think this matters because we have seen how VC open up kill momentum on other chains. If you missed the Solidly fork on Optimism, this setup on MegaETH looks worth watching. You can check the mechanics at x.com/Marb_market. @RallyOnChain caught my attention with this one. I am curious if this model can sustain high APYs without initial liquidity. Thoughts?",
+      "score": 21.6,
+      "timestamp": "2026-04-15T12:54:58.408Z"
+    }
+  ],
+  "category_trends": {
+    "originality": {
+      "total": 13,
+      "count": 7,
+      "avg": 1.86,
+      "last5": [
+        1.95,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "alignment": {
+      "total": 13.8,
+      "count": 7,
+      "avg": 1.97,
+      "last5": [
+        1.8,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "accuracy": {
+      "total": 11.7,
+      "count": 7,
+      "avg": 1.67,
+      "last5": [
+        1.5,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "compliance": {
+      "total": 14,
+      "count": 7,
+      "avg": 2,
+      "last5": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "engagement": {
+      "total": 29.6,
+      "count": 7,
+      "avg": 4.23,
+      "last5": [
+        4.8,
+        4,
+        4,
+        4.5,
+        4
+      ]
+    },
+    "technical": {
+      "total": 32.9,
+      "count": 7,
+      "avg": 4.7,
+      "last5": [
+        4.799999999999999,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "reply_quality": {
+      "total": 31.5,
+      "count": 7,
+      "avg": 4.5,
+      "last5": [
+        5,
+        4.5,
+        5,
+        5,
+        5
+      ]
+    }
+  },
+  "patterns": {
+    "semantic": {
+      "claim_specificity": {
+        "description": "Concrete verifiable claims score higher",
+        "level": "high",
+        "learned_rules": []
+      },
+      "tone_style_match": {
+        "description": "Tone must match campaign context",
+        "level": "high",
+        "learned_rules": []
+      },
+      "engagement_hook": {
+        "description": "Opening hooks + CTA for engagement",
+        "level": "high",
+        "learned_rules": [
+          "Focus on accuracy: avg 1.67/2 (84%)",
+          "Focus on engagement: avg 4.23/5 (85%)"
+        ]
+      },
+      "rally_mention": {
+        "description": "Natural contextual mention with concrete mechanism",
+        "level": "high",
+        "learned_rules": []
+      },
+      "exaggeration_risk": {
+        "description": "Absolute claims risk Accuracy deductions",
+        "level": "critical",
+        "learned_rules": []
+      },
+      "cross_category_tradeoff": {
+        "description": "Balance categories",
+        "level": "medium",
+        "learned_rules": []
+      },
+      "v7_intelligence": {
+        "avg_score": 0,
+        "weak_categories": [
+          "reply_quality"
+        ],
+        "strong_categories": [
+          "alignment",
+          "accuracy",
+          "compliance",
+          "technical"
+        ],
+        "total_data_points": 258
+      },
+      "learned_rules": [
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid repetitive \u2014 drops originality', 'confidence': 0.8, 'frequency': 5}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include natural for higher originality', 'confidence': 1.0, 'frequency': 3}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid similar to \u2014 drops originality', 'confidence': 1.0, 'frequency': 9}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include distinctive for higher originality', 'confidence': 1.0, 'frequency': 8}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include conversational for higher originality', 'confidence': 1.0, 'frequency': 5}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid formulaic \u2014 drops originality', 'confidence': 1.0, 'frequency': 12}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include original for higher originality', 'confidence': 1.0, 'frequency': 10}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include authentic for higher originality', 'confidence': 1.0, 'frequency': 19}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid marketing speak \u2014 drops originality', 'confidence': 1.0, 'frequency': 16}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include creative for higher originality', 'confidence': 1.0, 'frequency': 3}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid overly promotional \u2014 drops originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include fresh for higher originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid generic \u2014 drops originality', 'confidence': 1.0, 'frequency': 34}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid promotional tone \u2014 drops originality', 'confidence': 1.0, 'frequency': 17}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid overlap \u2014 drops originality', 'confidence': 1.0, 'frequency': 57}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid derivative \u2014 drops originality', 'confidence': 1.0, 'frequency': 52}",
+        "[WINNING] {'category': 'originality', 'type': 'negative', 'rule': 'Avoid template \u2014 drops originality', 'confidence': 1.0, 'frequency': 91}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include unique for higher originality', 'confidence': 1.0, 'frequency': 56}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include genuine for higher originality', 'confidence': 1.0, 'frequency': 43}",
+        "[WINNING] {'category': 'originality', 'type': 'positive', 'rule': 'Include personal for higher originality', 'confidence': 1.0, 'frequency': 70}"
+      ]
+    }
+  },
+  "scoring_model": {
+    "calibration_log": [
+      {
+        "timestamp": "2026-04-15T03:46:52.167Z",
+        "predicted": 15.4,
+        "grade": "B+"
+      },
+      {
+        "timestamp": "2026-04-15T04:47:29.470Z",
+        "predicted": 21.3,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T05:08:09.177Z",
+        "predicted": 21.9,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T11:47:09.233Z",
+        "predicted": 20.9,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-15T11:47:09.993Z",
+        "predicted": 21.3,
+        "grade": "S"
+      },
+      {
+        "timestamp": "2026-04-15T12:34:35.621Z",
+        "predicted": 20.6,
+        "grade": "A+"
+      },
+      {
+        "timestamp": "2026-04-15T12:54:58.408Z",
+        "predicted": 21.6,
+        "grade": "S"
+      }
+    ],
+    "category_weights": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "max_scores": {
+      "originality": 2,
+      "alignment": 2,
+      "accuracy": 2,
+      "compliance": 2,
+      "engagement": 5,
+      "technical": 5
+    },
+    "prediction_accuracy": {
+      "total_predictions": 0,
+      "correct_predictions": 0,
+      "avg_diff": 0
+    }
+  },
+  "campaign_memories": {},
+  "v3_lessons": {}
+}

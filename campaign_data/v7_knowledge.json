@@ -1,0 +1,2984 @@
+{
+  "version": "7.0",
+  "created": "2026-04-15T16:04:04.055282+00:00",
+  "last_updated": "2026-04-15T16:06:06.331146+00:00",
+  "stats": {
+    "total_patterns": 293,
+    "total_calibrations": 0,
+    "total_cycles": 0,
+    "total_submissions_analyzed": [
+      "v7_collected",
+      258
+    ],
+    "avg_prediction_error": null,
+    "best_score_achieved": 0,
+    "avg_score": 0,
+    "last_collection": "2026-04-15T16:05:47.678862+00:00",
+    "last_generation": null
+  },
+  "patterns": {
+    "originality": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231249+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231266+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231273+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231292+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231298+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231305+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231308+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231313+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231317+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231323+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231277+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231280+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231283+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231286+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231289+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231295+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231302+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231311+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231320+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid repetitive — drops originality",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "While the tweet effectively conveys the mission, its distinctiveness is somewhat diminished by the repetitive nature of the campaign's core messaging across comparable content.",
+          "discovered_at": "2026-04-15T16:04:18.231326+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid ai-generated — drops originality",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "It lacks a unique personal anecdote or a fresh creative angle that would separate it from the 'AI-generated-looking' category, though it remains a clear and functional explanation of the protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231330+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid cliched — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "It refrains from cliched phrasing like 'quality over clout' or 'working protocol' verbatim, yet still conveys similar ideas in a condensed form.",
+          "discovered_at": "2026-04-15T16:04:18.231333+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid manufactured — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The voice attempts authenticity with phrases like 'if you've been around crypto long enough' and 'Personally, I think', but these feel like manufactured credibility markers rather than genuine persona",
+          "discovered_at": "2026-04-15T16:04:18.231336+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "alignment": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231339+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231342+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231344+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231360+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231366+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231372+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231375+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231381+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231384+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231390+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.231393+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.231396+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include demonstrates understanding for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The use of specific terminology like 'GenLayer' and 'on-chain' demonstrates understanding of campaign concepts.",
+          "discovered_at": "2026-04-15T16:04:18.231399+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include addresses the core for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The author uses personal experience to convey authenticity, addresses the core value propositions (decentralized, AI-powered, no gatekeepers, rewards based on content quality not follower count), and ",
+          "discovered_at": "2026-04-15T16:04:18.231402+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include on-topic for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The tweet is a longform, on-topic firsthand take (tweet_subtype.",
+          "discovered_at": "2026-04-15T16:04:18.231405+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231347+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231349+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231352+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231355+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231357+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231363+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231369+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231378+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231387+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid repetitive — drops originality",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "While the tweet effectively conveys the mission, its distinctiveness is somewhat diminished by the repetitive nature of the campaign's core messaging across comparable content.",
+          "discovered_at": "2026-04-15T16:04:18.231408+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid ai-generated — drops originality",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "It lacks a unique personal anecdote or a fresh creative angle that would separate it from the 'AI-generated-looking' category, though it remains a clear and functional explanation of the protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231411+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid broad — drops alignment",
+          "severity": "medium",
+          "confidence": 0.6,
+          "context": "However, it fails to deliver original, substantive content that explains Rally’s mechanics or broader significance.",
+          "discovered_at": "2026-04-15T16:04:18.231414+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid cliched — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "It refrains from cliched phrasing like 'quality over clout' or 'working protocol' verbatim, yet still conveys similar ideas in a condensed form.",
+          "discovered_at": "2026-04-15T16:04:18.231418+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid manufactured — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The voice attempts authenticity with phrases like 'if you've been around crypto long enough' and 'Personally, I think', but these feel like manufactured credibility markers rather than genuine persona",
+          "discovered_at": "2026-04-15T16:04:18.231421+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "accuracy": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231424+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231427+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231429+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231445+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231451+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231457+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231460+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231466+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231468+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231474+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.231477+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.231480+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include accurately describes for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet accurately describes Rally's Beta launch and its core functionality as a decentralized, AI-powered marketing protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231483+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correctly states for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "It correctly states that creators can earn real USDC and Rally Points by completing on-chain campaigns, which aligns with the campaign goal and knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231486+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include specific for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, there are a few minor inaccuracies or omissions: the tweet does not mention the specific blockchain infrastructure (Base, zkSync Era, GenLayer, LayerZero) which would add technical precision,",
+          "discovered_at": "2026-04-15T16:04:18.231489+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include verifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet avoids technical inaccuracies, presents information in proper context, and reflects the core value proposition: verifiable, on-chain marketing infrastructure that compensates creators fairly",
+          "discovered_at": "2026-04-15T16:04:18.231492+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include measurable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author correctly identifies the focus on measurable impact over 'inflated numbers,' which is a central pillar of Rally's value proposition against traditional influencer marketing.",
+          "discovered_at": "2026-04-15T16:04:18.231496+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include factually correct for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of Rally's beta being active is factually correct according to the knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231499+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include precise for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Context Accuracy\n- Context that Rally is changing how influence is priced by rewarding precise, brief-aligned content over generic volume aligns with the campaign framing and docs.",
+          "discovered_at": "2026-04-15T16:04:18.231502+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include demonstrates understanding for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The use of specific terminology like 'GenLayer' and 'on-chain' demonstrates understanding of campaign concepts.",
+          "discovered_at": "2026-04-15T16:04:18.231505+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include addresses the core for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The author uses personal experience to convey authenticity, addresses the core value propositions (decentralized, AI-powered, no gatekeepers, rewards based on content quality not follower count), and ",
+          "discovered_at": "2026-04-15T16:04:18.231508+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include on-topic for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The tweet is a longform, on-topic firsthand take (tweet_subtype.",
+          "discovered_at": "2026-04-15T16:04:18.231512+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include quantifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "- No quantifiable misrepresentation appears.",
+          "discovered_at": "2026-04-15T16:04:18.231515+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-researched for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "Someone writing a precise, well-researched post for a niche audience can outperform an account ten times their size.",
+          "discovered_at": "2026-04-15T16:04:18.231519+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231432+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231435+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231437+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231440+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231443+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231448+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231454+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231463+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231471+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid repetitive — drops originality",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "While the tweet effectively conveys the mission, its distinctiveness is somewhat diminished by the repetitive nature of the campaign's core messaging across comparable content.",
+          "discovered_at": "2026-04-15T16:04:18.231522+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid ai-generated — drops originality",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "It lacks a unique personal anecdote or a fresh creative angle that would separate it from the 'AI-generated-looking' category, though it remains a clear and functional explanation of the protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231525+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid misleading — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "Contextually, the hype and emphasis on being early to the protocol are appropriately presented without misleading information.",
+          "discovered_at": "2026-04-15T16:04:18.231528+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid broad — drops alignment",
+          "severity": "medium",
+          "confidence": 0.6,
+          "context": "However, it fails to deliver original, substantive content that explains Rally’s mechanics or broader significance.",
+          "discovered_at": "2026-04-15T16:04:18.231531+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid cliched — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "It refrains from cliched phrasing like 'quality over clout' or 'working protocol' verbatim, yet still conveys similar ideas in a condensed form.",
+          "discovered_at": "2026-04-15T16:04:18.231534+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid manufactured — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The voice attempts authenticity with phrases like 'if you've been around crypto long enough' and 'Personally, I think', but these feel like manufactured credibility markers rather than genuine persona",
+          "discovered_at": "2026-04-15T16:04:18.231537+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overstated — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "Claims Verification: Most claims are supportable from the campaign materials, but a few are overstated.",
+          "discovered_at": "2026-04-15T16:04:18.231541+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid imprecise — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The only materially shaky point is 'lets creators enter briefs,' which is an imprecise description of the documented flow.",
+          "discovered_at": "2026-04-15T16:04:18.231544+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "compliance": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231547+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231550+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231562+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231579+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231585+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231590+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231593+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231599+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231602+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231608+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.231611+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.231614+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include accurately describes for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet accurately describes Rally's Beta launch and its core functionality as a decentralized, AI-powered marketing protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231617+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correctly states for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "It correctly states that creators can earn real USDC and Rally Points by completing on-chain campaigns, which aligns with the campaign goal and knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231621+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include specific for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, there are a few minor inaccuracies or omissions: the tweet does not mention the specific blockchain infrastructure (Base, zkSync Era, GenLayer, LayerZero) which would add technical precision,",
+          "discovered_at": "2026-04-15T16:04:18.231624+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include verifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet avoids technical inaccuracies, presents information in proper context, and reflects the core value proposition: verifiable, on-chain marketing infrastructure that compensates creators fairly",
+          "discovered_at": "2026-04-15T16:04:18.231627+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include measurable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author correctly identifies the focus on measurable impact over 'inflated numbers,' which is a central pillar of Rally's value proposition against traditional influencer marketing.",
+          "discovered_at": "2026-04-15T16:04:18.231630+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include factually correct for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of Rally's beta being active is factually correct according to the knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231633+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include precise for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Context Accuracy\n- Context that Rally is changing how influence is priced by rewarding precise, brief-aligned content over generic volume aligns with the campaign framing and docs.",
+          "discovered_at": "2026-04-15T16:04:18.231637+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include complies with for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet complies with several key campaign requirements.",
+          "discovered_at": "2026-04-15T16:04:18.231640+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include satisfying the mandatory for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of @RallyOnChain is present (verified via 'mentions_usernames' in thread_data), satisfying the mandatory tagging requirement.",
+          "discovered_at": "2026-04-15T16:04:18.231643+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include required elements for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "For non-programmatic rules: Required Elements (mentions included, no hashtags required) - PASS.",
+          "discovered_at": "2026-04-15T16:04:18.231647+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include mention is present for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The thread_data confirms the required mention is present, character count is within limits (1438 chars), and it includes media.",
+          "discovered_at": "2026-04-15T16:04:18.231650+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct format for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "All mandatory elements are met: required mention included, correct format, no rule violations.",
+          "discovered_at": "2026-04-15T16:04:18.231654+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include demonstrates understanding for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The use of specific terminology like 'GenLayer' and 'on-chain' demonstrates understanding of campaign concepts.",
+          "discovered_at": "2026-04-15T16:04:18.231667+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include addresses the core for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The author uses personal experience to convey authenticity, addresses the core value propositions (decentralized, AI-powered, no gatekeepers, rewards based on content quality not follower count), and ",
+          "discovered_at": "2026-04-15T16:04:18.231671+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include on-topic for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The tweet is a longform, on-topic firsthand take (tweet_subtype.",
+          "discovered_at": "2026-04-15T16:04:18.231674+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include quantifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "- No quantifiable misrepresentation appears.",
+          "discovered_at": "2026-04-15T16:04:18.231677+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-researched for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "Someone writing a precise, well-researched post for a niche audience can outperform an account ten times their size.",
+          "discovered_at": "2026-04-15T16:04:18.231681+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231565+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231568+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231570+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231573+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231576+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231582+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231588+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231596+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231605+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid violates — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, it violates optional rules by not including a Rally referral link (waitlist.",
+          "discovered_at": "2026-04-15T16:04:18.231657+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid hashtag — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet satisfies all mandatory requirements: it includes the @RallyOnChain tag, does not start with a mention or hashtag, avoids hashtags entirely, and refrains from using em dashes.",
+          "discovered_at": "2026-04-15T16:04:18.231660+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid missing — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the optional referral link is missing, which is a violation.",
+          "discovered_at": "2026-04-15T16:04:18.231664+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid repetitive — drops originality",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "While the tweet effectively conveys the mission, its distinctiveness is somewhat diminished by the repetitive nature of the campaign's core messaging across comparable content.",
+          "discovered_at": "2026-04-15T16:04:18.231684+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid ai-generated — drops originality",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "It lacks a unique personal anecdote or a fresh creative angle that would separate it from the 'AI-generated-looking' category, though it remains a clear and functional explanation of the protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231687+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid misleading — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.7,
+          "context": "Contextually, the hype and emphasis on being early to the protocol are appropriately presented without misleading information.",
+          "discovered_at": "2026-04-15T16:04:18.231690+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid broad — drops alignment",
+          "severity": "medium",
+          "confidence": 0.6,
+          "context": "However, it fails to deliver original, substantive content that explains Rally’s mechanics or broader significance.",
+          "discovered_at": "2026-04-15T16:04:18.231694+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid cliched — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "It refrains from cliched phrasing like 'quality over clout' or 'working protocol' verbatim, yet still conveys similar ideas in a condensed form.",
+          "discovered_at": "2026-04-15T16:04:18.231697+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid manufactured — drops originality",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The voice attempts authenticity with phrases like 'if you've been around crypto long enough' and 'Personally, I think', but these feel like manufactured credibility markers rather than genuine persona",
+          "discovered_at": "2026-04-15T16:04:18.231700+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overstated — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "Claims Verification: Most claims are supportable from the campaign materials, but a few are overstated.",
+          "discovered_at": "2026-04-15T16:04:18.231703+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid imprecise — drops accuracy",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "The only materially shaky point is 'lets creators enter briefs,' which is an imprecise description of the documented flow.",
+          "discovered_at": "2026-04-15T16:04:18.231707+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid fails to include — drops compliance",
+          "severity": "medium",
+          "confidence": 0.5,
+          "context": "However, it fails to include the optional referral link from waitlist.",
+          "discovered_at": "2026-04-15T16:04:18.231710+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "engagement": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231713+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231716+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231718+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231734+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231740+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231746+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231748+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231754+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231757+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231763+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.231766+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.231769+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include accurately describes for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet accurately describes Rally's Beta launch and its core functionality as a decentralized, AI-powered marketing protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231772+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correctly states for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "It correctly states that creators can earn real USDC and Rally Points by completing on-chain campaigns, which aligns with the campaign goal and knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231775+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include specific for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, there are a few minor inaccuracies or omissions: the tweet does not mention the specific blockchain infrastructure (Base, zkSync Era, GenLayer, LayerZero) which would add technical precision,",
+          "discovered_at": "2026-04-15T16:04:18.231778+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include verifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet avoids technical inaccuracies, presents information in proper context, and reflects the core value proposition: verifiable, on-chain marketing infrastructure that compensates creators fairly",
+          "discovered_at": "2026-04-15T16:04:18.231781+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include measurable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author correctly identifies the focus on measurable impact over 'inflated numbers,' which is a central pillar of Rally's value proposition against traditional influencer marketing.",
+          "discovered_at": "2026-04-15T16:04:18.231784+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include factually correct for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of Rally's beta being active is factually correct according to the knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231788+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include precise for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Context Accuracy\n- Context that Rally is changing how influence is priced by rewarding precise, brief-aligned content over generic volume aligns with the campaign framing and docs.",
+          "discovered_at": "2026-04-15T16:04:18.231791+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include complies with for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet complies with several key campaign requirements.",
+          "discovered_at": "2026-04-15T16:04:18.231794+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include satisfying the mandatory for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of @RallyOnChain is present (verified via 'mentions_usernames' in thread_data), satisfying the mandatory tagging requirement.",
+          "discovered_at": "2026-04-15T16:04:18.231797+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include required elements for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "For non-programmatic rules: Required Elements (mentions included, no hashtags required) - PASS.",
+          "discovered_at": "2026-04-15T16:04:18.231801+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include mention is present for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The thread_data confirms the required mention is present, character count is within limits (1438 chars), and it includes media.",
+          "discovered_at": "2026-04-15T16:04:18.231804+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct format for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "All mandatory elements are met: required mention included, correct format, no rule violations.",
+          "discovered_at": "2026-04-15T16:04:18.231807+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong hook for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively leverages a strong hook by immediately announcing that 'Rally's Beta is live' and emphasizing real financial incentives ('real stables landing in wallets'), which grabs attention",
+          "discovered_at": "2026-04-15T16:04:18.231820+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include compelling for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is clear and compelling—encouraging users to 'jump in and see how it feels'—framed around authenticity and fair reward systems, making engagement feel both accessible and meaningful",
+          "discovered_at": "2026-04-15T16:04:18.231824+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include inviting for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is implicit, inviting readers to learn more about @RallyOnChain and its beta feature.",
+          "discovered_at": "2026-04-15T16:04:18.231828+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include direct question for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the absence of direct questions or prompts for discussion limits immediate engagement.",
+          "discovered_at": "2026-04-15T16:04:18.231831+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include relatable for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The hook is strong, drawing the reader in with a relatable experience.",
+          "discovered_at": "2026-04-15T16:04:18.231835+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include thought-provoking for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively grabs attention by starting with a thought-provoking statement about the difference between activity and intention.",
+          "discovered_at": "2026-04-15T16:04:18.231838+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include encourages discussion for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "A direct CTA is absent, but the narrative encourages discussion on the future of web3 marketing.",
+          "discovered_at": "2026-04-15T16:04:18.231842+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include demonstrates understanding for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The use of specific terminology like 'GenLayer' and 'on-chain' demonstrates understanding of campaign concepts.",
+          "discovered_at": "2026-04-15T16:04:18.231846+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include addresses the core for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The author uses personal experience to convey authenticity, addresses the core value propositions (decentralized, AI-powered, no gatekeepers, rewards based on content quality not follower count), and ",
+          "discovered_at": "2026-04-15T16:04:18.231857+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include on-topic for higher alignment",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "The tweet is a longform, on-topic firsthand take (tweet_subtype.",
+          "discovered_at": "2026-04-15T16:04:18.231863+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include quantifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "- No quantifiable misrepresentation appears.",
+          "discovered_at": "2026-04-15T16:04:18.231866+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-researched for higher accuracy",
+          "severity": "medium",
+          "confidence": 0.9,
+          "context": "Someone writing a precise, well-researched post for a niche audience can outperform an account ten times their size.",
+          "discovered_at": "2026-04-15T16:04:18.231870+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational tone for higher engagement",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "It earns a 4 because it could more effectively convert informational interest into social engagement with a stronger, explicit engagement-oriented CTA and a slightly more conversational tone.",
+          "discovered_at": "2026-04-15T16:04:18.231878+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231721+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231723+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231726+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231729+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231732+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231737+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231743+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231751+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231760+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid violates — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, it violates optional rules by not including a Rally referral link (waitlist.",
+          "discovered_at": "2026-04-15T16:04:18.231810+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid hashtag — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet satisfies all mandatory requirements: it includes the @RallyOnChain tag, does not start with a mention or hashtag, avoids hashtags entirely, and refrains from using em dashes.",
+          "discovered_at": "2026-04-15T16:04:18.231813+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid missing — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the optional referral link is missing, which is a violation.",
+          "discovered_at": "2026-04-15T16:04:18.231816+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid repetitive — drops originality",
+          "severity": "medium",
+          "confidence": 0.8,
+          "context": "While the tweet effectively conveys the mission, its distinctiveness is somewhat diminished by the repetitive nature of the campaign's core messaging across comparable content.",
+          "discovered_at": "2026-04-15T16:04:18.231874+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "technical": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231881+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.231884+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.231887+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.231904+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.231910+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.231915+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231918+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.231924+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.231926+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.231933+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.231935+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.231938+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include accurately describes for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet accurately describes Rally's Beta launch and its core functionality as a decentralized, AI-powered marketing protocol.",
+          "discovered_at": "2026-04-15T16:04:18.231942+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correctly states for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "It correctly states that creators can earn real USDC and Rally Points by completing on-chain campaigns, which aligns with the campaign goal and knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231945+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include specific for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, there are a few minor inaccuracies or omissions: the tweet does not mention the specific blockchain infrastructure (Base, zkSync Era, GenLayer, LayerZero) which would add technical precision,",
+          "discovered_at": "2026-04-15T16:04:18.231948+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include verifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet avoids technical inaccuracies, presents information in proper context, and reflects the core value proposition: verifiable, on-chain marketing infrastructure that compensates creators fairly",
+          "discovered_at": "2026-04-15T16:04:18.231951+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include measurable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author correctly identifies the focus on measurable impact over 'inflated numbers,' which is a central pillar of Rally's value proposition against traditional influencer marketing.",
+          "discovered_at": "2026-04-15T16:04:18.231955+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include factually correct for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of Rally's beta being active is factually correct according to the knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.231958+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include precise for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Context Accuracy\n- Context that Rally is changing how influence is priced by rewarding precise, brief-aligned content over generic volume aligns with the campaign framing and docs.",
+          "discovered_at": "2026-04-15T16:04:18.231961+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include complies with for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet complies with several key campaign requirements.",
+          "discovered_at": "2026-04-15T16:04:18.231965+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include satisfying the mandatory for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of @RallyOnChain is present (verified via 'mentions_usernames' in thread_data), satisfying the mandatory tagging requirement.",
+          "discovered_at": "2026-04-15T16:04:18.231968+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include required elements for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "For non-programmatic rules: Required Elements (mentions included, no hashtags required) - PASS.",
+          "discovered_at": "2026-04-15T16:04:18.231972+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include mention is present for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The thread_data confirms the required mention is present, character count is within limits (1438 chars), and it includes media.",
+          "discovered_at": "2026-04-15T16:04:18.231975+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct format for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "All mandatory elements are met: required mention included, correct format, no rule violations.",
+          "discovered_at": "2026-04-15T16:04:18.231979+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong hook for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively leverages a strong hook by immediately announcing that 'Rally's Beta is live' and emphasizing real financial incentives ('real stables landing in wallets'), which grabs attention",
+          "discovered_at": "2026-04-15T16:04:18.231992+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include compelling for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is clear and compelling—encouraging users to 'jump in and see how it feels'—framed around authenticity and fair reward systems, making engagement feel both accessible and meaningful",
+          "discovered_at": "2026-04-15T16:04:18.231995+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include inviting for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is implicit, inviting readers to learn more about @RallyOnChain and its beta feature.",
+          "discovered_at": "2026-04-15T16:04:18.231999+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include direct question for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the absence of direct questions or prompts for discussion limits immediate engagement.",
+          "discovered_at": "2026-04-15T16:04:18.232003+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include relatable for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The hook is strong, drawing the reader in with a relatable experience.",
+          "discovered_at": "2026-04-15T16:04:18.232009+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include thought-provoking for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively grabs attention by starting with a thought-provoking statement about the difference between activity and intention.",
+          "discovered_at": "2026-04-15T16:04:18.232014+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include encourages discussion for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "A direct CTA is absent, but the narrative encourages discussion on the future of web3 marketing.",
+          "discovered_at": "2026-04-15T16:04:18.232021+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include solid for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language Mechanics are solid: grammar, spelling, and punctuation are correct and appropriate for an informal yet professional tone.",
+          "discovered_at": "2026-04-15T16:04:18.232027+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include proper grammar for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language mechanics are excellent with proper grammar, correct spelling, and appropriate punctuation throughout the 1,921-character longform post.",
+          "discovered_at": "2026-04-15T16:04:18.232034+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include clean for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "fun/joinme/Hypodrop) is cleanly integrated at the end.",
+          "discovered_at": "2026-04-15T16:04:18.232041+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-structured for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet is well-structured and readable, with proper grammar, spelling, and punctuation.",
+          "discovered_at": "2026-04-15T16:04:18.232048+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct punctuation for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language mechanics are excellent, with clear, active phrasing and correct punctuation.",
+          "discovered_at": "2026-04-15T16:04:18.232052+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include coherent for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "As a single-tweet thread, Thread Composition is not applicable, but the standalone structure is self-contained and coherent, fulfilling the requirements of the campaign brief by explaining Rally’s AI-",
+          "discovered_at": "2026-04-15T16:04:18.232056+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include clear structure for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Overall, this tweet is technically very strong: excellent mechanics, clear structure, and compliant with mission-specific formal constraints.",
+          "discovered_at": "2026-04-15T16:04:18.232060+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.231889+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.231892+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.231895+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231898+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.231901+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.231907+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.231912+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.231921+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.231929+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid violates — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, it violates optional rules by not including a Rally referral link (waitlist.",
+          "discovered_at": "2026-04-15T16:04:18.231982+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid hashtag — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet satisfies all mandatory requirements: it includes the @RallyOnChain tag, does not start with a mention or hashtag, avoids hashtags entirely, and refrains from using em dashes.",
+          "discovered_at": "2026-04-15T16:04:18.231985+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid missing — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the optional referral link is missing, which is a violation.",
+          "discovered_at": "2026-04-15T16:04:18.231988+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    },
+    "reply_quality": {
+      "positive": [
+        {
+          "rule": "Include personal for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.232063+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include genuine for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author shares their genuine enthusiasm for the protocol, emphasizing how it changes the game for creators by prioritizing quality over follower count.",
+          "discovered_at": "2026-04-15T16:04:18.232066+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include unique for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet provides a detailed and personal account of the author's experience with Rally's Beta, highlighting its unique features such as on-chain marketing, AI scoring, and the rewarding of quality c",
+          "discovered_at": "2026-04-15T16:04:18.232069+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include fresh for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet stands out from the similar tweets provided, offering a fresh angle on the Rally protocol and its potential impact on the industry.",
+          "discovered_at": "2026-04-15T16:04:18.232086+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include creative for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' It successfully meets all mission constraints, including the omission of em dashes and hashtags, while maintaining a high level of creative expression through the 'rewards for thinking clearly' narr",
+          "discovered_at": "2026-04-15T16:04:18.232092+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include authentic for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "By framing Rally as a change in the 'structure of campaigns' and focusing on 'long term activity,' the author provides a personal insight that feels authentic to a user actually exploring the platform",
+          "discovered_at": "2026-04-15T16:04:18.232097+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include original for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates a high degree of originality compared to the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.232100+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include conversational for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is conversational yet professional, avoiding common cliches like 'don't sleep on this' or 'game changer.",
+          "discovered_at": "2026-04-15T16:04:18.232106+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include distinctive for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The score is based on the tweet's unique perspective, personal voice, content distinctiveness, language authenticity, and creative expression.",
+          "discovered_at": "2026-04-15T16:04:18.232109+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include natural for higher originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The structure is clean, the language is natural, and it successfully translates technical features like GenLayer/AI scoring into a relatable benefit: feedback and improvement.",
+          "discovered_at": "2026-04-15T16:04:18.232115+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong alignment for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "This tweet demonstrates strong alignment with the Rally campaign across multiple dimensions.",
+          "discovered_at": "2026-04-15T16:04:18.232118+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-integrated for higher alignment",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The concrete example of how the scoring works is well-integrated.",
+          "discovered_at": "2026-04-15T16:04:18.232122+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include accurately describes for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet accurately describes Rally's Beta launch and its core functionality as a decentralized, AI-powered marketing protocol.",
+          "discovered_at": "2026-04-15T16:04:18.232125+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correctly states for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "It correctly states that creators can earn real USDC and Rally Points by completing on-chain campaigns, which aligns with the campaign goal and knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.232128+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include specific for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, there are a few minor inaccuracies or omissions: the tweet does not mention the specific blockchain infrastructure (Base, zkSync Era, GenLayer, LayerZero) which would add technical precision,",
+          "discovered_at": "2026-04-15T16:04:18.232132+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include verifiable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet avoids technical inaccuracies, presents information in proper context, and reflects the core value proposition: verifiable, on-chain marketing infrastructure that compensates creators fairly",
+          "discovered_at": "2026-04-15T16:04:18.232135+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include measurable for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The author correctly identifies the focus on measurable impact over 'inflated numbers,' which is a central pillar of Rally's value proposition against traditional influencer marketing.",
+          "discovered_at": "2026-04-15T16:04:18.232138+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include factually correct for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of Rally's beta being active is factually correct according to the knowledge base.",
+          "discovered_at": "2026-04-15T16:04:18.232142+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include precise for higher accuracy",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Context Accuracy\n- Context that Rally is changing how influence is priced by rewarding precise, brief-aligned content over generic volume aligns with the campaign framing and docs.",
+          "discovered_at": "2026-04-15T16:04:18.232145+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include complies with for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet complies with several key campaign requirements.",
+          "discovered_at": "2026-04-15T16:04:18.232148+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include satisfying the mandatory for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The mention of @RallyOnChain is present (verified via 'mentions_usernames' in thread_data), satisfying the mandatory tagging requirement.",
+          "discovered_at": "2026-04-15T16:04:18.232152+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include required elements for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "For non-programmatic rules: Required Elements (mentions included, no hashtags required) - PASS.",
+          "discovered_at": "2026-04-15T16:04:18.232155+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include mention is present for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The thread_data confirms the required mention is present, character count is within limits (1438 chars), and it includes media.",
+          "discovered_at": "2026-04-15T16:04:18.232158+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct format for higher compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "All mandatory elements are met: required mention included, correct format, no rule violations.",
+          "discovered_at": "2026-04-15T16:04:18.232162+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include strong hook for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively leverages a strong hook by immediately announcing that 'Rally's Beta is live' and emphasizing real financial incentives ('real stables landing in wallets'), which grabs attention",
+          "discovered_at": "2026-04-15T16:04:18.232175+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include compelling for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is clear and compelling—encouraging users to 'jump in and see how it feels'—framed around authenticity and fair reward systems, making engagement feel both accessible and meaningful",
+          "discovered_at": "2026-04-15T16:04:18.232178+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include inviting for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The call-to-action is implicit, inviting readers to learn more about @RallyOnChain and its beta feature.",
+          "discovered_at": "2026-04-15T16:04:18.232182+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include direct question for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the absence of direct questions or prompts for discussion limits immediate engagement.",
+          "discovered_at": "2026-04-15T16:04:18.232185+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include relatable for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The hook is strong, drawing the reader in with a relatable experience.",
+          "discovered_at": "2026-04-15T16:04:18.232189+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include thought-provoking for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet effectively grabs attention by starting with a thought-provoking statement about the difference between activity and intention.",
+          "discovered_at": "2026-04-15T16:04:18.232193+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include encourages discussion for higher engagement",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "A direct CTA is absent, but the narrative encourages discussion on the future of web3 marketing.",
+          "discovered_at": "2026-04-15T16:04:18.232196+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include solid for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language Mechanics are solid: grammar, spelling, and punctuation are correct and appropriate for an informal yet professional tone.",
+          "discovered_at": "2026-04-15T16:04:18.232201+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include proper grammar for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language mechanics are excellent with proper grammar, correct spelling, and appropriate punctuation throughout the 1,921-character longform post.",
+          "discovered_at": "2026-04-15T16:04:18.232204+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include clean for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "fun/joinme/Hypodrop) is cleanly integrated at the end.",
+          "discovered_at": "2026-04-15T16:04:18.232208+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include well-structured for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet is well-structured and readable, with proper grammar, spelling, and punctuation.",
+          "discovered_at": "2026-04-15T16:04:18.232212+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include correct punctuation for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Language mechanics are excellent, with clear, active phrasing and correct punctuation.",
+          "discovered_at": "2026-04-15T16:04:18.232216+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include coherent for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "As a single-tweet thread, Thread Composition is not applicable, but the standalone structure is self-contained and coherent, fulfilling the requirements of the campaign brief by explaining Rally’s AI-",
+          "discovered_at": "2026-04-15T16:04:18.232220+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Include clear structure for higher technical",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "Overall, this tweet is technically very strong: excellent mechanics, clear structure, and compliant with mission-specific formal constraints.",
+          "discovered_at": "2026-04-15T16:04:18.232224+00:00",
+          "source": "rally_analysis"
+        }
+      ],
+      "negative": [
+        {
+          "rule": "Avoid template — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the content is heavily templated in its approach, using nearly identical talking points about AI scoring replacing follower count, the dual incentive layer, and the 'early to a working protoc",
+          "discovered_at": "2026-04-15T16:04:18.232072+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid derivative — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The framing of 'The rules are changing, and this time the scoreboard is algorithmic' is a marginally distinctive line, but overall the tweet is derivative of the similar content pool provided.",
+          "discovered_at": "2026-04-15T16:04:18.232075+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overlap — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet demonstrates moderate originality but shows significant overlap with the similar tweets provided.",
+          "discovered_at": "2026-04-15T16:04:18.232077+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid promotional tone — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The use of conversational language and personal endorsement ('jump in with me') adds authenticity, avoiding overtly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.232080+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid generic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "While it successfully integrates the technical aspects of GenLayer and the AI scoring system, it lacks a unique personal anecdote or a distinct voice that separates it from the generic marketing narra",
+          "discovered_at": "2026-04-15T16:04:18.232083+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid overly promotional — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The language is natural and free of overly promotional tone.",
+          "discovered_at": "2026-04-15T16:04:18.232089+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid marketing speak — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "' Language authenticity is strong, using conversational metaphors ('settling in,' 'rhythm') without overt marketing speak.",
+          "discovered_at": "2026-04-15T16:04:18.232094+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid formulaic — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the overall structure, talking points, and many specific phrasings are formulaic and closely mirror the provided similar tweets.",
+          "discovered_at": "2026-04-15T16:04:18.232103+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid similar to — drops originality",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "On content distinctiveness, it is shorter and punchier than several similar tweets, which helps somewhat, but the structure and core claims remain highly similar to the comparison set.",
+          "discovered_at": "2026-04-15T16:04:18.232112+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid violates — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, it violates optional rules by not including a Rally referral link (waitlist.",
+          "discovered_at": "2026-04-15T16:04:18.232165+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid hashtag — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "The tweet satisfies all mandatory requirements: it includes the @RallyOnChain tag, does not start with a mention or hashtag, avoids hashtags entirely, and refrains from using em dashes.",
+          "discovered_at": "2026-04-15T16:04:18.232168+00:00",
+          "source": "rally_analysis"
+        },
+        {
+          "rule": "Avoid missing — drops compliance",
+          "severity": "medium",
+          "confidence": 1.0,
+          "context": "However, the optional referral link is missing, which is a violation.",
+          "discovered_at": "2026-04-15T16:04:18.232171+00:00",
+          "source": "rally_analysis"
+        }
+      ]
+    }
+  },
+  "directives": {
+    "must_do": [
+      "Include all required @mentions and links from campaign config",
+      "Write in natural human voice — no AI-sounding words",
+      "End with a specific, non-generic question",
+      "No em-dashes, no hashtags, no markdown formatting",
+      "Vary sentence length for natural rhythm"
+    ],
+    "must_avoid": [
+      "AI words: delve, leverage, paradigm, tapestry, ecosystem, flywheel, seamless, robust",
+      "Template phrases: key takeaways, let's dive in, hot take",
+      "Absolute claims: guaranteed, 100%, risk-free, everyone, never",
+      "Generic questions: Thoughts? What do you think?",
+      "Starting with @mention"
+    ],
+    "campaign_specific": {}
+  },
+  "calibration": {
+    "log": [],
+    "avg_error": null,
+    "mae_by_category": {},
+    "last_actual_score": null
+  },
+  "campaign_memory": {
+    "campaign_3": {
+      "total_cycles": 1,
+      "best_score": 0,
+      "avg_score": 0,
+      "last_score": 0,
+      "score_trend": "unknown",
+      "ai_words_found": [],
+      "hooks_used": [],
+      "weak_categories": []
+    },
+    "marbmarket-m0": {
+      "total_cycles": 1,
+      "best_score": 0,
+      "avg_score": 0,
+      "last_score": 0,
+      "score_trend": "unknown",
+      "ai_words_found": [],
+      "hooks_used": [],
+      "weak_categories": []
+    },
+    "marbmarket-m1": {
+      "total_cycles": 1,
+      "best_score": 0,
+      "avg_score": 0,
+      "last_score": 0,
+      "score_trend": "unknown",
+      "ai_words_found": [],
+      "hooks_used": [],
+      "weak_categories": []
+    }
+  },
+  "competitive": {
+    "score_distribution": {
+      "min": 12.0,
+      "max": 23.0,
+      "avg": 16.94,
+      "median": 17.0
+    },
+    "category_gaps": {
+      "originality": {
+        "avg": 1.31,
+        "max": 2,
+        "gap_pct": 34.5
+      },
+      "reply_quality": {
+        "avg": 1.09,
+        "max": 5,
+        "gap_pct": 78.2
+      }
+    },
+    "what_works": [
+      "[originality] original (x10)",
+      "[originality] personal (x9)",
+      "[originality] conversational (x9)",
+      "[originality] unique (x8)",
+      "[originality] authentic (x8)",
+      "[originality] natural (x8)",
+      "[reply_quality] specific (x8)",
+      "[originality] distinctive (x8)",
+      "[originality] creative (x7)",
+      "[accuracy] accurately describes (x7)"
+    ],
+    "what_fails": [
+      "[compliance] hashtag (x10)",
+      "[technical] spelling (x10)",
+      "[accuracy] misleading (x7)",
+      "[engagement] no explicit (x6)",
+      "[compliance] missing (x4)",
+      "[originality] derivative (x4)",
+      "[originality] generic (x3)",
+      "[originality] overlap (x3)",
+      "[accuracy] unverifiable (x3)",
+      "[originality] template (x3)"
+    ],
+    "recommendations": [
+      "REPLY_QUALITY has the biggest gap (78.2% room for improvement). Current avg: 1.09/5. Focus on this category for maximum score gain.",
+      "ORIGINALITY has the biggest gap (34.5% room for improvement). Current avg: 1.31/2. Focus on this category for maximum score gain.",
+      "What works in top submissions: [originality] original (x10)",
+      "What fails in bottom submissions: [compliance] hashtag (x10)"
+    ],
+    "last_analysis": "2026-04-15T16:06:06.331130+00:00"
+  },
+  "cycle_history": [
+    {
+      "timestamp": "2026-04-14T13:59:26.533Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behind the scenes. MarbMarket is different. No presale. No VC backing. First veDEX on MegaETH. That's real fair.",
+      "is_repetition": false,
+      "content_preview": "Been seeing too many \"fair launches\" lately that just mean no public presale but still VC money behi..."
+    },
+    {
+      "timestamp": "2026-04-14T14:02:46.886Z",
+      "score": 20.9,
+      "grade": "A+",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 1.8,
+        "engagement": 4.1,
+        "technical": 4.7,
+        "reply_quality": 4.3
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 1,
+      "variations_tested": 5,
+      "ai_words_found": [],
+      "best_hook": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then MarbMarket drops with a fair launch on MegaETH. No VCs. No presales. Just a veDEX that lets the community actually call the shots.",
+      "is_repetition": false,
+      "content_preview": "Been thinking about how most DEX launches feel the same. VC money, presales, the whole circus. Then ..."
+    },
+    {
+      "timestamp": "2026-04-14T15:23:19.482Z",
+      "score": 21.5,
+      "grade": "S",
+      "scores": {
+        "originality": 2,
+        "alignment": 2,
+        "accuracy": 2,
+        "compliance": 2,
+        "engagement": 4.5,
+        "technical": 4.5,
+        "reply_quality": 4.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 1,
+      "ai_words_found": [],
+      "best_hook": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veTokenomics creates real compounding power for those who think long term.",
+      "is_repetition": false,
+      "content_preview": "Been watching the ve(3,3) model for months. Most people chase yield. Not many understand how veToken..."
+    },
+    {
+      "timestamp": "2026-04-14T15:35:45.287Z",
+      "score": 15.5,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes are changing DeFi governance in ways nobody sees coming yet.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest meme coin. I'm watching how rewards compound in the background. veDEXes..."
+    },
+    {
+      "timestamp": "2026-04-14T15:40:28.451Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 1,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actually matters.",
+      "is_repetition": false,
+      "content_preview": "Most DeFi protocols chase hype. MarbMarket built something different. A veDEX where your vote actual..."
+    },
+    {
+      "timestamp": "2026-04-14T15:49:31.082Z",
+      "score": 14.2,
+      "grade": "B",
+      "scores": {
+        "originality": 1.2000000000000002,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.4,
+      "loops_used": 2,
+      "variations_tested": 3,
+      "ai_words_found": [],
+      "best_hook": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity works.",
+      "is_repetition": false,
+      "content_preview": "Most people chase the latest token launch. I'm looking at systems that quietly change how liquidity ..."
+    },
+    {
+      "timestamp": "2026-04-14T16:44:51.503Z",
+      "score": 15.9,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.15,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.35,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on MegaETH with no VC money. That's a rare thing these days.",
+      "is_repetition": false,
+      "content_preview": "Been seeing so many DEX launches lately that feel the same. Then I found MarbMarket - first veDEX on..."
+    },
+    {
+      "timestamp": "2026-04-14T17:02:44.820Z",
+      "score": 14.3,
+      "grade": "B",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 1.2,
+        "compliance": 2,
+        "engagement": 2.8,
+        "technical": 3.5,
+        "reply_quality": 1.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 4,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. It's about who controls the incentives. That's why MarbMarket caught my eye. First veDEX on MegaETH with no presale, no VCs. Just pure community power.",
+      "is_repetition": false,
+      "content_preview": "Been seeing a lot of noise about new DEX launches lately. Most miss the point. It's not about fees. ..."
+    },
+    {
+      "timestamp": "2026-04-14T17:37:57.659Z",
+      "score": 15.5,
+      "grade": "B+",
+      "scores": {
+        "originality": 1.25,
+        "alignment": 2,
+        "accuracy": 0.7,
+        "compliance": 2,
+        "engagement": 3.5,
+        "technical": 3.5,
+        "reply_quality": 2.5
+      },
+      "g4_bonus": 0.45,
+      "loops_used": 2,
+      "variations_tested": 4,
+      "ai_words_found": [],
+      "best_hook": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about locking tokens. It's about creating this self-reinforcing cycle where your vote actually matters. MarbMarket is bringing this to MegaETH with no presale. Just fair launch mechanics. You lock MARB, you get veMARB, you vote on where emissions go. Projects pay bribes for those votes. The incentives flow back to you. It's a beautiful loop.",
+      "is_repetition": false,
+      "content_preview": "I've been watching veDEX models for months. Most folks miss the real magic. It's not just about lock..."
+    }
+  ],
+  "last_analysis": "2026-04-15T17:05:18.965658+00:00",
+  "total_submissions": 258,
+  "score_stats": {
+    "min": 12.0,
+    "max": 23.0,
+    "avg": 16.94,
+    "median": 17.0
+  },
+  "category_averages": {
+    "originality": 1.31,
+    "alignment": 1.98,
+    "accuracy": 1.97,
+    "compliance": 1.92,
+    "engagement": 3.99,
+    "technical": 4.69,
+    "reply_quality": 1.09
+  },
+  "weak_categories": [
+    "reply_quality"
+  ],
+  "strong_categories": [
+    "alignment",
+    "accuracy",
+    "compliance",
+    "technical"
+  ],
+  "top_patterns": [
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include personal for higher originality",
+      "confidence": 1.0,
+      "frequency": 70
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include genuine for higher originality",
+      "confidence": 1.0,
+      "frequency": 43
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include unique for higher originality",
+      "confidence": 1.0,
+      "frequency": 56
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid template — drops originality",
+      "confidence": 1.0,
+      "frequency": 91
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid derivative — drops originality",
+      "confidence": 1.0,
+      "frequency": 52
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overlap — drops originality",
+      "confidence": 1.0,
+      "frequency": 57
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid promotional tone — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid generic — drops originality",
+      "confidence": 1.0,
+      "frequency": 34
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include fresh for higher originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overly promotional — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include creative for higher originality",
+      "confidence": 1.0,
+      "frequency": 3
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid marketing speak — drops originality",
+      "confidence": 1.0,
+      "frequency": 16
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include authentic for higher originality",
+      "confidence": 1.0,
+      "frequency": 19
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include original for higher originality",
+      "confidence": 1.0,
+      "frequency": 10
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid formulaic — drops originality",
+      "confidence": 1.0,
+      "frequency": 12
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include conversational for higher originality",
+      "confidence": 1.0,
+      "frequency": 5
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include distinctive for higher originality",
+      "confidence": 1.0,
+      "frequency": 8
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid similar to — drops originality",
+      "confidence": 1.0,
+      "frequency": 9
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include natural for higher originality",
+      "confidence": 1.0,
+      "frequency": 3
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid repetitive — drops originality",
+      "confidence": 0.8,
+      "frequency": 5
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid ai-generated — drops originality",
+      "confidence": 0.7,
+      "frequency": 4
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid cliched — drops originality",
+      "confidence": 0.5,
+      "frequency": 2
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid manufactured — drops originality",
+      "confidence": 0.5,
+      "frequency": 1
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include personal for higher originality",
+      "confidence": 1.0,
+      "frequency": 70
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include genuine for higher originality",
+      "confidence": 1.0,
+      "frequency": 43
+    },
+    {
+      "category": "originality",
+      "type": "positive",
+      "rule": "Include unique for higher originality",
+      "confidence": 1.0,
+      "frequency": 56
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid template — drops originality",
+      "confidence": 1.0,
+      "frequency": 91
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid derivative — drops originality",
+      "confidence": 1.0,
+      "frequency": 52
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid overlap — drops originality",
+      "confidence": 1.0,
+      "frequency": 57
+    },
+    {
+      "category": "originality",
+      "type": "negative",
+      "rule": "Avoid promotional tone — drops originality",
+      "confidence": 1.0,
+      "frequency": 17
+    }
+  ],
+  "what_works": [
+    "[originality] original (x10)",
+    "[originality] personal (x9)",
+    "[originality] conversational (x9)",
+    "[originality] unique (x8)",
+    "[originality] authentic (x8)",
+    "[originality] natural (x8)",
+    "[reply_quality] specific (x8)",
+    "[originality] distinctive (x8)",
+    "[originality] creative (x7)",
+    "[accuracy] accurately describes (x7)"
+  ],
+  "what_fails": [
+    "[compliance] hashtag (x10)",
+    "[technical] spelling (x10)",
+    "[accuracy] misleading (x7)",
+    "[engagement] no explicit (x6)",
+    "[compliance] missing (x4)",
+    "[originality] derivative (x4)",
+    "[originality] generic (x3)",
+    "[originality] overlap (x3)",
+    "[accuracy] unverifiable (x3)",
+    "[originality] template (x3)"
+  ],
+  "recommendations": [
+    "REPLY_QUALITY has the biggest gap (78.2% room for improvement). Current avg: 1.09/5. Focus on this category for maximum score gain.",
+    "ORIGINALITY has the biggest gap (34.5% room for improvement). Current avg: 1.31/2. Focus on this category for maximum score gain.",
+    "What works in top submissions: [originality] original (x10)",
+    "What fails in bottom submissions: [compliance] hashtag (x10)"
+  ],
+  "category_gaps": {
+    "originality": {
+      "avg": 1.31,
+      "max": 2,
+      "gap_pct": 34.5
+    },
+    "reply_quality": {
+      "avg": 1.09,
+      "max": 5,
+      "gap_pct": 78.2
+    }
+  }
+}

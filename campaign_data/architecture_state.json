@@ -1,0 +1,112 @@
+{
+  "version": "4.0",
+  "created": "2026-04-15T11:12:01.598Z",
+  "heals": [
+    {
+      "ts": "2026-04-15T11:12:01.598Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: @FragmentsOrg",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:12:01.599Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: link.fragments.org/rally",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:12:01.599Z",
+      "layer": "L2_CONFIG",
+      "action": "project_name_missing",
+      "detail": "Fragments",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:12:01.600Z",
+      "layer": "L3_CONTENT",
+      "action": "repetitive_hook",
+      "detail": "Hook similarity 100% with recent cycle",
+      "impact": "quality-analyzed"
+    },
+    {
+      "ts": "2026-04-15T11:12:01.601Z",
+      "layer": "L5_GROWTH",
+      "action": "persistent_ai_words",
+      "detail": "leverage(5x)",
+      "impact": "growth-tracked"
+    },
+    {
+      "ts": "2026-04-15T11:22:03.873Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: @RallyOnChain",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:22:03.874Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: x.com/Marb_market",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:22:03.874Z",
+      "layer": "L2_CONFIG",
+      "action": "project_name_missing",
+      "detail": "MarbMarket",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:25:00.568Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: @RallyOnChain",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:25:00.569Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: x.com/Marb_market",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:25:00.569Z",
+      "layer": "L2_CONFIG",
+      "action": "project_name_missing",
+      "detail": "MarbMarket",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:27:02.715Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: @RallyOnChain",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:27:02.715Z",
+      "layer": "L2_CONFIG",
+      "action": "compliance_missing",
+      "detail": "Content missing: x.com/Marb_market",
+      "impact": "config-flagged"
+    },
+    {
+      "ts": "2026-04-15T11:27:02.715Z",
+      "layer": "L2_CONFIG",
+      "action": "project_name_missing",
+      "detail": "MarbMarket",
+      "impact": "config-flagged"
+    }
+  ],
+  "stats": {
+    "total_heals": 14,
+    "by_layer": {
+      "L2_CONFIG": 12,
+      "L3_CONTENT": 1,
+      "L5_GROWTH": 1
+    }
+  }
+}

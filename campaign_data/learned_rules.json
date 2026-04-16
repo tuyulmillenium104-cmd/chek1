@@ -1,0 +1,123 @@
+{
+  "version": "v7.1",
+  "updated_at": "2026-04-15T17:21:49.448Z",
+  "from_submissions": 258,
+  "directives": [
+    "Use content angles that win: persona_driven, educational",
+    "Use these hook types: announcement, personal_story",
+    "Emphasize has referral in content",
+    "Emphasize has substantive replies in content",
+    "Avoid over-focusing on replies not generic — it correlates with lower scores",
+    "Emphasize is longform in content"
+  ],
+  "rules": [
+    {
+      "feature": "has_referral",
+      "action": "EMPHASIZE",
+      "strength": "STRONG"
+    },
+    {
+      "feature": "has_substantive_replies",
+      "action": "EMPHASIZE",
+      "strength": "STRONG"
+    },
+    {
+      "feature": "replies_not_generic",
+      "action": "MINIMIZE",
+      "strength": "STRONG"
+    },
+    {
+      "feature": "is_longform",
+      "action": "EMPHASIZE",
+      "strength": "STRONG"
+    },
+    {
+      "feature": "authentic_tone",
+      "action": "EMPHASIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "covers_fairness",
+      "action": "EMPHASIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "covers_urgency",
+      "action": "MINIMIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "no_hashtags",
+      "action": "MINIMIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "no_emdash",
+      "action": "MINIMIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "not_start_mention",
+      "action": "MINIMIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "fomo_element",
+      "action": "EMPHASIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "relatable",
+      "action": "EMPHASIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "challenges_status_quo",
+      "action": "EMPHASIZE",
+      "strength": "MODERATE"
+    },
+    {
+      "feature": "good_grammar",
+      "action": "MINIMIZE",
+      "strength": "MODERATE"
+    }
+  ],
+  "top_angles": [
+    [
+      "persona_driven",
+      17
+    ],
+    [
+      "educational",
+      3
+    ]
+  ],
+  "top_hooks": [
+    [
+      "announcement",
+      19
+    ],
+    [
+      "personal_story",
+      1
+    ]
+  ],
+  "avoid_patterns": [
+    "replies_not_generic",
+    "covers_urgency",
+    "no_hashtags",
+    "no_emdash",
+    "not_start_mention",
+    "good_grammar"
+  ],
+  "emphasize_patterns": [
+    "has_referral",
+    "has_substantive_replies",
+    "is_longform",
+    "authentic_tone",
+    "covers_fairness",
+    "fomo_element",
+    "relatable",
+    "challenges_status_quo"
+  ]
+}

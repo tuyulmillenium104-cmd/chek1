@@ -1,0 +1,65 @@
+{
+  "id": "campaign-1775770592743-2g5avks1j",
+  "intelligentContractAddress": "0x303227121a34d795De47137521C98f183C34A3C2",
+  "creatorAddress": "0x4aDfd543c112171dCAdAc79cAe086094dBeb4348",
+  "title": "New Features, Fairer Rewards",
+  "distributionContractChainId": 8453,
+  "startDate": "2026-04-08T22:00:00.000Z",
+  "endDate": "2026-05-06T22:00:00.000Z",
+  "periodLengthDays": 28,
+  "campaignDurationPeriods": 1,
+  "minimumFollowers": 0,
+  "maximumFollowers": 0,
+  "onlyVerifiedUsers": false,
+  "maxSubmissionsPerParticipant": 0,
+  "adminNotice": null,
+  "whitelistedSubmitters": [],
+  "token": {
+    "symbol": "USDC",
+    "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+    "usdPrice": 0.9998895325057756,
+    "chainId": 8453,
+    "chain": {
+      "platform": "evm"
+    }
+  },
+  "campaignRewards": [
+    {
+      "totalAmount": 2000,
+      "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "source": "on_chain",
+      "claimable": true,
+      "token": {
+        "symbol": "USDC",
+        "logoUri": "https://ethereum-optimism.github.io/data/USDC/logo.png"
+      }
+    }
+  ],
+  "participating": false,
+  "missionCount": 1,
+  "userMissionProgress": 0,
+  "displayCreator": {
+    "type": "organization",
+    "xUsername": "rallyonchain",
+    "displayName": "RallyOnChain",
+    "avatarUrl": "https://pbs.twimg.com/profile_images/2028486837594177536/zfkJHick_400x400.jpg",
+    "profileUrl": "https://x.com/rallyonchain",
+    "organization": {
+      "id": "567b2c41-9c0f-490e-8684-ae01c2ed1fb2",
+      "name": "Rally",
+      "slug": "rally",
+      "xUsername": "rallyonchain",
+      "xUsernameDisplay": "RallyOnChain",
+      "logoUrl": "https://pbs.twimg.com/profile_images/2028486837594177536/zfkJHick_400x400.jpg",
+      "description": null,
+      "websiteUrl": "https://rally.fun",
+      "waitlistReferralUrl": null,
+      "isActive": true,
+      "createdAt": "2025-09-17T12:14:56.080Z",
+      "updatedAt": "2026-03-09T14:33:52.271Z",
+      "defaultCampaignHeaderUrl": null
+    }
+  },
+  "headerImageUrl": null
+}
