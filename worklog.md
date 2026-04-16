@@ -98,3 +98,25 @@ Successfully set up the Rally Brain v7.0 dashboard by copying all source files f
 - **Database**: SQLite via Prisma ORM (3 models: User, Post, RallyJob)
 - **Background Jobs**: Custom in-memory job queue system
 - **Content Pipeline**: Multi-stage AI pipeline with scoring, competitive analysis, and calibration
+
+---
+Task ID: 2
+Agent: main
+Task: Build simplified Rally Brain v7 frontend dashboard
+
+Work Log:
+- Read all existing API routes (search, learn, generate, results, status, campaign detail)
+- Read background-job.ts for pipeline polling mechanism
+- Rewrote page.tsx from 1,181 lines → 709 lines (40% reduction)
+- Removed unused features: mission switching, competitive analysis, token pool status, download center
+- Consolidated polling logic into reusable pollJob() helper
+- Layout: left panel (campaign selector + learning insights) + right panel (controls + log + results)
+- Dark theme with orange/amber accents, terminal-style progress log
+- Mobile responsive (single column on mobile)
+- Features: Campaign search/select, Learn trigger + monitor, Generate trigger + monitor, Results viewer (Content/Q&A/History)
+
+Stage Summary:
+- Simplified dashboard deployed and running
+- Lint: zero errors
+- Dev server: Next.js 16.1.3 on port 3000, GET / returns 200 in 2.7s
+- No compile errors, no runtime errors
