@@ -213,3 +213,15 @@ Lalu AI akan:
 - Gunakan Bahasa Indonesia
 - Preview URL: https://preview-chat-094005ca-3599-4bf8-bf7f-9c14e570c15e.space.z.ai/
 - Jika user bilang "backup", jalankan: `cd /home/z/my-project && tar cf /home/sync/repo.tar --exclude='./.next' --exclude='./node_modules' .`
+
+---
+
+## V8 ARCHITECTURE UPDATE (16 April 2026)
+
+Branch: `v8-learn-judge` di GitHub.
+Baca `ARCHITECTURE.md` untuk dokumentasi lengkap.
+Token GitHub di `.github-config` (lokal, tidak di-track git). Push: `source .github-config && git push`
+
+3 komponen baru: Knowledge DB, Learn Engine v2, Judge Engine v2
+4 API routes baru: learn-v2, generate-v2, judge, knowledge
+Prinsip: LEARNER + GENERATOR + JUDGE menggunakan AI session BERBEDA
